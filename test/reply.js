@@ -293,7 +293,7 @@ describe('Reply', () => {
             const writableHandler = function (request, reply) {
 
                 const writable = new Stream.Writable();
-                writable._write = function () {};
+                writable._write = function () { };
 
                 reply(writable);
             };
@@ -623,6 +623,142 @@ describe('Reply', () => {
                     m2: null
                 });
                 expect(res.payload).to.equal('{"m1":null,"m2":null}');
+                done();
+            });
+        });
+    });
+
+    describe('entity()', () => {
+
+        it('returns a 304 when the request has if-modified-since', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            let count = 0;
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    if (reply.entity({ modified: 1200 })) {
+                        return;
+                    }
+
+                    ++count;
+                    return reply('ok');
+                }
+            });
+
+            server.inject('/', (res1) => {
+
+                expect(res1.statusCode).to.equal(200);
+                expect(res1.result).to.equal('ok');
+                expect(res1.headers['last-modified']).to.equal(1200);
+
+                server.inject({ url: '/', headers: { 'if-modified-since': '1200' } }, (res2) => {
+
+                    expect(res2.statusCode).to.equal(304);
+                    expect(res2.headers['last-modified']).to.equal(1200);
+                    expect(count).to.equal(1);
+                    done();
+                });
+            });
+        });
+
+        it('returns a 304 when the request has if-none-match', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            let count = 0;
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    cache: { expiresIn: 5000 },
+                    handler: function (request, reply) {
+
+                        const response = reply.entity({ etag: 'abc' });
+                        if (response) {
+                            response.header('X', 'y');
+                            return;
+                        }
+
+                        ++count;
+                        return reply('ok');
+                    }
+                }
+            });
+
+            server.inject('/', (res1) => {
+
+                expect(res1.statusCode).to.equal(200);
+                expect(res1.result).to.equal('ok');
+                expect(res1.headers.etag).to.equal('"abc"');
+                expect(res1.headers['cache-control']).to.equal('max-age=5, must-revalidate');
+
+                server.inject({ url: '/', headers: { 'if-none-match': 'abc' } }, (res2) => {
+
+                    expect(res2.statusCode).to.equal(304);
+                    expect(res2.headers.etag).to.equal('"abc"');
+                    expect(res2.headers['cache-control']).to.equal('max-age=5, must-revalidate');
+                    expect(count).to.equal(1);
+                    done();
+                });
+            });
+        });
+
+        it('leaves etag header when vary is false', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    if (!reply.entity({ etag: 'abc', vary: false })) {
+                        return reply('ok');
+                    }
+                }
+            });
+
+            server.inject('/', (res1) => {
+
+                expect(res1.statusCode).to.equal(200);
+                expect(res1.headers.etag).to.equal('"abc"');
+
+                server.inject({ url: '/', headers: { 'if-none-match': '"abc-gzip"', 'accept-encoding': 'gzip' } }, (res2) => {
+
+                    expect(res2.statusCode).to.equal(200);
+                    expect(res2.headers.etag).to.equal('"abc"');
+                    done();
+                });
+            });
+        });
+
+        it('uses last etag set', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    if (!reply.entity({ etag: 'abc' })) {
+                        return reply('ok').etag('def');
+                    }
+                }
+            });
+
+            server.inject('/', (res1) => {
+
+                expect(res1.statusCode).to.equal(200);
+                expect(res1.headers.etag).to.equal('"def"');
                 done();
             });
         });

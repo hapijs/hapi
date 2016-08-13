@@ -1,4 +1,4 @@
-# 14.1.x API Reference
+# 14.2.x API Reference
 
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
@@ -3434,6 +3434,45 @@ const onRequest = function (request, reply) {
 };
 
 server.ext('onRequest', onRequest);
+```
+
+### `reply.entity(options)`
+
+Sets the response 'ETag' and 'Last-Modified' headers and checks for any conditional request headers to
+decide if the response is going to qualify for an HTTP 304 (Not Modified). If the entity values match
+the request conditions, `reply.entity()` returns control back to the framework with a 304 response.
+Otherwise, it sets the provided entity headers and returns `null`, where:
+- `options` - a required configuration object with:
+	- `etag` - the ETag string. Required if `modified` is not present. Defaults to no header.
+	- `modified` - the Last-Modified header value. Required if `etag` is not present. Defaults to no header.
+	- `vary` - same as the `response.etag()` option. Defaults to `true`.
+
+Returns a response object if the reply is unmodified or `null` if the response has changed. If `null` is
+returned, the developer must call `reply()` to continue execution. If the response is not `null`, the developer
+must not call `reply()`.
+
+```js
+const Hapi = require('hapi');
+const server = new Hapi.Server();
+server.connection({ port: 80 });
+
+server.route({
+    method: 'GET',
+    path: '/',
+    config: {
+        cache: { expiresIn: 5000 },
+        handler: function (request, reply) {
+
+            const response = reply.entity({ etag: 'abc' });
+            if (response) {
+                response.header('X', 'y');
+                return;
+            }
+
+            return reply('ok');
+        }
+    }
+});
 ```
 
 ### `reply.close([options])`
