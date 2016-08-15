@@ -163,7 +163,7 @@ describe('Route', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'GET', path: '/', config: { handler: handler, app: { x: 'o' }, plugins: { x: { y: 'k' } } } });
+        server.route({ method: 'GET', path: '/', config: { handler, app: { x: 'o' }, plugins: { x: { y: 'k' } } } });
         server.inject('/', (res) => {
 
             expect(res.result).to.equal('ok');
@@ -213,7 +213,7 @@ describe('Route', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: '*', path: '/', handler: handler, config: { validate: { payload: { a: Joi.required() } } } });
+        server.route({ method: '*', path: '/', handler, config: { validate: { payload: { a: Joi.required() } } } });
         server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(200);
@@ -230,7 +230,7 @@ describe('Route', () => {
 
         const server = new Hapi.Server();
         server.connection({ routes: { validate: { payload: { a: Joi.required() } } } });
-        server.route({ method: 'GET', path: '/', handler: handler });
+        server.route({ method: 'GET', path: '/', handler });
         server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(200);
@@ -259,7 +259,7 @@ describe('Route', () => {
             return reply(this.key + (this === context));
         };
 
-        server.route({ method: 'GET', path: '/', handler: handler, config: { bind: context } });
+        server.route({ method: 'GET', path: '/', handler, config: { bind: context } });
         server.inject('/', (res) => {
 
             expect(res.result).to.equal('is true');
@@ -290,7 +290,7 @@ describe('Route', () => {
         };
 
         server.bind(context);
-        server.route({ method: 'GET', path: '/', handler: handler });
+        server.route({ method: 'GET', path: '/', handler });
         server.inject('/', (res) => {
 
             expect(res.result).to.equal('is true');
@@ -320,7 +320,7 @@ describe('Route', () => {
         };
 
         server.connection({ routes: { bind: context } });
-        server.route({ method: 'GET', path: '/', handler: handler });
+        server.route({ method: 'GET', path: '/', handler });
         server.inject('/', (res) => {
 
             expect(res.result).to.equal('is true');
@@ -350,7 +350,7 @@ describe('Route', () => {
 
         const server = new Hapi.Server({ connections: { routes: { bind: context } } });
         server.connection();
-        server.route({ method: 'GET', path: '/', handler: handler });
+        server.route({ method: 'GET', path: '/', handler });
         server.inject('/', (res) => {
 
             expect(res.result).to.equal('is true');
@@ -369,7 +369,7 @@ describe('Route', () => {
             return reply.file('./package.json');
         };
 
-        server.route({ method: 'GET', path: '/file', handler: handler, config: { files: { relativeTo: Path.join(__dirname, '../') } } });
+        server.route({ method: 'GET', path: '/file', handler, config: { files: { relativeTo: Path.join(__dirname, '../') } } });
 
         server.inject('/file', (res) => {
 

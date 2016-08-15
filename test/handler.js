@@ -40,7 +40,7 @@ describe('handler', () => {
                 a.b.c;
             };
 
-            server.route({ method: 'GET', path: '/domain', handler: handler });
+            server.route({ method: 'GET', path: '/domain', handler });
 
             server.inject('/domain', (res) => {
 
@@ -61,7 +61,7 @@ describe('handler', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
             server.on('request-error', (request, err) => {
 
                 expect(err.message).to.equal('Uncaught error: not is not defined');
@@ -122,7 +122,7 @@ describe('handler', () => {
                 return reply('ok');
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
 
@@ -144,7 +144,7 @@ describe('handler', () => {
                 return reply.file('./package.json').code(499);
             };
 
-            server.route({ method: 'GET', path: '/file', handler: handler });
+            server.route({ method: 'GET', path: '/file', handler });
 
             server.inject('/file', (res) => {
 
@@ -173,7 +173,7 @@ describe('handler', () => {
                 return reply.view('test', { message: 'steve' });
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
 
@@ -235,7 +235,7 @@ describe('handler', () => {
                         { method: pre2, assign: 'm2' },
                         { method: pre5, assign: 'm5' }
                     ],
-                    handler: handler
+                    handler
                 }
             });
 
@@ -268,7 +268,7 @@ describe('handler', () => {
                     pre: [
                         { method: pre, assign: 'p' }
                     ],
-                    handler: handler
+                    handler
                 }
             });
 
@@ -294,7 +294,7 @@ describe('handler', () => {
                 path: '/',
                 config: {
                     pre: [],
-                    handler: handler
+                    handler
                 }
             });
 
@@ -355,7 +355,7 @@ describe('handler', () => {
                         { method: pre2, assign: 'm2' },
                         { method: pre5, assign: 'm5' }
                     ],
-                    handler: handler
+                    handler
                 }
             });
 
@@ -393,7 +393,7 @@ describe('handler', () => {
                         [{ method: pre1, assign: 'm1' }],
                         { method: pre2, assign: 'm2' }
                     ],
-                    handler: handler
+                    handler
                 }
             });
 
@@ -425,7 +425,7 @@ describe('handler', () => {
                     pre: [
                         { method: pre, assign: 'p' }
                     ],
-                    handler: handler
+                    handler
                 }
             });
 
@@ -464,7 +464,7 @@ describe('handler', () => {
                         [{ method: pre1, assign: 'm1' }],
                         { method: pre2, assign: 'm2' }
                     ],
-                    handler: handler
+                    handler
                 }
             });
 
@@ -482,7 +482,7 @@ describe('handler', () => {
 
             const method = function (id, next) {
 
-                return next(null, { id: id, name: 'Bob' });
+                return next(null, { id, name: 'Bob' });
             };
 
             server.method('user', method);
@@ -515,7 +515,7 @@ describe('handler', () => {
 
             const method = function (id, next) {
 
-                return next(null, { id: id, name: 'Bob' });
+                return next(null, { id, name: 'Bob' });
             };
 
             server.method('user.get', method);
@@ -548,7 +548,7 @@ describe('handler', () => {
 
             const method = function (id, next) {
 
-                return next(null, { id: id, name: 'Bob' });
+                return next(null, { id, name: 'Bob' });
             };
 
             server.method('user', method);
@@ -584,7 +584,7 @@ describe('handler', () => {
 
             const user = function (id, next) {
 
-                return next(null, { id: id, name: 'Bob' });
+                return next(null, { id, name: 'Bob' });
             };
 
             server.method('user', user);
@@ -625,7 +625,7 @@ describe('handler', () => {
 
             const method = function (id, next) {
 
-                return next(null, { id: id, name: 'Bob' });
+                return next(null, { id, name: 'Bob' });
             };
 
             server.method('user', method);
@@ -658,7 +658,7 @@ describe('handler', () => {
 
             const method = function (id, next) {
 
-                return next(null, { id: id, name: 'Bob' });
+                return next(null, { id, name: 'Bob' });
             };
 
             server.method('user', method);
@@ -1013,7 +1013,7 @@ describe('handler', () => {
 
             const method = function (id, next) {
 
-                return next(null, { id: id, name: 'Bob' });
+                return next(null, { id, name: 'Bob' });
             };
 
             server.method('user', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
@@ -1054,7 +1054,7 @@ describe('handler', () => {
             let gen = 0;
             const method = function (id, next) {
 
-                return next(null, { id: id, name: 'Bob', gen: gen++ });
+                return next(null, { id, name: 'Bob', gen: gen++ });
             };
 
             server.method('user', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
@@ -1237,7 +1237,7 @@ describe('handler', () => {
                 return reply('neven gonna happen');
             };
 
-            server.route({ method: 'GET', path: '/domain', handler: handler });
+            server.route({ method: 'GET', path: '/domain', handler });
 
             server.inject('/domain', (res) => {
 

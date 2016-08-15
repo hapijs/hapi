@@ -104,7 +104,7 @@ describe('Plugin', () => {
                     return nxt(null, '123');
                 };
 
-                srv.method({ name: 'testMethod', method: method, options: { cache: { expiresIn: 1000, generateTimeout: 10 } } });
+                srv.method({ name: 'testMethod', method, options: { cache: { expiresIn: 1000, generateTimeout: 10 } } });
 
                 srv.methods.testMethod((err, result1) => {
 
@@ -2460,7 +2460,7 @@ describe('Plugin', () => {
 
                 server.route({
                     method: 'GET',
-                    path: path,
+                    path,
                     handler: function (request, reply) {
 
                         return reply('ok');
@@ -2489,7 +2489,7 @@ describe('Plugin', () => {
 
                 server.route({
                     method: 'GET',
-                    path: path,
+                    path,
                     handler: function (request, reply) {
 
                         return reply('ok');
@@ -2988,9 +2988,9 @@ describe('Plugin', () => {
                 return reply(request.app.deps);
             };
 
-            server.select('0').route({ method: 'GET', path: '/', handler: handler });
-            server.select('1').route({ method: 'GET', path: '/', handler: handler });
-            server.select('2').route({ method: 'GET', path: '/', handler: handler });
+            server.select('0').route({ method: 'GET', path: '/', handler });
+            server.select('1').route({ method: 'GET', path: '/', handler });
+            server.select('2').route({ method: 'GET', path: '/', handler });
 
             server.register([internals.plugins.deps1, internals.plugins.deps2, internals.plugins.deps3], (err) => {
 
@@ -3055,7 +3055,7 @@ describe('Plugin', () => {
             const server = new Hapi.Server();
             server.connection();
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.register([
                 pluginCurrier(1, { after: 'deps2' }),
@@ -3104,7 +3104,7 @@ describe('Plugin', () => {
                 return next();
             };
 
-            server.ext('onPreStart', preStart, { bind: bind });
+            server.ext('onPreStart', preStart, { bind });
 
             server.initialize((err) => {
 
@@ -4338,10 +4338,10 @@ internals.plugins = {
                     settings.validateFunc(username, password, (ignoreErr, isValid, credentials) => {
 
                         if (!isValid) {
-                            return reply(Boom.unauthorized('Bad username or password', 'Basic'), { credentials: credentials });
+                            return reply(Boom.unauthorized('Bad username or password', 'Basic'), { credentials });
                         }
 
-                        return reply.continue({ credentials: credentials });
+                        return reply.continue({ credentials });
                     });
                 }
             };
@@ -4442,7 +4442,7 @@ internals.plugins = {
             return reply('testing123' + ((server.settings.app && server.settings.app.my) || ''));
         };
 
-        server.select('test').route({ path: '/test1', method: 'GET', handler: handler });
+        server.select('test').route({ path: '/test1', method: 'GET', handler });
 
         server.expose({
             add: function (a, b) {

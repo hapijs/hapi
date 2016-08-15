@@ -179,7 +179,7 @@ describe('Methods', () => {
         const context = { name: 'Bob' };
         const method = function (id, next) {
 
-            return next(null, { id: id, name: this.name });
+            return next(null, { id, name: this.name });
         };
 
         server.method('user', method, { bind: context });
@@ -279,7 +279,7 @@ describe('Methods', () => {
         let gen = 0;
         const method = function (id, next) {
 
-            return next(null, { id: id, gen: gen++ });
+            return next(null, { id, gen: gen++ });
         };
 
         const server = new Hapi.Server();
@@ -310,7 +310,7 @@ describe('Methods', () => {
         let gen = 0;
         const method = function (id, next) {
 
-            return next(null, { id: id, gen: gen++ });
+            return next(null, { id, gen: gen++ });
         };
 
         const server = new Hapi.Server();
@@ -341,7 +341,7 @@ describe('Methods', () => {
         let gen = 0;
         const method = function (id) {
 
-            return { id: id, gen: gen++ };
+            return { id, gen: gen++ };
         };
 
         const server = new Hapi.Server();
@@ -378,7 +378,7 @@ describe('Methods', () => {
                     return reject(new Error('boom'));
                 }
 
-                return resolve({ id: id, gen: gen++ });
+                return resolve({ id, gen: gen++ });
             });
         };
 
@@ -416,7 +416,7 @@ describe('Methods', () => {
         let gen = 0;
         const method = function (id, next) {
 
-            return next(null, { id: id, gen: gen++ });
+            return next(null, { id, gen: gen++ });
         };
 
         const server = new Hapi.Server();
@@ -427,7 +427,7 @@ describe('Methods', () => {
             return '' + (id + 1);
         };
 
-        server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 }, generateKey: generateKey });
+        server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 }, generateKey });
 
         server.initialize((err) => {
 
@@ -452,7 +452,7 @@ describe('Methods', () => {
 
         const method = function (id, next) {
 
-            return next(null, { id: id });
+            return next(null, { id });
         };
 
         const server = new Hapi.Server();
@@ -463,7 +463,7 @@ describe('Methods', () => {
             return null;
         };
 
-        server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 }, generateKey: generateKey });
+        server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 }, generateKey });
 
         server.initialize((err) => {
 
@@ -482,7 +482,7 @@ describe('Methods', () => {
 
         const method = function (id, next) {
 
-            return next(null, { id: id });
+            return next(null, { id });
         };
 
         const server = new Hapi.Server();
@@ -493,7 +493,7 @@ describe('Methods', () => {
             return 123;
         };
 
-        server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 }, generateKey: generateKey });
+        server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 }, generateKey });
 
         server.initialize((err) => {
 
@@ -513,7 +513,7 @@ describe('Methods', () => {
         let gen = 0;
         const method = function (id, next) {
 
-            return next(null, { id: id, gen: gen++ }, 0);
+            return next(null, { id, gen: gen++ }, 0);
         };
 
         const server = new Hapi.Server();
@@ -544,7 +544,7 @@ describe('Methods', () => {
         let gen = 0;
         const method = function (id, next) {
 
-            return next(null, { id: id, gen: gen++ });
+            return next(null, { id, gen: gen++ });
         };
 
         const server = new Hapi.Server();
@@ -579,7 +579,7 @@ describe('Methods', () => {
         let gen = 0;
         const method = function (id, next) {
 
-            return next(null, { id: id, gen: gen++ });
+            return next(null, { id, gen: gen++ });
         };
 
         const server = new Hapi.Server();
@@ -603,7 +603,7 @@ describe('Methods', () => {
 
         const method = function (id, next) {
 
-            return next(null, { id: id });
+            return next(null, { id });
         };
 
         const server = new Hapi.Server();
@@ -732,7 +732,7 @@ describe('Methods', () => {
 
         const method = function (id, next) {
 
-            return next(null, { id: id });
+            return next(null, { id });
         };
 
         server.method('user', method);
@@ -754,7 +754,7 @@ describe('Methods', () => {
 
             const method = function (id, str, next) {
 
-                return next(null, { id: id, str: str });
+                return next(null, { id, str });
             };
 
             server.method('user', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
@@ -792,7 +792,7 @@ describe('Methods', () => {
         let gen = 0;
         const method = function (id, next) {
 
-            return next(null, { id: id, gen: ++gen });
+            return next(null, { id, gen: ++gen });
         };
 
         server.method('user', method);
@@ -819,7 +819,7 @@ describe('Methods', () => {
         let gen = 0;
         const method = function (id, next) {
 
-            return next(null, { id: id, gen: ++gen });
+            return next(null, { id, gen: ++gen });
         };
 
         server.method('user', method, { cache: { expiresIn: 2000, generateTimeout: 10 } });
@@ -855,7 +855,7 @@ describe('Methods', () => {
 
             setTimeout(() => {
 
-                return next(null, { id: id, gen: ++gen });
+                return next(null, { id, gen: ++gen });
             }, 5);
         };
 
@@ -893,7 +893,7 @@ describe('Methods', () => {
         const terms = 'I agree to give my house';
         const method = function (next) {
 
-            return next(null, { gen: gen++, terms: terms });
+            return next(null, { gen: gen++, terms });
         };
 
         server.method('tos', method, { cache: { expiresIn: 2000, generateTimeout: 10 } });
@@ -925,7 +925,7 @@ describe('Methods', () => {
         let gen = 0;
         const method = function (id, next) {
 
-            return next(null, { id: id, gen: ++gen });
+            return next(null, { id, gen: ++gen });
         };
 
         server.method('user', method, { cache: { expiresIn: 2000, generateTimeout: 10 } });
@@ -958,10 +958,10 @@ describe('Methods', () => {
 
         const method = function (id, next) {
 
-            return next(null, { id: id });
+            return next(null, { id });
         };
 
-        server.method([{ name: 'user', method: method, options: { cache: { expiresIn: 2000, generateTimeout: 10 } } }]);
+        server.method([{ name: 'user', method, options: { cache: { expiresIn: 2000, generateTimeout: 10 } } }]);
 
         server.initialize((err) => {
 
@@ -988,7 +988,7 @@ describe('Methods', () => {
 
         const method = function (id, next) {
 
-            return next(null, { id: id, gen: this.gen++ });
+            return next(null, { id, gen: this.gen++ });
         };
 
         const server = new Hapi.Server();
@@ -1018,7 +1018,7 @@ describe('Methods', () => {
 
         const method = function (id, next) {
 
-            return next(null, { id: id, gen: this.gen++ });
+            return next(null, { id, gen: this.gen++ });
         };
 
         const server = new Hapi.Server();
@@ -1049,12 +1049,12 @@ describe('Methods', () => {
         const bind = { gen: 7 };
         const method = function (id, next) {
 
-            return next(null, { id: id, gen: this.gen++, bound: (this === bind) });
+            return next(null, { id, gen: this.gen++, bound: (this === bind) });
         };
 
         const server = new Hapi.Server();
         server.connection();
-        server.method('test', method, { bind: bind, cache: { expiresIn: 1000, generateTimeout: 10 } });
+        server.method('test', method, { bind, cache: { expiresIn: 1000, generateTimeout: 10 } });
 
         server.initialize((err) => {
 

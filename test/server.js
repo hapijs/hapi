@@ -219,8 +219,8 @@ describe('Server', () => {
                 expect(err).to.not.exist();
                 const port = server.info.port;
 
-                server.connection({ port: port });
-                server.connection({ port: port });
+                server.connection({ port });
+                server.connection({ port });
                 server.stop((err) => {
 
                     expect(err).to.not.exist();
@@ -266,7 +266,7 @@ describe('Server', () => {
                 }
             };
 
-            const server = new Hapi.Server({ cache: cache });
+            const server = new Hapi.Server({ cache });
             server.connection();
             server.start((err) => {
 
@@ -551,7 +551,7 @@ describe('Server', () => {
                 return reply('ok');
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
             server.start((err) => {
 
                 expect(err).to.not.exist();

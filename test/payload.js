@@ -42,9 +42,9 @@ describe('payload', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'POST', path: '/', config: { handler: handler } });
+        server.route({ method: 'POST', path: '/', config: { handler } });
 
-        server.inject({ method: 'POST', url: '/', payload: payload }, (res) => {
+        server.inject({ method: 'POST', url: '/', payload }, (res) => {
 
             expect(res.result).to.exist();
             expect(res.result.x).to.equal('1');
@@ -61,7 +61,7 @@ describe('payload', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'POST', path: '/', config: { handler: handler } });
+        server.route({ method: 'POST', path: '/', config: { handler } });
 
         server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { error: true, end: false } }, (res) => {
 
@@ -80,7 +80,7 @@ describe('payload', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'POST', path: '/', config: { handler: handler } });
+        server.route({ method: 'POST', path: '/', config: { handler } });
 
         server.once('response', (request) => {
 
@@ -100,7 +100,7 @@ describe('payload', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
+        server.route({ method: 'POST', path: '/', config: { handler, payload: { parse: false } } });
 
         let message = null;
         server.on('log', (event, tags) => {
@@ -152,9 +152,9 @@ describe('payload', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { maxBytes: 10 } } });
+        server.route({ method: 'POST', path: '/', config: { handler, payload: { maxBytes: 10 } } });
 
-        server.inject({ method: 'POST', url: '/', payload: payload, headers: { 'content-length': payload.length } }, (res) => {
+        server.inject({ method: 'POST', url: '/', payload, headers: { 'content-length': payload.length } }, (res) => {
 
             expect(res.statusCode).to.equal(400);
             expect(res.result).to.exist();
@@ -174,7 +174,7 @@ describe('payload', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { maxBytes: 1024 * 1024 } } });
+        server.route({ method: 'POST', path: '/', config: { handler, payload: { maxBytes: 1024 * 1024 } } });
 
         server.start((err) => {
 
@@ -182,7 +182,7 @@ describe('payload', () => {
 
             const uri = 'http://localhost:' + server.info.port;
 
-            Wreck.post(uri, { payload: payload }, (err, res, body) => {
+            Wreck.post(uri, { payload }, (err, res, body) => {
 
                 expect(err).to.not.exist();
                 expect(res.statusCode).to.equal(400);
@@ -220,10 +220,10 @@ describe('payload', () => {
         const server = new Hapi.Server();
         server.connection();
         server.ext('onRequest', ext);
-        server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { parse: false } } });
+        server.route({ method: 'POST', path: '/', config: { handler, payload: { parse: false } } });
 
         const payload = '0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789';
-        server.inject({ method: 'POST', url: '/', payload: payload }, (res) => {
+        server.inject({ method: 'POST', url: '/', payload }, (res) => {
 
             expect(res.result).to.equal(payload);
             done();
@@ -240,7 +240,7 @@ describe('payload', () => {
         const message = { 'msg': 'This message is going to be gzipped.' };
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'POST', path: '/', handler: handler });
+        server.route({ method: 'POST', path: '/', handler });
 
         Zlib.gzip(JSON.stringify(message), (err, buf) => {
 
@@ -285,7 +285,7 @@ describe('payload', () => {
             expect(err).to.not.exist();
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file' } } });
+            server.route({ method: 'POST', path: '/file', config: { handler, payload: { output: 'file' } } });
             server.inject({ method: 'POST', url: '/file', payload: compressed, headers: { 'content-encoding': 'gzip' } }, (res) => {
 
                 expect(res.result).to.equal(stats.size);
@@ -300,7 +300,7 @@ describe('payload', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'POST', path: '/file', config: { handler: handler, payload: { output: 'file', parse: false, uploads: '/a/b/c/d/not' } } });
+        server.route({ method: 'POST', path: '/file', config: { handler, payload: { output: 'file', parse: false, uploads: '/a/b/c/d/not' } } });
         server.inject({ method: 'POST', url: '/file', payload: 'abcde' }, (res) => {
 
             expect(res.statusCode).to.equal(500);
@@ -317,7 +317,7 @@ describe('payload', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: '*', path: '/any', handler: handler });
+        server.route({ method: '*', path: '/any', handler });
 
         server.inject({ url: '/any', method: 'POST', payload: { key: '09876' } }, (res) => {
 
@@ -336,7 +336,7 @@ describe('payload', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'POST', path: '/', config: { handler: handler } });
+        server.route({ method: 'POST', path: '/', config: { handler } });
 
         server.start((err) => {
 
@@ -372,7 +372,7 @@ describe('payload', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'POST', path: '/', config: { handler: handler, payload: { failAction: 'ignore' } } });
+        server.route({ method: 'POST', path: '/', config: { handler, payload: { failAction: 'ignore' } } });
 
         server.inject({ method: 'POST', url: '/', payload: 'testing123', headers: { 'content-type': 'application/unknown' } }, (res) => {
 
@@ -391,7 +391,7 @@ describe('payload', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'POST', path: '/', handler: handler });
+        server.route({ method: 'POST', path: '/', handler });
 
         server.inject({ method: 'POST', url: '/', payload: 'testing123', headers: { 'content-type': 'application/octet-stream' } }, (res) => {
 
@@ -429,7 +429,7 @@ describe('payload', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'POST', path: '/override', config: { handler: handler, payload: { override: 'application/json' } } });
+        server.route({ method: 'POST', path: '/override', config: { handler, payload: { override: 'application/json' } } });
 
         server.inject({ method: 'POST', url: '/override', payload: '{"key":"cool"}', headers: { 'content-type': 'text/plain' } }, (res) => {
 
@@ -558,7 +558,7 @@ describe('payload', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'POST', path: '/echo', config: { handler: handler } });
+        server.route({ method: 'POST', path: '/echo', config: { handler } });
 
         server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } }, (res) => {
 
@@ -580,7 +580,7 @@ describe('payload', () => {
 
         const server = new Hapi.Server();
         server.connection({ routes: { payload: { timeout: 50 } } });
-        server.route({ method: 'POST', path: '/fast', config: { handler: handler } });
+        server.route({ method: 'POST', path: '/fast', config: { handler } });
         server.start((err) => {
 
             expect(err).to.not.exist();
@@ -619,7 +619,7 @@ describe('payload', () => {
 
         const server = new Hapi.Server();
         server.connection({ routes: { payload: { timeout: false } } });
-        server.route({ method: 'POST', path: '/fast', config: { payload: { timeout: 50 }, handler: handler } });
+        server.route({ method: 'POST', path: '/fast', config: { payload: { timeout: 50 }, handler } });
         server.start((err) => {
 
             expect(err).to.not.exist();
@@ -658,7 +658,7 @@ describe('payload', () => {
 
         const server = new Hapi.Server();
         server.connection({ routes: { payload: { timeout: 50 } } });
-        server.route({ method: 'POST', path: '/fast', config: { handler: handler } });
+        server.route({ method: 'POST', path: '/fast', config: { handler } });
         server.start((err) => {
 
             expect(err).to.not.exist();
@@ -717,7 +717,7 @@ describe('payload', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'POST', path: '/echo', config: { handler: handler, payload: { output: 'data', parse: true, maxBytes: 5 } } });
+        server.route({ method: 'POST', path: '/echo', config: { handler, payload: { output: 'data', parse: true, maxBytes: 5 } } });
 
         server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, simulate: { split: true }, headers: { 'content-length': null, 'content-type': 'multipart/form-data; boundary=AaB03x' } }, (res) => {
 

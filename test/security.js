@@ -56,7 +56,7 @@ describe('security', () => {
         const server = new Hapi.Server();
         server.connection();
         server.state('encoded', { encoding: 'iron' });
-        server.route({ method: 'POST', path: '/', handler: handler });
+        server.route({ method: 'POST', path: '/', handler });
 
         server.inject({
             method: 'POST',
@@ -81,7 +81,7 @@ describe('security', () => {
         const server = new Hapi.Server();
         server.connection();
         server.state('encoded', { encoding: 'iron' });
-        server.route({ method: 'POST', path: '/', handler: handler });
+        server.route({ method: 'POST', path: '/', handler });
 
         server.inject({
             method: 'POST',
@@ -106,7 +106,7 @@ describe('security', () => {
         const server = new Hapi.Server();
         server.connection();
         server.state('encoded', { encoding: 'iron' });
-        server.route({ method: 'POST', path: '/', handler: handler });
+        server.route({ method: 'POST', path: '/', handler });
 
         server.inject({
             method: 'POST',

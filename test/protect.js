@@ -38,7 +38,7 @@ describe('Protect', () => {
             });
         };
 
-        server.route({ method: 'GET', path: '/', handler: handler });
+        server.route({ method: 'GET', path: '/', handler });
         const domain = Domain.createDomain();
         domain.once('error', (err) => {
 
@@ -66,7 +66,7 @@ describe('Protect', () => {
             });
         };
 
-        server.route({ method: 'GET', path: '/', handler: handler });
+        server.route({ method: 'GET', path: '/', handler });
         server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(200);
@@ -94,7 +94,7 @@ describe('Protect', () => {
             });
         };
 
-        server.route({ method: 'GET', path: '/', handler: handler });
+        server.route({ method: 'GET', path: '/', handler });
         server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(200);
@@ -116,7 +116,7 @@ describe('Protect', () => {
             const preStart = function (plugin, afterNext) {
 
                 const client = new Client();                      // Created in the global domain
-                plugin.bind({ client: client });
+                plugin.bind({ client });
                 afterNext();
             };
 
@@ -180,7 +180,7 @@ describe('Protect', () => {
             done();
         });
 
-        server.route({ method: 'GET', path: '/', handler: handler });
+        server.route({ method: 'GET', path: '/', handler });
         server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(200);
