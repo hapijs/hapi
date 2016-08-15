@@ -595,7 +595,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/',
-            handler: handler,
+            handler,
             config: {
                 validate: {
                     query: {
@@ -923,7 +923,7 @@ describe('validation', () => {
                     }
                 }
             },
-            handler: handler
+            handler
         });
 
         server.inject('/', (res1) => {
@@ -959,7 +959,7 @@ describe('validation', () => {
                     }).when('$query.user', { is: 'admin', otherwise: Joi.object({ more: Joi.forbidden() }) })
                 }
             },
-            handler: handler
+            handler
         });
 
         server.inject('/?user=admin', (res1) => {
@@ -1002,7 +1002,7 @@ describe('validation', () => {
                     }
                 }
             },
-            handler: handler
+            handler
         });
 
         server.inject('/', (res1) => {
@@ -1049,7 +1049,7 @@ describe('validation', () => {
                     }
                 }
             },
-            handler: handler
+            handler
         });
 
         server.inject('/', (res1) => {
@@ -1087,7 +1087,7 @@ describe('validation', () => {
                     modify: true
                 }
             },
-            handler: handler
+            handler
         });
 
         server.inject('/', (res) => {
@@ -1125,7 +1125,7 @@ describe('validation', () => {
                     modify: true
                 }
             },
-            handler: handler
+            handler
         });
 
         server.inject('/', (res) => {
@@ -1186,7 +1186,7 @@ describe('validation', () => {
                         sample: 90
                     }
                 },
-                handler: handler
+                handler
             });
         }).to.throw(/"modify" conflict with forbidden peer "sample"/);
         done();
@@ -1213,7 +1213,7 @@ describe('validation', () => {
                     }
                 }
             },
-            handler: handler
+            handler
         });
 
         server.inject('/', (res1) => {
@@ -1250,7 +1250,7 @@ describe('validation', () => {
                     }
                 }
             },
-            handler: handler
+            handler
         });
 
         server.inject('/', (res) => {
@@ -1539,7 +1539,7 @@ describe('validation', () => {
                     schema: Joi.string().min(5)
                 }
             },
-            handler: handler
+            handler
         });
 
         server.inject('/', (res1) => {
@@ -1575,7 +1575,7 @@ describe('validation', () => {
                     modify: true
                 }
             },
-            handler: handler
+            handler
         });
 
         server.inject('/', (res1) => {

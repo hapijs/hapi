@@ -399,7 +399,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: handler } });
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
             server.inject('/?callback=me', (res) => {
 
@@ -2375,7 +2375,7 @@ describe('transmission', () => {
                 return reply('ok').header('x', '1').header('', 'test');
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
             server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(500);
@@ -2407,7 +2407,7 @@ describe('transmission', () => {
                 return reply('ok').code(1);
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
             server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(500);
@@ -2756,7 +2756,7 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { security: true } });
-            server.route({ method: 'GET', path: '/', handler, config: config });
+            server.route({ method: 'GET', path: '/', handler, config });
 
             server.inject({ url: '/' }, (res) => {
 

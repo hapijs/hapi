@@ -31,7 +31,7 @@ describe('state', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'GET', path: '/', handler: handler });
+        server.route({ method: 'GET', path: '/', handler });
         server.inject({ method: 'GET', url: '/', headers: { cookie: 'v=a' } }, (res) => {
 
             expect(res.statusCode).to.equal(200);
@@ -49,7 +49,7 @@ describe('state', () => {
 
         const server = new Hapi.Server();
         server.connection({ routes: { state: { parse: false } } });
-        server.route({ method: 'GET', path: '/', handler: handler });
+        server.route({ method: 'GET', path: '/', handler });
         server.inject({ method: 'GET', url: '/', headers: { cookie: 'v=a' } }, (res) => {
 
             expect(res.statusCode).to.equal(200);
@@ -68,7 +68,7 @@ describe('state', () => {
         const server = new Hapi.Server();
         server.connection();
         server.state('vab', { encoding: 'base64json', clearInvalid: true });
-        server.route({ method: 'GET', path: '/', handler: handler });
+        server.route({ method: 'GET', path: '/', handler });
         server.inject({ method: 'GET', url: '/', headers: { cookie: 'vab' } }, (res) => {
 
             expect(res.statusCode).to.equal(400);
@@ -88,7 +88,7 @@ describe('state', () => {
         const server = new Hapi.Server();
         server.connection();
         server.state('a', { ignoreErrors: true, encoding: 'base64json' });
-        server.route({ path: '/', method: 'GET', handler: handler });
+        server.route({ path: '/', method: 'GET', handler });
         server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x' } }, (res) => {
 
             expect(res.statusCode).to.equal(200);
@@ -107,7 +107,7 @@ describe('state', () => {
 
         const server = new Hapi.Server();
         server.connection({ routes: { state: { failAction: 'ignore' } } });
-        server.route({ path: '/', method: 'GET', handler: handler });
+        server.route({ path: '/', method: 'GET', handler });
         server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x;;' } }, (res) => {
 
             expect(res.statusCode).to.equal(200);
@@ -127,7 +127,7 @@ describe('state', () => {
         const server = new Hapi.Server();
         server.connection();
         server.state('a', { strictHeader: false });
-        server.route({ path: '/', method: 'GET', handler: handler });
+        server.route({ path: '/', method: 'GET', handler });
         server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x y;' } }, (res) => {
 
             expect(res.statusCode).to.equal(200);
@@ -147,7 +147,7 @@ describe('state', () => {
         const server = new Hapi.Server();
         server.connection({ routes: { state: { failAction: 'log' } } });
         server.state('a', { encoding: 'base64json', clearInvalid: true });
-        server.route({ path: '/', method: 'GET', handler: handler });
+        server.route({ path: '/', method: 'GET', handler });
         server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x' } }, (res) => {
 
             expect(res.statusCode).to.equal(200);
@@ -166,7 +166,7 @@ describe('state', () => {
         const server = new Hapi.Server();
         server.connection();
         server.state('a', { ignoreErrors: true, encoding: 'base64json', clearInvalid: true });
-        server.route({ path: '/', method: 'GET', handler: handler });
+        server.route({ path: '/', method: 'GET', handler });
         server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x' } }, (res) => {
 
             expect(res.statusCode).to.equal(200);
@@ -184,7 +184,7 @@ describe('state', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'GET', path: '/', handler: handler });
+        server.route({ method: 'GET', path: '/', handler });
         server.state('always', { autoValue: 'present' });
 
         server.inject('/', (res) => {
@@ -204,7 +204,7 @@ describe('state', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'GET', path: '/', handler: handler });
+        server.route({ method: 'GET', path: '/', handler });
         server.state('always', { autoValue: 'present' });
 
         server.inject('/', (res) => {
@@ -229,7 +229,7 @@ describe('state', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'GET', path: '/{x}', handler: handler });
+        server.route({ method: 'GET', path: '/{x}', handler });
         server.state('always', { autoValue: present });
 
         server.inject('/sweet', (res) => {
@@ -254,7 +254,7 @@ describe('state', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'GET', path: '/', handler: handler });
+        server.route({ method: 'GET', path: '/', handler });
         server.state('always', { autoValue: present });
 
         server.inject('/', (res) => {
@@ -275,7 +275,7 @@ describe('state', () => {
         const server = new Hapi.Server();
         server.connection();
         server.state('a', { ttl: null });
-        server.route({ method: 'GET', path: '/', handler: handler });
+        server.route({ method: 'GET', path: '/', handler });
 
         server.inject('/', (res) => {
 

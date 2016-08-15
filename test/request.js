@@ -99,7 +99,7 @@ describe('Request', () => {
             return reply('ok');
         };
 
-        server.route({ method: 'GET', path: '/', handler: handler });
+        server.route({ method: 'GET', path: '/', handler });
 
         server.start((err) => {
 
@@ -125,7 +125,7 @@ describe('Request', () => {
             return reply('ok');
         };
 
-        server.route({ method: 'GET', path: '/', handler: handler });
+        server.route({ method: 'GET', path: '/', handler });
 
         server.inject({ url: '/', headers: { referrer: 'http://site.com' } }, (res) => {
 
@@ -145,7 +145,7 @@ describe('Request', () => {
             return reply('ok');
         };
 
-        server.route({ method: 'GET', path: '/', handler: handler });
+        server.route({ method: 'GET', path: '/', handler });
 
         server.inject({ url: '/', headers: { referer: 'http://site.com' } }, (res) => {
 
@@ -163,7 +163,7 @@ describe('Request', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'GET', path: '/', handler: handler });
+        server.route({ method: 'GET', path: '/', handler });
 
         server.inject('/', (res) => {
 
@@ -182,7 +182,7 @@ describe('Request', () => {
         const server = new Hapi.Server();
         server.connection();
         server.connections[0]._requestCounter = { value: 10, min: 10, max: 11 };
-        server.route({ method: 'GET', path: '/', handler: handler });
+        server.route({ method: 'GET', path: '/', handler });
         server.inject('/', (res1) => {
 
             server.inject('/', (res2) => {
@@ -227,7 +227,7 @@ describe('Request', () => {
             };
 
             server.ext('onPostHandler', ext);
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
 
@@ -264,7 +264,7 @@ describe('Request', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             let disconnected = 0;
             const onRequest = function (request, reply) {
@@ -324,7 +324,7 @@ describe('Request', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
 
@@ -371,7 +371,7 @@ describe('Request', () => {
                 }, 10);
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.start((err) => {
 
@@ -440,7 +440,7 @@ describe('Request', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             const preResponse = function (request, reply) {
 
@@ -556,7 +556,7 @@ describe('Request', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+            server.route({ method: 'GET', path: '/', config: { handler } });
 
             server.once('response', (request) => {
 
@@ -594,7 +594,7 @@ describe('Request', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: handler
+                handler
             });
 
             server.inject('/', (res) => {
@@ -618,7 +618,7 @@ describe('Request', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: handler
+                handler
             });
 
             server.inject('/', (res) => {
@@ -655,7 +655,7 @@ describe('Request', () => {
                 return reply(new Error('boom1'));
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
 
@@ -692,7 +692,7 @@ describe('Request', () => {
                 throw new Error('boom');
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.once('response', () => {
 
@@ -732,7 +732,7 @@ describe('Request', () => {
                 return reply(new Error('boom1'));
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
 
@@ -766,7 +766,7 @@ describe('Request', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             let result = null;
 
@@ -793,7 +793,7 @@ describe('Request', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.once('tail', () => {
 
@@ -972,7 +972,7 @@ describe('Request', () => {
 
             const server = new Hapi.Server();
             server.connection({ router: { stripTrailingSlash: true } });
-            server.route({ method: 'GET', path: '/test', handler: handler });
+            server.route({ method: 'GET', path: '/test', handler });
             server.inject('/test/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
@@ -989,7 +989,7 @@ describe('Request', () => {
 
             const server = new Hapi.Server();
             server.connection({ router: { stripTrailingSlash: true } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
             server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
@@ -1006,7 +1006,7 @@ describe('Request', () => {
 
             const server = new Hapi.Server();
             server.connection({ router: { stripTrailingSlash: true } });
-            server.route({ method: 'GET', path: '/test', handler: handler });
+            server.route({ method: 'GET', path: '/test', handler });
             server.inject('/test/?a=b', (res) => {
 
                 expect(res.statusCode).to.equal(200);
@@ -1027,7 +1027,7 @@ describe('Request', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             const orig = console.error;
             console.error = function () {
@@ -1064,7 +1064,7 @@ describe('Request', () => {
                 request.log(['test'], 'data');
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
 
@@ -1083,7 +1083,7 @@ describe('Request', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             const orig = console.error;
             console.error = function () {
@@ -1111,7 +1111,7 @@ describe('Request', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             const orig = console.error;
             console.error = function () {
@@ -1142,7 +1142,7 @@ describe('Request', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             const orig = console.error;
             console.error = function () {
@@ -1177,7 +1177,7 @@ describe('Request', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
 
@@ -1204,7 +1204,7 @@ describe('Request', () => {
                 return reply();
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
 
@@ -1233,7 +1233,7 @@ describe('Request', () => {
                 return reply();
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
 
@@ -1262,7 +1262,7 @@ describe('Request', () => {
                 return reply();
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
 
@@ -1304,7 +1304,7 @@ describe('Request', () => {
 
             const server = new Hapi.Server();
             server.connection();
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
 
@@ -1339,7 +1339,7 @@ describe('Request', () => {
                 return reply(stream);
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
 
@@ -1371,7 +1371,7 @@ describe('Request', () => {
                 return reply(stream);
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
 
@@ -1413,7 +1413,7 @@ describe('Request', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { timeout: { server: 10 } } });
-            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+            server.route({ method: 'GET', path: '/', config: { handler } });
 
             const postHandler = function (request, reply) {
 
@@ -1460,7 +1460,7 @@ describe('Request', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { timeout: { server: 10 } } });
-            server.route({ method: 'GET', path: '/', config: { handler: handler } });
+            server.route({ method: 'GET', path: '/', config: { handler } });
             const preResponse = function (request, reply) {
 
                 return reply.continue();
@@ -1533,7 +1533,7 @@ describe('Request', () => {
 
             const server = new Hapi.Server();
             server.connection({ routes: { timeout: { server: 100 } } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
             server.start((err) => {
 
                 expect(err).to.not.exist();

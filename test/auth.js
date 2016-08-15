@@ -38,7 +38,7 @@ describe('authentication', () => {
         server.connection();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
-        server.route({ method: 'GET', path: '/', handler: handler });
+        server.route({ method: 'GET', path: '/', handler });
 
         server.inject('/', (res1) => {
 
@@ -63,7 +63,7 @@ describe('authentication', () => {
         server.connection();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
-        server.route({ method: 'POST', path: '/', config: { auth: false, handler: handler } });
+        server.route({ method: 'POST', path: '/', config: { auth: false, handler } });
 
         server.inject({ url: '/', method: 'POST' }, (res1) => {
 
@@ -88,7 +88,7 @@ describe('authentication', () => {
         server.connection();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
-        server.route({ method: 'GET', path: '/', handler: handler });
+        server.route({ method: 'GET', path: '/', handler });
 
         server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
 
@@ -111,7 +111,7 @@ describe('authentication', () => {
             server.connection();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true);
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
 
@@ -164,7 +164,7 @@ describe('authentication', () => {
                     return reply.view('test', { message: 'steve' });
                 };
 
-                server.route({ method: 'GET', path: '/view', handler: handler, config: { auth: false } });
+                server.route({ method: 'GET', path: '/view', handler, config: { auth: false } });
 
                 return {
                     authenticate: function (request, reply) {
@@ -251,7 +251,7 @@ describe('authentication', () => {
                 return reply(request.auth.credentials.user);
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res1) => {
 
@@ -277,7 +277,7 @@ describe('authentication', () => {
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', { users: { steve: {} } });
             server.auth.default({ strategy: 'default' });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res1) => {
 
@@ -388,7 +388,7 @@ describe('authentication', () => {
             server.connection();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
 
@@ -416,7 +416,7 @@ describe('authentication', () => {
 
                 return reply(!!request.auth.credentials);
             };
-            server.route({ method: 'GET', path: '/', config: { handler: handler, auth: { mode: 'optional' } } });
+            server.route({ method: 'GET', path: '/', config: { handler, auth: { mode: 'optional' } } });
 
             server.inject('/', (res1) => {
 
@@ -506,7 +506,7 @@ describe('authentication', () => {
             };
 
             server.route({ method: 'GET', path: '/1', handler: doubleHandler });
-            server.route({ method: 'GET', path: '/2', handler: handler });
+            server.route({ method: 'GET', path: '/2', handler });
 
             server.inject({ url: '/1', headers: { authorization: 'Custom steve' } }, (res) => {
 
@@ -538,7 +538,7 @@ describe('authentication', () => {
             };
 
             server.route({ method: 'GET', path: '/1', handler: doubleHandler });
-            server.route({ method: 'GET', path: '/2', handler: handler });
+            server.route({ method: 'GET', path: '/2', handler });
 
             server.inject({ url: '/1', headers: { authorization: 'Custom steve' } }, (res) => {
 
@@ -563,7 +563,7 @@ describe('authentication', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: handler,
+                    handler,
                     auth: {
                         strategy: 'default'
                     }
@@ -592,7 +592,7 @@ describe('authentication', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: handler,
+                    handler,
                     auth: 'default'
                 }
             });
@@ -615,7 +615,7 @@ describe('authentication', () => {
             server.connection();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', 'try', { users: { steve: {} } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res1) => {
 
@@ -651,7 +651,7 @@ describe('authentication', () => {
             server.connection();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/', headers: { authorization: 'Custom' } }, (res) => {
 
@@ -671,7 +671,7 @@ describe('authentication', () => {
             server.connection();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.on('request-internal', (request, event, tags) => {
 
@@ -697,7 +697,7 @@ describe('authentication', () => {
             server.connection();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true, { users: { message: 'in a bottle' } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/', headers: { authorization: 'Custom message' } }, (res) => {
 
@@ -724,7 +724,7 @@ describe('authentication', () => {
                 return reply('ok');
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
 
@@ -744,7 +744,7 @@ describe('authentication', () => {
             server.connection();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', 'try', { users: { message: 'in a bottle' } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/', headers: { authorization: 'Custom message' } }, (res) => {
 
@@ -769,7 +769,7 @@ describe('authentication', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: handler,
+                    handler,
                     auth: {
                         scope: 'one'
                     }
@@ -798,7 +798,7 @@ describe('authentication', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: handler,
+                    handler,
                     auth: {
                         scope: ['one', 'three']
                     }
@@ -827,7 +827,7 @@ describe('authentication', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: handler,
+                    handler,
                     auth: {
                         scope: ['one', 'three']
                     }
@@ -856,7 +856,7 @@ describe('authentication', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: handler,
+                    handler,
                     auth: {
                         scope: 'one'
                     }
@@ -1021,7 +1021,7 @@ describe('authentication', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: handler,
+                    handler,
                     auth: {
                         scope: 'onex'
                     }
@@ -1051,7 +1051,7 @@ describe('authentication', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: handler,
+                    handler,
                     auth: {
                         scope: 'b'
                     }
@@ -1081,7 +1081,7 @@ describe('authentication', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: handler,
+                    handler,
                     auth: {
                         scope: 'b'
                     }
@@ -1117,7 +1117,7 @@ describe('authentication', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: handler,
+                    handler,
                     auth: {
                         scope: ['+c', 'b']
                     }
@@ -1158,7 +1158,7 @@ describe('authentication', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: handler,
+                    handler,
                     auth: {
                         scope: ['!a', 'b']
                     }
@@ -1202,7 +1202,7 @@ describe('authentication', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: handler,
+                    handler,
                     auth: {
                         scope: ['!a', '+b', 'c', 'd']
                     }
@@ -1252,7 +1252,7 @@ describe('authentication', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: handler,
+                    handler,
                     auth: {
                         scope: ['c', 'd']
                     }
@@ -1314,7 +1314,7 @@ describe('authentication', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: handler,
+                    handler,
                     auth: {
                         access: {
                             scope: 'one'
@@ -1345,7 +1345,7 @@ describe('authentication', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: handler,
+                    handler,
                     auth: {
                         access: [
                             { scope: 'other' },
@@ -1377,7 +1377,7 @@ describe('authentication', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: handler,
+                    handler,
                     auth: {
                         access: [
                             { scope: 'two' },
@@ -2010,7 +2010,7 @@ describe('authentication', () => {
             server.connection();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true, { users: { steve: { response: Boom.internal() } } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
 
@@ -2040,7 +2040,7 @@ describe('authentication', () => {
             server.connection();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', { users: { steve: { name: 'steve' } } });
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res1) => {
 
@@ -2110,7 +2110,7 @@ internals.implementation = function (server, options) {
                 return reply(credentials);
             }
 
-            return reply.continue({ credentials: credentials });
+            return reply.continue({ credentials });
         },
         response: function (request, reply) {
 
