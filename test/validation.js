@@ -1698,62 +1698,32 @@ describe('validation', () => {
         const server = new Hapi.Server();
         server.connection();
 
-        const context = { validNames: ['foo', 'bar'] };
+        const context = { valid: ['foo', 'bar'] };
         server.bind(context);
 
         server.route({
             method: 'GET',
-            path: '/user/{val}',
+            path: '/{val}',
             config: {
                 validate: {
-                    params: function (values, options, next) {
+                    params: function (value, options, next) {
 
-                        next(this.validNames.indexOf(values.val) < 0, values);
+                        next(this.valid.indexOf(value) === -1, value);
                     }
                 },
                 handler: function (request, reply) {
 
-                    return reply(request.val);
+                    return reply('ok');
                 }
             }
         });
 
-        server.inject('/user/baz', (res) => {
+        server.inject('/baz', (res) => {
 
             expect(res.statusCode).to.equal(400);
             done();
         });
     });
-
-    it('binds route validate function to a realm', (done) => {
-
-        const server = new Hapi.Server();
-        server.connection();
-
-        server.route({
-            method: 'GET',
-            path: '/user/{val}',
-            config: {
-                validate: {
-                    params: function (values, options, next) {
-
-                        next(null, values);
-                    }
-                },
-                handler: function (request, reply) {
-
-                    return reply(request.val);
-                }
-            }
-        });
-
-        server.inject('/user/baz', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            done();
-        });
-    });
-
 });
 
 
