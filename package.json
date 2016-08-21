@@ -46,9 +46,9 @@
     "wreck": "8.x.x"
   },
   "scripts": {
-    "test": "lab -a code -t 100 -L",
-    "test-tap": "lab -a code -r tap -o tests.tap",
-    "test-cov-html": "lab -a code -r html -o coverage.html"
+    "test": "lab -a code -t 100 -L -m 3000",
+    "test-tap": "lab -a code -r tap -o tests.tap -m 3000",
+    "test-cov-html": "lab -a code -r html -o coverage.html -m 3000"
   },
   "license": "BSD-3-Clause"
 }
