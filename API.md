@@ -1023,7 +1023,7 @@ register.attributes = {
 
 ### `server.emit(criteria, data, [callback])`
 
-Emits an custom applicaiton event update to all the subscribed listeners where:
+Emits an custom application event update to all the subscribed listeners where:
 - `criteria` - the event update criteria which must be one of:
     - the event name string.
     - an object with the following optional keys (unless noted otherwise):
