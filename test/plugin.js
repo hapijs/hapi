@@ -2827,6 +2827,54 @@ describe('Plugin', () => {
         });
     });
 
+    describe('event()', () => {
+
+        it('extends server events', (done) => {
+
+            const server = new Hapi.Server();
+            const select = server.connection({ labels: ['a'] });
+
+            const updates = [];
+            server.event({ name: 'test', channels: ['x', 'y'] });
+
+            server.on({ name: 'test', channels: 'x' }, (update) => updates.push({ id: 'server', channel: 'x', update }));
+
+            let plugin;
+            const test = function (srv, options, next) {
+
+                srv.on({ name: 'test', channels: 'y' }, (update) => updates.push({ id: 'plugin', channel: 'y', update }));
+                plugin = srv;
+                return next();
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            select.on('test', (update) => updates.push({ id: 'select', update }));
+
+            server.register(test, (err) => {
+
+                expect(err).to.not.exist();
+
+                server.emit('test', 1);
+                select.emit({ name: 'test', channel: 'x' }, 2);
+                plugin.emit({ name: 'test', channel: 'y' }, 3, () => {
+
+                    expect(updates).to.equal([
+                        { id: 'select', update: 1 },
+                        { id: 'server', channel: 'x', update: 2 },
+                        { id: 'select', update: 2 },
+                        { id: 'select', update: 3 },
+                        { id: 'plugin', channel: 'y', update: 3 }
+                    ]);
+
+                    done();
+                });
+            });
+        });
+    });
+
     describe('events', () => {
 
         it('listens to events on selected connections', (done) => {

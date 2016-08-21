@@ -27,6 +27,8 @@
     - [`server.connection([options])`](#serverconnectionoptions)
     - [`server.decorate(type, property, method, [options])`](#serverdecoratetype-property-method-options)
     - [`server.dependency(dependencies, [after])`](#serverdependencydependencies-after)
+    - [`server.emit(criteria, data, [callback])`](#serveremitcriteria-data-callback)
+    - [`server.event(events)`](#servereventevents)
     - [`server.expose(key, value)`](#serverexposekey-value)
     - [`server.expose(obj)`](#serverexposeobj)
     - [`server.ext(events)`](#serverextevents)
@@ -39,6 +41,8 @@
     - [`server.match(method, path, [host])`](#servermatchmethod-path-host)
     - [`server.method(name, method, [options])`](#servermethodname-method-options)
     - [`server.method(methods)`](#servermethodmethods)
+    - [`server.on(criteria, listener)`](#serveroncriteria-listener)
+    - [`server.once(criteria, listener)`](#serveroncecriteria-listener)
     - [`server.path(relativeTo)`](#serverpathrelativeto)
     - [`server.register(plugins, [options], [callback])`](#serverregisterplugins-options-callback)
     - [`server.route(options)`](#serverrouteoptions)
@@ -1017,6 +1021,73 @@ register.attributes = {
 };
 ```
 
+### `server.emit(criteria, data, [callback])`
+
+Emits an custom applicaiton event update to all the subscribed listeners where:
+- `criteria` - the event update criteria which must be one of:
+    - the event name string.
+    - an object with the following optional keys (unless noted otherwise):
+        - `name` - the event name string (required).
+        - `channel` - the channel name string.
+        - `tags` - a tag string or array of tag strings.
+- `data` - the value emitted to the subscribers.
+- `callback` - an optional callback method invoked when all subscribers have been notified using the
+  signature `function()`. The callback is called only after all the listeners have been notified,
+  including any event updates emitted earlier (the order of event updates are guarenteed to be in the
+  order they were emitted).
+
+Note that events must be registered before they can be emitted or subscribed to by calling [`server.event(events)`](#servereventevents).
+This is done to detect event name mispelling and invalid event activities.
+
+```js
+const Hapi = require('hapi');
+const server = new Hapi.Server();
+server.connection({ port: 80 });
+
+server.event('test');
+server.on('test', (update) => console.log(update));
+server.emit('test', 'hello');
+```
+
+### `server.event(events)`
+
+Register custom application events where:
+- `events` - must be one of:
+    - an event name string.
+    - an event options object with the following optional keys (unless noted otherwise):
+        - `name` - the event name string (required).
+        - `channels` - a string or array of strings specifying the event channels available.
+          Defaults to no channel restrictions (event updates can specify a channel or not).
+        - `clone` - if `true`, the `data` object passed to [`server.emit()`](#serveremitcriteria-data-callback)
+          is cloned before it is passed to the listeners (unless an override specified by each
+          listener). Defaults to `false` (`data` is passed as-is).
+        - `spread` - if `true`, the `data` object passed to [`server.emit()`](#serveremitcriteria-data-callback)
+          must be an array and the `listener` method is called with each array element passed as a
+          separate argument (unless an override specified by each listener). This should only be
+          used when the emitted data structure is known and predictable. Defaults to `false` (`data`
+          is emitted as a single argument regardless of its type).
+        - `tags` - if `true` and the `criteria` object passed to [`server.emit()`](#serveremitcriteria-data-callback)
+          includes `tags`, the tags are mapped to an object (where each tag string is the key and
+          the value is `true`) which is appended to the arguments list at the end (but before
+          the `callback` argument if `block` is set). A configuration override can be set by each
+          listener. Defaults to `false`.
+        - `shared` - if `true`, the same event `name` can be registered multiple times where the
+          second registration is ignored. Note that if the registration config is changed between
+          registrations, only the first configuration is used. Defaults to `false` (a duplicate
+          registration will throw an error).
+    - a [**podium**](https://github.com/hapijs/podium) emitter object.
+    - an array containing any of the above.
+
+```js
+const Hapi = require('hapi');
+const server = new Hapi.Server();
+server.connection({ port: 80 });
+
+server.event('test');
+server.on('test', (update) => console.log(update));
+server.emit('test', 'hello');
+```
+
 ### `server.expose(key, value)`
 
 Used within a plugin to expose a property via `server.plugins[name]` where:
@@ -1520,6 +1591,75 @@ server.method({
         }
     }
 });
+```
+
+## `server.on(criteria, listener)`
+
+Subscribe a handler to an event where:
+- `criteria` - the subscription criteria which must be one of:
+    - event name string which can be any of the [built-in server events](#server-events) or a custom
+      application event registered with [`server.event(events)`](#servereventevents).
+    - a criteria object with the following optional keys (unless noted otherwise):
+        - `name` - the event name string (required).
+        - `block` - if `true`, the `listener` method receives an additional `callback` argument
+          which must be called when the method completes. No other event will be emitted until the
+          `callback` methods is called. The method signature is `function()`. If `block` is set to
+          a positive integer, the value is used to set a timeout after which any pending events
+          will be emitted, ignoring the eventual call to `callback`. Defaults to `false` (non
+          blocking).
+        - `channels` - a string or array of strings specifying the event channels to subscribe to.
+          If the event registration specified a list of allowed channels, the `channels` array must
+          match the allowed channels. If `channels` are specified, event updates without any
+          channel designation will not be included in the subscription. Defaults to no channels
+          filter.
+        - `clone` - if `true`, the `data` object passed to [`server.emit()`](#serveremitcriteria-data-callback)
+           is cloned before it is passed to the `listener` method. Defaults to the event
+           registration option (which defaults to `false`).
+        - `count` - a positive integer indicating the number of times the `listener` can be called
+          after which the subscription is automatically removed. A count of `1` is the same as
+          calling `server.once()`. Defaults to no limit.
+        - `filter` - the event tags (if present) to subscribe to which can be one of:
+            - a tag string.
+            - an array of tag strings.
+            - an object with the following:
+                - `tags` - a tag string or array of tag strings.
+                - `all` - if `true`, all `tags` must be present for the event update to match the
+                  subscription. Defaults to `false` (at least one matching tag).
+        - `spread` - if `true`, and the `data` object passed to [`server.emit()`](#serveremitcriteria-data-callback)
+          is an array, the `listener` method is called with each array element passed as a separate
+          argument. This should only be used when the emitted data structure is known and predictable.
+          Defaults to the event registration option (which defaults to `false`).
+        - `tags` - if `true` and the `criteria` object passed to [`server.emit()`](#serveremitcriteria-data-callback)
+          includes `tags`, the tags are mapped to an object (where each tag string is the key and
+          the value is `true`) which is appended to the arguments list at the end (but before
+          the `callback` argument if `block` is set). Defaults to the event registration option
+          (which defaults to `false`).
+- `listener` - the handler method set to receive event updates. The function signature depends
+  on the `block`, `spread`, and `tags` options.
+
+```js
+const Hapi = require('hapi');
+const server = new Hapi.Server();
+server.connection({ port: 80 });
+
+server.event('test');
+server.on('test', (update) => console.log(update));
+server.emit('test', 'hello');
+```
+
+## `server.once(criteria, listener)`
+
+Same as calling [`server.on()`](#serveroncriteria-listener) with the `count` option set to `1`.
+
+```js
+const Hapi = require('hapi');
+const server = new Hapi.Server();
+server.connection({ port: 80 });
+
+server.event('test');
+server.once('test', (update) => console.log(update));
+server.emit('test', 'hello');
+server.emit('test', 'hello');       // Ignored
 ```
 
 ### `server.path(relativeTo)`
