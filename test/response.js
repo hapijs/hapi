@@ -2,6 +2,7 @@
 
 // Load modules
 
+const Events = require('events');
 const Path = require('path');
 const Stream = require('stream');
 const Boom = require('boom');
@@ -12,6 +13,7 @@ const Hoek = require('hoek');
 const Inert = require('inert');
 const Lab = require('lab');
 const Vision = require('vision');
+const Response = require('../lib/response');
 
 
 // Declare internals
@@ -1334,7 +1336,7 @@ describe('Response', () => {
 
                     const response = reply('1234567890');
 
-                    response.on('peek', (chunk) => {
+                    response.on('peek', (chunk, encoding) => {
 
                         output += chunk.toString();
                     });
@@ -1378,6 +1380,76 @@ describe('Response', () => {
                 expect(closed).to.be.true();
                 done();
             });
+        });
+    });
+
+    describe('Peek', () => {
+
+        it('taps into pass-through stream', (done) => {
+
+            // Source
+
+            const Source = function (values) {
+
+                this.data = values;
+                this.pos = 0;
+
+                Stream.Readable.call(this);
+            };
+
+            Hoek.inherits(Source, Stream.Readable);
+
+            Source.prototype._read = function (/* size */) {
+
+                if (this.pos === this.data.length) {
+                    this.push(null);
+                    return;
+                }
+
+                this.push(this.data[this.pos++]);
+            };
+
+            // Target
+
+            const Target = function () {
+
+                this.data = [];
+
+                Stream.Writable.call(this);
+            };
+
+            Hoek.inherits(Target, Stream.Writable);
+
+            Target.prototype._write = function (chunk, encoding, callback) {
+
+                this.data.push(chunk.toString());
+                return callback();
+            };
+
+            // Peek
+
+            const emitter = new Events.EventEmitter();
+            const peek = new Response.Peek(emitter);
+
+            const chunks = ['abcd', 'efgh', 'ijkl', 'mnop', 'qrst', 'uvwx'];
+            const source = new Source(chunks);
+            const target = new Target();
+
+            const seen = [];
+            emitter.on('peek', (update) => {
+
+                const chunk = update[0];
+                seen.push(chunk.toString());
+            });
+
+            emitter.once('finish', () => {
+
+                expect(seen).to.equal(chunks);
+                expect(target.data).to.equal(chunks);
+                done();
+            });
+
+            source.pipe(peek).pipe(target);
         });
     });
 });

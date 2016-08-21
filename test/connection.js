@@ -793,10 +793,12 @@ describe('Connection', () => {
                 return reply('ok');
             };
 
-            let logged = null;
             server.once('log', (event, tags) => {
 
-                logged = (event.internal && tags.load && event.data);
+                expect(event.internal).to.be.true();
+                expect(tags.load).to.be.true();
+                expect(event.data.rss > 10000).to.equal(true);
+                server.stop(done);
             });
 
             server.route({ method: 'GET', path: '/', handler });
@@ -813,8 +815,6 @@ describe('Connection', () => {
                         server.inject('/', (res2) => {
 
                             expect(res2.statusCode).to.equal(503);
-                            expect(logged.rss > 10000).to.equal(true);
-                            server.stop(done);
                         });
                     });
                 });

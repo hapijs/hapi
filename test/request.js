@@ -664,7 +664,7 @@ describe('Request', () => {
                 expect(res.result.message).to.equal('An internal server error occurred');
             });
 
-            server.once('response', () => {
+            server.once('response', (request) => {
 
                 expect(errs).to.equal(1);
                 expect(req.getLog('error')[1].tags).to.equal(['internal', 'error']);
@@ -694,7 +694,7 @@ describe('Request', () => {
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.once('response', () => {
+            server.once('response', (request) => {
 
                 expect(errs).to.equal(1);
                 expect(req.getLog('error')[0].tags).to.equal(['internal', 'implementation', 'error']);
@@ -740,7 +740,7 @@ describe('Request', () => {
                 expect(res.result).to.equal('ok');
             });
 
-            server.once('response', () => {
+            server.once('response', (request) => {
 
                 expect(errs).to.equal(0);
                 done();
@@ -770,7 +770,7 @@ describe('Request', () => {
 
             let result = null;
 
-            server.once('tail', () => {
+            server.once('tail', (request) => {
 
                 expect(result).to.equal('Done');
                 done();
@@ -795,7 +795,7 @@ describe('Request', () => {
             server.connection();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.once('tail', () => {
+            server.once('tail', (request) => {
 
                 done();
             });

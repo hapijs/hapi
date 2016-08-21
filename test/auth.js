@@ -1559,19 +1559,15 @@ describe('authentication', () => {
                 }
             });
 
-            let result;
             server.on('request-internal', (request, event, tags) => {
 
                 if (tags.unauthenticated) {
-                    result = event.data;
+                    expect(event.data).to.equal(302);
+                    done();
                 }
             });
 
-            server.inject('/', (res) => {
-
-                expect(result).to.equal(302);
-                done();
-            });
+            server.inject('/', (res) => { });
         });
 
         it('passes the options.artifacts object, even with an auth filter', (done) => {

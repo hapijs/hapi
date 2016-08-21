@@ -560,12 +560,14 @@ describe('Plugin', () => {
                 expect(options.something).to.be.true();
                 expect(srv.realm.pluginOptions).to.equal(options);
 
-                srv.route({ method: 'GET', path: '/foo', handler: (request, reply) => {
+                srv.route({
+                    method: 'GET', path: '/foo', handler: (request, reply) => {
 
-                    expect(request.route.realm.pluginOptions).to.equal(options);
-                    expect(reply.realm.pluginOptions).to.equal(options);
-                    reply('foo');
-                } });
+                        expect(request.route.realm.pluginOptions).to.equal(options);
+                        expect(reply.realm.pluginOptions).to.equal(options);
+                        reply('foo');
+                    }
+                });
                 return next();
             };
 
@@ -578,12 +580,14 @@ describe('Plugin', () => {
                 expect(options.something).to.be.false();
                 expect(srv.realm.pluginOptions).to.equal(options);
 
-                srv.route({ method: 'GET', path: '/bar', handler: (request, reply) => {
+                srv.route({
+                    method: 'GET', path: '/bar', handler: (request, reply) => {
 
-                    expect(request.route.realm.pluginOptions).to.equal(options);
-                    expect(reply.realm.pluginOptions).to.equal(options);
-                    reply('bar');
-                } });
+                        expect(request.route.realm.pluginOptions).to.equal(options);
+                        expect(reply.realm.pluginOptions).to.equal(options);
+                        reply('bar');
+                    }
+                });
                 return next();
             };
 
@@ -2825,35 +2829,10 @@ describe('Plugin', () => {
 
     describe('events', () => {
 
-        it('plugin event handlers receive more than 2 arguments when they exist', (done) => {
-
-            const test = function (srv, options, next) {
-
-                srv.once('request-internal', () => {
-
-                    expect(arguments).to.have.length(3);
-                    done();
-                });
-
-                return next();
-            };
-
-            test.attributes = {
-                name: 'test'
-            };
-
-            const server = new Hapi.Server();
-            server.connection();
-            server.register(test, (err) => {
-
-                expect(err).to.not.exist();
-                server.inject({ url: '/' }, () => { });
-            });
-        });
-
         it('listens to events on selected connections', (done) => {
 
             const server = new Hapi.Server();
+
             server.connection({ labels: ['a'] });
             server.connection({ labels: ['b'] });
             server.connection({ labels: ['c'] });
@@ -2865,7 +2844,7 @@ describe('Plugin', () => {
             let counter = 0;
             const test = function (srv, options, next) {
 
-                srv.select(['a', 'b']).on('test', () => {
+                srv.select(['a', 'b']).on('tail', () => {
 
                     ++counter;
                 });
@@ -2885,14 +2864,13 @@ describe('Plugin', () => {
             server.register(test, (err) => {
 
                 expect(err).to.not.exist();
-                server1.emit('test');
-                server2.emit('test');
-                server3.emit('test');
+                server1.emit('tail');
+                server2.emit('tail');
+                server3.emit('tail');
 
                 server.start((err) => {
 
                     expect(err).to.not.exist();
-
                     server.stop((err) => {
 
                         expect(err).to.not.exist();
@@ -3566,13 +3544,13 @@ describe('Plugin', () => {
             server.connection();
 
             let count = 0;
-            server.once('log', (event) => {
+            server.once('log', (event, tags) => {
 
                 ++count;
                 expect(event.data).to.equal('log event 1');
             });
 
-            server.once('log', (event) => {
+            server.once('log', (event, tags) => {
 
                 ++count;
                 expect(event.data).to.equal('log event 1');
@@ -3580,7 +3558,7 @@ describe('Plugin', () => {
 
             server.log('1', 'log event 1', Date.now());
 
-            server.once('log', (event) => {
+            server.once('log', (event, tags) => {
 
                 ++count;
                 expect(event.data).to.equal('log event 2');
@@ -3597,7 +3575,7 @@ describe('Plugin', () => {
             const server = new Hapi.Server();
             server.connection();
 
-            server.once('log', (event) => {
+            server.once('log', (event, tags) => {
 
                 expect(event.data).to.equal('log event 1');
             });
@@ -3731,11 +3709,7 @@ describe('Plugin', () => {
             let pc = 0;
             const test = function (srv, options, next) {
 
-                srv.on('log', (event, tags) => {
-
-                    ++pc;
-                });
-
+                srv.on('log', (event, tags) => ++pc);
                 next();
             };
 
@@ -3747,15 +3721,13 @@ describe('Plugin', () => {
             server.connection();
 
             let sc = 0;
-            server.on('log', (event, tags) => {
-
-                ++sc;
-            });
+            server.on('log', (event, tags) => ++sc);
 
             server.register(test, (err) => {
 
                 expect(err).to.not.exist();
                 server.log('test');
+
                 expect(sc).to.equal(1);
                 expect(pc).to.equal(1);
                 done();

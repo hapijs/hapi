@@ -102,10 +102,10 @@ describe('payload', () => {
         server.connection();
         server.route({ method: 'POST', path: '/', config: { handler, payload: { parse: false } } });
 
-        let message = null;
         server.on('log', (event, tags) => {
 
-            message = event.data.message;
+            expect(event.data.message).to.equal('Parse Error');
+            server.stop({ timeout: 10 }, done);
         });
 
         server.start((err) => {
@@ -128,9 +128,7 @@ describe('payload', () => {
 
             req.on('error', (err) => {
 
-                expect(message).to.equal('Parse Error');
                 expect(err.code).to.equal('ECONNRESET');
-                server.stop({ timeout: 10 }, done);
             });
 
             setTimeout(() => {
@@ -199,7 +197,7 @@ describe('payload', () => {
         const ext = function (request, reply) {
 
             const chunks = [];
-            request.on('peek', (chunk) => {
+            request.on('peek', (chunk, encoding) => {
 
                 chunks.push(chunk);
             });

@@ -1514,6 +1514,7 @@ describe('transmission', () => {
             const preResponse = function (request, reply) {
 
                 response = request.response;
+                response.registerEvent('special');
                 response.once('special', () => {
 
                     done();

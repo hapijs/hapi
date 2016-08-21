@@ -920,22 +920,20 @@ describe('handler', () => {
                 }
             });
 
-            let log = null;
             server.on('request-internal', (request, event, tags) => {
 
                 if (event.internal &&
                     tags.pre &&
                     tags.error) {
 
-                    log = event.data.assign;
+                    expect(event.data.assign).to.equal('before');
+                    done();
                 }
             });
 
             server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
-                expect(log).to.equal('before');
-                done();
             });
         });
 
@@ -985,24 +983,23 @@ describe('handler', () => {
                 }
             });
 
-            let log = null;
             server.on('request-internal', (request, event, tags) => {
 
                 if (event.internal &&
                     tags.handler &&
                     tags.error) {
 
-                    log = event.data;
+                    const log = event.data;
+                    expect(log.data.isBoom).to.equal(true);
+                    expect(log.data.output.statusCode).to.equal(403);
+                    expect(log.data.message).to.equal('Forbidden');
+                    done();
                 }
             });
 
             server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(403);
-                expect(log.data.isBoom).to.equal(true);
-                expect(log.data.output.statusCode).to.equal(403);
-                expect(log.data.message).to.equal('Forbidden');
-                done();
             });
         });
 
