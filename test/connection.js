@@ -1676,14 +1676,22 @@ describe('Connection', () => {
             const server = new Hapi.Server();
             server.connection();
             server.route({ method: 'GET', path: '/', handler });
-            server.inject({ method: 'HEAD', url: '/' }, (res) => {
+            server.inject({ method: 'GET', url: '/' }, (res1) => {
 
-                expect(res.statusCode).to.equal(205);
-                expect(res.headers['content-type']).to.equal('text/html; charset=utf-8');
-                expect(res.headers['content-length']).to.not.exist();
-                expect(res.headers.etag).to.equal('"test"');
-                expect(res.result).to.not.exist();
-                done();
+                expect(res1.statusCode).to.equal(205);
+                expect(res1.headers['content-type']).to.equal('text/html; charset=utf-8');
+                expect(res1.headers['content-length']).to.equal(2);
+                expect(res1.headers.etag).to.equal('"test"');
+                expect(res1.result).to.equal('ok');
+                server.inject({ method: 'HEAD', url: '/' }, (res2) => {
+
+                    expect(res2.statusCode).to.equal(res1.statusCode);
+                    expect(res2.headers['content-type']).to.equal(res1.headers['content-type']);
+                    expect(res2.headers['content-length']).to.equal(res1.headers['content-length']);
+                    expect(res2.headers.etag).to.equal(res1.headers.etag);
+                    expect(res2.result).to.not.exist();
+                    done();
+                });
             });
         });
 
@@ -1705,6 +1713,42 @@ describe('Connection', () => {
                 server.inject({ method: 'HEAD', url: '/not-there' }, (res2) => {
 
                     expect(res2.statusCode).to.equal(404);
+                    expect(res2.result).to.not.exist();
+                    done();
+                });
+            });
+        });
+
+        it('returns 500 on HEAD requests for failed responses', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply('ok');
+            };
+
+            const preResponse = function (request, reply) {
+
+                request.response._processors.marshal = function (response, callback) {
+
+                    process.nextTick(callback, new Error('boom!'));
+                };
+
+                return reply.continue();
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler });
+            server.ext('onPreResponse', preResponse);
+            server.inject({ method: 'GET', url: '/' }, (res1) => {
+
+                expect(res1.statusCode).to.equal(500);
+                expect(res1.result).to.exist();
+                server.inject({ method: 'HEAD', url: '/' }, (res2) => {
+
+                    expect(res2.statusCode).to.equal(res1.statusCode);
+                    expect(res2.headers['content-type']).to.equal(res1.headers['content-type']);
+                    expect(res2.headers['content-length']).to.equal(res1.headers['content-length']);
                     expect(res2.result).to.not.exist();
                     done();
                 });
