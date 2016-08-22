@@ -718,6 +718,70 @@ describe('validation', () => {
         });
     });
 
+    it('overrides connection level settings', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection({
+            routes: {
+                validate: {
+                    query: Joi.object({
+                        a: Joi.string().required()
+                    }),
+                    options: {
+                        abortEarly: false
+                    }
+                }
+            }
+        });
+
+        const handler = function (request, reply) {
+
+            return reply('ok');
+        };
+
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler
+        });
+
+        server.route({
+            method: 'GET',
+            path: '/other',
+            handler,
+            config: {
+                validate: {
+                    query: Joi.object({
+                        b: Joi.string().required()
+                    })
+                }
+            }
+        });
+
+        server.inject({ url: '/', method: 'GET' }, (res1) => {
+
+            expect(res1.statusCode).to.equal(400);
+            expect(res1.result.message).to.equal('child "a" fails because ["a" is required]');
+
+            server.inject({ url: '/?a=1', method: 'GET' }, (res2) => {
+
+                expect(res2.statusCode).to.equal(200);
+
+                server.inject({ url: '/other', method: 'GET' }, (res3) => {
+
+                    expect(res3.statusCode).to.equal(400);
+                    expect(res3.result.message).to.equal('child "b" fails because ["b" is required]');
+
+                    server.inject({ url: '/other?b=1', method: 'GET' }, (res4) => {
+
+                        expect(res4.statusCode).to.equal(200);
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
     it('fails on invalid payload', (done) => {
 
         const server = new Hapi.Server();
