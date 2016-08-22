@@ -2612,7 +2612,8 @@ following options:
   number), the value of inputs not yet validated will reflect the raw, unvalidated and unmodified
   values. The `validate` object supports:
 
-    - `headers` - validation rules for incoming request headers. Values allowed:
+    - `headers` - validation rules for incoming request headers (note that all header field names
+      must be in lowercase to match the headers normalized by node). Values allowed:
         - `true` - any headers allowed (no validation performed).  This is the default.
         - `false` - no headers allowed (this will cause all valid HTTP requests to fail).
         - a [Joi](http://github.com/hapijs/joi) validation object.
