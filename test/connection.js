@@ -399,7 +399,7 @@ describe('Connection', () => {
 
                         req.abort();
                     });
-                }, 10);
+                }, 50);
             });
         });
 
@@ -451,7 +451,7 @@ describe('Connection', () => {
 
                         req.abort();
                     });
-                }, 10);
+                }, 50);
             });
         });
     });
