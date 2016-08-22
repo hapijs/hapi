@@ -558,7 +558,7 @@ describe('Server', () => {
 
                 server.inject('/', (res1) => {
 
-                    expect(server.load.eventLoopDelay).to.be.below(5);
+                    expect(server.load.eventLoopDelay).to.be.below(6);
 
                     setImmediate(() => {
 
