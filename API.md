@@ -946,7 +946,7 @@ const Hapi = require('hapi');
 const server = new Hapi.Server();
 server.connection({ port: 80 });
 
-server.decoder('special', Zlib.createGunzip());
+server.decoder('special', Zlib.createGunzip);
 ```
 
 ### `server.decorate(type, property, method, [options])`
@@ -1080,7 +1080,7 @@ const Hapi = require('hapi');
 const server = new Hapi.Server();
 server.connection({ port: 80 });
 
-server.encoder('special', Zlib.createGzip());
+server.encoder('special', Zlib.createGzip);
 ```
 
 ### `server.event(events)`
