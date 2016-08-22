@@ -28,6 +28,7 @@
     - [`server.decorate(type, property, method, [options])`](#serverdecoratetype-property-method-options)
     - [`server.dependency(dependencies, [after])`](#serverdependencydependencies-after)
     - [`server.emit(criteria, data, [callback])`](#serveremitcriteria-data-callback)
+    - [`server.encoder(encoding, compressor)`](#serverencoderencoding-compressor)
     - [`server.event(events)`](#servereventevents)
     - [`server.expose(key, value)`](#serverexposekey-value)
     - [`server.expose(obj)`](#serverexposeobj)
@@ -1023,7 +1024,7 @@ register.attributes = {
 
 ### `server.emit(criteria, data, [callback])`
 
-Emits an custom application event update to all the subscribed listeners where:
+Emits a custom application event update to all the subscribed listeners where:
 - `criteria` - the event update criteria which must be one of:
     - the event name string.
     - an object with the following optional keys (unless noted otherwise):
@@ -1047,6 +1048,22 @@ server.connection({ port: 80 });
 server.event('test');
 server.on('test', (update) => console.log(update));
 server.emit('test', 'hello');
+```
+
+### `server.encoder(encoding, compressor)`
+
+Registers a custom content encoding compressor to extend the built-in support for `'gzip'` and
+'`deflate`' where:
+- `encoding` - the encoder name string.
+- `compressor` - a function compatible with node's [`zlib.createGzip()`](https://nodejs.org/dist/latest-v6.x/docs/api/zlib.html#zlib_zlib_creategzip_options).
+
+```js
+const Zlib = require('zlib');
+const Hapi = require('hapi');
+const server = new Hapi.Server();
+server.connection({ port: 80 });
+
+server.encoder('special', Zlib.createGzip());
 ```
 
 ### `server.event(events)`

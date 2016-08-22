@@ -3,6 +3,7 @@
 // Load modules
 
 const Path = require('path');
+const Zlib = require('zlib');
 const Boom = require('boom');
 const CatboxMemory = require('catbox-memory');
 const Code = require('code');
@@ -12,6 +13,7 @@ const Hoek = require('hoek');
 const Inert = require('inert');
 const Lab = require('lab');
 const Vision = require('vision');
+const Wreck = require('wreck');
 
 
 // Declare internals
@@ -2822,6 +2824,45 @@ describe('Plugin', () => {
                     expect(err).to.exist();
                     expect(err.message).to.equal('Plugin b missing dependency c in connection: ' + server.info.uri);
                     done();
+                });
+            });
+        });
+    });
+
+    describe('encoder()', () => {
+
+        it('adds custom encoder', (done) => {
+
+            const data = '{"test":"true"}';
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            server.encoder('test', Zlib.createGzip);
+
+            const handler = function (request, reply) {
+
+                return reply(request.payload);
+            };
+
+            server.route({ method: 'POST', path: '/', handler });
+            server.start((err) => {
+
+                expect(err).to.not.exist();
+
+                const uri = 'http://localhost:' + server.info.port;
+
+                Zlib.gzip(new Buffer(data), (err, zipped) => {
+
+                    expect(err).to.not.exist();
+
+                    Wreck.post(uri, { headers: { 'accept-encoding': 'test' }, payload: data }, (err, res, body) => {
+
+                        expect(err).to.not.exist();
+                        expect(res.headers['content-encoding']).to.equal('test');
+                        expect(body.toString()).to.equal(zipped.toString());
+                        server.stop(done);
+                    });
                 });
             });
         });
