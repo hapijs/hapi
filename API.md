@@ -25,10 +25,11 @@
     - [`server.cache(options)`](#servercacheoptions)
     - [`server.cache.provision(options, [callback])`](#servercacheprovisionoptions-callback)
     - [`server.connection([options])`](#serverconnectionoptions)
+    - [`server.decoder(encoding, decoder)`](#serverencoderencoding-decoder)
     - [`server.decorate(type, property, method, [options])`](#serverdecoratetype-property-method-options)
     - [`server.dependency(dependencies, [after])`](#serverdependencydependencies-after)
     - [`server.emit(criteria, data, [callback])`](#serveremitcriteria-data-callback)
-    - [`server.encoder(encoding, compressor)`](#serverencoderencoding-compressor)
+    - [`server.encoder(encoding, encoder)`](#serverencoderencoding-encoder)
     - [`server.event(events)`](#servereventevents)
     - [`server.expose(key, value)`](#serverexposekey-value)
     - [`server.expose(obj)`](#serverexposeobj)
@@ -932,6 +933,22 @@ exports.register.attributes = {
 };
 ```
 
+### `server.decoder(encoding, decoder)`
+
+Registers a custom content decoding compressor to extend the built-in support for `'gzip'` and
+'`deflate`' where:
+- `encoding` - the decoder name string.
+- `encoder` - a function compatible with node's [`zlib.createGunzip()`](https://nodejs.org/dist/latest-v6.x/docs/api/zlib.html#zlib_zlib_creategunzip_options).
+
+```js
+const Zlib = require('zlib');
+const Hapi = require('hapi');
+const server = new Hapi.Server();
+server.connection({ port: 80 });
+
+server.decoder('special', Zlib.createGunzip());
+```
+
 ### `server.decorate(type, property, method, [options])`
 
 Extends various framework interfaces with custom methods where:
@@ -1050,12 +1067,12 @@ server.on('test', (update) => console.log(update));
 server.emit('test', 'hello');
 ```
 
-### `server.encoder(encoding, compressor)`
+### `server.encoder(encoding, encoder)`
 
 Registers a custom content encoding compressor to extend the built-in support for `'gzip'` and
 '`deflate`' where:
 - `encoding` - the encoder name string.
-- `compressor` - a function compatible with node's [`zlib.createGzip()`](https://nodejs.org/dist/latest-v6.x/docs/api/zlib.html#zlib_zlib_creategzip_options).
+- `encoder` - a function compatible with node's [`zlib.createGzip()`](https://nodejs.org/dist/latest-v6.x/docs/api/zlib.html#zlib_zlib_creategzip_options).
 
 ```js
 const Zlib = require('zlib');

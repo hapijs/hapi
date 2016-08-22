@@ -34,7 +34,7 @@
     "podium": "^1.1.x",
     "shot": "3.x.x",
     "statehood": "4.x.x",
-    "subtext": "4.x.x",
+    "subtext": "^4.1.x",
     "topo": "2.x.x"
   },
   "devDependencies": {

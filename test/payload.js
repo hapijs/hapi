@@ -264,6 +264,43 @@ describe('payload', () => {
         });
     });
 
+    it('handles custom compression', (done) => {
+
+        const handler = function (request, reply) {
+
+            return reply(request.payload);
+        };
+
+        const message = { 'msg': 'This message is going to be gzipped.' };
+        const server = new Hapi.Server();
+        server.connection();
+        server.decoder('test', Zlib.createGunzip);
+        server.route({ method: 'POST', path: '/', handler });
+
+        Zlib.gzip(JSON.stringify(message), (err, buf) => {
+
+            expect(err).to.not.exist();
+
+            const request = {
+                method: 'POST',
+                url: '/',
+                headers: {
+                    'content-type': 'application/json',
+                    'content-encoding': 'test',
+                    'content-length': buf.length
+                },
+                payload: buf
+            };
+
+            server.inject(request, (res) => {
+
+                expect(res.result).to.exist();
+                expect(res.result).to.equal(message);
+                done();
+            });
+        });
+    });
+
     it('saves a file after content decoding', (done) => {
 
         const path = Path.join(__dirname, './file/image.jpg');
