@@ -1507,6 +1507,114 @@ describe('Connection', () => {
             });
         });
 
+        it('skips extensions once reply(data) is called', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const preResponse1 = function (request, reply) {
+
+                return reply(1);
+            };
+
+            server.ext('onPreResponse', preResponse1);
+
+            let called = false;
+            const preResponse2 = function (request, reply) {
+
+                called = true;
+                return reply(2);
+            };
+
+            server.ext('onPreResponse', preResponse2);
+
+            const handler = function (request, reply) {
+
+                return reply(0);
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+
+            server.inject({ method: 'GET', url: '/' }, (res) => {
+
+                expect(res.result).to.equal(1);
+                expect(called).to.be.false();
+                done();
+            });
+        });
+
+        it('skips extensions once reply(null, data) is called', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const preResponse1 = function (request, reply) {
+
+                return reply(null, 1);
+            };
+
+            server.ext('onPreResponse', preResponse1);
+
+            let called = false;
+            const preResponse2 = function (request, reply) {
+
+                called = true;
+                return reply(2);
+            };
+
+            server.ext('onPreResponse', preResponse2);
+
+            const handler = function (request, reply) {
+
+                return reply(0);
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+
+            server.inject({ method: 'GET', url: '/' }, (res) => {
+
+                expect(res.result).to.equal(1);
+                expect(called).to.be.false();
+                done();
+            });
+        });
+
+        it('skips extensions once reply() is called', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const preResponse1 = function (request, reply) {
+
+                return reply();
+            };
+
+            server.ext('onPreResponse', preResponse1);
+
+            let called = false;
+            const preResponse2 = function (request, reply) {
+
+                called = true;
+                return reply(2);
+            };
+
+            server.ext('onPreResponse', preResponse2);
+
+            const handler = function (request, reply) {
+
+                return reply(0);
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+
+            server.inject({ method: 'GET', url: '/' }, (res) => {
+
+                expect(res.result).to.equal(null);
+                expect(called).to.be.false();
+                done();
+            });
+        });
+
         describe('onRequest', (done) => {
 
             it('replies with custom response', (done) => {

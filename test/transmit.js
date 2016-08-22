@@ -2436,7 +2436,7 @@ describe('transmission', () => {
 
             const profileHandler = function (request, reply) {
 
-                server.methods.profile(0, reply);
+                server.methods.profile(0, (err, data, ttl) => reply(err, data));
             };
 
             server.route({ method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { expiresIn: 120000, privacy: 'private' } } });

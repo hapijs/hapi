@@ -114,6 +114,23 @@ describe('Reply', () => {
                 done();
             });
         });
+
+        it('errors when reply() is called with a third argument', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply(null, 'ok', 'third');
+            };
+
+            const server = new Hapi.Server({ debug: false });
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler });
+            server.inject('/', (res) => {
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
+        });
     });
 
     describe('response()', () => {
