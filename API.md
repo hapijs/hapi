@@ -85,7 +85,7 @@
         - [Error response](#error-response)
             - [Error transformation](#error-transformation)
         - [Flow control](#flow-control)
-    - [`reply.continue([data])`](#replycontinuedata)
+    - [`reply.continue([result])`](#replycontinueresult)
     - [`reply.close([options])`](#replycloseoptions)
     - [`reply.redirect(uri)`](#replyredirecturi)
 
@@ -1172,8 +1172,11 @@ Registers an extension function in one of the available extension points where:
             - `request` - the [request object](#request-object).
             - `reply` - the [reply interface](#reply-interface) which is used to return control back to the
               framework. To continue normal execution of the [request lifecycle](#request-lifecycle),
-              `reply.continue()` must be called. To abort processing and return a response to the client,
-              call `reply(value)` where value is an error or any other valid response.
+              `reply.continue()` must be called. If the extention type is `'onPostHandler'` or
+              `'onPreResponse'`, a single argument passed to `reply.continue()` will override the
+              current set response (including all headers) but will not stop the request lifecycle
+              execution. To abort processing and return a response to the client, call `reply(value)`
+              where value is an error or any other valid response.
             - `this` - the object provided via `options.bind` or the current active context set with
               [`server.bind()`](#serverbindcontext).
     - `options` - an optional object with the following:
@@ -3210,8 +3213,9 @@ to the `'onPreResponse'` event.
 
 To return control to the framework within an [extension](#serverextevent-method-options) or other
 places other than the handler, without setting a response, the method
-[`reply.continue()`](#replycontinuedata) must be called. Except when used within an authentication
-strategy, the `reply.continue()` must not be passed any argument or an exception is thrown.
+[`reply.continue()`](#replycontinueresult) must be called. Except when used within an authentication
+strategy, or in an `'onPostHandler'` or `'onPreResponse'` extension, the `reply.continue()` must
+not be passed any argument or an exception is thrown.
 
 ### `reply([err], [result])`
 
@@ -3592,11 +3596,15 @@ const handler = function (request, reply) {
 };
 ```
 
-### `reply.continue([data])`
+### `reply.continue([result])`
 
-Returns control back to the framework without setting a response. If called in the handler, the
-response defaults to an empty payload with status code `200`. The `data` argument is only used for
-passing back authentication data and is ignored elsewhere.
+Returns control back to the framework without ending the request lifecycle, where:
+- `result` - if called in the handler, prerequisites, or extension points other than the `'onPreHandler'`
+  and `'onPreResponse'`, the `result` argument is not allowed and will throw an exception if present. If
+  called within an authentication strategy, it sets the authenticated credentials. If called by the
+  `'onPreHandler'` or `'onPreResponse'` extensions, the `result` argument overrides the current response
+  including all headers, and returns control back to the framework to continue processing any remaining
+  extensions.
 
 ```js
 const Hapi = require('hapi');

@@ -729,6 +729,49 @@ describe('Reply', () => {
             });
         });
 
+        it('overrides response in post handler extension', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            server.ext('onPreResponse', (request, reply) => {
+
+                if (request.response.isBoom) {
+                    return reply.continue('2');
+                }
+
+                return reply.continue();
+            });
+
+            server.ext('onPreResponse', (request, reply) => {
+
+                request.response.source += 'x';
+                return reply.continue();
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    return reply(request.query.x ? new Error() : '1');
+                }
+            });
+
+            server.inject('/', (res1) => {
+
+                expect(res1.statusCode).to.equal(200);
+                expect(res1.result).to.equal('1x');
+
+                server.inject('/?x=1', (res2) => {
+
+                    expect(res2.statusCode).to.equal(200);
+                    expect(res2.result).to.equal('2x');
+                    done();
+                });
+            });
+        });
+
         it('errors on non auth argument', (done) => {
 
             const handler = function (request, reply) {
