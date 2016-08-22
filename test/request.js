@@ -729,7 +729,7 @@ describe('Request', () => {
                 throw new Error('boom');
             };
 
-            server.route({ method: 'GET', path: '/', handler: handler });
+            server.route({ method: 'GET', path: '/', handler });
 
             server.ext('onPreHandler', (request, reply) => {
 

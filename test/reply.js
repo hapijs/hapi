@@ -475,7 +475,7 @@ describe('Reply', () => {
 
                 const server = new Hapi.Server();
                 server.connection();
-                server.route({ method: 'GET', path: '/', handler: handler });
+                server.route({ method: 'GET', path: '/', handler });
 
                 server.inject('/', (res) => {
 
@@ -495,7 +495,7 @@ describe('Reply', () => {
 
                 const server = new Hapi.Server();
                 server.connection();
-                server.route({ method: 'GET', path: '/', handler: handler });
+                server.route({ method: 'GET', path: '/', handler });
 
                 server.inject('/', (res) => {
 
@@ -515,7 +515,7 @@ describe('Reply', () => {
 
                 const server = new Hapi.Server();
                 server.connection();
-                server.route({ method: 'GET', path: '/', handler: handler });
+                server.route({ method: 'GET', path: '/', handler });
 
                 server.inject('/', (res) => {
 
@@ -540,7 +540,7 @@ describe('Reply', () => {
 
                 const server = new Hapi.Server();
                 server.connection();
-                server.route({ method: 'GET', path: '/', handler: handler });
+                server.route({ method: 'GET', path: '/', handler });
 
                 server.inject('/', (res) => {
 
