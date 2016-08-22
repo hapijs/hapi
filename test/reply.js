@@ -465,6 +465,91 @@ describe('Reply', () => {
                     done();
                 });
             });
+
+            it('returns an error when rejecting with an error object', (done) => {
+
+                const handler = function (request, reply) {
+
+                    return reply(Promise.reject(new Error('rejected')));
+                };
+
+                const server = new Hapi.Server();
+                server.connection();
+                server.route({ method: 'GET', path: '/', handler: handler });
+
+                server.inject('/', (res) => {
+
+                    expect(res.statusCode).to.equal(500);
+                    expect(res.result).to.exist();
+                    expect(res.result.message).to.equal('An internal server error occurred');
+                    done();
+                });
+            });
+
+            it('returns an error when resolving with an error object', (done) => {
+
+                const handler = function (request, reply) {
+
+                    return reply(Promise.resolve(new Error('rejected')));
+                };
+
+                const server = new Hapi.Server();
+                server.connection();
+                server.route({ method: 'GET', path: '/', handler: handler });
+
+                server.inject('/', (res) => {
+
+                    expect(res.statusCode).to.equal(500);
+                    expect(res.result).to.exist();
+                    expect(res.result.message).to.equal('An internal server error occurred');
+                    done();
+                });
+            });
+
+            it('returns an error when rejecting with a non-error object', (done) => {
+
+                const handler = function (request, reply) {
+
+                    return reply(Promise.reject({ error: 'rejected' }));
+                };
+
+                const server = new Hapi.Server();
+                server.connection();
+                server.route({ method: 'GET', path: '/', handler: handler });
+
+                server.inject('/', (res) => {
+
+                    expect(res.statusCode).to.equal(500);
+                    expect(res.result).to.exist();
+                    expect(res.result.message).to.equal('An internal server error occurred');
+                    done();
+                });
+            });
+
+            it('returns an error when throwing in a promise constructor', (done) => {
+
+                const handler = function (request, reply) {
+
+                    const p = new Promise(() => {
+
+                        throw new Error('thrown');
+                    });
+
+                    return reply(p);
+                };
+
+                const server = new Hapi.Server();
+                server.connection();
+                server.route({ method: 'GET', path: '/', handler: handler });
+
+                server.inject('/', (res) => {
+
+                    expect(res.statusCode).to.equal(500);
+                    expect(res.result).to.exist();
+                    expect(res.result.message).to.equal('An internal server error occurred');
+                    done();
+                });
+            });
         });
     });
 
