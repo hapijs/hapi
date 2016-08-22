@@ -1880,7 +1880,7 @@ across multiple requests. Registers a cookie definitions where:
       cookies. Defaults to `false`.
     - `strictHeader` - if `false`, allows any cookie value including values in
       violation of [RFC 6265](https://tools.ietf.org/html/rfc6265). Defaults to `true`.
-    - `passThrough` - overrides the default proxy `localStatePassThrough` setting.
+    - `passThrough` - used by proxy plugins (e.g. [**h2o2**](https://github.com/hapijs/h2o2)).
 
 State defaults can be modified via the server `connections.routes.state` configuration option.
 
