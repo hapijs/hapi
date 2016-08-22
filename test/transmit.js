@@ -725,6 +725,27 @@ describe('transmission', () => {
             });
         });
 
+        it('skips compression for 206 responses', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const handler = function (request, reply) {
+
+                return reply('test').code(206);
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+            server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } }, (res) => {
+
+                expect(res.statusCode).to.equal(206);
+                expect(res.result).to.equal('test');
+                expect(res.headers['content-length']).to.equal(4);
+                expect(res.headers['content-encoding']).to.not.exist();
+                done();
+            });
+        });
+
         it('does not skip compression for chunked transfer payloads', (done) => {
 
             const server = new Hapi.Server();
