@@ -2613,7 +2613,9 @@ following options:
   context (accessible in rules as `Joi.ref('$query.key')`). Note that validation is performed in
   order (i.e. headers, params, query, payload) and if type casting is used (converting a string to
   number), the value of inputs not yet validated will reflect the raw, unvalidated and unmodified
-  values. The `validate` object supports:
+  values. If the validation rules for `headers`, `params`, `query`, and `payload` are defined
+  at both the routes defaults level and an individual route, the individual route settings override
+  the routes defaults (the rules are not merged). The `validate` object supports:
 
     - `headers` - validation rules for incoming request headers (note that all header field names
       must be in lowercase to match the headers normalized by node). Values allowed:
