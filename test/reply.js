@@ -728,6 +728,24 @@ describe('Reply', () => {
                 done();
             });
         });
+
+        it('errors on non auth argument', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply.continue('ok');
+            };
+
+            const server = new Hapi.Server({ debug: false });
+            server.connection();
+            server.route({ method: 'GET', path: '/', config: { handler } });
+
+            server.inject('/', (res) => {
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
+        });
     });
 
     describe('entity()', () => {

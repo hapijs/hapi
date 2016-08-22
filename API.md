@@ -3210,7 +3210,8 @@ to the `'onPreResponse'` event.
 
 To return control to the framework within an [extension](#serverextevent-method-options) or other
 places other than the handler, without setting a response, the method
-[`reply.continue()`](#replycontinuedata) must be called.
+[`reply.continue()`](#replycontinuedata) must be called. Except when used within an authentication
+strategy, the `reply.continue()` must not be passed any argument or an exception is thrown.
 
 ### `reply([err], [result])`
 
