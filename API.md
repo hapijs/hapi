@@ -3224,7 +3224,7 @@ method can only result in a single response value. This means that passing both 
 `result` will only use the `err`. There is no requirement for either `err` or `result` to be (or
 not) an `Error` object. The framework will simply use the first argument if present, otherwise the
 second. The method supports two arguments to be compatible with the common callback pattern of
-error first.
+error first. If a third argument is passed, an exception is thrown.
 
 Both `err` and `result` can be set to:
 - `null`
@@ -3252,7 +3252,8 @@ etc.). If the input is an `Error` object, the method returns back the error wrap
 
 Note that when used to return both an error and credentials in the authentication methods,
 `reply()` must be called with three arguments `function(err, null, data)` where `data` is the
-additional authentication information.
+additional authentication information. This is the only time where a third argument is allowed
+(and required).
 
 The [response flow control rules](#flow-control) apply.
 
