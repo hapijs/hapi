@@ -2547,6 +2547,11 @@ following options:
         - `error` - return an Internal Server Error (500) error response. This is the default
           value.
         - `log` - log the error but send the response.
+        - a custom error handler function with the signature
+          `function(request, reply, source, error)` where:
+            - `request` - the [request object](#request-object).
+            - `reply` - the continuation [reply interface](#reply-interface).
+            - `error` - the error returned from the validation schema.
     - `modify` - if `true`, applies the validation rule changes to the response payload. Defaults to
       `false`.
     - `options` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set

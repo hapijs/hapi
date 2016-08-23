@@ -1587,7 +1587,7 @@ describe('validation', () => {
 
     it('replaces error with message on invalid response', (done) => {
 
-        const server = new Hapi.Server({ debug: false });
+        const server = new Hapi.Server();
         server.connection();
         server.route({
             method: 'GET',
@@ -1598,9 +1598,9 @@ describe('validation', () => {
                     return reply({ a: 1 });
                 },
                 response: {
-                    failAction: function (request, reply, value, error) {
+                    failAction: function (request, reply, error) {
 
-                        return reply('Validation Error Occured').code(400);
+                        return reply('Validation Error Occurred').code(400);
                     },
                     schema: {
                         b: Joi.string()
@@ -1612,7 +1612,7 @@ describe('validation', () => {
         server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(400);
-            expect(res.payload).to.equal('Validation Error Occured');
+            expect(res.payload).to.equal('Validation Error Occurred');
             done();
         });
     });
