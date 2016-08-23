@@ -998,6 +998,12 @@ describe('authentication', () => {
                 }
             });
 
+            server.ext('onPreResponse', (request, reply) => {
+
+                expect(request.response.data).to.contain(['got', 'need']);
+                return reply.continue();
+            });
+
             server.inject({ url: '/test', headers: { authorization: 'Custom steve' } }, (res) => {
 
                 expect(res.statusCode).to.equal(403);
