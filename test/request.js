@@ -1117,7 +1117,35 @@ describe('Request', () => {
             });
         });
 
-        it('outputs log to debug console without data', (done) => {
+        it('emits a request event (function data)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const handler = function (request, reply) {
+
+                server.on('request', (req, event, tags) => {
+
+                    expect(event).to.contain(['request', 'timestamp', 'tags', 'data', 'internal']);
+                    expect(event.data).to.equal('data');
+                    expect(event.internal).to.be.false();
+                    expect(tags).to.equal({ test: true });
+                    return reply();
+                });
+
+                request.log(['test'], () => 'data');
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+
+            server.inject('/', (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('outputs log to debug console without data', { parallel: false }, (done) => {
 
             const handler = function (request, reply) {
 
@@ -1145,7 +1173,7 @@ describe('Request', () => {
             });
         });
 
-        it('outputs log to debug console with error data', (done) => {
+        it('outputs log to debug console with error data', { parallel: false }, (done) => {
 
             const handler = function (request, reply) {
 
@@ -1173,7 +1201,7 @@ describe('Request', () => {
             });
         });
 
-        it('handles invalid log data object stringify', (done) => {
+        it('handles invalid log data object stringify', { parallel: false }, (done) => {
 
             const handler = function (request, reply) {
 
@@ -1230,7 +1258,7 @@ describe('Request', () => {
             });
         });
 
-        it('does not output events when debug disabled', (done) => {
+        it('does not output events when debug disabled', { parallel: false }, (done) => {
 
             const server = new Hapi.Server({ debug: false });
             server.connection();
@@ -1259,7 +1287,7 @@ describe('Request', () => {
             });
         });
 
-        it('does not output events when debug.request disabled', (done) => {
+        it('does not output events when debug.request disabled', { parallel: false }, (done) => {
 
             const server = new Hapi.Server({ debug: { request: false } });
             server.connection();
@@ -1288,7 +1316,7 @@ describe('Request', () => {
             });
         });
 
-        it('does not output non-implementation events by default', (done) => {
+        it('does not output non-implementation events by default', { parallel: false }, (done) => {
 
             const server = new Hapi.Server();
             server.connection();

@@ -31,7 +31,7 @@
     "items": "2.x.x",
     "joi": "9.x.x",
     "mimos": "3.x.x",
-    "podium": "^1.1.x",
+    "podium": "^1.2.x",
     "shot": "3.x.x",
     "statehood": "4.x.x",
     "subtext": "^4.1.x",

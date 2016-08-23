@@ -3659,6 +3659,20 @@ describe('Plugin', () => {
             done();
         });
 
+        it('emits a log event (function data)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            server.once('log', (event, tags) => {
+
+                expect(event.data).to.equal(123);
+                done();
+            });
+
+            server.log('test', () => 123);
+        });
+
         it('emits a log event and print to console', { parallel: false }, (done) => {
 
             const server = new Hapi.Server();
