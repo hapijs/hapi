@@ -1585,6 +1585,40 @@ describe('validation', () => {
         });
     });
 
+    it('replaces error with message on invalid response', (done) => {
+
+        const server = new Hapi.Server({ debug: false });
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) {
+
+                    return reply({ a: 1 });
+                },
+                response: {
+                    failAction: function (request, reply, value, error) {
+
+                        return reply('Validation Error Occured').code(400);
+                    },
+                    schema: {
+                        b: Joi.string()
+                    }
+                }
+            }
+        });
+
+        server.inject('/', (res) => {
+
+            expect(res.statusCode).to.equal(400);
+            expect(res.payload).to.equal('Validation Error Occured');
+            done();
+        });
+    });
+
+
+
     it('validates string response', (done) => {
 
         let value = 'abcd';
