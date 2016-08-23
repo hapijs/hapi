@@ -371,7 +371,7 @@ describe('CORS', () => {
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Tada');
                 expect(res.headers['access-control-allow-origin']).to.equal('http://www.example.com');
-                expect(res.headers.vary).to.equal('x-test,origin');
+                expect(res.headers.vary).to.equal('x-test,origin,accept-encoding');
                 done();
             });
         });
@@ -392,7 +392,7 @@ describe('CORS', () => {
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Tada');
                 expect(res.headers['access-control-allow-origin']).to.equal('http://www.example.com');
-                expect(res.headers.vary).to.equal('x-test,origin');
+                expect(res.headers.vary).to.equal('x-test,origin,accept-encoding');
                 done();
             });
         });
@@ -413,7 +413,7 @@ describe('CORS', () => {
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Tada');
                 expect(res.headers['access-control-allow-origin']).to.equal('http://www.a.com');
-                expect(res.headers.vary).to.equal('x-test,origin');
+                expect(res.headers.vary).to.equal('x-test,origin,accept-encoding');
                 done();
             });
         });
@@ -434,7 +434,7 @@ describe('CORS', () => {
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Tada');
                 expect(res.headers['access-control-allow-origin']).to.equal('http://www.a.com');
-                expect(res.headers.vary).to.equal('x-test,origin');
+                expect(res.headers.vary).to.equal('x-test,origin,accept-encoding');
                 done();
             });
         });

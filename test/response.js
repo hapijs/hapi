@@ -76,7 +76,7 @@ describe('Response', () => {
             expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate, private');
             expect(res.headers['content-type']).to.equal('text/plain; something=something; charset=ISO-8859-1');
             expect(res.headers['set-cookie']).to.equal(['abc=123', 'sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', 'test=123', 'empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/path', 'always=present']);
-            expect(res.headers.vary).to.equal('x-control');
+            expect(res.headers.vary).to.equal('x-control,accept-encoding');
             expect(res.headers.combo).to.equal('o-k');
             done();
         });
@@ -370,7 +370,7 @@ describe('Response', () => {
 
                 expect(res.result).to.equal('ok');
                 expect(res.statusCode).to.equal(200);
-                expect(res.headers.vary).to.equal('x');
+                expect(res.headers.vary).to.equal('x,accept-encoding');
                 done();
             });
         });
@@ -390,7 +390,7 @@ describe('Response', () => {
 
                 expect(res.result).to.equal('ok');
                 expect(res.statusCode).to.equal(200);
-                expect(res.headers.vary).to.equal('x,y');
+                expect(res.headers.vary).to.equal('x,y,accept-encoding');
                 done();
             });
         });
@@ -470,7 +470,7 @@ describe('Response', () => {
 
                 expect(res.result).to.equal('ok');
                 expect(res.statusCode).to.equal(200);
-                expect(res.headers.vary).to.equal('x,xyz,xy');
+                expect(res.headers.vary).to.equal('x,xyz,xy,accept-encoding');
                 done();
             });
         });
