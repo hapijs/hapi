@@ -3346,7 +3346,9 @@ The response object provides the following methods:
 - `charset(charset)` - sets the 'Content-Type' HTTP header 'charset' property where:
     `charset` - the charset property value.
 - `code(statusCode)` - sets the HTTP status code where:
-    - `statusCode` - the HTTP status code.
+    - `statusCode` - the HTTP status code (e.g. 200).
+- `message(httpMessage)` - sets the HTTP status message where:
+    - `httpMessage` - the HTTP status message (e.g. 'Ok' for status code 200).
 - `created(uri)` - sets the HTTP status code to Created (201) and the HTTP 'Location' header where:
     `uri` - an absolute or relative URI used as the 'Location' header value.
 - `encoding(encoding)` - sets the string encoding scheme used to serial data into the HTTP payload
