@@ -1006,7 +1006,7 @@ describe('handler', () => {
         it('logs server method using string notation when cache enabled', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
+            server.connection({ routes: { log: true } });
 
             const method = function (id, next) {
 

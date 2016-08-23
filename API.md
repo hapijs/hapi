@@ -2480,6 +2480,8 @@ following options:
   `text/javascript` and `nosniff` respectively, and will override those
   headers even if explicitly set by `response.type()`
 
+- `log` - if `true`, reuqest level logging is enabled (accessible via [`request.getLog()`](#requestgetlogtags-internal)).
+
 - `payload` - determines how the request payload is processed:
     - `output` - the type of payload representation requested. The value must be one of:
         - `'data'` - the incoming payload is read fully into memory. If `parse` is `true`, the
@@ -3091,7 +3093,7 @@ channel and will include the `event.internal` flag set to `true`.
 ```js
 const Hapi = require('hapi');
 const server = new Hapi.Server();
-server.connection({ port: 80 });
+server.connection({ port: 80, routes: { log: true } });
 
 server.on('request', (request, event, tags) => {
 
@@ -3117,6 +3119,8 @@ Returns an array containing the events matching any of the tags specified (logic
 - `internal` - filters the events to only those with a matching `event.internal` value. If `true`,
   only internal logs are included. If `false`, only user event are included. Defaults to all events
   (`undefined`).
+
+Note that this methods requires the route `log` configuration set to `true`.
 
 ```js
 request.getLog();

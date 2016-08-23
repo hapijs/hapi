@@ -591,7 +591,7 @@ describe('validation', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
+        server.connection({ routes: { log: true } });
         server.route({
             method: 'GET',
             path: '/',

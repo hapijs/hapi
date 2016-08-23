@@ -631,7 +631,7 @@ describe('Request', () => {
         it('emits request-error once', (done) => {
 
             const server = new Hapi.Server({ debug: false });
-            server.connection();
+            server.connection({ routes: { log: true } });
 
             let errs = 0;
             let req = null;
@@ -675,7 +675,7 @@ describe('Request', () => {
         it('emits request-error on implementation error', (done) => {
 
             const server = new Hapi.Server({ debug: false });
-            server.connection();
+            server.connection({ routes: { log: true } });
 
             let errs = 0;
             let req = null;
@@ -712,7 +712,7 @@ describe('Request', () => {
         it('emits request-error on implementation error with a promise in pre handler', (done) => {
 
             const server = new Hapi.Server({ debug: false });
-            server.connection();
+            server.connection({ routes: { log: true } });
 
             let errs = 0;
             let req = null;
@@ -1120,7 +1120,7 @@ describe('Request', () => {
         it('emits a request event (function data)', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
+            server.connection({ routes: { log: true } });
 
             const handler = function (request, reply) {
 
@@ -1130,6 +1130,7 @@ describe('Request', () => {
                     expect(event.data).to.equal('data');
                     expect(event.internal).to.be.false();
                     expect(tags).to.equal({ test: true });
+                    expect(request.getLog('test')[0].data).to.equal('data');
                     return reply();
                 });
 
@@ -1213,7 +1214,7 @@ describe('Request', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
+            server.connection({ routes: { log: true } });
             server.route({ method: 'GET', path: '/', handler });
 
             const orig = console.error;
@@ -1248,7 +1249,7 @@ describe('Request', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
+            server.connection({ routes: { log: true } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
@@ -1375,7 +1376,7 @@ describe('Request', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
+            server.connection({ routes: { log: true } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
