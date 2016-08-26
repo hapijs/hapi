@@ -2,11 +2,9 @@
 
 ### Web and services application framework
 
-<a href="https://sideway.com"><img src="https://www.sideway.com/sideway.png" align="right" /></a>
-
 Lead Maintainer: [Eran Hammer](https://github.com/hueniverse)
 
-**hapi** is sponsored by [Sideway](https://sideway.com).
+**hapi** is sponsored by Benjamin Flesch and (StriveWire)[https://strivewire.com/]. StriveWire is currently hiring full stack developers in Hamburg, Germany.
 
 **hapi** is a simple to use configuration-centric framework with built-in support for input validation, caching,
 authentication, and other essential facilities for building web and services applications. **hapi** enables
