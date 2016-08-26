@@ -938,15 +938,17 @@ exports.register.attributes = {
 Registers a custom content decoding compressor to extend the built-in support for `'gzip'` and
 '`deflate`' where:
 - `encoding` - the decoder name string.
-- `encoder` - a function compatible with node's [`zlib.createGunzip()`](https://nodejs.org/dist/latest-v6.x/docs/api/zlib.html#zlib_zlib_creategunzip_options).
+- `encoder` - a function using the signature `function(options)` where `options` are the encoding specific options configured in
+  the route `payload.compression` configuration option, and the return value is an object compatible with the output of node's
+  [`zlib.createGunzip()`](https://nodejs.org/dist/latest-v6.x/docs/api/zlib.html#zlib_zlib_creategunzip_options).
 
 ```js
 const Zlib = require('zlib');
 const Hapi = require('hapi');
 const server = new Hapi.Server();
-server.connection({ port: 80 });
+server.connection({ port: 80, routes: { payload: { compression: { special: { chunkSize: 16 * 1024 } } } } });
 
-server.decoder('special', Zlib.createGunzip);
+server.decoder('special', (options) => Zlib.createGunzip(options));
 ```
 
 ### `server.decorate(type, property, method, [options])`
@@ -1074,15 +1076,17 @@ server.emit('test', 'hello');
 Registers a custom content encoding compressor to extend the built-in support for `'gzip'` and
 '`deflate`' where:
 - `encoding` - the encoder name string.
-- `encoder` - a function compatible with node's [`zlib.createGzip()`](https://nodejs.org/dist/latest-v6.x/docs/api/zlib.html#zlib_zlib_creategzip_options).
+- `encoder` - a function using the signature `function(options)` where `options` are the encoding specific options configured in
+  the route `compression` configuration option, and the return value is an object compatible with the output of node's
+  [`zlib.createGzip()`](https://nodejs.org/dist/latest-v6.x/docs/api/zlib.html#zlib_zlib_creategzip_options).
 
 ```js
 const Zlib = require('zlib');
 const Hapi = require('hapi');
 const server = new Hapi.Server();
-server.connection({ port: 80 });
+server.connection({ port: 80, routes: { compression: { special: { chunkSize: 16 * 1024 } } } });
 
-server.encoder('special', Zlib.createGzip);
+server.encoder('special', (options) => Zlib.createGzip(options));
 ```
 
 ### `server.event(events)`
@@ -2427,6 +2431,9 @@ following options:
     - `otherwise` - a string with the value of the 'Cache-Control' header when caching is disabled.
       Defaults to `'no-cache'`.
 
+- `compression` - an object where each key is a content-encoding name and each value is an
+  object with the desired encoder settings. Note that decoder settings are set in `payload.compression`.
+
 - `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows
   browsers to make cross-origin API calls. CORS is required by web applications running
   inside a browser which are loaded from a different domain than the API server. CORS
@@ -2533,6 +2540,9 @@ following options:
         - `'ignore'` - take no action and continue processing the request.
     - `defaultContentType` - the default 'Content-Type' HTTP header value is not present.
       Defaults to `'application/json'`.
+    - `compression` - an object where each key is a content-encoding name and each value is an
+      object with the desired decoder settings. Note that encoder settings are set in the root
+      option `compression`.
 
 - `plugins` - plugin-specific configuration. `plugins` is an object where each key is a plugin
   name and the value is the plugin configuration.

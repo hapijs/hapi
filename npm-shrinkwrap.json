@@ -64,7 +64,7 @@
             "version": "4.0.3"
         },
         "subtext": {
-            "version": "4.1.0",
+            "version": "4.2.1",
             "dependencies": {
                 "content": {
                     "version": "3.0.2"

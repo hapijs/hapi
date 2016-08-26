@@ -2836,9 +2836,15 @@ describe('Plugin', () => {
             const data = '{"test":"true"}';
 
             const server = new Hapi.Server();
-            server.connection();
+            server.connection({ routes: { compression: { test: { some: 'option' } } } });
 
-            server.encoder('test', Zlib.createGzip);
+            const encoder = (options) => {
+
+                expect(options).to.equal({ some: 'option' });
+                return Zlib.createGzip();
+            };
+
+            server.encoder('test', encoder);
 
             const handler = function (request, reply) {
 

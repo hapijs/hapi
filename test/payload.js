@@ -264,7 +264,7 @@ describe('payload', () => {
         });
     });
 
-    it('handles custom compression', (done) => {
+    it('handles deflated payload', (done) => {
 
         const handler = function (request, reply) {
 
@@ -274,7 +274,50 @@ describe('payload', () => {
         const message = { 'msg': 'This message is going to be gzipped.' };
         const server = new Hapi.Server();
         server.connection();
-        server.decoder('test', Zlib.createGunzip);
+        server.route({ method: 'POST', path: '/', handler });
+
+        Zlib.deflate(JSON.stringify(message), (err, buf) => {
+
+            expect(err).to.not.exist();
+
+            const request = {
+                method: 'POST',
+                url: '/',
+                headers: {
+                    'content-type': 'application/json',
+                    'content-encoding': 'deflate',
+                    'content-length': buf.length
+                },
+                payload: buf
+            };
+
+            server.inject(request, (res) => {
+
+                expect(res.result).to.exist();
+                expect(res.result).to.equal(message);
+                done();
+            });
+        });
+    });
+
+    it('handles custom compression', (done) => {
+
+        const handler = function (request, reply) {
+
+            return reply(request.payload);
+        };
+
+        const message = { 'msg': 'This message is going to be gzipped.' };
+        const server = new Hapi.Server();
+        server.connection({ routes: { payload: { compression: { test: { some: 'options' } } } } });
+
+        const decoder = (options) => {
+
+            expect(options).to.equal({ some: 'options' });
+            return Zlib.createGunzip();
+        };
+
+        server.decoder('test', decoder);
         server.route({ method: 'POST', path: '/', handler });
 
         Zlib.gzip(JSON.stringify(message), (err, buf) => {
