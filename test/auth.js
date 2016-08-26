@@ -98,6 +98,59 @@ describe('authentication', () => {
         });
     });
 
+    it('authenticates a request against another route', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.auth.scheme('custom', internals.implementation);
+        server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['one'] } } });
+
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: function (request, reply) {
+
+                    const credentials = request.auth.credentials;
+
+                    const access = {
+                        two: request.connection.lookup('two').auth.access(request),
+                        three1: request.connection.lookup('three').auth.access(request),
+                        four1: request.connection.lookup('four').auth.access(request)
+                    };
+
+                    request.auth.credentials = null;
+                    access.three2 = request.connection.lookup('three').auth.access(request);
+                    access.four2 = request.connection.lookup('four').auth.access(request);
+                    request.auth.credentials = credentials;
+
+                    return reply(access);
+                },
+                auth: {
+                    scope: 'one'
+                }
+            }
+        });
+
+        server.route({ method: 'GET', path: '/two', config: { id: 'two', handler: Hoek.ignore, auth: { scope: 'two' } } });
+        server.route({ method: 'GET', path: '/three', config: { id: 'three', handler: Hoek.ignore, auth: { scope: 'one' } } });
+        server.route({ method: 'GET', path: '/four', config: { id: 'four', handler: Hoek.ignore, auth: false } });
+
+        server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal({
+                two: false,
+                three1: true,
+                three2: false,
+                four1: true,
+                four2: true
+            });
+
+            done();
+        });
+    });
+
     describe('strategy()', () => {
 
         it('fails when options default to null', (done) => {

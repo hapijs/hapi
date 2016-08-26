@@ -2721,6 +2721,17 @@ following:
 - `vhost` - the route vhost option if configured.
 - `realm` - the [active realm](#serverrealm) associated with the route.
 - `settings` - the [route options](#route-options) object with all defaults applied.
+- `fingerprint` - the route internal normalized string representing the normalized path.
+- `auth` - route authentication utilities:
+    - `access(request)` - authenticates the passed `request` argument against the route's
+      authentication `access` configuration. Returns `true` if the `request` would have passed
+      the route's access requirements. Note that the route's authentication mode and strategies
+      are ignored. The only match is made between the `request.auth.credentials` scope
+      and entity information and the route `access` configuration. Also, if the route uses
+      dynamic scopes, the scopes are constructed against the `request.query` and `request.params`
+      which may or may not match between the route and the request's route. If this method is
+      called using a request that has not been authenticated (yet or at all), it will return
+      `false` if the route requires any authentication.
 
 ### Path parameters
 
