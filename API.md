@@ -1380,6 +1380,8 @@ for performing injections, with some additional options and response properties:
         - `close` - if `true`, emits a `'close'` event after payload transmission (if any).
           Defaults to `false`.
         - `end` - if `false`, does not end the stream. Defaults to `true`.
+    - `validate` - if `false`, the `options` inputs are not validated. This is recommended for run-time
+      usage of `inject()` to make it perform faster where input validation can be tested separately.
 - `callback` - the callback function with signature `function(res)` where:
     - `res` - the response object where:
         - `statusCode` - the HTTP status code.
@@ -1859,12 +1861,12 @@ across multiple requests. Registers a cookie definitions where:
 - `options` - are the optional cookie settings:
     - `ttl` - time-to-live in milliseconds. Defaults to `null` (session time-life - cookies are
       deleted when the browser is closed).
-    - `isSecure` - sets the 'Secure' flag. Defaults to `false`.
-    - `isHttpOnly` - sets the 'HttpOnly' flag. Defaults to `false`.
+    - `isSecure` - sets the 'Secure' flag. Defaults to `true`.
+    - `isHttpOnly` - sets the 'HttpOnly' flag. Defaults to `true`.
     - `isSameSite` - sets the 'SameSite' flag where the value must be one of:
-        - `false` - no flag (this is the default value).
-        - `'Strict'` - sets the value to `'Strict'`,
-        - `'Lax'` - sets the value to `'Lax'`,
+        - `false` - no flag.
+        - `'Strict'` - sets the value to `'Strict'` (this is the default value).
+        - `'Lax'` - sets the value to `'Lax'`.
     - `path` - the path scope. Defaults to `null` (no path).
     - `domain` - the domain scope. Defaults to `null` (no domain).
     - `autoValue` - if present and the cookie was not received from the client or explicitly set by

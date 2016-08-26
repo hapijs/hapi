@@ -170,7 +170,7 @@ describe('state', () => {
         server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x' } }, (res) => {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.headers['set-cookie'][0]).to.equal('a=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT');
+            expect(res.headers['set-cookie'][0]).to.equal('a=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; HttpOnly; SameSite=Strict');
             done();
         });
     });
@@ -190,7 +190,7 @@ describe('state', () => {
         server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.headers['set-cookie']).to.equal(['always=present']);
+            expect(res.headers['set-cookie']).to.equal(['always=present; Secure; HttpOnly; SameSite=Strict']);
             done();
         });
     });
@@ -210,7 +210,7 @@ describe('state', () => {
         server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.headers['set-cookie']).to.equal(['onecookie=yes', 'twocookie=no', 'always=present']);
+            expect(res.headers['set-cookie']).to.equal(['onecookie=yes', 'twocookie=no', 'always=present; Secure; HttpOnly; SameSite=Strict']);
             done();
         });
     });
@@ -235,7 +235,7 @@ describe('state', () => {
         server.inject('/sweet', (res) => {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.headers['set-cookie']).to.equal(['always=sweet']);
+            expect(res.headers['set-cookie']).to.equal(['always=sweet; Secure; HttpOnly; SameSite=Strict']);
             done();
         });
     });
@@ -280,7 +280,7 @@ describe('state', () => {
         server.inject('/', (res) => {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.headers['set-cookie']).to.equal(['a=b']);
+            expect(res.headers['set-cookie']).to.equal(['a=b; Secure; HttpOnly; SameSite=Strict']);
             done();
         });
     });

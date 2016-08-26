@@ -75,7 +75,7 @@ describe('Response', () => {
             expect(res.statusMessage).to.equal('Super');
             expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate, private');
             expect(res.headers['content-type']).to.equal('text/plain; something=something; charset=ISO-8859-1');
-            expect(res.headers['set-cookie']).to.equal(['abc=123', 'sid=YWJjZGVmZzEyMzQ1Ng==', 'other=something; Secure', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT', 'test=123', 'empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/path', 'always=present']);
+            expect(res.headers['set-cookie']).to.equal(['abc=123', 'sid=YWJjZGVmZzEyMzQ1Ng==; Secure; HttpOnly; SameSite=Strict', 'other=something; Secure; HttpOnly; SameSite=Strict', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; HttpOnly; SameSite=Strict', 'test=123; Secure; HttpOnly; SameSite=Strict', 'empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; HttpOnly; SameSite=Strict; Path=/path', 'always=present; Secure; HttpOnly; SameSite=Strict']);
             expect(res.headers.vary).to.equal('x-control,accept-encoding');
             expect(res.headers.combo).to.equal('o-k');
             done();
@@ -347,7 +347,7 @@ describe('Response', () => {
             server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
-                expect(res.headers['set-cookie']).to.equal(['session=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; Path=/unset']);
+                expect(res.headers['set-cookie']).to.equal(['session=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; HttpOnly; SameSite=Strict; Path=/unset']);
                 done();
             });
         });
@@ -734,7 +734,7 @@ describe('Response', () => {
 
                 expect(res.result).to.equal('x');
                 expect(res.headers.xcustom).to.equal('other value');
-                expect(res.headers['set-cookie']).to.equal(['a=1', 'b=2']);
+                expect(res.headers['set-cookie']).to.equal(['a=1', 'b=2; Secure; HttpOnly; SameSite=Strict']);
                 done();
             });
         });
