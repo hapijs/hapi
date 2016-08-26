@@ -20,7 +20,7 @@
   "dependencies": {
     "accept": "2.x.x",
     "ammo":  "2.x.x",
-    "boom": "3.x.x",
+    "boom": "4.x.x",
     "call": "3.x.x",
     "catbox": "7.x.x",
     "catbox-memory": "2.x.x",
