@@ -929,6 +929,7 @@ describe('transmission', () => {
                 expect(res.headers['content-type']).to.equal('image/png');
                 expect(res.headers['content-encoding']).to.not.exist();
                 expect(res.headers['content-length']).to.equal(42010);
+                expect(res.headers.vary).to.not.exist();
                 expect(res.payload).to.exist();
                 done();
             });
