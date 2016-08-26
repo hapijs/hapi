@@ -1861,6 +1861,10 @@ across multiple requests. Registers a cookie definitions where:
       deleted when the browser is closed).
     - `isSecure` - sets the 'Secure' flag. Defaults to `false`.
     - `isHttpOnly` - sets the 'HttpOnly' flag. Defaults to `false`.
+    - `isSameSite` - sets the 'SameSite' flag where the value must be one of:
+        - `false` - no flag (this is the default value).
+        - `'Strict'` - sets the value to `'Strict'`,
+        - `'Lax'` - sets the value to `'Lax'`,
     - `path` - the path scope. Defaults to `null` (no path).
     - `domain` - the domain scope. Defaults to `null` (no domain).
     - `autoValue` - if present and the cookie was not received from the client or explicitly set by
