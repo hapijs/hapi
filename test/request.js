@@ -709,50 +709,6 @@ describe('Request', () => {
             });
         });
 
-        it('emits request-error on implementation error with a promise in pre handler', (done) => {
-
-            const server = new Hapi.Server({ debug: false });
-            server.connection({ routes: { log: true } });
-
-            let errs = 0;
-            let req = null;
-            server.on('request-error', (request, err) => {
-
-                ++errs;
-                expect(err).to.exist();
-                expect(err.message).to.equal('Uncaught error: boom');
-                req = request;
-            });
-
-            const handler = function (request, reply) {
-
-                throw new Error('boom');
-            };
-
-            server.route({ method: 'GET', path: '/', handler });
-
-            server.ext('onPreHandler', (request, reply) => {
-
-                Promise.resolve()
-                    .then(() => reply.continue())
-                    .catch(() => reply(Boom.badImplementation('oops')));
-            });
-
-            server.once('response', () => {
-
-                expect(errs).to.equal(1);
-                expect(req.getLog('error')[0].tags).to.equal(['internal', 'implementation', 'error']);
-                done();
-            });
-
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                expect(res.result).to.exist();
-                expect(res.result.message).to.equal('An internal server error occurred');
-            });
-        });
-
         it('does not emit request-error when error is replaced with valid response', (done) => {
 
             const server = new Hapi.Server({ debug: false });
