@@ -29,7 +29,7 @@
     - [`server.decorate(type, property, method, [options])`](#serverdecoratetype-property-method-options)
     - [`server.dependency(dependencies, [after])`](#serverdependencydependencies-after)
     - [`server.emit(criteria, data, [callback])`](#serveremitcriteria-data-callback)
-    - [`server.encoder(encoding, encoder)`](#serverencoderencoding-encoder)
+    - [`server.encoder(encoding, encoder, [schema])`](#serverencoderencoding-encoder-schema)
     - [`server.event(events)`](#servereventevents)
     - [`server.expose(key, value)`](#serverexposekey-value)
     - [`server.expose(obj)`](#serverexposeobj)
@@ -1071,7 +1071,7 @@ server.on('test', (update) => console.log(update));
 server.emit('test', 'hello');
 ```
 
-### `server.encoder(encoding, encoder)`
+### `server.encoder(encoding, encoder, [schema])`
 
 Registers a custom content encoding compressor to extend the built-in support for `'gzip'` and
 '`deflate`' where:
@@ -1079,6 +1079,8 @@ Registers a custom content encoding compressor to extend the built-in support fo
 - `encoder` - a function using the signature `function(options)` where `options` are the encoding specific options configured in
   the route `compression` configuration option, and the return value is an object compatible with the output of node's
   [`zlib.createGzip()`](https://nodejs.org/dist/latest-v6.x/docs/api/zlib.html#zlib_zlib_creategzip_options).
+- `schema` - an optional [Joi](http://github.com/hapijs/joi) validation object, which is applied to the encoding compression
+   settings object on the route.
 
 ```js
 const Zlib = require('zlib');
