@@ -203,6 +203,7 @@ describe('CORS', () => {
 
         server.inject({ url: '/', headers: { origin: 'http://example.com/' } }, (res) => {
 
+            expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal(null);
             expect(res.headers['access-control-allow-credentials']).to.equal('true');
             done();
@@ -220,24 +221,28 @@ describe('CORS', () => {
         server.connection({ routes: { cors: { origin: ['http://example.com/'] } } });
         server.route({ method: 'GET', path: '/', handler, config: { cors: { credentials: true } } });
 
-        server.inject({ url: '/', headers: { origin: 'http://example.com/' } }, (res1) => {
+        server.inject({ url: '/', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } }, (res1) => {
 
+            expect(res1.statusCode).to.equal(200);
             expect(res1.result).to.equal(null);
             expect(res1.headers['access-control-allow-credentials']).to.equal('true');
 
-            server.inject({ methof: 'OPTIONS', url: '/', headers: { origin: 'http://example.com/' } }, (res2) => {
+            server.inject({ method: 'OPTIONS', url: '/', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } }, (res2) => {
 
+                expect(res2.statusCode).to.equal(200);
                 expect(res2.result).to.equal(null);
                 expect(res2.headers['access-control-allow-credentials']).to.equal('true');
 
-                server.inject({ url: '/', headers: { origin: 'http://example.org/' } }, (res3) => {
+                server.inject({ url: '/', headers: { origin: 'http://example.org/', 'access-control-request-method': 'GET' } }, (res3) => {
 
+                    expect(res3.statusCode).to.equal(200);
                     expect(res3.result).to.equal(null);
                     expect(res3.headers['access-control-allow-credentials']).to.not.exist();
 
-                    server.inject({ methof: 'OPTIONS', url: '/', headers: { origin: 'http://example.org/' } }, (res4) => {
+                    server.inject({ method: 'OPTIONS', url: '/', headers: { origin: 'http://example.org/', 'access-control-request-method': 'GET' } }, (res4) => {
 
-                        expect(res4.result).to.equal(null);
+                        expect(res4.statusCode).to.equal(200);
+                        expect(res4.result).to.equal({ message: 'CORS error: Origin not allowed' });
                         expect(res4.headers['access-control-allow-credentials']).to.not.exist();
                         expect(res4.headers['access-control-allow-origin']).to.not.exist();
                         done();
@@ -262,12 +267,14 @@ describe('CORS', () => {
 
             server.inject({ url: '/', headers: { origin: 'http://example.com/' } }, (res1) => {
 
+                expect(res1.statusCode).to.equal(200);
                 expect(res1.result).to.exist();
                 expect(res1.result).to.equal('ok');
                 expect(res1.headers['access-control-allow-origin']).to.equal('http://example.com/');
 
                 server.inject({ method: 'OPTIONS', url: '/', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } }, (res2) => {
 
+                    expect(res2.statusCode).to.equal(200);
                     expect(res2.result).to.be.null();
                     expect(res2.headers['access-control-allow-origin']).to.equal('http://example.com/');
                     done();
@@ -288,6 +295,7 @@ describe('CORS', () => {
 
             server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, (res) => {
 
+                expect(res.statusCode).to.equal(200);
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('ok');
                 expect(res.headers['access-control-allow-origin']).to.equal('http://x.example.com');
@@ -328,6 +336,7 @@ describe('CORS', () => {
 
             server.inject({ url: '/', headers: { origin: 'http://example.com/' } }, (res) => {
 
+                expect(res.statusCode).to.equal(200);
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('ok');
                 expect(res.headers['access-control-expose-headers']).to.equal('something,WWW-Authenticate,Server-Authorization,xyz');
@@ -348,6 +357,7 @@ describe('CORS', () => {
 
             server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, (res) => {
 
+                expect(res.statusCode).to.equal(200);
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('ok');
                 expect(res.headers['access-control-allow-origin']).to.not.exist();
@@ -368,6 +378,7 @@ describe('CORS', () => {
 
             server.inject({ url: '/', headers: { origin: 'http://www.example.com' } }, (res) => {
 
+                expect(res.statusCode).to.equal(200);
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Tada');
                 expect(res.headers['access-control-allow-origin']).to.equal('http://www.example.com');
@@ -389,6 +400,7 @@ describe('CORS', () => {
 
             server.inject({ url: '/', headers: { origin: 'http://www.example.com' } }, (res) => {
 
+                expect(res.statusCode).to.equal(200);
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Tada');
                 expect(res.headers['access-control-allow-origin']).to.equal('http://www.example.com');
@@ -410,6 +422,7 @@ describe('CORS', () => {
 
             server.inject({ url: '/', headers: { origin: 'http://www.a.com' } }, (res) => {
 
+                expect(res.statusCode).to.equal(200);
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Tada');
                 expect(res.headers['access-control-allow-origin']).to.equal('http://www.a.com');
@@ -431,6 +444,7 @@ describe('CORS', () => {
 
             server.inject({ url: '/', headers: { origin: 'http://www.a.com' } }, (res) => {
 
+                expect(res.statusCode).to.equal(200);
                 expect(res.result).to.exist();
                 expect(res.result).to.equal('Tada');
                 expect(res.headers['access-control-allow-origin']).to.equal('http://www.a.com');
@@ -452,11 +466,13 @@ describe('CORS', () => {
 
             server.inject({ url: '/', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } }, (res1) => {
 
+                expect(res1.statusCode).to.equal(200);
                 expect(res1.headers['access-control-allow-origin']).to.equal('http://example.com/');
                 expect(res1.headers['access-control-expose-headers']).to.not.exist();
 
                 server.inject({ method: 'OPTIONS', url: '/', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } }, (res2) => {
 
+                    expect(res2.statusCode).to.equal(200);
                     expect(res2.headers['access-control-allow-origin']).to.equal('http://example.com/');
                     expect(res2.headers['access-control-expose-headers']).to.not.exist();
                     done();
