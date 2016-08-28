@@ -2870,6 +2870,49 @@ describe('Plugin', () => {
                 });
             });
         });
+
+        it('errors when missing dependencies on connection added after start', (done) => {
+
+            const a = function (srv, options, next) {
+
+                return next();
+            };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            const b = function (srv, options, next) {
+
+                srv.dependency('a');
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b'
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.register([a, b], (err) => {
+
+                expect(err).to.not.exist();
+                server.start((err) => {
+
+                    expect(err).to.not.exist();
+                    const select = server.connection();
+                    select.register(b, (err) => {
+
+                        expect(err).to.not.exist();
+                        server.start((err) => {
+
+                            expect(err).to.be.an.error(`Plugin b missing dependency a in connection: ${select.info.uri}`);
+                            server.stop(done);
+                        });
+                    });
+                });
+            });
+        });
     });
 
     describe('encoder()', () => {

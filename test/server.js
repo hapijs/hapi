@@ -52,6 +52,19 @@ describe('Server', () => {
         done();
     });
 
+    describe('initialize()', () => {
+
+        it('allows initializing a server without connections', (done) => {
+
+            const server = new Hapi.Server();
+            server.initialize((err) => {
+
+                expect(err).to.not.exist();
+                done();
+            });
+        });
+    });
+
     describe('start()', () => {
 
         it('starts and stops', (done) => {
