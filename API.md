@@ -617,10 +617,11 @@ The `scheme` method must return an object with the following keys:
 
 When the scheme `authenticate()` method implementation calls `reply()` with an error condition,
 the specifics of the error affect whether additional authentication strategies will be attempted
-if configured for the route. If the `err` returned by the `reply()` method includes a message, no
+(if configured for the route). If the `err` passed to the `reply()` method includes a message, no
 additional strategies will be attempted. If the `err` does not include a message but does include
-a scheme name (e.g. `Boom.unauthorized(null, 'Custom')`), additional strategies will be attempted
-in order of preference.
+the scheme name (e.g. `Boom.unauthorized(null, 'Custom')`), additional strategies will be attempted
+in the order of preference (defined in the route configuration). If authentication fails the
+scheme names will be present in the 'WWW-Authenticate' header.
 
 When the scheme `payload()` method returns an error with a message, it means payload validation
 failed due to bad payload. If the error has no message but includes a scheme name (e.g.
