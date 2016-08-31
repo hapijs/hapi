@@ -2988,7 +2988,7 @@ Each request object includes the following properties:
   [Path parameters](#path-parameters).
 - `paramsArray` - an array containing all the path `params` values in the order they appeared in
   the path.
-- `path` - the request URI's path component.
+- `path` - the request URI's [pathname](https://nodejs.org/api/url.html#url_urlobject_pathname) component.
 - `payload` - the request payload based on the route `payload.output` and `payload.parse` settings.
 - `plugins` - plugin-specific state. Provides a place to store and pass request-level plugin data.
   The `plugins` is an object where each key is a plugin name and the value is the state.
