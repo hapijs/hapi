@@ -3747,8 +3747,11 @@ describe('Plugin', () => {
 
             server.log(['2'], 'log event 2', new Date(Date.now()));
 
-            expect(count).to.equal(3);
-            done();
+            setTimeout(() => {
+
+                expect(count).to.equal(3);
+                done();
+            }, 10);
         });
 
         it('emits a log event (function data)', (done) => {
@@ -3926,6 +3929,54 @@ describe('Plugin', () => {
                 expect(sc).to.equal(1);
                 expect(pc).to.equal(1);
                 done();
+            });
+        });
+
+        it('emits log events after handler error when server is started', (done) => {
+
+            const server = new Hapi.Server({ debug: false });
+            server.connection();
+
+            const updates = [];
+            const test = function (srv, options, next) {
+
+                srv.on('log', (event, tags) => updates.push(event.tags));
+                srv.on('response', (request) => updates.push('response'));
+                srv.on('request-error', (request, err) => updates.push('request-error'));
+
+                return next();
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    request.server.log('1');
+                    throw new Error('2');
+                }
+            });
+
+            server.register(test, (err) => {
+
+                expect(err).to.not.exist();
+                server.start((err) => {
+
+                    expect(err).to.not.exist();
+                    server.inject('/', (res) => {
+
+                        expect(res.statusCode).to.equal(500);
+                        setTimeout(() => {
+
+                            expect(updates).to.equal([['1'], 'request-error', 'response']);
+                            server.stop(done);
+                        }, 10);
+                    });
+                });
             });
         });
     });

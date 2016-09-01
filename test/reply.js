@@ -320,29 +320,27 @@ describe('Reply', () => {
             server.route({ method: 'GET', path: '/stream', handler: streamHandler });
             server.route({ method: 'GET', path: '/writable', handler: writableHandler });
 
-            let requestError;
+            let updates = 0;
             server.on('request-error', (request, err) => {
 
-                requestError = err;
+                expect(err).to.be.an.error('Stream must have a streams2 readable interface');
+                ++updates;
             });
 
             server.initialize((err) => {
 
                 expect(err).to.not.exist();
-
                 server.inject('/stream', (res1) => {
 
                     expect(res1.statusCode).to.equal(500);
-                    expect(requestError).to.exist();
-                    expect(requestError.message).to.equal('Stream must have a streams2 readable interface');
-
-                    requestError = undefined;
                     server.inject('/writable', (res2) => {
 
                         expect(res2.statusCode).to.equal(500);
-                        expect(requestError).to.exist();
-                        expect(requestError.message).to.equal('Stream must have a streams2 readable interface');
-                        done();
+                        setTimeout(() => {
+
+                            expect(updates).to.equal(2);
+                            done();
+                        }, 10);
                     });
                 });
             });
