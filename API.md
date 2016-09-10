@@ -2958,6 +2958,7 @@ Each request object includes the following properties:
       authentication-related actions.
     - `mode` - the route authentication mode.
     - `error` - the authentication error is failed and mode set to `'try'`.
+- `connection` - the connection the request was received by.
 - `domain` - the node domain object used to protect against exceptions thrown in extensions,
   handlers and [route prerequisites](#route-prerequisites). Can be used to manually bind callback
   functions otherwise bound to other domains. Set to `null` when the server `useDomains` options is
