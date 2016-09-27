@@ -1492,6 +1492,51 @@ describe('Plugin', () => {
             });
         });
 
+        it('register a conditional connectionless plugin (empty selection)', (done) => {
+
+            const test = function (srv, options, next) {
+
+                expect(srv.connections).to.be.null();
+                expect(srv.connection).to.be.a.function();
+                return next();
+            };
+
+            test.attributes = {
+                name: 'test',
+                connections: 'conditional'
+            };
+
+            const server = new Hapi.Server();
+            server.register(test, (err) => {
+
+                expect(err).to.not.exist();
+                done();
+            });
+        });
+
+        it('register a conditional connectionless plugin (with selection)', (done) => {
+
+            const test = function (srv, options, next) {
+
+                expect(srv.connections).to.exist();
+                expect(srv.connection).to.not.exist();
+                return next();
+            };
+
+            test.attributes = {
+                name: 'test',
+                connections: 'conditional'
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.register(test, (err) => {
+
+                expect(err).to.not.exist();
+                done();
+            });
+        });
+
         it('register a plugin once per connection (no selection left)', (done) => {
 
             let count = 0;
