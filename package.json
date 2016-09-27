@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "15.1.0",
+  "version": "15.1.1",
   "repository": {
     "type": "git",
     "url": "git://github.com/hapijs/hapi"
@@ -38,12 +38,12 @@
     "topo": "2.x.x"
   },
   "devDependencies": {
-    "code": "3.x.x",
+    "code": "4.x.x",
     "handlebars": "4.x.x",
     "inert": "4.x.x",
     "lab": "11.x.x",
     "vision": "4.x.x",
-    "wreck": "9.x.x"
+    "wreck": "10.x.x"
   },
   "scripts": {
     "test": "lab -a code -t 100 -L -m 3000",
