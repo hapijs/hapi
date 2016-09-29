@@ -130,6 +130,27 @@ describe('handler', () => {
                 done();
             });
         });
+
+        it('calls reply with returned promise', (done) => {
+
+            const response = {};
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const handler = function (request, reply) {
+
+                return Promise.resolve(response);
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+
+            server.inject('/', (res) => {
+
+                expect(res.result).to.equal(response);
+                done();
+            });
+        });
     });
 
     describe('register()', () => {
