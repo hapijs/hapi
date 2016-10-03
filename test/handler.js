@@ -404,6 +404,53 @@ describe('handler', () => {
             });
         });
 
+        it('returns error if prerequisite returns promise, and handler throws an error', (done) => {
+
+            const pre1 = function (request, reply) {
+
+                return reply('Hello');
+            };
+
+            const pre2 = function (request, reply) {
+
+                return reply(Promise.resolve('world'));
+            };
+
+            const handler = function (request, reply) {
+
+                throw new Error();
+            };
+
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    pre: [
+                        [{ method: pre1, assign: 'm1' }],
+                        { method: pre2, assign: 'm2' }
+                    ],
+                    handler
+                }
+            });
+
+            const orig = console.error;
+            console.error = function () {
+
+                console.error = orig;
+                expect(arguments[0]).to.equal('Debug:');
+                expect(arguments[1]).to.equal('internal, implementation, error');
+            };
+
+            server.inject('/', (res) => {
+
+                expect(res.result.statusCode).to.equal(500);
+                done();
+            });
+        });
+
         it('passes wrapped object', (done) => {
 
             const pre = function (request, reply) {
