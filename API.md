@@ -3414,7 +3414,7 @@ The response object provides the following methods:
     - `options` - optional settings where:
         - `append` - if `true`, the value is appended to any existing header value using
           `separator`. Defaults to `false`.
-        - `separator` - string used as separator when appending to an exiting value. Defaults to
+        - `separator` - string used as separator when appending to an existing value. Defaults to
           `','`.
         - `override` - if `false`, the header value is not set if an existing value present.
           Defaults to `true`.
