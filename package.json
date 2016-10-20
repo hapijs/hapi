@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "15.1.1",
+  "version": "15.2.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/hapijs/hapi"
@@ -34,7 +34,7 @@
     "podium": "^1.2.x",
     "shot": "3.x.x",
     "statehood": "5.x.x",
-    "subtext": "^4.2.x",
+    "subtext": "^4.3.x",
     "topo": "2.x.x"
   },
   "devDependencies": {

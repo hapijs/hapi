@@ -1,4 +1,4 @@
-# 15.1.x API Reference
+# 15.2.x API Reference
 
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
@@ -2531,6 +2531,14 @@ following options:
         - application/octet-stream
         - text/*
         - multipart/form-data
+    - `multipart` - overrides payload processing for multipart requests. Value can be one of:
+        - `false` - disables multipart processing.
+        - object with the following required options:
+            - `output` - same as the `payload.output` option with an additional value option:
+                - `annotated` - wraps each multipart part in an object with the following keys:
+                    - `headers` - the part headers.
+                    - `filename` - the part file name.
+                    - `payload` - the processed part payload.
     - `allow` - a string or an array of strings with the allowed mime types for the endpoint.
       Defaults to any of the supported mime types listed above. Note that allowing other mime
       types not listed will not enable them to be parsed, and that if parsing mode is
