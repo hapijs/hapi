@@ -19,6 +19,7 @@ const Lab = require('lab');
 const Vision = require('vision');
 const Wreck = require('wreck');
 const Stream = require('stream');
+const TLS = require('tls');
 
 
 // Declare internals
@@ -614,9 +615,11 @@ describe('Connection', () => {
                 socket1.on('error', () => { });
                 socket2.on('error', () => { });
 
-                socket1.connect(server.info.port, '127.0.0.1', () => {
+                socket1.connect(server.info.port, '127.0.0.1');
+                TLS.connect({ socket: socket1, rejectUnauthorized: false }, () => {
 
-                    socket2.connect(server.info.port, '127.0.0.1', () => {
+                    socket2.connect(server.info.port, '127.0.0.1');
+                    TLS.connect({ socket: socket2, rejectUnauthorized: false }, () => {
 
                         server.listener.getConnections((err, count1) => {
 
