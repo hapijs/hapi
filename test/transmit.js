@@ -1400,6 +1400,49 @@ describe('transmission', () => {
             });
         });
 
+        it('boom object reused does not affect encoding header.', (done) => {
+
+            const error = Boom.badRequest();
+            const data = JSON.stringify({
+                statusCode: error.output.statusCode,
+                error: error.message
+            });
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const handler = function (request, reply) {
+
+                return reply(error);
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+            server.start((err) => {
+
+                expect(err).to.not.exist();
+
+                const uri = 'http://localhost:' + server.info.port;
+
+                Zlib.gzip(new Buffer(data), (err, zipped) => {
+
+                    expect(err).to.not.exist();
+
+                    Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } }, (err, res, body) => {
+
+                        expect(err).to.not.exist();
+                        expect(body.toString()).to.equal(zipped.toString());
+
+                        Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } }, (err2, res2, body2) => {
+
+                            expect(err2).to.not.exist();
+                            expect(body2.toString()).to.equal(zipped.toString());
+                            server.stop(done);
+                        });
+                    });
+                });
+            });
+        });
+
         it('returns an identity response on a post request when accept-encoding is missing', (done) => {
 
             const data = '{"test":"true"}';
