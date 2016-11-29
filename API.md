@@ -2551,7 +2551,7 @@ following options:
     - `timeout` - payload reception timeout in milliseconds. Sets the maximum time allowed for the
       client to transmit the request payload (body) before giving up and responding with a Request
       Timeout (408) error response. Set to `false` to disable. Defaults to `10000` (10 seconds).
-    - `uploads` - the directory used for writing file uploads. Defaults to `os.tmpDir()`.
+    - `uploads` - the directory used for writing file uploads. Defaults to `os.tmpdir()`.
     - `failAction` - determines how to handle payload parsing errors. Allowed values are:
         - `'error'` - return a Bad Request (400) error response. This is the default value.
         - `'log'` - report the error but continue processing the request.
