@@ -98,7 +98,7 @@ describe('validation', () => {
             config: {
                 validate: {
                     query: {
-                        verbose: Joi.boolean().when('$params.user', { is: Joi.exist(), otherwise: Joi.forbidden() })
+                        verbose: Joi.boolean().truthy('true').when('$params.user', { is: Joi.exist(), otherwise: Joi.forbidden() })
                     }
                 }
             }
@@ -155,7 +155,7 @@ describe('validation', () => {
             config: {
                 validate: {
                     query: {
-                        me: Joi.boolean().when('$auth.credentials.name', { is: Joi.ref('$params.user'), otherwise: Joi.forbidden() })
+                        me: Joi.boolean().truthy('true').when('$auth.credentials.name', { is: Joi.ref('$params.user'), otherwise: Joi.forbidden() })
                     }
                 }
             }
@@ -1669,7 +1669,7 @@ describe('validation', () => {
             path: '/',
             config: {
                 response: {
-                    schema: Joi.boolean(),
+                    schema: Joi.boolean().truthy('on'),
                     modify: true
                 }
             },

@@ -1,97 +1,84 @@
 {
-    "name": "hapi",
-    "version": "15.2.0",
-    "dependencies": {
-        "accept": {
-            "version": "2.1.2"
-        },
-        "ammo": {
-            "version": "2.0.2"
-        },
-        "boom": {
-            "version": "4.0.0"
-        },
-        "call": {
-            "version": "3.0.3"
-        },
-        "catbox": {
-            "version": "7.1.2"
-        },
-        "catbox-memory": {
-            "version": "2.0.3"
-        },
-        "cryptiles": {
-            "version": "3.0.2"
-        },
-        "heavy": {
-            "version": "4.0.2"
-        },
-        "hoek": {
-            "version": "4.0.2"
-        },
-        "iron": {
-            "version": "4.0.3"
-        },
-        "items": {
-            "version": "2.1.1"
-        },
-        "joi": {
-            "version": "9.0.4",
-            "dependencies": {
-                "isemail": {
-                    "version": "2.2.1"
-                },
-                "moment": {
-                    "version": "2.14.1"
-                }
-            }
-        },
-        "mimos": {
-            "version": "3.0.3",
-            "dependencies": {
-                "mime-db": {
-                    "version": "1.23.0"
-                }
-            }
-        },
-        "podium": {
-            "version": "1.2.3"
-        },
-        "shot": {
-            "version": "3.3.2"
-        },
-        "statehood": {
-            "version": "5.0.0"
-        },
-        "subtext": {
-            "version": "4.3.0",
-            "dependencies": {
-                "content": {
-                    "version": "3.0.2"
-                },
-                "pez": {
-                    "version": "2.1.2",
-                    "dependencies": {
-                        "b64": {
-                            "version": "3.0.2"
-                        },
-                        "nigel": {
-                            "version": "2.0.2",
-                            "dependencies": {
-                                "vise": {
-                                    "version": "2.0.2"
-                                }
-                            }
-                        }
-                    }
-                },
-                "wreck": {
-                    "version": "10.0.0"
-                }
-            }
-        },
-        "topo": {
-            "version": "2.0.2"
-        }
+  "name": "hapi",
+  "version": "16.0.0",
+  "dependencies": {
+    "accept": {
+      "version": "2.1.3"
+    },
+    "ammo": {
+      "version": "2.0.3"
+    },
+    "b64": {
+      "version": "3.0.2"
+    },
+    "boom": {
+      "version": "4.2.0"
+    },
+    "call": {
+      "version": "3.0.4"
+    },
+    "catbox": {
+      "version": "7.1.3"
+    },
+    "catbox-memory": {
+      "version": "2.0.4"
+    },
+    "content": {
+      "version": "3.0.3"
+    },
+    "cryptiles": {
+      "version": "3.1.1"
+    },
+    "heavy": {
+      "version": "4.0.3"
+    },
+    "hoek": {
+      "version": "4.1.0"
+    },
+    "iron": {
+      "version": "4.0.4"
+    },
+    "isemail": {
+      "version": "2.2.1"
+    },
+    "items": {
+      "version": "2.1.1"
+    },
+    "joi": {
+      "version": "10.0.1"
+    },
+    "mime-db": {
+      "version": "1.25.0"
+    },
+    "mimos": {
+      "version": "3.0.3"
+    },
+    "nigel": {
+      "version": "2.0.2"
+    },
+    "pez": {
+      "version": "2.1.4"
+    },
+    "podium": {
+      "version": "1.2.4"
+    },
+    "shot": {
+      "version": "3.4.0"
+    },
+    "statehood": {
+      "version": "5.0.1"
+    },
+    "subtext": {
+      "version": "4.3.0"
+    },
+    "topo": {
+      "version": "2.0.2"
+    },
+    "vise": {
+      "version": "2.0.2"
+    },
+    "wreck": {
+      "version": "10.0.0"
     }
+  }
 }
