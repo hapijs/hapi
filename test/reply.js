@@ -61,6 +61,34 @@ describe('Reply', () => {
         });
     });
 
+    it('redirects from pre', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                pre: [
+                    function (request, reply) {
+
+                        return reply.redirect('/elsewhere').takeover();
+                    }
+                ],
+                handler: function (request, reply) {
+
+                    return reply('ok');
+                }
+            }
+        });
+        server.inject('/', (res) => {
+
+            expect(res.statusCode).to.equal(302);
+            expect(res.headers.location).to.equal('/elsewhere');
+            done();
+        });
+    });
+
     describe('interface()', () => {
 
         it('uses reply(null, result) for result', (done) => {
