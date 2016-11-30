@@ -303,7 +303,7 @@ describe('Request', () => {
 
                     if (total) {
                         createConnection();
-                        setTimeout(check, 10);
+                        setTimeout(check, 100);
                     }
                     else {
                         expect(disconnected).to.equal(4);       // Each connection sents two HTTP requests
