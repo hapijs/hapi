@@ -11,3 +11,4 @@
 - Troy Whiteley
 - Shane Warren
 - Yehor Sergeenko
+- Dmitry Savinkov
