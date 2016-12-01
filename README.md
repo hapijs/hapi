@@ -22,5 +22,5 @@ Eran Hammer's [Patreon page](https://www.patreon.com/eranhammer) or contact him 
 
 #### Legacy Supporters
 
-Past major finanial support for the project was provided by:
+Past major financial support for the project was provided by:
 - Benjamin Flesch and [StriveWire](https://strivewire.com/)
