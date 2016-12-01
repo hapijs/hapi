@@ -12,3 +12,4 @@
 - Shane Warren
 - Yehor Sergeenko
 - Dmitry Savinkov
+- Nathan Buchar
