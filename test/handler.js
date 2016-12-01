@@ -81,6 +81,45 @@ describe('handler', () => {
                 expect(res.statusCode).to.equal(500);
             });
         });
+
+        it('works without a domain', (done) => {
+
+            const pre = function (req, reply) {
+
+                reply('pre');
+            };
+
+            const handler = function (req, reply) {
+
+                reply('working').code(200);
+            };
+
+            // this will cause the test to stop on error but is needed to test #3399
+            const domain = process.domain;
+            process.domain = undefined;
+
+            const server = new Hapi.Server({ useDomains: false });
+            server.connection();
+
+            server.route({
+                method: 'get',
+                path: '/',
+                config: {
+                    pre: [{
+                        method: pre
+                    }],
+                    handler
+                }
+            });
+
+            server.inject('/', (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                process.domain = domain;
+                done();
+            });
+
+        });
     });
 
     describe('handler()', () => {
