@@ -14,3 +14,5 @@
 - Dmitry Savinkov
 - Nathan Buchar
 - Tim Boudreau
+- Marcos Bérgamo
+- Paulo Vieira
