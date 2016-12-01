@@ -18,7 +18,7 @@ For the latest updates, [change log](http://hapijs.com/updates), and release inf
 
 Development of the **hapi** core module generously supported by contributions from [individuals and corporations](https://github.com/hapijs/hapi/blob/master/SPONSORS.md).
 If you are benefiting from **hapi** and would like to help keep the project financially sustainable, please visit
-Eran Hammer's [Patreon page](https://www.patreon.com/eranhammer) or contact him (via email)[mailto:eran@hammer.io].
+Eran Hammer's [Patreon page](https://www.patreon.com/eranhammer) or contact him [via email](mailto:eran@hammer.io).
 
 #### Legacy Supporters
 
