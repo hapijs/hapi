@@ -3644,7 +3644,7 @@ will resume as soon as the handler method exits. To suspend this behavior, the r
 `response` object supports the following methods:
 - `hold()` - puts the response on hold until `response.send()` is called. Available only after
   `reply()` is called and until `response.hold()` is invoked once.
-- `send()` - resume the response which will be transmitted in the next tick. Available only after
+- `send()` - immediately resume the response. Available only after
   `response.hold()` is called and until `response.send()` is invoked once.
 
 ```js
