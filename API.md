@@ -5,6 +5,7 @@
     - [Server properties](#server-properties)
         - [`server.app`](#serverapp)
         - [`server.connections`](#serverconnections)
+        - [`server.decorations`](#serverdecorations)
         - [`server.info`](#serverinfo)
         - [`server.load`](#serverload)
         - [`server.listener`](#serverlistener)
@@ -27,7 +28,6 @@
     - [`server.connection([options])`](#serverconnectionoptions)
     - [`server.decoder(encoding, decoder)`](#serverencoderencoding-decoder)
     - [`server.decorate(type, property, method, [options])`](#serverdecoratetype-property-method-options)
-    - [`server.inspect(type)`](#serverinspecttype)
     - [`server.dependency(dependencies, [after])`](#serverdependencydependencies-after)
     - [`server.emit(criteria, data, [callback])`](#serveremitcriteria-data-callback)
     - [`server.encoder(encoding, encoder)`](#serverencoderencoding-encoder)
@@ -272,6 +272,30 @@ Each connection object contains:
 - `table()` -
 - `lookup()` -
 - `match()` -
+
+### `server.decorations`
+
+Provides access to the decorations already applied to various framework interfaces.  The object
+must not be modified directly, but only through [`server.decorate`](#serverdecoratetype-property-method-options)
+- `type` - the decorated interface. Supported types:
+    - `'request'` - decorations on the [Request object](#request-object).
+    - `'reply'` - decorations on the [reply interface](#reply-interface).
+    - `'server'` - decorations on the [Server](#server) object.
+
+```js
+const Hapi = require('hapi');
+const server = new Hapi.Server();
+server.connection({ port: 80 });
+
+const success = function () {
+
+    return this.response({ status: 'ok' });
+};
+
+server.decorate('reply', 'success', success);
+return server.decorations.reply;
+// returns ['success']
+```
 
 
 #### `server.info`
@@ -990,30 +1014,6 @@ server.route({
         return reply.success();
     }
 });
-```
-
-### `server.inspect(type)`
-
-Returns an array of decorations on various framework interfaces
-- `type` - the interface being inspected. Supported types:
-    - `'request'` - returns an array of decorations on the [Request object](#request-object).
-    - `'reply'` - returns an array of decorations on the [reply interface](#reply-interface).
-    - `'server'` - returns an array of decorations on the [Server](#server) object.
-
-```js
-const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
-
-const success = function () {
-
-    return this.response({ status: 'ok' });
-};
-
-server.decorate('reply', 'success', success);
-
-server.inspect('reply');
-// returns ['success']
 ```
 
 ### `server.dependency(dependencies, [after])`

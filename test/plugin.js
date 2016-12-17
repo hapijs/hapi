@@ -2594,15 +2594,14 @@ describe('Plugin', () => {
         });
     });
 
-    describe('inspect()', () => {
+    describe('decorations ()', () => {
 
         it('shows decorations on request (empty array)', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
 
-            const decorations = server.inspect('request');
-            expect(decorations).to.be.empty();
+            expect(server.decorations.request).to.be.empty();
             done();
         });
 
@@ -2613,8 +2612,7 @@ describe('Plugin', () => {
 
             server.decorate('request', 'a', () => { });
 
-            const decorations = server.inspect('request');
-            expect(decorations).to.equal(['a']);
+            expect(server.decorations.request).to.equal(['a']);
             done();
         });
 
@@ -2626,8 +2624,7 @@ describe('Plugin', () => {
             server.decorate('request', 'a', () => { });
             server.decorate('request', 'b', () => { });
 
-            const decorations = server.inspect('request');
-            expect(decorations).to.equal(['a', 'b']);
+            expect(server.decorations.request).to.equal(['a', 'b']);
             done();
         });
 
@@ -2636,8 +2633,7 @@ describe('Plugin', () => {
             const server = new Hapi.Server();
             server.connection();
 
-            const decorations = server.inspect('reply');
-            expect(decorations).to.be.empty();
+            expect(server.decorations.reply).to.be.empty();
             done();
         });
 
@@ -2648,8 +2644,7 @@ describe('Plugin', () => {
 
             server.decorate('reply', 'a', () => { });
 
-            const decorations = server.inspect('reply');
-            expect(decorations).to.equal(['a']);
+            expect(server.decorations.reply).to.equal(['a']);
             done();
         });
 
@@ -2661,8 +2656,7 @@ describe('Plugin', () => {
             server.decorate('reply', 'a', () => { });
             server.decorate('reply', 'b', () => { });
 
-            const decorations = server.inspect('reply');
-            expect(decorations).to.equal(['a', 'b']);
+            expect(server.decorations.reply).to.equal(['a', 'b']);
             done();
         });
 
@@ -2671,8 +2665,7 @@ describe('Plugin', () => {
             const server = new Hapi.Server();
             server.connection();
 
-            const decorations = server.inspect('server');
-            expect(decorations).to.be.empty();
+            expect(server.decorations.server).to.be.empty();
             done();
         });
 
@@ -2683,8 +2676,7 @@ describe('Plugin', () => {
 
             server.decorate('server', 'a', () => { });
 
-            const decorations = server.inspect('server');
-            expect(decorations).to.equal(['a']);
+            expect(server.decorations.server).to.equal(['a']);
             done();
         });
 
@@ -2696,8 +2688,7 @@ describe('Plugin', () => {
             server.decorate('server', 'a', () => { });
             server.decorate('server', 'b', () => { });
 
-            const decorations = server.inspect('server');
-            expect(decorations).to.equal(['a', 'b']);
+            expect(server.decorations.server).to.equal(['a', 'b']);
             done();
         });
     });
