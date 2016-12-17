@@ -2594,6 +2594,114 @@ describe('Plugin', () => {
         });
     });
 
+    describe('inspect()', () => {
+
+        it('shows decorations on request (empty array)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const decorations = server.inspect('request');
+            expect(decorations).to.be.empty();
+            done();
+        });
+
+        it('shows decorations on request (single)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            server.decorate('request', 'a', () => { });
+
+            const decorations = server.inspect('request');
+            expect(decorations).to.equal(['a']);
+            done();
+        });
+
+        it('shows decorations on request (many)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            server.decorate('request', 'a', () => { });
+            server.decorate('request', 'b', () => { });
+
+            const decorations = server.inspect('request');
+            expect(decorations).to.equal(['a', 'b']);
+            done();
+        });
+
+        it('shows decorations on reply (empty array)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const decorations = server.inspect('reply');
+            expect(decorations).to.be.empty();
+            done();
+        });
+
+        it('shows decorations on reply (single)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            server.decorate('reply', 'a', () => { });
+
+            const decorations = server.inspect('reply');
+            expect(decorations).to.equal(['a']);
+            done();
+        });
+
+        it('shows decorations on request (many)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            server.decorate('reply', 'a', () => { });
+            server.decorate('reply', 'b', () => { });
+
+            const decorations = server.inspect('reply');
+            expect(decorations).to.equal(['a', 'b']);
+            done();
+        });
+
+        it('shows decorations on server (empty array)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const decorations = server.inspect('server');
+            expect(decorations).to.be.empty();
+            done();
+        });
+
+        it('shows decorations on server (single)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            server.decorate('server', 'a', () => { });
+
+            const decorations = server.inspect('server');
+            expect(decorations).to.equal(['a']);
+            done();
+        });
+
+        it('shows decorations on server (many)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            server.decorate('server', 'a', () => { });
+            server.decorate('server', 'b', () => { });
+
+            const decorations = server.inspect('server');
+            expect(decorations).to.equal(['a', 'b']);
+            done();
+        });
+    });
+
     describe('dependency()', () => {
 
         it('fails to register single plugin with dependencies', (done) => {

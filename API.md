@@ -27,6 +27,7 @@
     - [`server.connection([options])`](#serverconnectionoptions)
     - [`server.decoder(encoding, decoder)`](#serverencoderencoding-decoder)
     - [`server.decorate(type, property, method, [options])`](#serverdecoratetype-property-method-options)
+    - [`server.inspect(type)`](#serverinspecttype)
     - [`server.dependency(dependencies, [after])`](#serverdependencydependencies-after)
     - [`server.emit(criteria, data, [callback])`](#serveremitcriteria-data-callback)
     - [`server.encoder(encoding, encoder)`](#serverencoderencoding-encoder)
@@ -989,6 +990,30 @@ server.route({
         return reply.success();
     }
 });
+```
+
+### `server.inspect(type)`
+
+Returns an array of decorations on various framework interfaces
+- `type` - the interface being inspected. Supported types:
+    - `'request'` - returns an array of decorations on the [Request object](#request-object).
+    - `'reply'` - returns an array of decorations on the [reply interface](#reply-interface).
+    - `'server'` - returns an array of decorations on the [Server](#server) object.
+
+```js
+const Hapi = require('hapi');
+const server = new Hapi.Server();
+server.connection({ port: 80 });
+
+const success = function () {
+
+    return this.response({ status: 'ok' });
+};
+
+server.decorate('reply', 'success', success);
+
+server.inspect('reply');
+// returns ['success']
 ```
 
 ### `server.dependency(dependencies, [after])`
