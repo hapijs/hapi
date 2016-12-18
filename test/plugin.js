@@ -2628,6 +2628,23 @@ describe('Plugin', () => {
             done();
         });
 
+        it('shows decorations on request (multiple connections)', (done) => {
+
+            const server = new Hapi.Server();
+
+            server.connection({ labels: ['alpha'] });
+            server.connection({ labels: ['beta'] });
+
+            const conn1 = server.select('alpha');
+            const conn2 = server.select('beta');
+
+            conn1.decorate('request', 'a', () => { });
+            conn2.decorate('request', 'b', () => { });
+
+            expect(server.decorations.request).to.equal(['a', 'b']);
+            done();
+        });
+
         it('shows decorations on reply (empty array)', (done) => {
 
             const server = new Hapi.Server();
@@ -2648,13 +2665,32 @@ describe('Plugin', () => {
             done();
         });
 
-        it('shows decorations on request (many)', (done) => {
+        it('shows decorations on reply (many)', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
 
             server.decorate('reply', 'a', () => { });
             server.decorate('reply', 'b', () => { });
+
+            expect(server.decorations.reply).to.equal(['a', 'b']);
+            done();
+        });
+
+        it('shows decorations on reply (multiple connections)', (done) => {
+
+            const server = new Hapi.Server();
+
+            server.connection({ labels: ['alpha'] });
+            server.connection({ labels: ['beta'] });
+
+            expect(server.connections.length).to.equal(2);
+
+            const conn1 = server.select('alpha');
+            const conn2 = server.select('beta');
+
+            conn1.decorate('reply', 'a', () => { });
+            conn2.decorate('reply', 'b', () => { });
 
             expect(server.decorations.reply).to.equal(['a', 'b']);
             done();
@@ -2687,6 +2723,23 @@ describe('Plugin', () => {
 
             server.decorate('server', 'a', () => { });
             server.decorate('server', 'b', () => { });
+
+            expect(server.decorations.server).to.equal(['a', 'b']);
+            done();
+        });
+
+        it('shows decorations on server (multiple connections)', (done) => {
+
+            const server = new Hapi.Server();
+
+            server.connection({ labels: ['alpha'] });
+            server.connection({ labels: ['beta'] });
+
+            const conn1 = server.select('alpha');
+            const conn2 = server.select('beta');
+
+            conn1.decorate('server', 'a', () => { });
+            conn2.decorate('server', 'b', () => { });
 
             expect(server.decorations.server).to.equal(['a', 'b']);
             done();
