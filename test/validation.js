@@ -522,6 +522,31 @@ describe('validation', () => {
         });
     });
 
+    it('validates boolean payload', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.route({
+            method: 'POST',
+            path: '/',
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
+            config: {
+                validate: {
+                    payload: Joi.boolean()
+                }
+            }
+        });
+
+        server.inject({ method: 'POST', url: '/', payload: 'false', headers: { 'content-type': 'application/json' } }, (res) => {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
     it('fails on invalid input', (done) => {
 
         const server = new Hapi.Server();
