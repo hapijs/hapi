@@ -1,6 +1,6 @@
 {
   "name": "hapi",
-  "version": "16.0.0",
+  "version": "16.0.3",
   "dependencies": {
     "accept": {
       "version": "2.1.3"

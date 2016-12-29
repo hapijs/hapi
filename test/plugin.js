@@ -1342,6 +1342,44 @@ describe('Plugin', () => {
             });
         });
 
+        it('register nested connectionless plugin inside non-connectionless', (done) => {
+
+            const b = function (srv, options, next) {
+
+                if (!srv.connection) {
+                    return next(new Error('Missing connection()'));
+                }
+
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b',
+                connections: false
+            };
+
+            const a = function (srv, options, next) {
+
+                srv.register(b, (err) => {
+
+                    expect(err).to.not.exist();
+                    return next();
+                });
+            };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.register(a, (err) => {
+
+                expect(err).to.not.exist();
+                done();
+            });
+        });
+
         it('throws when nested connectionless plugins select', (done) => {
 
             const b = function (srv, options, next) {
