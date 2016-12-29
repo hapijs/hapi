@@ -509,6 +509,21 @@ describe('Server', () => {
             done();
         });
 
+        it('creates multiple connections in a single call', (done) => {
+
+            const server = new Hapi.Server();
+            const p1_2 = server.connection([{ port: 1 }, { port: 2 }]);
+            const p3 = server.connection({ port: 3 });
+
+            expect(server.connections.length).to.equal(3);
+            expect(p1_2.connections.length).to.equal(2);
+            expect(p1_2.connections[0].settings.port).to.equal(1);
+            expect(p1_2.connections[1].settings.port).to.equal(2);
+            expect(p3.connections.length).to.equal(1);
+            expect(p3.connections[0].settings.port).to.equal(3);
+            done();
+        });
+
         it('throws on invalid config', (done) => {
 
             const server = new Hapi.Server();

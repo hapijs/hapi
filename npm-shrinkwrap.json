@@ -1,6 +1,6 @@
 {
   "name": "hapi",
-  "version": "16.0.3",
+  "version": "16.1.0",
   "dependencies": {
     "accept": {
       "version": "2.1.3"
@@ -45,7 +45,7 @@
       "version": "2.1.1"
     },
     "joi": {
-      "version": "10.0.1"
+      "version": "10.1.0"
     },
     "mime-db": {
       "version": "1.25.0"

@@ -1,4 +1,4 @@
-# 16.0.x API Reference
+# 16.1.x API Reference
 
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
@@ -840,35 +840,36 @@ server.initialize((err) => {
 ### `server.connection([options])`
 
 Adds an incoming server connection where:
-- `host` - the public hostname or IP address. Used only to set `server.info.host` and
-  `server.info.uri`. If not configured, defaults to the operating system hostname and if not
-  available, to `'localhost'`.
-- `address` - sets the host name or IP address the connection will listen on. If not configured,
-  defaults to `host` if present, otherwise to all available network interfaces (i.e. `'0.0.0.0'`).
-  Set to `127.0.0.1` or `localhost` to restrict connection to only those coming from the same
-  machine.
-- `port` - the TCP port the connection will listen to. Defaults to an ephemeral port (`0`) which
-  uses an available port when the server is started (and assigned to `server.info.port`). If `port`
-  is a string containing a '/' character, it is used as a UNIX domain socket path and if it starts
-  with '\\.\pipe' as a Windows named pipe.
-- `uri` - the full public URI without the path (e.g. 'http://example.com:8080'). If present, used
-  as the connection `info.uri` otherwise constructed from the connection settings.
-- `listener` - optional node.js HTTP (or HTTPS)
-  [`http.Server`](http://nodejs.org/api/http.html#http_class_http_server) object or any compatible
-  object. If the `listener` needs to be manually started, set `autoListen` to `false`. If the
-  `listener` uses TLS, set `tls` to `true`.
-- `autoListen` - indicates that the `connection.listener` will be started manually outside the
-  framework. Cannot be specified with a `port` setting. Defaults to `true`.
-- `labels` - a string or string array of labels used to [`server.select()`](#serverselectlabels)
-  specific connections matching the specified labels. Defaults to an empty array `[]` (no labels).
-- `tls` - used to create an HTTPS connection. The `tls` object is passed unchanged as options to
-  the node.js HTTPS server as described in the
-  [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
-  Set to `true` when passing a `listener` object that has been configured to use TLS directly.
-- Any [connections configuration server defaults](#server.config.connections) can be included to
-  override and customize the individual connection.
+- `options` - a connection configuration object or array of objects with the following optional keys:
+	- `host` - the public hostname or IP address. Used only to set `server.info.host` and
+	  `server.info.uri`. If not configured, defaults to the operating system hostname and if not
+	  available, to `'localhost'`.
+	- `address` - sets the host name or IP address the connection will listen on. If not configured,
+	  defaults to `host` if present, otherwise to all available network interfaces (i.e. `'0.0.0.0'`).
+	  Set to `127.0.0.1` or `localhost` to restrict connection to only those coming from the same
+	  machine.
+	- `port` - the TCP port the connection will listen to. Defaults to an ephemeral port (`0`) which
+	  uses an available port when the server is started (and assigned to `server.info.port`). If `port`
+	  is a string containing a '/' character, it is used as a UNIX domain socket path and if it starts
+	  with '\\.\pipe' as a Windows named pipe.
+	- `uri` - the full public URI without the path (e.g. 'http://example.com:8080'). If present, used
+	  as the connection `info.uri` otherwise constructed from the connection settings.
+	- `listener` - optional node.js HTTP (or HTTPS)
+	  [`http.Server`](http://nodejs.org/api/http.html#http_class_http_server) object or any compatible
+	  object. If the `listener` needs to be manually started, set `autoListen` to `false`. If the
+	  `listener` uses TLS, set `tls` to `true`.
+	- `autoListen` - indicates that the `connection.listener` will be started manually outside the
+	  framework. Cannot be specified with a `port` setting. Defaults to `true`.
+	- `labels` - a string or string array of labels used to [`server.select()`](#serverselectlabels)
+	  specific connections matching the specified labels. Defaults to an empty array `[]` (no labels).
+	- `tls` - used to create an HTTPS connection. The `tls` object is passed unchanged as options to
+	  the node.js HTTPS server as described in the
+	  [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
+	  Set to `true` when passing a `listener` object that has been configured to use TLS directly.
+	- Any [connections configuration server defaults](#server.config.connections) can be included to
+	  override and customize the individual connection.
 
-Returns a server object with the new connection selected.
+Returns a server object with the new connections selected.
 
 Must be called before any other server method that modifies connections is called for it to apply
 to the new connection (e.g. [`server.state()`](#serverstatename-options)).
