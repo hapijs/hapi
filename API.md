@@ -155,6 +155,9 @@ Creates a new `Server` object where:
            which is used to store configuration values and `connection.plugins` which is meant for
            storing run-time state.
 
+        - `requestIdHeader` - the name of a header that can be used to override the value of
+          `request.id` for a request
+
         - <a name="connection.config.router"></a>`router` - controls how incoming request URIs are
           matched against the routing table:
             - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are
