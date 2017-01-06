@@ -198,19 +198,24 @@ describe('Request', () => {
         });
     });
 
-    it('ignores specified request id header when not set', (done) => {
+    it('generates unique request id when generator returns null', (done) => {
 
         const handler = function (request, reply) {
 
             return reply(request.id);
         };
 
-        const server = new Hapi.Server({
-            connections: { requestIdHeader: 'X-Request-Id' }
-        });
+        const server = new Hapi.Server();
         server.connection();
         server.connections[0]._requestCounter = { value: 10, min: 10, max: 11 };
         server.route({ method: 'GET', path: '/', handler });
+
+        const generator = function (request) {
+
+            return null;
+        };
+
+        server.requestIdGenerator(generator);
         server.inject('/', (res) => {
 
             expect(res.result).to.match(/10$/);
@@ -218,20 +223,24 @@ describe('Request', () => {
         });
     });
 
-    it('uses specified request id header when set', (done) => {
+    it('uses specified request id generator when set', (done) => {
 
         const handler = function (request, reply) {
 
             return reply(request.id);
         };
 
-        const server = new Hapi.Server({
-            connections: { requestIdHeader: 'X-Request-Id' }
-        });
+        const server = new Hapi.Server();
         server.connection();
         server.route({ method: 'GET', path: '/', handler });
 
+        const generator = function (request) {
+
+            return request.headers['x-request-id'];
+        };
+
         const headers = { 'X-Request-Id': 'theRequestId' };
+        server.requestIdGenerator(generator);
         server.inject({ url: '/', headers }, (res) => {
 
             expect(res.result).to.equal('theRequestId');

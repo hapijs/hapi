@@ -155,9 +155,6 @@ Creates a new `Server` object where:
            which is used to store configuration values and `connection.plugins` which is meant for
            storing run-time state.
 
-        - `requestIdHeader` - the name of a header that can be used to override the value of
-          `request.id` for a request
-
         - <a name="connection.config.router"></a>`router` - controls how incoming request URIs are
           matched against the routing table:
             - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are
@@ -936,6 +933,17 @@ exports.register.attributes = {
     name: 'example',
     connections: false
 };
+```
+
+### `server.requestIdGenerator(method)`
+
+Registers a custom generator for request IDs where:
+- `method` - the function that is invoked using the signature `function(request)` and returns an ID, or `null` if the default should be used
+
+```js
+server.requestIdGenerator((request) => {
+    return request.headers['x-request-id'];
+});
 ```
 
 ### `server.decoder(encoding, decoder)`
