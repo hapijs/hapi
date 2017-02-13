@@ -1,7 +1,7 @@
 # Leaders
 
 - Benjamin Flesch / StriveWire
-- Andres Garcia
+- Andres Garcia / Florence Healthcare
 - Greg Allen
 - Raffi Minassian
 
