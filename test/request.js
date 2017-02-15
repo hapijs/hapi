@@ -894,6 +894,117 @@ describe('Request', () => {
             });
         });
 
+        it('gives http:80 for empty url', (done) => {
+
+            const url = '';
+            const server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
+
+            const onRequest = function (request, reply) {
+
+                request.setUrl(url);
+                return reply([request.url.href, request.path, request.host, request.hostname, request.protocol, request.port].join('|'));
+            };
+
+            server.ext('onRequest', onRequest);
+
+            server.inject('/', (res) => {
+
+                expect(res.payload).to.equal('||||http:|80');
+                done();
+            });
+        });
+
+        it('sets host, hostname and protocol, and sets port for http: protocol', (done) => {
+
+            const url = 'http://test.test2.com/page?param1=something';
+            const expectedHost = 'test.test2.com';
+            const server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
+
+            const onRequest = function (request, reply) {
+
+                request.setUrl(url);
+                return reply([request.host, request.hostname, request.protocol, request.port].join('|'));
+            };
+
+            server.ext('onRequest', onRequest);
+
+            server.inject('/', (res) => {
+
+                expect(res.payload).to.equal([expectedHost, expectedHost, 'http:', '80'].join('|'));
+                done();
+            });
+        });
+
+        it('sets port for explicit port', (done) => {
+
+            const url = 'https://localhost:80/page?param1=something';
+            const server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
+
+            const onRequest = function (request, reply) {
+
+                request.setUrl(url);
+                return reply(request.port);
+            };
+
+            server.ext('onRequest', onRequest);
+
+            server.inject('/', (res) => {
+
+                expect(res.payload).to.equal('80');
+                done();
+            });
+        });
+
+        it('sets port for https: protocol', (done) => {
+
+            const url = 'https://localhost/page?param1=something';
+            const server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
+
+            const onRequest = function (request, reply) {
+
+                request.setUrl(url);
+                return reply(request.port);
+            };
+
+            server.ext('onRequest', onRequest);
+
+            server.inject('/', (res) => {
+
+                expect(res.payload).to.equal('443');
+                done();
+            });
+        });
+
+        it('sets blank port for non-http(s) protocol', (done) => {
+
+            const url = 'ssh://test.ssh.com';
+            const server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
+
+            const onRequest = function (request, reply) {
+
+                request.setUrl(url);
+                return reply(request.port);
+            };
+
+            server.ext('onRequest', onRequest);
+
+            server.inject('/', (res) => {
+
+                expect(res.payload).to.equal('');
+                done();
+            });
+        });
+
         it('overrides query string parsing', (done) => {
 
             const server = new Hapi.Server();
