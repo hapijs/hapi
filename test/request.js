@@ -933,6 +933,58 @@ describe('Request', () => {
             });
         });
 
+        it('updates host info', (done) => {
+
+            const url = 'http://redirected:321/';
+            const server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
+
+            const onRequest = function (request, reply) {
+
+                const initialHost = request.info.host;
+
+                request.setUrl(url);
+                return reply([request.url.href, request.path, initialHost, request.info.host, request.info.hostname].join('|'));
+            };
+
+            server.ext('onRequest', onRequest);
+
+            server.inject({ url: '/', headers: { host: 'initial:123' } }, (res) => {
+
+                expect(res.payload).to.equal(url + '|/|initial:123|redirected:321|redirected');
+                done();
+            });
+        });
+
+        it('host info update preserves port number', (done) => {
+
+            const url = 'http://redirected/';
+            const server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
+
+            const onRequest = function (request, reply) {
+
+                const initialHost = request.info.host;
+
+                request.setUrl(url);
+                return reply([request.url.href, request.path, initialHost, request.info.host, request.info.hostname].join('|'));
+            };
+
+            server.ext('onRequest', onRequest);
+
+            server.inject({ url: '/', headers: { host: 'initial:123' } }, (res1) => {
+
+                server.inject({ url: '/', headers: { host: 'initial' } }, (res2) => {
+
+                    expect(res1.payload).to.equal(url + '|/|initial:123|redirected:123|redirected');
+                    expect(res2.payload).to.equal(url + '|/|initial|redirected|redirected');
+                    done();
+                });
+            });
+        });
+
         it('overrides query string parsing', (done) => {
 
             const server = new Hapi.Server();
@@ -1081,6 +1133,33 @@ describe('Request', () => {
                 expect(passedUrl).to.equal(urlObject);
                 expect(requestUrl).to.not.shallow.equal(passedUrl);
                 expect(requestUrl).to.not.equal(urlObject);
+                done();
+            });
+        });
+
+        it('handles vhost redirection', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply('success');
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', vhost: 'one', handler });
+
+            const onRequest = function (request, reply) {
+
+                request.setUrl('http://one/');
+                return reply.continue();
+            };
+
+            server.ext('onRequest', onRequest);
+
+            server.inject('/', (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                expect(res.payload).to.equal('success');
                 done();
             });
         });
