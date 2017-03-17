@@ -960,6 +960,7 @@ describe('handler', () => {
                 config: {
                     pre: [
                         {
+                            assign: 'before',
                             method: function (request, reply) {
 
                                 return reply(Boom.forbidden());
@@ -969,7 +970,7 @@ describe('handler', () => {
                     ],
                     handler: function (request, reply) {
 
-                        return reply('ok');
+                        return reply(request.pre.before instanceof Error ? 'had pre error' : 'ok');
                     }
                 }
             });
@@ -977,6 +978,7 @@ describe('handler', () => {
             server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
+                expect(res.payload).to.equal('had pre error');
                 done();
             });
         });
@@ -1001,7 +1003,7 @@ describe('handler', () => {
                     ],
                     handler: function (request, reply) {
 
-                        return reply('ok');
+                        return reply(request.pre.before instanceof Error ? 'had pre error' : 'ok');
                     }
                 }
             });
@@ -1013,13 +1015,14 @@ describe('handler', () => {
                     tags.error) {
 
                     expect(event.data.assign).to.equal('before');
-                    done();
                 }
             });
 
             server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(200);
+                expect(res.payload).to.equal('had pre error');
+                done();
             });
         });
 
