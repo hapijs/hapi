@@ -22,7 +22,7 @@ Eran Hammer's [Patreon page](https://www.patreon.com/eranhammer) or contact him 
 
 #### Current Supporters
 
-**CNN Digital**
+- **CNN Digital**
 
 #### Legacy Supporters
 
