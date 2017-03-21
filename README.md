@@ -20,6 +20,10 @@ Development of the **hapi** core module generously supported by contributions fr
 If you are benefiting from **hapi** and would like to help keep the project financially sustainable, please visit
 Eran Hammer's [Patreon page](https://www.patreon.com/eranhammer) or contact him [via email](mailto:eran@hammer.io).
 
+#### Current Supporters
+
+**CNN Digital**
+
 #### Legacy Supporters
 
 Past major financial support for the project was provided by:

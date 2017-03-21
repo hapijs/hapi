@@ -4,6 +4,7 @@
 - Andres Garcia / Florence Healthcare
 - Greg Allen
 - Raffi Minassian
+- CNN Digital
 
 # Supporters
 
@@ -20,3 +21,5 @@
 - Paulo Vieira
 - Julian Lannigan
 - Louis Beltramo
+- Essau Ramirez
+
