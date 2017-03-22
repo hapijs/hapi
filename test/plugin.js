@@ -552,6 +552,52 @@ describe('Plugin', () => {
             });
         });
 
+        it('registers a plugin with routes auth', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection({ labels: 'test' });
+            server.register(internals.plugins.test3, { routes: { auth: 'simple' } }, (err) => {
+
+                expect(server.plugins.test3.auth).to.equal('simple');
+                expect(err).to.not.exist();
+                server.inject({
+
+                    method: 'GET',
+                    url: '/test3',
+                    headers: {
+                        accesstoken: 'testing123'
+                    }
+                }, (res) => {
+
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+            });
+        });
+
+        it('registers a plugin with routes auth (plugin options)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection({ labels: 'test' });
+            server.register({ register: internals.plugins.test3, routes: { auth: 'simple' } }, (err) => {
+
+                expect(server.plugins.test3.auth).to.equal('simple');
+                expect(err).to.not.exist();
+                server.inject({
+
+                    method: 'GET',
+                    url: '/test3',
+                    headers: {
+                        accesstoken: 'testing123'
+                    }
+                }, (res) => {
+
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+            });
+        });
+
         it('registers plugins and adds options to realm that routes can access', (done) => {
 
             const server = new Hapi.Server();
@@ -767,6 +813,28 @@ describe('Plugin', () => {
             });
         });
 
+        it('registers a child plugin with parent having route auth', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection({ labels: 'test' });
+            server.register(internals.plugins.child3, { routes: { auth: 'simple' } }, (err) => {
+
+                expect(err).to.not.exist();
+                server.inject({
+
+                    method: 'GET',
+                    url: '/test3',
+                    headers: {
+                        accesstoken: 'testing123'
+                    }
+                }, (res) => {
+
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+            });
+        });
+
         it('registers a child plugin with parent routes path prefix and inner register prefix', (done) => {
 
             const server = new Hapi.Server();
@@ -792,6 +860,28 @@ describe('Plugin', () => {
                 server.inject({ url: '/test1', headers: { host: 'example.com' } }, (res) => {
 
                     expect(res.result).to.equal('testing123');
+                    done();
+                });
+            });
+        });
+
+        it('registers a child plugin with parent having route auth and inner register route auth', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection({ labels: 'test' });
+            server.register({ register: internals.plugins.child3, options: { routes: { auth: 'simple' } } }, (err) => {
+
+                expect(err).to.not.exist();
+                server.inject({
+
+                    method: 'GET',
+                    url: '/test3',
+                    headers: {
+                        accesstoken: 'testing123'
+                    }
+                }, (res) => {
+
+                    expect(res.statusCode).to.equal(200);
                     done();
                 });
             });
@@ -2081,6 +2171,72 @@ describe('Plugin', () => {
                         expect(res2.result).to.equal('authenticated!');
                         done();
                     });
+                });
+            });
+        });
+
+        it('successful auth on plugin', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection({ labels: 'test' });
+            server.register(internals.plugins.test3, { routes: { auth: 'simple' } }, (err) => {
+
+                expect(err).to.not.exist();
+                server.inject({
+
+                    method: 'GET',
+                    url: '/test3',
+                    headers: {
+                        accesstoken: 'testing123'
+                    }
+                }, (res) => {
+
+                    expect(res.statusCode).to.equal(200);
+                    done();
+                });
+            });
+        });
+
+        it('unsuccessful auth on plugin', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection({ labels: 'test' });
+            server.register(internals.plugins.test3, { routes: { auth: 'simple' } }, (err) => {
+
+                expect(err).to.not.exist();
+                server.inject({
+
+                    method: 'GET',
+                    url: '/test3',
+                    headers: {
+                        accesstoken: 'wrong-token'
+                    }
+                }, (res) => {
+
+                    expect(res.statusCode).to.equal(401);
+                    done();
+                });
+            });
+        });
+
+        it('successful auth on route with auth on plugin with auth', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection({ labels: 'test' });
+            server.register(internals.plugins.test3, { routes: { auth: 'simple' } }, (err) => {
+
+                expect(err).to.not.exist();
+                server.inject({
+
+                    method: 'GET',
+                    url: '/test3-2',
+                    headers: {
+                        accesstoken: 'testing321'
+                    }
+                }, (res) => {
+
+                    expect(res.statusCode).to.equal(200);
+                    done();
                 });
             });
         });
@@ -4678,6 +4834,14 @@ internals.plugins = {
 
         return server.register(internals.plugins.test1, next);
     },
+    child3: function (server, options, next) {
+
+        if (options.routes) {
+            return server.register(internals.plugins.test3, options, next);
+        }
+
+        return server.register(internals.plugins.test3, next);
+    },
     deps1: function (server, options, next) {
 
         const after = function (srv, nxt) {
@@ -4775,6 +4939,60 @@ internals.plugins = {
         });
         server.log('test', 'abc');
         return next();
+    },
+    test3: function (server, options, next) {
+
+        server.auth.scheme('simple', (srv, opts) => {
+
+            return {
+                authenticate: (req, reply) => {
+
+                    if (typeof req.headers.accesstoken === 'undefined' || req.headers.accesstoken !== 'testing123') {
+                        return reply(null).code(401);
+                    }
+                    return reply.continue({ credentials: { user: 'testing123' } });
+                }
+            };
+        });
+        server.auth.strategy('simple', 'simple');
+
+        server.auth.scheme('simple2', (srv, opts) => {
+
+            return {
+                authenticate: (req, reply) => {
+
+                    if (typeof req.headers.accesstoken === 'undefined' || req.headers.accesstoken !== 'testing321') {
+                        return reply(null).code(401);
+                    }
+                    return reply.continue({ credentials: { user: 'testing321' } });
+                }
+            };
+        });
+        server.auth.strategy('simple2', 'simple2');
+
+        server.route({
+            path: '/test3',
+            method: 'GET',
+            handler: function (request, reply) {
+
+                return reply('testing123');
+            }
+        });
+        server.route({
+            path: '/test3-2',
+            method: 'GET',
+            handler: function (request, reply) {
+
+                return reply('testing123');
+            },
+            config: {
+                auth: 'simple2'
+            }
+        });
+
+        server.expose('auth', server.realm.modifiers.route.auth);
+
+        return next();
     }
 };
 
@@ -4786,6 +5004,11 @@ internals.plugins.auth.attributes = {
 
 internals.plugins.child.attributes = {
     name: 'child'
+};
+
+
+internals.plugins.child3.attributes = {
+    name: 'child3'
 };
 
 
@@ -4815,4 +5038,10 @@ internals.plugins.test2.attributes = {
         name: 'test2',
         version: '1.0.0'
     }
+};
+
+
+internals.plugins.test3.attributes = {
+    name: 'test3',
+    version: '1.0.0'
 };
