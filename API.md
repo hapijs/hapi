@@ -2123,6 +2123,7 @@ the combination of tags used.
 
 Emitted by the server `'request-internal'` event:
 - `received` - a new request received. Includes information about the request.
+- `accept-encoding` `error` - a request received contains an invalid Accept-Encoding header.
 - `auth` `{strategy}` - the request successfully authenticated with the listed strategy.
 - `auth` `unauthenticated` - no authentication scheme included with the request.
 - `auth` `unauthenticated` `response` `{strategy}` - the authentication strategy listed returned a
