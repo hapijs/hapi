@@ -154,6 +154,45 @@ describe('Request', () => {
         });
     });
 
+    it('sets acceptEncoding', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        const handler = function (request, reply) {
+
+            return reply(request.info.acceptEncoding);
+        };
+
+        server.route({ method: 'GET', path: '/', handler });
+
+        server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } }, (res) => {
+
+            expect(res.result).to.equal('gzip');
+            done();
+        });
+    });
+
+    it('handles invalid accept encoding header', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection({ routes: { log: true } });
+
+        const handler = function (request, reply) {
+
+            expect(request.getLog('accept-encoding')[0].data.header).to.equal('a;b');
+            return reply(request.info.acceptEncoding);
+        };
+
+        server.route({ method: 'GET', path: '/', handler });
+
+        server.inject({ url: '/', headers: { 'accept-encoding': 'a;b' } }, (res) => {
+
+            expect(res.result).to.equal('identity');
+            done();
+        });
+    });
+
     it('sets headers', (done) => {
 
         const handler = function (request, reply) {
