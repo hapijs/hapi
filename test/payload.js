@@ -191,6 +191,34 @@ describe('payload', () => {
         });
     });
 
+    it('handles expect 100-continue', (done) => {
+
+        const handler = function (request, reply) {
+
+            return reply(request.payload);
+        };
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.route({ method: 'POST', path: '/', config: { handler } });
+
+        server.start((err) => {
+
+            expect(err).to.not.exist();
+
+            const uri = 'http://localhost:' + server.info.port;
+
+            Wreck.post(uri, { payload: { hello: true }, headers: { expect: '100-continue' } }, (err, res, body) => {
+
+                expect(err).to.not.exist();
+                expect(res.statusCode).to.equal(200);
+                expect(body.toString()).to.equal('{"hello":true}');
+
+                server.stop(done);
+            });
+        });
+    });
+
     it('peeks at unparsed data', (done) => {
 
         let data = null;
