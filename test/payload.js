@@ -649,6 +649,28 @@ describe('payload', () => {
         });
     });
 
+    it('signals connection close when payload is unconsumed', (done) => {
+
+        const payload = new Buffer(10 * 1024 * 1024).toString();
+
+        const handler = function (request, reply) {
+
+            return reply('ok');
+        };
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.route({ method: 'POST', path: '/', config: { handler, payload: { maxBytes: 1E20, output: 'stream', parse: false } } });
+
+        server.inject({ method: 'POST', url: '/', payload, headers: { 'content-type': 'application/octet-stream' } }, (res) => {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers).to.include({ connection: 'close' });
+            expect(res.result).to.equal('ok');
+            done();
+        });
+    });
+
     it('times out when client request taking too long', (done) => {
 
         const handler = function (request, reply) {
