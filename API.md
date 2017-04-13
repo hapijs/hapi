@@ -3064,7 +3064,7 @@ server.connection({ port: 80 });
 
 const onRequest = function (request, reply) {
 
-    const uri = request.raw.req.url;
+    const uri = request.url.href;
     const parsed = Url.parse(uri, false);
     parsed.query = Qs.parse(parsed.query);
     request.setUrl(parsed);
