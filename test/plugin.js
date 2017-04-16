@@ -4486,6 +4486,55 @@ describe('Plugin', () => {
                 done();
             });
         });
+
+        it('render view in plugin handler', function (done) {
+
+            var test = function (server, options, next) {
+
+                server.path(__dirname);
+
+                var views = {
+                    engines: { 'html': Handlebars },
+                    path: './templates/plugin'
+                };
+
+                server.views(views);
+                if (Object.keys(views).length !== 2) {
+                    return next(new Error('plugin.view() modified options'));
+                }
+
+                server.route([
+                    {
+                        path: '/view', method: 'GET', handler: function (request, reply) {
+
+                          request.server.render('test', { message: options.message }, function (err, rendered, config) {
+
+                              return reply(rendered);
+                          });
+                        }
+                    }
+                ]);
+
+                return next();
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            var server = new Hapi.Server();
+            server.connection();
+            server.register({ register: test, options: { message: 'viewing it' } }, function (err) {
+
+                expect(err).to.not.exist();
+                server.inject('/view', function (res) {
+
+                    expect(res.result).to.equal('<h1>viewing it</h1>');
+
+                    done();
+                });
+            });
+        });
     });
 
     describe('state()', () => {
