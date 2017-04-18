@@ -88,6 +88,9 @@
     - [`reply.continue([result])`](#replycontinueresult)
     - [`reply.close([options])`](#replycloseoptions)
     - [`reply.redirect(uri)`](#replyredirecturi)
+    - [`reply.response(result)`](#replyresponseresult)
+    - [`reply.state(name, value, [options])`](#replystatenamevalueoptions)
+    - [`reply.unstate(name, [options])`](#replyunstatenameoptions)
 
 ## Server
 
@@ -113,16 +116,7 @@ Creates a new `Server` object where:
       cache configuration only defines the storage container itself. `cache` can be assigned:
         - a prototype function (usually obtained by calling `require()` on a **catbox** strategy
           such as `require('catbox-redis')`). A new **catbox** [client](https://github.com/hapijs/catbox#client) will be created internally using this function.
-        - a configuration object with the following options:
-            - `engine` - a prototype function or **catbox** engine object.
-            - `name` - an identifier used later when provisioning or configuring caching for
-              [server methods](#servermethodname-method-options) or [plugins](#plugins). Each cache
-              name must be unique. A single item may omit the `name` option which defines the
-              default cache. If every cache includes a `name`, a default memory cache is provisioned
-              as well.
-            - `shared` - if `true`, allows multiple cache users to share the same segment (e.g.
-              multiple methods using the same cache storage container). Default to `false`.
-            - other options passed to the **catbox** strategy used.
+        - a configuration object, same as the server `cache` configuration options.
         - an array of the above object for configuring multiple cache instances, each with a unique
           name. When an array of objects is provided, multiple cache connections are established
           and each array item (except one) must include a `name`.
@@ -227,7 +221,7 @@ accessible. Initialized with an empty object.
 
 ```js
 const Hapi = require('hapi');
-server = new Hapi.Server();
+const server = new Hapi.Server();
 server.app.key = 'value';
 
 const handler = function (request, reply) {
@@ -435,7 +429,7 @@ used by the framework when adding routes, extensions, and other properties.
         - `vhost` - the route virtual host settings used by any calls to
           [`server.route()`](#serverrouteoptions) from the server.
 - `plugin` - the active plugin name (empty string if at the server root).
-- `pluginOptions` - the plugin options object passed at registration.
+- `pluginOptions` - the plugin options passed at registration.
 - `plugins` - plugin-specific state to be shared only among activities sharing the same active
   state. `plugins` is an object where each key is a plugin name and the value is the plugin state.
 - `settings` - settings overrides:
@@ -460,7 +454,7 @@ When the server contains exactly one connection, `registrations` is an object wh
 registered plugin name and value contains:
 - `version` - the plugin version.
 - `name` - the plugin name.
-- `options` - options used to register the plugin.
+- `options` - optional options passed to the plugin during registration.
 - `attributes` - plugin registration attributes.
 
 When the server contains more than one connection, each [`server.connections`](#serverconnections)
@@ -789,6 +783,12 @@ Provisions a cache segment within the server cache facility where:
       when called outside of a plugin.
     - `shared` - if `true`, allows multiple cache provisions to share the same segment. Default to
       `false`.
+    - `engine` - a prototype function or **catbox** engine object.
+    - `name` - an identifier used later when provisioning or configuring caching for
+      [server methods](#servermethodname-method-options) or [plugins](#plugins). Each cache
+      name must be unique. A single item may omit the `name` option which defines the
+      default cache. If every cache includes a `name`, a default memory cache is provisioned
+      as well.
 
 ```js
 const server = new Hapi.Server();
@@ -940,7 +940,7 @@ exports.register.attributes = {
 Registers a custom content decoding compressor to extend the built-in support for `'gzip'` and
 '`deflate`' where:
 - `encoding` - the decoder name string.
-- `encoder` - a function using the signature `function(options)` where `options` are the encoding specific options configured in
+- `decoder` - a function using the signature `function(options)` where `options` are the encoding specific options configured in
   the route `payload.compression` configuration option, and the return value is an object compatible with the output of node's
   [`zlib.createGunzip()`](https://nodejs.org/dist/latest-v6.x/docs/api/zlib.html#zlib_zlib_creategunzip_options).
 
@@ -1370,8 +1370,8 @@ for performing injections, with some additional options and response properties:
       `artifacts` are used to bypass the default authentication strategies, and are validated
       directly as if they were received via an authentication scheme. Ignored if set without
       `credentials`. Defaults to no artifacts.
-    - `app` - sets the initial value of `request.app`.
-    - `plugins` - sets the initial value of `request.plugins`.
+    - `app` - sets the initial value of `request.app`, defaults to `{}`.
+    - `plugins` - sets the initial value of `request.plugins`, defaults to `{}`.
     - `allowInternals` - allows access to routes with `config.isInternal` set to `true`. Defaults to
       `false`.
     - `remoteAddress` - sets the remote address for the incoming connection.
@@ -1382,6 +1382,7 @@ for performing injections, with some additional options and response properties:
         - `close` - if `true`, emits a `'close'` event after payload transmission (if any).
           Defaults to `false`.
         - `end` - if `false`, does not end the stream. Defaults to `true`.
+        - `split` - indicates whether the request payload will be split into chunks. Defaults to `undefined`, meaning payload will not be chunked.
     - `validate` - if `false`, the `options` inputs are not validated. This is recommended for run-time
       usage of `inject()` to make it perform faster where input validation can be tested separately.
 - `callback` - the callback function with signature `function(res)` where:
@@ -1531,14 +1532,14 @@ Methods are registered via `server.method(name, method, [options])` where:
     - `function(arg1, arg2, ..., argn, next)` where:
         - `arg1`, `arg2`, etc. - the method function arguments.
         - `next` - the function called when the method is done with the signature
-          `function(err, result, ttl)` where:
+          `function(err, result, [ttl])` where:
             - `err` - error response if the method failed.
             - `result` - the return value.
             - `ttl` - `0` if result is valid but cannot be cached. Defaults to cache policy.
     - `function(arg1, arg2, ..., argn)` where:
         - `arg1`, `arg2`, etc. - the method function arguments.
         - the `callback` option is set to `false`.
-        - the method must returns a value (result, `Error`, or a promise) or throw an `Error`.
+        - the method must return a value (result, `Error`, or a promise) or throw an `Error`.
 - `options` - optional configuration:
     - `bind` - a context object passed back to the method function (via `this`) when called.
       Defaults to active context (set via [`server.bind()`](#serverbindcontext) when the method is
@@ -1741,7 +1742,7 @@ Registers a plugin where:
     - a plugin registration function.
     - an object with the following:
         - `register` - the plugin registration function.
-        - `options` - optional options passed to the registration function when called.
+        - `options` - optional options passed to the plugin during registration.
         - `once`, `select`, `routes` - optional plugin-specific registration options as defined below.
 - `options` - optional registration options (different from the options passed to the registration
   function):
@@ -2196,7 +2197,7 @@ interface, but with the added ability to sandbox certain properties.
 
 A plugin is a function with the signature `function(server, options, next)` where:
 - `server` - the server object the plugin is being registered to.
-- `options` - an options object passed to the plugin during registration.
+- `options` - optional options passed to the plugin during registration.
 - `next` - a callback method the function must call to return control back to the framework to
   complete the registration process with signature `function(err)` where:
     - `err` - any plugin registration error.
@@ -2583,6 +2584,7 @@ following options:
           `function(request, reply, source, error)` where:
             - `request` - the [request object](#request-object).
             - `reply` - the continuation [reply interface](#reply-interface).
+            - `source` - a string representing the validation failure source, e.g. 'query', 'payload', 'params', 'headers'.
             - `error` - the error returned from the validation schema.
     - `modify` - if `true`, applies the validation rule changes to the response payload. Defaults to
       `false`.
@@ -2972,7 +2974,7 @@ Each request object includes the following properties:
     - `mode` - the route authentication mode.
     - `error` - the authentication error is failed and mode set to `'try'`.
 - `connection` - the connection the request was received by.
-- `domain` - the node domain object used to protect against exceptions thrown in extensions,
+- `domain` - the [node domain object](https://nodejs.org/api/domain.html#domain_domain) used to protect against exceptions thrown in extensions,
   handlers and [route prerequisites](#route-prerequisites). Can be used to manually bind callback
   functions otherwise bound to other domains. Set to `null` when the server `useDomains` options is
   `false`.
@@ -3015,7 +3017,7 @@ Each request object includes the following properties:
   different response. Contains `null` when no response has been set (e.g. when a request terminates
   prematurely when the client disconnects).
 - `preResponses` - same as `pre` but represented as the response object created by the pre method.
-- `query` - an object containing the query parameters.
+- `query` - by default the object outputted from [node's URL parse()](https://nodejs.org/docs/latest/api/url.html#url_urlobject_query) method.  May also be set indirectly via [request.setUrl](#requestseturlurl-striptrailingslash) in which case it may be a `string` (if `url` is set to an object with the `query` attribute as an unparsed string).
 - `raw` - an object containing the Node HTTP server objects. **Direct interaction with these raw
   objects is not recommended.**
     - `req` - the node.js request object.
@@ -3032,9 +3034,10 @@ Each request object includes the following properties:
 _Available only in `'onRequest'` extension methods._
 
 Changes the request URI before the router begins processing the request where:
- - `url` - the new request URI. If `url` is a string, it is parsed with node's **URL**
-  `parse()` method. `url` can also be set to an object compatible with node's **URL**
-  `parse()` method output.
+ - `url` - the new request URI. If `url` is a string, it is parsed with [node's **URL**
+ `parse()`](https://nodejs.org/docs/latest/api/url.html#url_url_parse_urlstring_parsequerystring_slashesdenotehost)
+ method with `parseQueryString` set to `true`.  `url` can also be set to an object
+ compatible with node's **URL** `parse()` method output.
  - `stripTrailingSlash` - if `true`, strip the trailing slash from the path. Defaults to `false`.
 
 ```js
@@ -3103,7 +3106,7 @@ server.ext('onRequest', onRequest);
 _Always available._
 
 Returns a [`response`](#response-object) which you can pass into the [reply interface](#reply-interface) where:
-- `source` - the object to set as the source of the [reply interface](#reply-interface).
+- `source` - the value to set as the source of the [reply interface](#reply-interface), optional.
 - `options` - options for the method, optional.
 
 For example it can be used inside a promise to create a response object which has a non-error code to resolve with the [reply interface](#reply-interface):
@@ -3391,6 +3394,9 @@ Every response includes the following properties:
       config. Defaults to no override.
     - `varyEtag` - if `true`, a suffix will be automatically added to the 'ETag' header at
       transmission time (separated by a `'-'` character) when the HTTP 'Vary' header is present.
+
+Response objects also includes the `isBoom`, and optional `isMissing` properties
+from **boom** error objects.
 
 The response object provides the following methods:
 - `bytes(length)` - sets the HTTP 'Content-Length' header (to avoid chunked transfer encoding)
@@ -3749,6 +3755,42 @@ The [response flow control rules](#flow-control) apply.
 const handler = function (request, reply) {
 
     return reply.redirect('http://example.com');
+};
+```
+
+### `reply.response(result)`
+
+Shorthand for calling [`reply(null, result)`](#replyerr-result), causes a reply with the response
+set to `result`.
+
+```js
+const handler = function (request, reply) {
+
+    return reply.response('result');
+};
+```
+
+### `reply.state(name, value, [options])`
+
+Sets a cookie on the [response (see response object methods)](#response-object).
+
+```js
+const handler = function (request, reply) {
+
+    reply.state('cookie-name', 'value');
+    return reply.response('result');
+};
+```
+
+### `reply.unstate(name, [options])`
+
+Clears a cookie on the [response (see response object methods)](#response-object).
+
+```js
+const handler = function (request, reply) {
+
+    reply.unstate('cookie-name');
+    return reply.response('result');
 };
 ```
 
