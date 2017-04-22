@@ -2901,7 +2901,7 @@ Note that prerequisites do not follow the same rules of the normal
 will use the result as the response sent back to the client. In a prerequisite method, calling
 `reply()` will assign the returned value to the provided `assign` key. If the returned value is an
 error, the `failAction` setting determines the behavior. To force the return value as the response
-and ends the request lifecycle, use the `reply().takeover()` method.
+and skip any other prerequisites and the handler, use the `reply().takeover()` method.
 
 The reason for the difference in the reply interface behavior is to allow reusing handlers and
 prerequisites methods interchangeably. By default, the desired behavior for a prerequisite is to
