@@ -3631,7 +3631,7 @@ const preResponse = function (request, reply) {
           message: (error.output.statusCode === 404 ? 'page not found' : 'something went wrong')
       };
 
-      return reply.view('error', ctx);
+      return reply.view('error', ctx).code(error.output.statusCode);
 };
 
 server.ext('onPreResponse', preResponse);
