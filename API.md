@@ -3017,7 +3017,7 @@ Each request object includes the following properties:
   different response. Contains `null` when no response has been set (e.g. when a request terminates
   prematurely when the client disconnects).
 - `preResponses` - same as `pre` but represented as the response object created by the pre method.
-- `query` - by default the object outputted from [node's URL parse()](https://nodejs.org/docs/latest/api/url.html#url_urlobject_query) method.  May also be set indirectly via [request.setUrl](#requestseturlurl-striptrailingslash) in which case it may be a `string` (if `url` is set to an object with the `query` attribute as an unparsed string).
+- `query` - by default the object outputted from [node's URL parse()](https://nodejs.org/docs/latest/api/url.html#url_urlobject_query) method.  Might also be set indirectly via [request.setUrl](#requestseturlurl-striptrailingslash) in which case it may be a `string` (if `url` is set to an object with the `query` attribute as an unparsed string).
 - `raw` - an object containing the Node HTTP server objects. **Direct interaction with these raw
   objects is not recommended.**
     - `req` - the node.js request object.
@@ -3467,6 +3467,9 @@ The response object provides the following methods:
 - `vary(header)` - adds the provided header to the list of inputs affected the response generation
   via the HTTP 'Vary' header where:
     - `header` - the HTTP request header name.
+- `hold()` - see [flow control](#flow-control).
+- `send()` - see [flow control](#flow-control).
+- `takeover()` - see [route prerequisites](#route-prerequisites).
 
 ##### Response Object Redirect Methods
 
