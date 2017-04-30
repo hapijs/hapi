@@ -3442,7 +3442,8 @@ The response object provides the following methods:
     - `count` - the number of spaces to indent nested object keys. Defaults to no indentation.
 - `state(name, value, [options])` - sets an HTTP cookie where:
     - `name` - the cookie name.
-    - `value` - the cookie value. If no `encoding` is defined, must be a string.
+    - `value` - the cookie value. If no `encoding` is defined, must be a string. See
+      [`server.state()`](#serverstatename-options) for supported `encoding` values.
     - `options` - optional configuration. If the state was previously registered with the server
       using [`server.state()`](#serverstatename-options),
       the specified keys in `options` override those same keys in the server definition (but not
