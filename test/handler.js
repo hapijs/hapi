@@ -169,6 +169,35 @@ describe('handler', () => {
                 done();
             });
         });
+
+        it('catches unhandled promise rejections when a promise is returned', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const asyncOperation = function () {
+
+                return new Promise((resolve, reject) => {
+
+                    throw new Error('This should be rejected...');
+                });
+            };
+
+            const handler = function (request, reply) {
+
+                return asyncOperation()
+                  .then(reply);
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+
+            server.inject('/', (res) => {
+
+                expect(res.statusCode).to.equal(500);
+                expect(res.result.error).to.equal('Internal Server Error');
+                done();
+            });
+        });
     });
 
     describe('register()', () => {

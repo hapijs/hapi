@@ -2871,6 +2871,25 @@ const handler = function (request, reply) {
 };
 ```
 
+If the handler returns a Promise then Hapi will register a `catch` handler on the promise object to catch unhandled promise rejections. The handler will `reply` with the error:
+
+```js
+const handler = function (request, reply) {
+
+  const badPromise = () => {
+
+    new Promise(() => {
+
+      setTimeout(() => throw new Error(), 1000);
+    }
+  }
+
+  // You *should* catch the rejection yourself!
+  return badPromise()
+    .then((result) => { reply(result); })''
+}
+```
+
 ### Route prerequisites
 
 It is often necessary to perform prerequisite actions before the handler is called (e.g. load
