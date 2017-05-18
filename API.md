@@ -2884,11 +2884,14 @@ const handler = function (request, reply) {
     }
   }
 
-  // You *should* catch the rejection yourself!
+  // You *should* catch the rejection yourself! But hapi will
+  // return the error for you...
   return badPromise()
-    .then((result) => { reply(result); })''
+    .then((result) => { reply(result); });
 }
 ```
+
+This provides a safety net for unhandled promise rejections.
 
 ### Route prerequisites
 
