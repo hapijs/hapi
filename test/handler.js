@@ -170,7 +170,39 @@ describe('handler', () => {
             });
         });
 
-        it('catches unhandled promise rejections when a promise is returned', (done) => {
+        it('catches asynchronous exceptions in promise constructors via the standard \'protect\' mechanism', (done) => {
+
+            const server = new Hapi.Server({ debug: false });
+            server.connection();
+
+            const asyncOperation = function () {
+
+                return new Promise((resolve, reject) => {
+
+                    setTimeout(() => {
+
+                        throw new Error('This should be caught...');
+                    }, 100);
+                });
+            };
+
+            const handler = function (request, reply) {
+
+                return asyncOperation()
+                  .then(reply);
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+
+            server.inject('/', (res) => {
+
+                expect(res.statusCode).to.equal(500);
+                expect(res.result.error).to.equal('Internal Server Error');
+                done();
+            });
+        });
+
+        it('catches synchronous exceptions which lead to unhandled promise rejections when then promise is returned', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -187,6 +219,46 @@ describe('handler', () => {
 
                 return asyncOperation()
                   .then(reply);
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+
+            server.inject('/', (res) => {
+
+                expect(res.statusCode).to.equal(500);
+                expect(res.result.error).to.equal('Internal Server Error');
+                done();
+            });
+        });
+
+        it('catches unhandled promise rejections when a promise is returned', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const handler = function (request, reply) {
+
+                return Promise.reject(new Error('This should be caught.'));
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+
+            server.inject('/', (res) => {
+
+                expect(res.statusCode).to.equal(500);
+                expect(res.result.error).to.equal('Internal Server Error');
+                done();
+            });
+        });
+
+        it('wraps unhandled promise rejections in an error if needed', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const handler = function (request, reply) {
+
+                return Promise.reject('this should be wrapped in an error');
             };
 
             server.route({ method: 'GET', path: '/', handler });

@@ -2871,23 +2871,25 @@ const handler = function (request, reply) {
 };
 ```
 
-If the handler returns a Promise then Hapi will register a `catch` handler on the promise object to catch unhandled promise rejections. The handler will `reply` with the error:
+If the handler returns a Promise then Hapi will register a `catch` handler on the promise object to catch unhandled promise rejections. The handler will `reply` with the rejected value, wrapped in a [`Boom`](https://github.com/hapijs/boom) error:
 
 ```js
 const handler = function (request, reply) {
 
-  const badPromise = () => {
+    const badPromise = () => {
 
-    new Promise(() => {
+        new Promise((resolve, reject) => {
 
-      setTimeout(() => throw new Error(), 1000);
+            // Hapi catches this...
+            throw new Error();
+
+            // ...and this...
+            return reject(new Error());
+        }
     }
-  }
 
-  // You *should* catch the rejection yourself! But hapi will
-  // return the error for you...
-  return badPromise()
-    .then((result) => { reply(result); });
+    // ...if you don't provide a 'catch'. The rejection will be wrapped in a Boom error.
+    return badPromise().then(reply);
 }
 ```
 
