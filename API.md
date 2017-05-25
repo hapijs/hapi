@@ -125,6 +125,7 @@ Creates a new `Server` object where:
               as well.
             - `shared` - if `true`, allows multiple cache users to share the same segment (e.g.
               multiple methods using the same cache storage container). Default to `false`.
+            - `partition` - optional string, defaults to `hapi-cache`.
             - other options passed to the **catbox** strategy used (only passed when `engine` above is a
               and ignored if `engine` is a **catbox** engine object).
         - an array of the above object for configuring multiple cache instances, each with a unique
@@ -782,6 +783,8 @@ Provisions a cache segment within the server cache facility where:
       to `true`.
     - `generateIgnoreWriteError` - if `false`, an upstream cache write error when calling
       `cache.get()` will be passed back with the generated value when calling. Defaults to `true`.
+    - `dropOnError` - if `true`, an error or timeout in the `generateFunc` causes the stale value
+      to be evicted from the cache.  Defaults  to `true`.
     - `pendingGenerateTimeout` - number of milliseconds while `generateFunc` call is in progress
       for a given id, before a subsequent `generateFunc` call is allowed. Defaults to `0` (no
       blocking of concurrent `generateFunc` calls beyond `staleTimeout`).
