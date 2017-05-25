@@ -116,7 +116,17 @@ Creates a new `Server` object where:
       cache configuration only defines the storage container itself. `cache` can be assigned:
         - a prototype function (usually obtained by calling `require()` on a **catbox** strategy
           such as `require('catbox-redis')`). A new **catbox** [client](https://github.com/hapijs/catbox#client) will be created internally using this function.
-        - a configuration object, same as the [server `cache` configuration options](#servercacheoptions).
+        - a configuration object with the following optional keys (unless stated otherwise):
+            - `engine` - a prototype function or **catbox** engine object.
+            - `name` - an identifier used later when provisioning or configuring caching for
+              [server methods](#servermethodname-method-options) or [plugins](#plugins). Each cache
+              name must be unique. A single item may omit the `name` option which defines the
+              default cache. If every cache includes a `name`, a default memory cache is provisioned
+              as well.
+            - `shared` - if `true`, allows multiple cache users to share the same segment (e.g.
+              multiple methods using the same cache storage container). Default to `false`.
+            - other options passed to the **catbox** strategy used (only passed when `engine` above is a
+              and ignored if `engine` is a **catbox** engine object).
         - an array of the above object for configuring multiple cache instances, each with a unique
           name. When an array of objects is provided, multiple cache connections are established
           and each array item (except one) must include a `name`.
@@ -783,12 +793,6 @@ Provisions a cache segment within the server cache facility where:
       when called outside of a plugin.
     - `shared` - if `true`, allows multiple cache provisions to share the same segment. Default to
       `false`.
-    - `engine` - a prototype function or **catbox** engine object.
-    - `name` - an identifier used later when provisioning or configuring caching for
-      [server methods](#servermethodname-method-options) or [plugins](#plugins). Each cache
-      name must be unique. A single item may omit the `name` option which defines the
-      default cache. If every cache includes a `name`, a default memory cache is provisioned
-      as well.
 
 ```js
 const server = new Hapi.Server();
