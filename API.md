@@ -116,7 +116,7 @@ Creates a new `Server` object where:
       cache configuration only defines the storage container itself. `cache` can be assigned:
         - a prototype function (usually obtained by calling `require()` on a **catbox** strategy
           such as `require('catbox-redis')`). A new **catbox** [client](https://github.com/hapijs/catbox#client) will be created internally using this function.
-        - a configuration object, same as the server `cache` configuration options.
+        - a configuration object, same as the [server `cache` configuration options](#servercacheoptions).
         - an array of the above object for configuring multiple cache instances, each with a unique
           name. When an array of objects is provided, multiple cache connections are established
           and each array item (except one) must include a `name`.
