@@ -125,9 +125,10 @@ Creates a new `Server` object where:
               as well.
             - `shared` - if `true`, allows multiple cache users to share the same segment (e.g.
               multiple methods using the same cache storage container). Default to `false`.
-            - `partition` - optional string, defaults to `hapi-cache`.
-            - other options passed to the **catbox** strategy used (only passed when `engine` above is a
-              and ignored if `engine` is a **catbox** engine object).
+            - `partition` - optional string, defaults to `'hapi-cache'`.
+            - other options passed to the **catbox** strategy used.  Other options are only passed
+              to CatBox when `engine` above is a function and ignored if `engine` is a **catbox**
+              engine object).
         - an array of the above object for configuring multiple cache instances, each with a unique
           name. When an array of objects is provided, multiple cache connections are established
           and each array item (except one) must include a `name`.
