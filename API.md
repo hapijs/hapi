@@ -2901,7 +2901,7 @@ Note that prerequisites do not follow the same rules of the normal
 will use the result as the response sent back to the client. In a prerequisite method, calling
 `reply()` will assign the returned value to the provided `assign` key. If the returned value is an
 error, the `failAction` setting determines the behavior. To force the return value as the response
-and ends the request lifecycle, use the `reply().takeover()` method.
+and skip any other prerequisites and the handler, use the `reply().takeover()` method.
 
 The reason for the difference in the reply interface behavior is to allow reusing handlers and
 prerequisites methods interchangeably. By default, the desired behavior for a prerequisite is to
@@ -3064,7 +3064,7 @@ server.connection({ port: 80 });
 
 const onRequest = function (request, reply) {
 
-    const uri = request.raw.req.url;
+    const uri = request.url.href;
     const parsed = Url.parse(uri, false);
     parsed.query = Qs.parse(parsed.query);
     request.setUrl(parsed);
@@ -3442,7 +3442,8 @@ The response object provides the following methods:
     - `count` - the number of spaces to indent nested object keys. Defaults to no indentation.
 - `state(name, value, [options])` - sets an HTTP cookie where:
     - `name` - the cookie name.
-    - `value` - the cookie value. If no `encoding` is defined, must be a string.
+    - `value` - the cookie value. If no `encoding` is defined, must be a string. See
+      [`server.state()`](#serverstatename-options) for supported `encoding` values.
     - `options` - optional configuration. If the state was previously registered with the server
       using [`server.state()`](#serverstatename-options),
       the specified keys in `options` override those same keys in the server definition (but not
@@ -3631,7 +3632,7 @@ const preResponse = function (request, reply) {
           message: (error.output.statusCode === 404 ? 'page not found' : 'something went wrong')
       };
 
-      return reply.view('error', ctx);
+      return reply.view('error', ctx).code(error.output.statusCode);
 };
 
 server.ext('onPreResponse', preResponse);
