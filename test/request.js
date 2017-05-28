@@ -529,9 +529,9 @@ describe('Request', () => {
                 expect(err).to.not.exist();
                 Wreck.get('http://localhost:' + server.info.port, (err, res, body) => {
 
-                    expect(err).to.not.exist();
-                    expect(res.statusCode).to.equal(404);
-                    expect(body.toString()).to.equal('{"statusCode":404,"error":"Not Found"}');
+                    expect(err).to.exist();
+                    expect(err.data.response.statusCode).to.equal(404);
+                    expect(err.data.payload.toString()).to.equal('{"statusCode":404,"error":"Not Found","message":"Not Found"}');
                     server.stop(done);
                 });
             });

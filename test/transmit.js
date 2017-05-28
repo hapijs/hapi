@@ -1403,10 +1403,7 @@ describe('transmission', () => {
         it('boom object reused does not affect encoding header.', (done) => {
 
             const error = Boom.badRequest();
-            const data = JSON.stringify({
-                statusCode: error.output.statusCode,
-                error: error.message
-            });
+            const data = JSON.stringify(error.output.payload);
 
             const server = new Hapi.Server();
             server.connection();
@@ -1429,13 +1426,13 @@ describe('transmission', () => {
 
                     Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } }, (err, res, body) => {
 
-                        expect(err).to.not.exist();
-                        expect(body.toString()).to.equal(zipped.toString());
+                        expect(err).to.exist();
+                        expect(err.data.payload.toString()).to.equal(zipped.toString());
 
                         Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } }, (err2, res2, body2) => {
 
-                            expect(err2).to.not.exist();
-                            expect(body2.toString()).to.equal(zipped.toString());
+                            expect(err2).to.exist();
+                            expect(err2.data.payload.toString()).to.equal(zipped.toString());
                             server.stop(done);
                         });
                     });
@@ -1470,13 +1467,13 @@ describe('transmission', () => {
 
                     Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } }, (err, res, body) => {
 
-                        expect(err).to.not.exist();
-                        expect(body.toString()).to.equal(zipped.toString());
+                        expect(err).to.exist();
+                        expect(err.data.payload.toString()).to.equal(zipped.toString());
 
                         Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } }, (err2, res2, body2) => {
 
-                            expect(err2).to.not.exist();
-                            expect(body2.toString()).to.equal(zipped.toString());
+                            expect(err2).to.exist();
+                            expect(err2.data.payload.toString()).to.equal(zipped.toString());
                             server.stop(done);
                         });
                     });

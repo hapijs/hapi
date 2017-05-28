@@ -182,9 +182,9 @@ describe('payload', () => {
 
             Wreck.post(uri, { payload }, (err, res, body) => {
 
-                expect(err).to.not.exist();
-                expect(res.statusCode).to.equal(400);
-                expect(body.toString()).to.equal('{"statusCode":400,"error":"Bad Request","message":"Payload content length greater than maximum allowed: 1048576"}');
+                expect(err).to.exist();
+                expect(err.data.response.statusCode).to.equal(400);
+                expect(err.data.payload.toString()).to.equal('{"statusCode":400,"error":"Bad Request","message":"Payload content length greater than maximum allowed: 1048576"}');
 
                 server.stop(done);
             });
