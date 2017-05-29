@@ -1,4 +1,4 @@
-# 16.1.x API Reference
+# 16.2.x API Reference
 
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
@@ -2598,7 +2598,7 @@ following options:
         - `true` - any payload allowed (no validation performed). This is the default.
         - `false` - no payload allowed.
         - a [Joi](http://github.com/hapijs/joi) validation object. This will receive the request's
-          headers, params, query, payload, and auth credentials and isAuthenticated flags as context.
+          headers, params, query, payload, app, and auth as context.
         - a validation function using the signature `function(value, options, next)` where:
             - `value` - the object containing the response object.
             - `options` - the server validation options, merged with an object containing the request's
@@ -2654,7 +2654,7 @@ following options:
 
 - `validate` - request input validation rules for various request components. When using a
   [Joi](http://github.com/hapijs/joi) validation object, the values of the other inputs (i.e.
-  `headers`, `query`, `params`, `payload`, and `auth`) are made available under the validation
+  `headers`, `query`, `params`, `payload`, `app`, and `auth`) are made available under the validation
   context (accessible in rules as `Joi.ref('$query.key')`). Note that validation is performed in
   order (i.e. headers, params, query, payload) and if type casting is used (converting a string to
   number), the value of inputs not yet validated will reflect the raw, unvalidated and unmodified

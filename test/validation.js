@@ -188,6 +188,41 @@ describe('validation', () => {
         });
     });
 
+    it('validates valid input using app context', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
+            config: {
+                validate: {
+                    query: {
+                        x: Joi.ref('$app.route.some')
+                    }
+                },
+                app: {
+                    some: 'b'
+                }
+            }
+        });
+
+        server.inject('/?x=a', (res1) => {
+
+            expect(res1.statusCode).to.equal(400);
+
+            server.inject('/?x=b', (res2) => {
+
+                expect(res2.statusCode).to.equal(200);
+                done();
+            });
+        });
+    });
+
     it('fails valid input', (done) => {
 
         const server = new Hapi.Server();
@@ -1059,6 +1094,39 @@ describe('validation', () => {
             server.inject('/?user=test', (res2) => {
 
                 expect(res2.statusCode).to.equal(500);
+                done();
+            });
+        });
+    });
+
+    it('validates response using app context', (done) => {
+
+        const server = new Hapi.Server({ debug: false });
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) {
+
+                return reply(request.query.x);
+            },
+            config: {
+                response: {
+                    schema: Joi.valid(Joi.ref('$app.route.some'))
+                },
+                app: {
+                    some: 'b'
+                }
+            }
+        });
+
+        server.inject('/?x=a', (res1) => {
+
+            expect(res1.statusCode).to.equal(500);
+
+            server.inject('/?x=b', (res2) => {
+
+                expect(res2.statusCode).to.equal(200);
                 done();
             });
         });
