@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "16.1.1",
+  "version": "16.2.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/hapijs/hapi"
@@ -20,7 +20,7 @@
   "dependencies": {
     "accept": "2.x.x",
     "ammo":  "2.x.x",
-    "boom": "4.x.x",
+    "boom": "5.x.x",
     "call": "4.x.x",
     "catbox": "7.x.x",
     "catbox-memory": "2.x.x",
@@ -41,9 +41,9 @@
     "code": "4.x.x",
     "handlebars": "4.x.x",
     "inert": "4.x.x",
-    "lab": "11.x.x",
+    "lab": "13.x.x",
     "vision": "4.x.x",
-    "wreck": "10.x.x"
+    "wreck": "12.x.x"
   },
   "scripts": {
     "test": "lab -a code -t 100 -L -m 3000",

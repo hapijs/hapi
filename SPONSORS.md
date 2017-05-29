@@ -5,6 +5,7 @@
 - Greg Allen
 - Raffi Minassian
 - CNN Digital
+- Bryan Sapot
 
 # Supporters
 
@@ -22,4 +23,4 @@
 - Julian Lannigan
 - Louis Beltramo
 - Essau Ramirez
-
+- Dave Stevens

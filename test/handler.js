@@ -91,7 +91,7 @@ describe('handler', () => {
 
             const handler = function (req, reply) {
 
-                reply('working').code(200);
+                return reply.success();
             };
 
             // this will cause the test to stop on error but is needed to test #3399
@@ -100,6 +100,13 @@ describe('handler', () => {
 
             const server = new Hapi.Server({ useDomains: false });
             server.connection();
+
+            const success = function () {
+
+                return this.response('working').code(200);
+            };
+
+            server.decorate('reply', 'success', success);
 
             server.route({
                 method: 'get',
@@ -539,6 +546,47 @@ describe('handler', () => {
                 return reply(request.pre.m1);
             };
 
+
+            const server = new Hapi.Server({ debug: false });
+            server.connection();
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    pre: [
+                        [{ method: pre1, assign: 'm1' }],
+                        { method: pre2, assign: 'm2' }
+                    ],
+                    handler
+                }
+            });
+
+            server.inject('/', (res) => {
+
+                expect(res.result.statusCode).to.equal(500);
+                done();
+            });
+        });
+
+        it('returns 500 if prerequisite loses domain binding', (done) => {
+
+            const pre1 = function (request, reply) {
+
+                Promise.resolve().then(() => {
+
+                    reply('Hello');
+                });
+            };
+
+            const pre2 = function (request, reply) {
+
+                a.b.c = 0;
+            };
+
+            const handler = function (request, reply) {
+
+                return reply(request.pre.m1);
+            };
 
             const server = new Hapi.Server({ debug: false });
             server.connection();
@@ -1001,7 +1049,13 @@ describe('handler', () => {
                     ],
                     handler: function (request, reply) {
 
-                        return reply('ok');
+                        if (request.pre.before === request.preResponses.before &&
+                            request.pre.before instanceof Error) {
+
+                            return reply('ok');
+                        }
+
+                        return reply(new Error());
                     }
                 }
             });

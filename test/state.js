@@ -40,6 +40,45 @@ describe('state', () => {
         });
     });
 
+    it('sets a cookie value to a base64json string representation of an object', (done) => {
+
+        const handler = function (request, reply) {
+
+            return reply('ok').state('data', { b: 3 });
+        };
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.state('data', { encoding: 'base64json' });
+        server.route({ method: 'GET', path: '/', handler });
+
+        server.inject('/', (res) => {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['set-cookie']).to.equal(['data=eyJiIjozfQ==; Secure; HttpOnly; SameSite=Strict']);
+            done();
+        });
+    });
+
+    it('parses base64json cookies', (done) => {
+
+        const handler = function (request, reply) {
+
+            return reply(request.state);
+        };
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.state('data', { encoding: 'base64json' });
+        server.route({ method: 'GET', path: '/', handler });
+        server.inject({ method: 'GET', url: '/', headers: { cookie: 'data=eyJiIjozfQ==' } }, (res) => {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result.data).to.equal({ b: 3 });
+            done();
+        });
+    });
+
     it('skips parsing cookies', (done) => {
 
         const handler = function (request, reply) {
