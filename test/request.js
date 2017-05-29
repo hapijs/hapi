@@ -957,7 +957,7 @@ describe('Request', () => {
             });
         });
 
-        it('host info update preserves port number', (done) => {
+        it('updates host info when set without port number', (done) => {
 
             const url = 'http://redirected/';
             const server = new Hapi.Server();
@@ -978,7 +978,7 @@ describe('Request', () => {
 
                 server.inject({ url: '/', headers: { host: 'initial' } }, (res2) => {
 
-                    expect(res1.payload).to.equal(url + '|/|initial:123|redirected:123|redirected');
+                    expect(res1.payload).to.equal(url + '|/|initial:123|redirected|redirected');
                     expect(res2.payload).to.equal(url + '|/|initial|redirected|redirected');
                     done();
                 });
