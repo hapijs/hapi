@@ -688,7 +688,7 @@ describe('payload', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'POST', path: '/', config: { handler, payload: { maxBytes: 1E20, output: 'stream', parse: false } } });
+        server.route({ method: 'POST', path: '/', config: { handler, payload: { maxBytes: 11 * 1024 * 1024, output: 'stream', parse: false } } });
 
         server.inject({ method: 'POST', url: '/', payload, headers: { 'content-type': 'application/octet-stream' } }, (res) => {
 
