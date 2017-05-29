@@ -91,7 +91,7 @@ describe('handler', () => {
 
             const handler = function (req, reply) {
 
-                reply('working').code(200);
+                return reply.success();
             };
 
             // this will cause the test to stop on error but is needed to test #3399
@@ -100,6 +100,13 @@ describe('handler', () => {
 
             const server = new Hapi.Server({ useDomains: false });
             server.connection();
+
+            const success = function () {
+
+                return this.response('working').code(200);
+            };
+
+            server.decorate('reply', 'success', success);
 
             server.route({
                 method: 'get',
@@ -580,7 +587,6 @@ describe('handler', () => {
 
                 return reply(request.pre.m1);
             };
-
 
             const server = new Hapi.Server({ debug: false });
             server.connection();
