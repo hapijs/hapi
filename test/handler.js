@@ -1001,7 +1001,13 @@ describe('handler', () => {
                     ],
                     handler: function (request, reply) {
 
-                        return reply('ok');
+                        if (request.pre.before === request.preResponses.before &&
+                            request.pre.before instanceof Error) {
+
+                            return reply('ok');
+                        }
+
+                        return reply(new Error());
                     }
                 }
             });
