@@ -561,6 +561,48 @@ describe('handler', () => {
             });
         });
 
+        it('returns 500 if prerequisite loses domain binding', (done) => {
+
+            const pre1 = function (request, reply) {
+
+                Promise.resolve().then(() => {
+
+                    reply('Hello');
+                });
+            };
+
+            const pre2 = function (request, reply) {
+
+                a.b.c = 0;
+            };
+
+            const handler = function (request, reply) {
+
+                return reply(request.pre.m1);
+            };
+
+
+            const server = new Hapi.Server({ debug: false });
+            server.connection();
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    pre: [
+                        [{ method: pre1, assign: 'm1' }],
+                        { method: pre2, assign: 'm2' }
+                    ],
+                    handler
+                }
+            });
+
+            server.inject('/', (res) => {
+
+                expect(res.result.statusCode).to.equal(500);
+                done();
+            });
+        });
+
         it('returns a user record using server method', (done) => {
 
             const server = new Hapi.Server();
