@@ -887,7 +887,7 @@ describe('Reply', () => {
                 expect(res1.headers.etag).to.equal('"abc"');
                 expect(res1.headers['cache-control']).to.equal('max-age=5, must-revalidate');
 
-                server.inject({ url: '/', headers: { 'if-none-match': 'abc' } }, (res2) => {
+                server.inject({ url: '/', headers: { 'if-none-match': '"abc"' } }, (res2) => {
 
                     expect(res2.statusCode).to.equal(304);
                     expect(res2.headers.etag).to.equal('"abc"');
