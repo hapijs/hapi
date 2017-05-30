@@ -679,7 +679,7 @@ describe('payload', () => {
 
     it('signals connection close when payload is unconsumed', (done) => {
 
-        const payload = new Buffer(10 * 1024 * 1024).toString();
+        const payload = new Buffer(1024);
 
         const handler = function (request, reply) {
 
@@ -688,7 +688,7 @@ describe('payload', () => {
 
         const server = new Hapi.Server();
         server.connection();
-        server.route({ method: 'POST', path: '/', config: { handler, payload: { maxBytes: 11 * 1024 * 1024, output: 'stream', parse: false } } });
+        server.route({ method: 'POST', path: '/', config: { handler, payload: { maxBytes: 1024, output: 'stream', parse: false } } });
 
         server.inject({ method: 'POST', url: '/', payload, headers: { 'content-type': 'application/octet-stream' } }, (res) => {
 
