@@ -1,4 +1,4 @@
-# 16.2.x API Reference
+# 16.3.x API Reference
 
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
@@ -275,9 +275,9 @@ Each connection object contains:
 
 ### `server.decorations`
 
-Provides access to the decorations already applied to various framework interfaces.  The object
-must not be modified directly, but only through [`server.decorate`](#serverdecoratetype-property-method-options)
-- `type` - the decorated interface. Supported types:
+Provides access to the decorations already applied to various framework interfaces. The object must
+not be modified directly, but only through [`server.decorate`](#serverdecoratetype-property-method-options).
+Contains the following keys:
     - `'request'` - decorations on the [Request object](#request-object).
     - `'reply'` - decorations on the [reply interface](#reply-interface).
     - `'server'` - decorations on the [Server](#server) object.
@@ -293,8 +293,7 @@ const success = function () {
 };
 
 server.decorate('reply', 'success', success);
-return server.decorations.reply;
-// returns ['success']
+return server.decorations.reply;		// ['success']
 ```
 
 
