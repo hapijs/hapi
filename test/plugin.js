@@ -2632,6 +2632,158 @@ describe('Plugin', () => {
         });
     });
 
+    describe('decorations ()', () => {
+
+        it('shows decorations on request (empty array)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            expect(server.decorations.request).to.be.empty();
+            done();
+        });
+
+        it('shows decorations on request (single)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            server.decorate('request', 'a', () => { });
+
+            expect(server.decorations.request).to.equal(['a']);
+            done();
+        });
+
+        it('shows decorations on request (many)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            server.decorate('request', 'a', () => { });
+            server.decorate('request', 'b', () => { });
+
+            expect(server.decorations.request).to.equal(['a', 'b']);
+            done();
+        });
+
+        it('shows decorations on request (multiple connections)', (done) => {
+
+            const server = new Hapi.Server();
+
+            server.connection({ labels: ['alpha'] });
+            server.connection({ labels: ['beta'] });
+
+            const conn1 = server.select('alpha');
+            const conn2 = server.select('beta');
+
+            conn1.decorate('request', 'a', () => { });
+            conn2.decorate('request', 'b', () => { });
+
+            expect(server.decorations.request).to.equal(['a', 'b']);
+            done();
+        });
+
+        it('shows decorations on reply (empty array)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            expect(server.decorations.reply).to.be.empty();
+            done();
+        });
+
+        it('shows decorations on reply (single)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            server.decorate('reply', 'a', () => { });
+
+            expect(server.decorations.reply).to.equal(['a']);
+            done();
+        });
+
+        it('shows decorations on reply (many)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            server.decorate('reply', 'a', () => { });
+            server.decorate('reply', 'b', () => { });
+
+            expect(server.decorations.reply).to.equal(['a', 'b']);
+            done();
+        });
+
+        it('shows decorations on reply (multiple connections)', (done) => {
+
+            const server = new Hapi.Server();
+
+            server.connection({ labels: ['alpha'] });
+            server.connection({ labels: ['beta'] });
+
+            expect(server.connections.length).to.equal(2);
+
+            const conn1 = server.select('alpha');
+            const conn2 = server.select('beta');
+
+            conn1.decorate('reply', 'a', () => { });
+            conn2.decorate('reply', 'b', () => { });
+
+            expect(server.decorations.reply).to.equal(['a', 'b']);
+            done();
+        });
+
+        it('shows decorations on server (empty array)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            expect(server.decorations.server).to.be.empty();
+            done();
+        });
+
+        it('shows decorations on server (single)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            server.decorate('server', 'a', () => { });
+
+            expect(server.decorations.server).to.equal(['a']);
+            done();
+        });
+
+        it('shows decorations on server (many)', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            server.decorate('server', 'a', () => { });
+            server.decorate('server', 'b', () => { });
+
+            expect(server.decorations.server).to.equal(['a', 'b']);
+            done();
+        });
+
+        it('shows decorations on server (multiple connections)', (done) => {
+
+            const server = new Hapi.Server();
+
+            server.connection({ labels: ['alpha'] });
+            server.connection({ labels: ['beta'] });
+
+            const conn1 = server.select('alpha');
+            const conn2 = server.select('beta');
+
+            conn1.decorate('server', 'a', () => { });
+            conn2.decorate('server', 'b', () => { });
+
+            expect(server.decorations.server).to.equal(['a', 'b']);
+            done();
+        });
+    });
+
     describe('dependency()', () => {
 
         it('fails to register single plugin with dependencies', (done) => {
