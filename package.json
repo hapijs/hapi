@@ -26,7 +26,7 @@
     "catbox-memory": "2.x.x",
     "cryptiles": "3.x.x",
     "heavy": "4.x.x",
-    "hoek": "4.x.x",
+    "hoek": "git+https://git@github.com/hapijs/hoek.git",
     "iron": "4.x.x",
     "items": "2.x.x",
     "joi": "10.x.x",
