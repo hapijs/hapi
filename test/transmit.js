@@ -1785,6 +1785,8 @@ describe('transmission', () => {
 
                 const stream = new Stream.Readable();
 
+                stream.destroy = undefined;    // Node 8 streams comes with a destroy method – disable for this test
+
                 stream._read = function (size) {
 
                     const chunk = new Array(size).join('x');
@@ -1965,6 +1967,8 @@ describe('transmission', () => {
                 const stream = new Stream.Readable();
                 let responded = false;
 
+                stream.destroy = undefined;    // Node 8 streams comes with a destroy method – disable for this test
+
                 stream._read = function (size) {
 
                     const chunk = new Array(size).join('x');
@@ -1984,6 +1988,7 @@ describe('transmission', () => {
 
                 stream.once('end', () => {
 
+                    expect(responded).to.be.true();
                     server.stop(done);
                 });
 
