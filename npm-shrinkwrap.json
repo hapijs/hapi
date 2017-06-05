@@ -1,0 +1,81 @@
+{
+  "name": "hapi",
+  "version": "16.4.0",
+  "dependencies": {
+    "accept": {
+      "version": "2.1.4"
+    },
+    "ammo": {
+      "version": "2.0.4"
+    },
+    "b64": {
+      "version": "3.0.2"
+    },
+    "boom": {
+      "version": "5.1.0"
+    },
+    "call": {
+      "version": "4.0.2"
+    },
+    "catbox": {
+      "version": "7.1.4"
+    },
+    "catbox-memory": {
+      "version": "2.0.4"
+    },
+    "content": {
+      "version": "3.0.4"
+    },
+    "cryptiles": {
+      "version": "3.1.2"
+    },
+    "heavy": {
+      "version": "4.0.4"
+    },
+    "hoek": {
+      "version": "4.1.1"
+    },
+    "iron": {
+      "version": "4.0.5"
+    },
+    "items": {
+      "version": "2.1.1"
+    },
+    "joi": {
+      "version": "10.5.2"
+    },
+    "mime-db": {
+      "version": "1.28.0"
+    },
+    "mimos": {
+      "version": "3.0.3"
+    },
+    "nigel": {
+      "version": "2.0.2"
+    },
+    "pez": {
+      "version": "2.1.5"
+    },
+    "podium": {
+      "version": "1.2.5"
+    },
+    "shot": {
+      "version": "3.4.2"
+    },
+    "statehood": {
+      "version": "5.0.2"
+    },
+    "subtext": {
+      "version": "4.4.1"
+    },
+    "topo": {
+      "version": "2.0.2"
+    },
+    "vise": {
+      "version": "2.0.2"
+    },
+    "wreck": {
+      "version": "12.2.2"
+    }
+  }
+}
