@@ -1392,7 +1392,7 @@ for performing injections, with some additional options and response properties:
     - `url` - the request URL. If the URI includes an authority (e.g. `'example.com:8080'`), it is
       used to automatically set an HTTP 'Host' header, unless one was specified in `headers`.
     - `headers` - an object with optional request headers where each key is the header name and the
-      value is the header content. Defaults to no additions to the default Shot headers.
+      value is the header content. Header names must be all lowercase in order to match the header names normalized by node. Defaults to no additions to the default Shot headers.
     - `payload` - an optional string, buffer or object containing the request payload. In case of an object it will be converted to a string for you. Defaults to no payload. Note that payload processing
       defaults to `'application/json'` if no 'Content-Type' header provided.
     - `credentials` - an optional credentials object containing authentication information. The
