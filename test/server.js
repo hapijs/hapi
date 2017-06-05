@@ -301,12 +301,22 @@ describe('Server', () => {
 
         it('fails to start server when registration incomplete', (done) => {
 
-            const plugin = function () { };
+            const plugin = function (server, opts, next) {
+
+                next();
+            };
             plugin.attributes = { name: 'plugin' };
+
+            const pluginAsync = function (server, opts, next) {
+
+                process.nextTick(next);
+            };
+            pluginAsync.attributes = { name: 'pluginAsync' };
 
             const server = new Hapi.Server();
             server.connection();
-            server.register(plugin, Hoek.ignore);
+            server.register(pluginAsync);
+            server.register(plugin);
             server.start((err) => {
 
                 expect(err).to.exist();
@@ -317,12 +327,22 @@ describe('Server', () => {
 
         it('fails to start server when registration incomplete (promise)', (done) => {
 
-            const plugin = function () { };
+            const plugin = function (server, opts, next) {
+
+                next();
+            };
             plugin.attributes = { name: 'plugin' };
+
+            const pluginAsync = function (server, opts, next) {
+
+                process.nextTick(next);
+            };
+            pluginAsync.attributes = { name: 'pluginAsync' };
 
             const server = new Hapi.Server();
             server.connection();
-            server.register(plugin, Hoek.ignore);
+            server.register(pluginAsync);
+            server.register(plugin);
             server.start().catch((err) => {
 
                 expect(err).to.exist();
