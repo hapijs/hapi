@@ -1,6 +1,6 @@
 {
   "name": "hapi",
-  "version": "16.3.1",
+  "version": "16.4.0",
   "dependencies": {
     "accept": {
       "version": "2.1.4"
@@ -37,9 +37,6 @@
     },
     "iron": {
       "version": "4.0.5"
-    },
-    "isemail": {
-      "version": "2.2.1"
     },
     "items": {
       "version": "2.1.1"
