@@ -196,7 +196,7 @@ describe('handler', () => {
             const handler = function (request, reply) {
 
                 return asyncOperation()
-                  .then(reply);
+                    .then(reply);
             };
 
             server.route({ method: 'GET', path: '/', handler });
@@ -225,7 +225,7 @@ describe('handler', () => {
             const handler = function (request, reply) {
 
                 return asyncOperation()
-                  .then(reply);
+                    .then(reply);
             };
 
             server.route({ method: 'GET', path: '/', handler });
@@ -260,7 +260,7 @@ describe('handler', () => {
 
         it('wraps unhandled promise rejections in an error if needed', (done) => {
 
-            const server = new Hapi.Server();
+            const server = new Hapi.Server({ debug: false });
             server.connection();
 
             const handler = function (request, reply) {
