@@ -41,7 +41,6 @@
     "code": "4.x.x",
     "handlebars": "4.x.x",
     "inert": "4.x.x",
-    "json": "9.x.x",
     "lab": "13.x.x",
     "vision": "4.x.x",
     "wreck": "12.x.x"
@@ -49,8 +48,7 @@
   "scripts": {
     "test": "lab -a code -t 100 -L -m 3000",
     "test-tap": "lab -a code -r tap -o tests.tap -m 3000",
-    "test-cov-html": "lab -a code -r html -o coverage.html -m 3000",
-    "postshrinkwrap": "json -I -f npm-shrinkwrap.json -e 'f(this) ; function f (p) { var deps = p.dependencies || {}; Object.keys(deps).forEach(function (n) { delete deps[n].resolved; f(deps[n]) }) }'"
+    "test-cov-html": "lab -a code -r html -o coverage.html -m 3000"
   },
   "license": "BSD-3-Clause"
 }
