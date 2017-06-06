@@ -4,79 +4,104 @@
   "lockfileVersion": 1,
   "dependencies": {
     "accept": {
-      "version": "2.1.4"
+      "version": "2.1.4",
+      "integrity": "sha1-iHr1TO7lx/RDBGGXHsQAxh0JrLs="
     },
     "ammo": {
-      "version": "2.0.4"
+      "version": "2.0.4",
+      "integrity": "sha1-v4CqshFpjqePY+9efxE91dnokX8="
     },
     "b64": {
-      "version": "3.0.2"
+      "version": "3.0.2",
+      "integrity": "sha1-ep1gRmrfe43hFMvfZRpf38yQiU0="
     },
     "boom": {
-      "version": "5.1.0"
+      "version": "5.1.0",
+      "integrity": "sha1-Awj6jpJM1tQtnDv0iDvcmPDnHfg="
     },
     "call": {
-      "version": "4.0.2"
+      "version": "4.0.2",
+      "integrity": "sha1-33b19R7o3Ui4VqyEAPfmnm1zmcQ="
     },
     "catbox": {
-      "version": "7.1.4"
+      "version": "7.1.4",
+      "integrity": "sha1-ipUO0YtkuoCIwa4TLoXFhHnStsw="
     },
     "catbox-memory": {
-      "version": "2.0.4"
+      "version": "2.0.4",
+      "integrity": "sha1-Qz4lWQLK9UIz0ShkKcj03xToItU="
     },
     "content": {
-      "version": "3.0.4"
+      "version": "3.0.4",
+      "integrity": "sha1-yj3eBEgPElGbcVJuxEvUiN37P+8="
     },
     "cryptiles": {
-      "version": "3.1.2"
+      "version": "3.1.2",
+      "integrity": "sha1-qJ+7Ig9c4l7FboxKqKT9e1sNKf4="
     },
     "heavy": {
-      "version": "4.0.4"
+      "version": "4.0.4",
+      "integrity": "sha1-NskTNsAMz+hSyqTRUwhjNc0vAOk="
     },
     "hoek": {
-      "version": "4.1.1"
+      "version": "4.1.1",
+      "integrity": "sha1-nMVz/7ore0CPtenCoTeWvpTN3Ok="
     },
     "iron": {
-      "version": "4.0.5"
+      "version": "4.0.5",
+      "integrity": "sha1-TwQszri5c480a1mqc0yDqJvDFCg="
     },
     "items": {
-      "version": "2.1.1"
+      "version": "2.1.1",
+      "integrity": "sha1-i9FtnIOxlSneWuoyGsqtp4NkoZg="
     },
     "joi": {
-      "version": "10.5.2"
+      "version": "10.5.2",
+      "integrity": "sha512-Do/NXTokq86nvFfggE4UbwNnyzvALn3Ay+gMwQSAkrQoWTYc4LvkabhypVZiqDZq0TbtVhUpOphe4dmKB6/Pxg=="
     },
     "mime-db": {
-      "version": "1.28.0"
+      "version": "1.28.0",
+      "integrity": "sha1-/t00m+BtKGW3/FfYN8beTxfXrDw="
     },
     "mimos": {
-      "version": "3.0.3"
+      "version": "3.0.3",
+      "integrity": "sha1-uRCQcq03jCty9qAQHEPd+ys2ZB8="
     },
     "nigel": {
-      "version": "2.0.2"
+      "version": "2.0.2",
+      "integrity": "sha1-k6GGb7DFLYc5CqdeKxYfS1x15bE="
     },
     "pez": {
-      "version": "2.1.5"
+      "version": "2.1.5",
+      "integrity": "sha1-XsLMYlAMw+tCNtSkFM9aF7XrUAc="
     },
     "podium": {
-      "version": "1.2.5"
+      "version": "1.2.5",
+      "integrity": "sha1-h8VmwvA2W88KHsdgLE0BlIzdKtU="
     },
     "shot": {
-      "version": "3.4.2"
+      "version": "3.4.2",
+      "integrity": "sha1-Hlw/bysmZJrcQvfrNQIUpaApHWc="
     },
     "statehood": {
-      "version": "5.0.2"
+      "version": "5.0.2",
+      "integrity": "sha1-xrO6oW7YsSHT8Jo/+oXiIZWn8qk="
     },
     "subtext": {
-      "version": "4.4.1"
+      "version": "4.4.1",
+      "integrity": "sha1-L87JRd5CkoPD0YsVH/D6HxuHrsk="
     },
     "topo": {
-      "version": "2.0.2"
+      "version": "2.0.2",
+      "integrity": "sha1-zVYVdSU5BXwNwEkaYhw7xvvh0YI="
     },
     "vise": {
-      "version": "2.0.2"
+      "version": "2.0.2",
+      "integrity": "sha1-awjo+0y3bjpQzW3Q7DczjoEaDTk="
     },
     "wreck": {
-      "version": "12.2.2"
+      "version": "12.2.2",
+      "integrity": "sha1-4hgj00w21nIATu+jR66MT2BQ49s="
     }
   }
 }
