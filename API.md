@@ -2944,7 +2944,7 @@ are called in parallel. `pre` can be assigned a mixed array of:
     - `failAction` - determines how to handle errors returned by the method. Allowed values are:
         - `'error'` - returns the error response back to the client. This is the default value.
         - `'log'` - logs the error but continues processing the request. If `assign` is used, the
-          error will be assigned.
+          error will be assigned to request.preResponse.
         - `'ignore'` - takes no special action. If `assign` is used, the error will be assigned.
 - functions - same as including an object with a single `method` key.
 - strings - special short-hand notation for registered
