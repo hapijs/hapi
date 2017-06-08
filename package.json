@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "16.4.1",
+  "version": "16.4.2",
   "repository": {
     "type": "git",
     "url": "git://github.com/hapijs/hapi"
@@ -15,27 +15,27 @@
     "web"
   ],
   "engines": {
-    "node": ">=4.5.0"
+    "node": ">=4.8.0"
   },
   "dependencies": {
-    "accept": "2.1.4",
-    "ammo": "2.0.4",
-    "boom": "5.1.0",
-    "call": "4.0.2",
-    "catbox": "7.1.4",
-    "catbox-memory": "2.0.4",
-    "cryptiles": "3.1.2",
-    "heavy": "4.0.4",
-    "hoek": "4.1.1",
-    "iron": "4.0.5",
-    "items": "2.1.1",
-    "joi": "10.5.2",
-    "mimos": "3.0.3",
-    "podium": "1.2.5",
-    "shot": "3.4.2",
-    "statehood": "5.0.2",
-    "subtext": "4.4.1",
-    "topo": "2.0.2"
+    "accept": "2.x.x",
+    "ammo": "2.x.x",
+    "boom": "5.x.x",
+    "call": "4.x.x",
+    "catbox": "7.x.x",
+    "catbox-memory": "2.x.x",
+    "cryptiles": "3.x.x",
+    "heavy": "4.x.x",
+    "hoek": "4.x.x",
+    "iron": "4.x.x",
+    "items": "2.x.x",
+    "joi": "10.x.x",
+    "mimos": "3.x.x",
+    "podium": "1.x.x",
+    "shot": "3.x.x",
+    "statehood": "5.x.x",
+    "subtext": "4.x.x",
+    "topo": "2.x.x"
   },
   "devDependencies": {
     "code": "4.x.x",
