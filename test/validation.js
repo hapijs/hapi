@@ -250,6 +250,33 @@ describe('validation', () => {
         });
     });
 
+    it('fails with globally set up error code if provided', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection({ routes: { validate: { errorStatusCode: 422 } } });
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
+            config: {
+                validate: {
+                    query: {
+                        a: Joi.number()
+                    }
+                }
+            }
+        });
+
+        server.inject('/?a=abc', (res) => {
+
+            expect(res.statusCode).to.equal(422);
+            done();
+        });
+    });
+
     it('retains custom validation error', (done) => {
 
         const server = new Hapi.Server();
