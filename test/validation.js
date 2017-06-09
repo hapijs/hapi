@@ -1884,6 +1884,130 @@ describe('validation', () => {
         done();
     });
 
+    it('throws on options.stripUnknown.arrays without modify', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        expect(() => {
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    return reply('ok');
+                },
+                config: {
+                    response: {
+                        schema: Joi.string(),
+                        options: {
+                            stripUnknown: {
+                                arrays: true
+                            }
+                        }
+                    }
+                }
+            });
+        }).to.throw(/"options.stripUnknown" failed to meet requirement of having peer modify set to true/);
+
+        done();
+    });
+
+    it('throws on options.stripUnknown.objects without modify', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        expect(() => {
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    return reply('ok');
+                },
+                config: {
+                    response: {
+                        schema: Joi.string(),
+                        options: {
+                            stripUnknown: {
+                                objects: true
+                            }
+                        }
+                    }
+                }
+            });
+        }).to.throw(/"options.stripUnknown" failed to meet requirement of having peer modify set to true/);
+
+        done();
+    });
+
+    it('validates on options.stripUnknown.arrays/objects with modify', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        expect(() => {
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    return reply('ok');
+                },
+                config: {
+                    response: {
+                        schema: Joi.string(),
+                        modify: true,
+                        options: {
+                            stripUnknown: {
+                                arrays: true,
+                                objects: true
+                            }
+                        }
+                    }
+                }
+            });
+        }).not.to.throw();
+
+        done();
+    });
+
+    it('validates without options.stripUnknown.arrays/objects with modify', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        expect(() => {
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    return reply('ok');
+                },
+                config: {
+                    response: {
+                        schema: Joi.string(),
+                        modify: true,
+                        options: {
+                            stripUnknown: {
+                                arrays: false,
+                                objects: false
+                            }
+                        }
+                    }
+                }
+            });
+        }).not.to.throw();
+
+        done();
+    });
+
     it('binds route validate function to a context', (done) => {
 
         const server = new Hapi.Server();
