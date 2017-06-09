@@ -1163,6 +1163,30 @@ describe('Request', () => {
                 done();
             });
         });
+
+        it('handles hostname in HTTP request resource', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            let socket;
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    expect(request.info.hostname).to.equal('host.com');
+                    socket.destroy();
+                    server.stop(done);
+                }
+            });
+
+            server.start((err) => {
+
+                expect(err).to.not.exist();
+                socket = Net.createConnection(server.info.port, '127.0.0.1', () => socket.write('GET http://host.com\r\n\r\n'));
+            });
+        });
     });
 
     describe('log()', { parallel: false }, () => {
