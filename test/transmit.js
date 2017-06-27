@@ -798,22 +798,17 @@ describe('transmission', () => {
             });
         });
 
-        it('handles stream errors on the response after the response has been piped', (done) => {
+        it('handles stream errors on the response after the response has been piped (inject)', (done) => {
 
             const handler = function (request, reply) {
 
-                const TestStream = function () {
-
-                    Stream.Readable.call(this);
-                };
-
-                Hoek.inherits(TestStream, Stream.Readable);
-
-                TestStream.prototype._read = function (size) {
+                const stream = new Stream.Readable();
+                stream._read = function (size) {
 
                     if (this.isDone) {
                         return;
                     }
+
                     this.isDone = true;
 
                     this.push('success');
@@ -824,7 +819,6 @@ describe('transmission', () => {
                     });
                 };
 
-                const stream = new TestStream();
                 return reply(stream);
             };
 
@@ -834,8 +828,38 @@ describe('transmission', () => {
 
             server.inject('/', (res) => {
 
-                expect(res.result).to.equal('success');
+                expect(res.result.message).to.equal('An internal server error occurred');
                 done();
+            });
+        });
+
+        it('handles stream errors on the response after the response has been piped (http)', (done) => {
+
+            const handler = function (request, reply) {
+
+                const stream = new Stream.Readable();
+                stream._read = function (size) {
+
+                    this.push('something');
+                    this.emit('error', new Error());
+                };
+
+                return reply(stream);
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler });
+
+            server.start((err) => {
+
+                expect(err).to.not.exist();
+
+                Wreck.request('GET', 'http://localhost:' + server.info.port + '/', {}, (err, res) => {
+
+                    expect(err).to.exist();
+                    server.stop(done);
+                });
             });
         });
 
