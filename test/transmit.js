@@ -840,6 +840,12 @@ describe('transmission', () => {
                 const stream = new Stream.Readable();
                 stream._read = function (size) {
 
+                    if (this.isDone) {
+                        return;
+                    }
+
+                    this.isDone = true;
+
                     this.push('something');
                     this.emit('error', new Error());
                 };
