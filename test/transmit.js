@@ -2854,6 +2854,7 @@ describe('transmission', () => {
                 expect(res.headers['x-xss-protection']).to.not.exist();
                 expect(res.headers['x-download-options']).to.not.exist();
                 expect(res.headers['x-content-type-options']).to.not.exist();
+                expect(res.headers['referrer-policy']).to.not.exist();
                 done();
             });
         });
@@ -2878,6 +2879,7 @@ describe('transmission', () => {
                 expect(res.headers['x-xss-protection']).to.equal('1; mode=block');
                 expect(res.headers['x-download-options']).to.equal('noopen');
                 expect(res.headers['x-content-type-options']).to.equal('nosniff');
+                expect(res.headers['referrer-policy']).to.equal('origin');
                 done();
             });
         });
@@ -2906,12 +2908,13 @@ describe('transmission', () => {
                 expect(res.headers['x-xss-protection']).to.not.exist();
                 expect(res.headers['x-download-options']).to.not.exist();
                 expect(res.headers['x-content-type-options']).to.not.exist();
+                expect(res.headers['referrer-policy']).to.not.exist();
                 done();
             });
 
         });
 
-        it('does not return hsts header when secuirty.hsts is false', (done) => {
+        it('does not return hsts header when security.hsts is false', (done) => {
 
             const handler = function (request, reply) {
 
@@ -2931,6 +2934,7 @@ describe('transmission', () => {
                 expect(res.headers['x-xss-protection']).to.equal('1; mode=block');
                 expect(res.headers['x-download-options']).to.equal('noopen');
                 expect(res.headers['x-content-type-options']).to.equal('nosniff');
+                expect(res.headers['referrer-policy']).to.equal('origin');
                 done();
             });
 
@@ -3096,6 +3100,7 @@ describe('transmission', () => {
                 expect(res.headers['x-xss-protection']).to.equal('1; mode=block');
                 expect(res.headers['x-download-options']).to.equal('noopen');
                 expect(res.headers['x-content-type-options']).to.equal('nosniff');
+                expect(res.headers['referrer-policy']).to.equal('origin');
                 done();
             });
         });
@@ -3260,6 +3265,67 @@ describe('transmission', () => {
                 expect(res.headers['x-frame-options']).to.equal('DENY');
                 expect(res.headers['x-download-options']).to.equal('noopen');
                 expect(res.headers['x-content-type-options']).to.equal('nosniff');
+                expect(res.headers['referrer-policy']).to.equal('origin');
+                done();
+            });
+        });
+
+        it('does not set the referrer-policy header if referrerPolicy is false', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply('Test');
+            };
+
+            const server = new Hapi.Server();
+            server.connection({ routes: { security: { referrerPolicy: false } } });
+            server.route({ method: 'GET', path: '/', handler });
+
+            server.inject({ url: '/' }, (res) => {
+
+                expect(res.result).to.exist();
+                expect(res.result).to.equal('Test');
+                expect(res.headers['referrer-policy']).to.not.exist();
+                done();
+            });
+        });
+
+        it('returns the default referrer policy header when security.referrerPolicy is true', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply('Test');
+            };
+
+            const server = new Hapi.Server();
+            server.connection({ routes: { security: { referrerPolicy: true } } });
+            server.route({ method: 'GET', path: '/', handler });
+
+            server.inject({ url: '/' }, (res) => {
+
+                expect(res.result).to.exist();
+                expect(res.result).to.equal('Test');
+                expect(res.headers['referrer-policy']).to.equal('origin');
+                done();
+            });
+        });
+
+        it('returns correct referrer policy header when security.referrerPolicy is a string', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply('Test');
+            };
+
+            const server = new Hapi.Server();
+            server.connection({ routes: { security: { referrerPolicy: 'strict-origin' } } });
+            server.route({ method: 'GET', path: '/', handler });
+
+            server.inject({ url: '/' }, (res) => {
+
+                expect(res.result).to.exist();
+                expect(res.result).to.equal('Test');
+                expect(res.headers['referrer-policy']).to.equal('strict-origin');
                 done();
             });
         });
