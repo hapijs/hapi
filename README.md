@@ -25,6 +25,7 @@ Eran Hammer's [Patreon page](https://www.patreon.com/eranhammer) or contact him 
 - **Auth0**
 - **CNN Digital**
 - **Contentful**
+- The product development team at **Creative Artists Agency**
 
 #### Legacy Supporters
 
