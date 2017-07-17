@@ -10,6 +10,9 @@
 - NZZ Storytelling
 - Auth0
 - Contentful
+- Lob
+- Jeremy Whitbred
+
 
 # Supporters
 
@@ -37,4 +40,8 @@
 - Trey Huffine
 - Alvin Lumowa
 - Eric Lanehart
-
+- Troy Whiteley
+- Biao Xie
+- Elba Sánchez Márquez
+- Peter Ka
+- Andreas Zeuch

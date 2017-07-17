@@ -1884,6 +1884,38 @@ describe('validation', () => {
         done();
     });
 
+    it('allows options.stripUnknown to be an object', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        expect(() => {
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: function (request, reply) {
+
+                    return reply('ok');
+                },
+                config: {
+                    response: {
+                        schema: Joi.string(),
+                        modify: true,
+                        options: {
+                            stripUnknown: {
+                                objects: true,
+                                arrays: true
+                            }
+                        }
+                    }
+                }
+            });
+        }).to.not.throw();
+
+        done();
+    });
+
     it('binds route validate function to a context', (done) => {
 
         const server = new Hapi.Server();
