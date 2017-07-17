@@ -967,6 +967,17 @@ exports.register.attributes = {
 };
 ```
 
+### `server.requestIdGenerator(method)`
+
+Registers a custom generator for request IDs where:
+- `method` - the function that is invoked using the signature `function(request)` and returns an ID, or `null` if the default should be used
+
+```js
+server.requestIdGenerator((request) => {
+    return request.headers['x-request-id'];
+});
+```
+
 ### `server.decoder(encoding, decoder)`
 
 Registers a custom content decoding compressor to extend the built-in support for `'gzip'` and
