@@ -452,7 +452,7 @@ describe('Connection', () => {
 
                         req.abort();
                     });
-                }, 50);
+                }, 100);
             });
         });
     });
