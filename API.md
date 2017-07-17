@@ -183,6 +183,7 @@ Creates a new `Server` object where:
           the events are logged via [`server.log()`](#serverlogtags-data-timestamp) as well as
           internally generated [server logs](#server-logs). For example, to display all errors,
           set the option to `['error']`. To turn off all console debug messages set it to `false`.
+          To display all server logs, set it to '*'.
           Defaults to uncaught errors thrown in external code (these errors are handled
           automatically and result in an Internal Server Error response) or runtime errors due to
           developer error.
@@ -190,6 +191,7 @@ Creates a new `Server` object where:
           the events are logged via [`request.log()`](#requestlogtags-data-timestamp) as well as
           internally generated [request logs](#request-logs). For example, to display all errors,
           set the option to `['error']`. To turn off all console debug messages set it to `false`.
+          To display all request logs, set it to '*'.
           Defaults to uncaught errors thrown in external code (these errors are handled
           automatically and result in an Internal Server Error response) or runtime errors due to
           developer error.

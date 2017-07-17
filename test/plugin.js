@@ -4214,6 +4214,54 @@ describe('Plugin', () => {
                 });
             });
         });
+
+        it('outputs logs for all server log events with a wildcard', (done) => {
+
+            const server = new Hapi.Server({ debug: { log: '*' } });
+            server.connection();
+
+            const orig = console.error;
+            console.error = function () {
+
+                console.error = orig;
+                expect(arguments[0]).to.equal('Debug:');
+                expect(arguments[1]).to.equal('foobar');
+                expect(arguments[2]).to.equal('\n    {"data":1}');
+                done();
+            };
+
+            server.log(['foobar'], { data: 1 });
+        });
+
+        it('outputs logs for all request log events with a wildcard', (done, onCleanup) => {
+
+            const server = new Hapi.Server({ debug: { request: '*' } });
+            server.connection();
+
+            const expectedLogs = [
+                ['Debug:', 'received'],
+                ['Debug:', 'handler, error'],
+                ['Debug:', 'response']
+            ];
+
+            const orig = console.error;
+            onCleanup((finish) => {
+
+                console.error = orig;
+                finish();
+            });
+
+            console.error = function () {
+
+                expect(Array.from(arguments)).to.contain(expectedLogs.shift());
+
+                if (expectedLogs.length === 0) {
+                    done();
+                }
+            };
+
+            server.inject('/', () => {});
+        });
     });
 
     describe('lookup()', () => {
