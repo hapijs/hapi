@@ -2818,7 +2818,9 @@ Parameterized paths are processed by matching the named parameters to the conten
 request path at that path segment. For example, '/book/{id}/cover' will match '/book/123/cover' and
 `request.params.id` will be set to `'123'`. Each path segment (everything between the opening '/'
 and the closing '/' unless it is the end of the path) can only include one named parameter. A
-parameter can cover the entire segment ('/{param}') or part of the segment ('/file.{ext}').
+parameter can cover the entire segment ('/{param}') or part of the segment ('/file.{ext}').  A path
+parameter may only contain letters, numbers and underscores, e.g. '/{file-name}' is invalid
+and '/{file_name}' is valid.
 
 An optional '?' suffix following the parameter name indicates an optional parameter (only allowed
 if the parameter is at the ends of the path or only covers part of the segment as in
