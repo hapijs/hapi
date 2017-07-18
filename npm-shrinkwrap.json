@@ -54,9 +54,9 @@
       "integrity": "sha1-NskTNsAMz+hSyqTRUwhjNc0vAOk="
     },
     "hoek": {
-      "version": "4.1.1",
-      "resolved": "https://registry.npmjs.org/hoek/-/hoek-4.1.1.tgz",
-      "integrity": "sha1-nMVz/7ore0CPtenCoTeWvpTN3Ok="
+      "version": "4.2.0",
+      "resolved": "https://registry.npmjs.org/hoek/-/hoek-4.2.0.tgz",
+      "integrity": "sha1-ctnQdU9/4lyi0BrY+PmpRJqJUm0="
     },
     "iron": {
       "version": "4.0.5",
