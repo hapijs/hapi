@@ -802,6 +802,23 @@ describe('Response', () => {
 
     describe('escape()', () => {
 
+        it('returns 200 when called with true', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply({ x: 'x' }).escape(true);
+            };
+
+            const server = new Hapi.Server({ debug: false });
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler });
+            server.inject('/', (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
         it('errors when called on wrong type', (done) => {
 
             const handler = function (request, reply) {
