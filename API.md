@@ -2595,6 +2595,11 @@ following options:
         - `'error'` - return a Bad Request (400) error response. This is the default value.
         - `'log'` - report the error but continue processing the request.
         - `'ignore'` - take no action and continue processing the request.
+        - a custom error handler function with the signature
+          `function(request, reply, error)` where:
+            - `request` - the [request object](#request-object).
+            - `reply` - the continuation [reply interface](#reply-interface).
+            - `error` - the error returned during payload parsing.
     - `defaultContentType` - the default 'Content-Type' HTTP header value is not present.
       Defaults to `'application/json'`.
     - `compression` - an object where each key is a content-encoding name and each value is an
