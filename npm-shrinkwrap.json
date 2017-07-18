@@ -19,9 +19,9 @@
       "integrity": "sha1-ep1gRmrfe43hFMvfZRpf38yQiU0="
     },
     "boom": {
-      "version": "5.1.0",
-      "resolved": "https://registry.npmjs.org/boom/-/boom-5.1.0.tgz",
-      "integrity": "sha1-Awj6jpJM1tQtnDv0iDvcmPDnHfg="
+      "version": "5.2.0",
+      "resolved": "https://registry.npmjs.org/boom/-/boom-5.2.0.tgz",
+      "integrity": "sha1-XdnabuOl8wIHdDYpDLcX0/SlTgI="
     },
     "call": {
       "version": "4.0.2",
