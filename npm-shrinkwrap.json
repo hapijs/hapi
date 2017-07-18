@@ -29,9 +29,9 @@
       "integrity": "sha1-33b19R7o3Ui4VqyEAPfmnm1zmcQ="
     },
     "catbox": {
-      "version": "7.1.4",
-      "resolved": "https://registry.npmjs.org/catbox/-/catbox-7.1.4.tgz",
-      "integrity": "sha1-ipUO0YtkuoCIwa4TLoXFhHnStsw="
+      "version": "7.1.5",
+      "resolved": "https://registry.npmjs.org/catbox/-/catbox-7.1.5.tgz",
+      "integrity": "sha1-xW9+jpVV0nwNwDipbvc+V9GGux8="
     },
     "catbox-memory": {
       "version": "2.0.4",
@@ -74,9 +74,9 @@
       "integrity": "sha512-Do/NXTokq86nvFfggE4UbwNnyzvALn3Ay+gMwQSAkrQoWTYc4LvkabhypVZiqDZq0TbtVhUpOphe4dmKB6/Pxg=="
     },
     "mime-db": {
-      "version": "1.28.0",
-      "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.28.0.tgz",
-      "integrity": "sha1-/t00m+BtKGW3/FfYN8beTxfXrDw="
+      "version": "1.29.0",
+      "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.29.0.tgz",
+      "integrity": "sha1-SNJtI1WJZRcErFkWygYAGRQmaHg="
     },
     "mimos": {
       "version": "3.0.3",
