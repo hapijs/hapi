@@ -839,4 +839,19 @@ describe('Route', () => {
             });
         });
     });
+
+    describe('drain()', () => {
+
+        it('drains the request payload on 404', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.inject({ method: 'POST', url: '/nope', payload: 'something' }, (res) => {
+
+                expect(res.statusCode).to.equal(404);
+                expect(res.raw.req._readableState.ended).to.be.true();
+                done();
+            });
+        });
+    });
 });

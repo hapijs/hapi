@@ -161,7 +161,7 @@ describe('payload', () => {
         });
     });
 
-    it('returns 400 with response when payload is not consumed', (done) => {
+    it('returns 413 with response when payload is not consumed', (done) => {
 
         const payload = new Buffer(10 * 1024 * 1024).toString();
 
