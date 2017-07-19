@@ -1473,7 +1473,7 @@ describe('transmission', () => {
         it('Error reused does not affect encoding header.', (done) => {
 
             const error = new Error('something went wrong');
-            const wrappedError = Boom.wrap(error);
+            const wrappedError = Boom.boomify(error);
             const data = JSON.stringify(wrappedError.output.payload);
 
             const server = new Hapi.Server();
