@@ -39,9 +39,9 @@
       "integrity": "sha1-Qz4lWQLK9UIz0ShkKcj03xToItU="
     },
     "content": {
-      "version": "3.0.4",
-      "resolved": "https://registry.npmjs.org/content/-/content-3.0.4.tgz",
-      "integrity": "sha1-yj3eBEgPElGbcVJuxEvUiN37P+8="
+      "version": "3.0.5",
+      "resolved": "https://registry.npmjs.org/content/-/content-3.0.5.tgz",
+      "integrity": "sha1-nhR9x8g4xN6UgwloRd203kVexQk="
     },
     "cryptiles": {
       "version": "3.1.2",
