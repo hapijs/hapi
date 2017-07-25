@@ -6,4 +6,21 @@ node_js:
   - "8"
   - "node"
 
+env:
+  - PACKAGE_MANAGER=npm
+  - PACKAGE_MANAGER=yarn
+
+install: case "$PACKAGE_MANAGER" in
+           npm) npm install ;;
+           yarn)
+             npm install --global yarn@0.27.5 ;
+             yarn --pure-lockfile ;
+           ;;
+         esac
+
+script: case "$PACKAGE_MANAGER" in
+          npm) npm test ;;
+          yarn) yarn test ;;
+        esac
+
 sudo: false
