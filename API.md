@@ -1898,10 +1898,10 @@ across multiple requests. Registers a cookie definitions where:
       deleted when the browser is closed).
     - `isSecure` - sets the 'Secure' flag. Defaults to `true`.
     - `isHttpOnly` - sets the 'HttpOnly' flag. Defaults to `true`.
-    - `isSameSite` - sets the ['SameSite' flag](https://www.owasp.org/index.php/SameSite).  Note the SameSite flag does not yet have universal coverage so CSRF tokens are still required.  The value must be one of:
+    - `isSameSite` - sets the ['SameSite' flag](https://www.owasp.org/index.php/SameSite).  The value must be one of:
         - `false` - no flag.
-        - `'Strict'` - sets the value to `'Strict'`, which stops browser from sending cookie with `GET` and all other request methods (this is the default value).
-        - `'Lax'` - sets the value to `'Lax'`, allows browser to send cookie with `GET` while blocking it in CSRF-prone request methods (e.g. `POST`).
+        - `'Strict'` - sets the value to `'Strict'` (this is the default value).
+        - `'Lax'` - sets the value to `'Lax'`.
     - `path` - the path scope. Defaults to `null` (no path).
     - `domain` - the domain scope. Defaults to `null` (no domain).
     - `autoValue` - if present and the cookie was not received from the client or explicitly set by
