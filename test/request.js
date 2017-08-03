@@ -275,7 +275,7 @@ describe('Request', () => {
             });
         });
 
-        it('handles aborted requests', { parallel: false }, (done) => {
+        it('handles aborted requests (during response)', { parallel: false }, (done) => {
 
             const handler = function (request, reply) {
 
@@ -351,6 +351,49 @@ describe('Request', () => {
                 };
 
                 check();
+            });
+        });
+
+        it('handles aborted requests (pre response)', { parallel: false }, (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.route({
+                method: 'GET',
+                path: '/test',
+                handler: function (request, reply) {
+
+                    return reply();
+                }
+            });
+
+            let client;
+            const onRequest = function (request, reply) {
+
+                request.once('disconnect', () => server.stop(done));
+                return reply.continue();
+            };
+
+            server.ext('onRequest', onRequest);
+
+            const onPreHandler = function (request, reply) {
+
+                client.destroy();
+                return reply.continue();
+            };
+
+            server.ext('onPreHandler', onPreHandler);
+
+            server.start((err) => {
+
+                expect(err).to.not.exist();
+
+                client = Net.connect(server.info.port, () => {
+
+                    client.write('GET /test HTTP/1.1\r\n\r\n');
+                    client.write('GET /test HTTP/1.1\r\n\r\n');
+                    client.write('GET /test HTTP/1.1\r\n\r\n');
+                });
             });
         });
 
