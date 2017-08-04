@@ -828,6 +828,7 @@ describe('transmission', () => {
 
             server.inject('/', (res) => {
 
+                expect(res.statusCode).to.equal(500);
                 expect(res.result.message).to.equal('An internal server error occurred');
                 done();
             });
