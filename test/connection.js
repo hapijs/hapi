@@ -452,7 +452,7 @@ describe('Connection', () => {
 
                         req.abort();
                     });
-                }, 50);
+                }, 100);
             });
         });
     });
@@ -747,7 +747,7 @@ describe('Connection', () => {
                     server.stop({ timeout: 20 }, (err) => {
 
                         expect(err).to.not.exist();
-                        expect(timer.elapsed()).to.be.between(9, 19);
+                        expect(timer.elapsed()).to.be.between(9, 20);
                         done();
                     });
 
@@ -809,7 +809,7 @@ describe('Connection', () => {
                             server.stop({ timeout: 20 }, (err) => {
 
                                 expect(err).to.not.exist();
-                                expect(timer.elapsed()).to.be.at.most(19);
+                                expect(timer.elapsed()).to.be.at.most(20);
                                 done();
                             });
                         });

@@ -186,4 +186,41 @@ describe('Protect', () => {
             expect(res.statusCode).to.equal(200);
         });
     });
+
+    it('emits all events after an event handler throws', (done) => {
+
+        const server = new Hapi.Server({ debug: false });
+        server.connection();
+
+        const updates = [];
+        const ext = function (request, reply) {
+
+            request.registerEvent('x');
+            request.on('x', () => {
+
+                updates.push(1);
+                throw new Error('oops');
+            });
+
+            request.on('x', () => updates.push(2));
+
+            return reply.continue();
+        };
+
+        server.ext('onPreHandler', ext);
+
+        const handler = function (request, reply) {
+
+            request.emit('x');
+            return reply('ok');
+        };
+
+        server.route({ method: 'GET', path: '/', handler });
+        server.inject('/', (res) => {
+
+            expect(res.statusCode).to.equal(500);
+            expect(updates).to.equal([1, 2]);
+            done();
+        });
+    });
 });

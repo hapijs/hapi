@@ -6,6 +6,13 @@
 - Raffi Minassian
 - CNN Digital
 - Bryan Sapot
+- Healthline Media
+- NZZ Storytelling
+- Auth0
+- Contentful
+- Lob
+- Jeremy Whitbred
+
 
 # Supporters
 
@@ -24,3 +31,17 @@
 - Louis Beltramo
 - Essau Ramirez
 - Dave Stevens
+- PIer Bover
+- Sven Lito
+- John Brett
+- Max Fierro
+- Raquel Hernandez
+- David Roncancio
+- Trey Huffine
+- Alvin Lumowa
+- Eric Lanehart
+- Troy Whiteley
+- Biao Xie
+- Elba Sánchez Márquez
+- Peter Ka
+- Andreas Zeuch

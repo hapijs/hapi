@@ -1,4 +1,4 @@
-# 16.3.x API Reference
+# 16.5.x API Reference
 
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
@@ -183,6 +183,7 @@ Creates a new `Server` object where:
           the events are logged via [`server.log()`](#serverlogtags-data-timestamp) as well as
           internally generated [server logs](#server-logs). For example, to display all errors,
           set the option to `['error']`. To turn off all console debug messages set it to `false`.
+          To display all server logs, set it to '*'.
           Defaults to uncaught errors thrown in external code (these errors are handled
           automatically and result in an Internal Server Error response) or runtime errors due to
           developer error.
@@ -190,6 +191,7 @@ Creates a new `Server` object where:
           the events are logged via [`request.log()`](#requestlogtags-data-timestamp) as well as
           internally generated [request logs](#request-logs). For example, to display all errors,
           set the option to `['error']`. To turn off all console debug messages set it to `false`.
+          To display all request logs, set it to '*'.
           Defaults to uncaught errors thrown in external code (these errors are handled
           automatically and result in an Internal Server Error response) or runtime errors due to
           developer error.
@@ -1432,7 +1434,9 @@ for performing injections, with some additional options and response properties:
           string).
         - `request` - the [request object](#request-object).
 
-If no `callback` is provided, a `Promise` object is returned.
+If no `callback` is provided, a `Promise` object is returned.  The promise will
+only ever be resolved and never rejected.  Use the `statusCode` to determine if
+the request was successful.
 
 When the server contains more than one connection, each [`server.connections`](#serverconnections)
 array member provides its own `connection.inject()`.
@@ -2592,6 +2596,11 @@ following options:
         - `'error'` - return a Bad Request (400) error response. This is the default value.
         - `'log'` - report the error but continue processing the request.
         - `'ignore'` - take no action and continue processing the request.
+        - a custom error handler function with the signature
+          `function(request, reply, error)` where:
+            - `request` - the [request object](#request-object).
+            - `reply` - the continuation [reply interface](#reply-interface).
+            - `error` - the error returned during payload parsing.
     - `defaultContentType` - the default 'Content-Type' HTTP header value is not present.
       Defaults to `'application/json'`.
     - `compression` - an object where each key is a content-encoding name and each value is an
@@ -2624,6 +2633,9 @@ following options:
     - `options` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set
       global options such as `stripUnknown` or `abortEarly` (the complete list is available
       [here](https://github.com/hapijs/joi/blob/master/API.md#validatevalue-schema-options-callback)).
+      If a custom validation function (see `schema` or `status` below) is defined
+      then `options` can an arbitrary object that will be passed to this function
+      as the second parameter.
       Defaults to no options.
     - `ranges` - if `false`, payload range support is disabled. Defaults to `true`.
     - `sample` - the percent of response payloads validated (0 - 100). Set to `0` to disable all
@@ -2635,10 +2647,10 @@ following options:
         - a [Joi](http://github.com/hapijs/joi) validation object. This will receive the request's
           headers, params, query, payload, app, and auth as context.
         - a validation function using the signature `function(value, options, next)` where:
-            - `value` - the object containing the response object.
+            - `value` - the value of the response passed to `reply(value)` in the handler.
             - `options` - the server validation options, merged with an object containing the request's
               headers, params, payload, and auth credentials object and isAuthenticated flag.
-            - `next(err)` - the callback function called when validation is completed.
+            - `next([err, [value]])` - the callback function called when validation is completed.  `value` will be used as the response value when `err` is falsy, when `value` is not `undefined`, and when `route.settings.response.modify` is `true`.   If the response is already a `Boom` error it will be set as its `message` value.
     - `status` - HTTP status-code-specific payload validation rules. The `status` key is set to an
       object where each key is a 3 digit HTTP status code and the value has the same
       definition as `schema`. If a response status code is not present in the `status` object,
@@ -2705,7 +2717,7 @@ following options:
         - a validation function using the signature `function(value, options, next)` where:
             - `value` - the object containing the request headers.
             - `options` - the server validation options.
-            - `next(err, value)` - the callback function called when validation is completed.
+            - `next([err, [value]])` - the callback function called when validation is completed.  `value` will be used as the `headers` value when `err` is falsy.  If `next` is called with `undefined` or no arguments then the original value of `value` will be used.
 
     - `params` - validation rules for incoming request path parameters, after matching the path
       against the route and extracting any parameters then stored in `request.params`. Values
@@ -2716,7 +2728,7 @@ following options:
         - a validation function using the signature `function(value, options, next)` where:
             - `value` - the object containing the path parameters.
             - `options` - the server validation options.
-            - `next(err, value)` - the callback function called when validation is completed.
+            - `next([err, [value]])` - the callback function called when validation is completed.  `value` will be used as the `params` value when `err` is falsy.  If `next` is called with `undefined` or no arguments then the original value of `value` will be used.
 
     - `query` - validation rules for an incoming request URI query component (the key-value
       part of the URI between '?' and '#'). The query is parsed into its individual key-value
@@ -2727,7 +2739,7 @@ following options:
         - a validation function using the signature `function(value, options, next)` where:
             - `value` - the object containing the query parameters.
             - `options` - the server validation options.
-            - `next(err, value)` - the callback function called when validation is completed.
+            - `next([err, [value]])` - the callback function called when validation is completed.  `value` will be used as the `query` value when `err` is falsy.  If `next` is called with `undefined` or no arguments then the original value of `value` will be used.
 
     - `payload` - validation rules for an incoming request payload (request body). Values
       allowed:
@@ -2740,7 +2752,7 @@ following options:
         - a validation function using the signature `function(value, options, next)` where:
             - `value` - the object containing the payload object.
             - `options` - the server validation options.
-            - `next(err, value)` - the callback function called when validation is completed.
+            - `next([err, [value]])` - the callback function called when validation is completed.  `value` will be used as the `payload` value when `err` is falsy.  If `next` is called with `undefined` or no arguments then the original value of `value` will be used.
 
     - `errorFields` - an optional object with error fields copied into every validation error
       response.
@@ -2761,6 +2773,9 @@ following options:
     - `options` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set
       global options such as `stripUnknown` or `abortEarly` (the complete list is available
       [here](https://github.com/hapijs/joi/blob/master/API.md#validatevalue-schema-options-callback)).
+      If a custom validation function (see `headers`, `params`, `query`, or `payload`
+      above) is defined then `options` can an arbitrary object that will be passed
+      to this function as the second parameter.
       Defaults to no options.
 
 - `timeout` - define timeouts for processing durations:
@@ -2804,7 +2819,9 @@ Parameterized paths are processed by matching the named parameters to the conten
 request path at that path segment. For example, '/book/{id}/cover' will match '/book/123/cover' and
 `request.params.id` will be set to `'123'`. Each path segment (everything between the opening '/'
 and the closing '/' unless it is the end of the path) can only include one named parameter. A
-parameter can cover the entire segment ('/{param}') or part of the segment ('/file.{ext}').
+parameter can cover the entire segment ('/{param}') or part of the segment ('/file.{ext}').  A path
+parameter may only contain letters, numbers and underscores, e.g. '/{file-name}' is invalid
+and '/{file_name}' is valid.
 
 An optional '?' suffix following the parameter name indicates an optional parameter (only allowed
 if the parameter is at the ends of the path or only covers part of the segment as in
@@ -2905,6 +2922,30 @@ const handler = function (request, reply) {
     return reply('success');
 };
 ```
+
+If the handler returns a Promise then Hapi will register a `catch` handler on the promise object to catch unhandled promise rejections. The handler will `reply` with the rejected value, wrapped in a [`Boom`](https://github.com/hapijs/boom) error:
+
+```js
+const handler = function (request, reply) {
+
+    const badPromise = () => {
+
+        new Promise((resolve, reject) => {
+
+            // Hapi catches this...
+            throw new Error();
+
+            // ...and this...
+            return reject(new Error());
+        }
+    }
+
+    // ...if you don't provide a 'catch'. The rejection will be wrapped in a Boom error.
+    return badPromise().then(reply);
+}
+```
+
+This provides a safety net for unhandled promise rejections.
 
 ### Route prerequisites
 

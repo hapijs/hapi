@@ -182,6 +182,126 @@ describe('Route', () => {
         done();
     });
 
+    it('ignores payload parsing errors', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.route({
+            method: 'POST',
+            path: '/',
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
+            config: {
+                payload: {
+                    parse: true,
+                    failAction: 'ignore'
+                }
+            }
+        });
+
+        server.inject({ method: 'POST', url: '/', payload: '{a:"abc"}' }, (res) => {
+
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+    });
+
+    it('logs payload parsing errors', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.route({
+            method: 'POST',
+            path: '/',
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
+            config: {
+                payload: {
+                    parse: true,
+                    failAction: 'log'
+                }
+            }
+        });
+
+        let logged;
+        server.on('request-internal', (request, event, tags) => {
+
+            if (tags.payload && tags.error) {
+                logged = event;
+            }
+        });
+
+        server.inject({ method: 'POST', url: '/', payload: '{a:"abc"}' }, (res) => {
+
+            expect(res.statusCode).to.equal(200);
+            expect(logged).to.be.an.object();
+            expect(logged.data).to.be.an.error('Invalid request payload JSON format');
+            expect(logged.data.data).to.be.an.error(SyntaxError, /^Unexpected token a/);
+            done();
+        });
+    });
+
+    it('returns payload parsing errors', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.route({
+            method: 'POST',
+            path: '/',
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
+            config: {
+                payload: {
+                    parse: true,
+                    failAction: 'error'
+                }
+            }
+        });
+
+        server.inject({ method: 'POST', url: '/', payload: '{a:"abc"}' }, (res) => {
+
+            expect(res.statusCode).to.equal(400);
+            expect(res.result.message).to.equal('Invalid request payload JSON format');
+            done();
+        });
+    });
+
+    it('replaces payload parsing errors with custom handler', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.route({
+            method: 'POST',
+            path: '/',
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
+            config: {
+                payload: {
+                    parse: true,
+                    failAction: function (request, reply, error) {
+
+                        return reply('This is a custom error').code(418);
+                    }
+                }
+            }
+        });
+
+        server.inject({ method: 'POST', url: '/', payload: '{a:"abc"}' }, (res) => {
+
+            expect(res.statusCode).to.equal(418);
+            expect(res.result).to.equal('This is a custom error');
+            done();
+        });
+    });
+
     it('throws when validation is set on GET', (done) => {
 
         const server = new Hapi.Server();
@@ -715,6 +835,21 @@ describe('Route', () => {
 
                 expect(res.statusCode).to.equal(404);
                 expect(state).to.equal('13');
+                done();
+            });
+        });
+    });
+
+    describe('drain()', () => {
+
+        it('drains the request payload on 404', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.inject({ method: 'POST', url: '/nope', payload: 'something' }, (res) => {
+
+                expect(res.statusCode).to.equal(404);
+                expect(res.raw.req._readableState.ended).to.be.true();
                 done();
             });
         });

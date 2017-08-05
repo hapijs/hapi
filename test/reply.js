@@ -26,6 +26,30 @@ const expect = Code.expect;
 
 describe('Reply', () => {
 
+    it('decorates reply with non function', (done) => {
+
+        const server = new Hapi.Server();
+        server.connection();
+
+        server.decorate('reply', 'abc', 123);
+
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) {
+
+                return reply(reply.abc);
+            }
+        });
+
+        server.inject('/', (res) => {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal(123);
+            done();
+        });
+    });
+
     it('throws when reply called twice', (done) => {
 
         const handler = function (request, reply) {

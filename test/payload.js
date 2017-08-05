@@ -154,14 +154,14 @@ describe('payload', () => {
 
         server.inject({ method: 'POST', url: '/', payload, headers: { 'content-length': payload.length } }, (res) => {
 
-            expect(res.statusCode).to.equal(400);
+            expect(res.statusCode).to.equal(413);
             expect(res.result).to.exist();
             expect(res.result.message).to.equal('Payload content length greater than maximum allowed: 10');
             done();
         });
     });
 
-    it('returns 400 with response when payload is not consumed', (done) => {
+    it('returns 413 with response when payload is not consumed', (done) => {
 
         const payload = new Buffer(10 * 1024 * 1024).toString();
 
@@ -183,8 +183,8 @@ describe('payload', () => {
             Wreck.post(uri, { payload }, (err, res, body) => {
 
                 expect(err).to.exist();
-                expect(err.data.response.statusCode).to.equal(400);
-                expect(err.data.payload.toString()).to.equal('{"statusCode":400,"error":"Bad Request","message":"Payload content length greater than maximum allowed: 1048576"}');
+                expect(err.data.response.statusCode).to.equal(413);
+                expect(err.data.payload.toString()).to.equal('{"statusCode":413,"error":"Request Entity Too Large","message":"Payload content length greater than maximum allowed: 1048576"}');
 
                 server.stop(done);
             });

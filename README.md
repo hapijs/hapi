@@ -8,7 +8,7 @@ Lead Maintainer: [Eran Hammer](https://github.com/hueniverse)
 authentication, and other essential facilities for building web and services applications. **hapi** enables
 developers to focus on writing reusable application logic in a highly modular and prescriptive approach. 
 
-Development version: **16.3.x** ([release notes](https://github.com/hapijs/hapi/issues?labels=release+notes&page=1&state=closed)) 
+Development version: **16.5.x** ([release notes](https://github.com/hapijs/hapi/issues?labels=release+notes&page=1&state=closed)) 
 [![Build Status](https://secure.travis-ci.org/hapijs/hapi.svg?branch=master)](http://travis-ci.org/hapijs/hapi)
 
 For the latest updates, [change log](http://hapijs.com/updates), and release information visit [hapijs.com](http://hapijs.com) and follow [@hapijs](https://twitter.com/hapijs) on twitter. If you have questions, please open an issue in the
@@ -22,7 +22,11 @@ Eran Hammer's [Patreon page](https://www.patreon.com/eranhammer) or contact him 
 
 #### Current Supporters
 
+- **Lob**
+- **Auth0**
 - **CNN Digital**
+- **Contentful**
+- The product development team at **Creative Artists Agency**
 
 #### Legacy Supporters
 
