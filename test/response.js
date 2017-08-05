@@ -800,6 +800,43 @@ describe('Response', () => {
         });
     });
 
+    describe('escape()', () => {
+
+        it('returns 200 when called with true', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply({ x: 'x' }).escape(true);
+            };
+
+            const server = new Hapi.Server({ debug: false });
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler });
+            server.inject('/', (res) => {
+
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('errors when called on wrong type', (done) => {
+
+            const handler = function (request, reply) {
+
+                return reply('x').escape('x');
+            };
+
+            const server = new Hapi.Server({ debug: false });
+            server.connection();
+            server.route({ method: 'GET', path: '/', handler });
+            server.inject('/', (res) => {
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
+        });
+    });
+
     describe('type()', () => {
 
         it('returns a file in the response with the correct headers using custom mime type', (done) => {
@@ -1245,16 +1282,16 @@ describe('Response', () => {
 
             const handler = function (request, reply) {
 
-                return reply({ a: 1, b: 2 });
+                return reply({ a: 1, b: 2, '<': '&' });
             };
 
             const server = new Hapi.Server();
-            server.connection({ routes: { json: { replacer: ['a'], space: 4, suffix: '\n' } } });
+            server.connection({ routes: { json: { replacer: ['a', '<'], space: 4, suffix: '\n', escape: true } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
 
-                expect(res.payload).to.equal('{\n    \"a\": 1\n}\n');
+                expect(res.payload).to.equal('{\n    \"a\": 1,\n    \"\\u003c\": \"\\u0026\"\n}\n');
                 done();
             });
         });
@@ -1263,7 +1300,7 @@ describe('Response', () => {
 
             const handler = function (request, reply) {
 
-                return reply({ a: 1, b: 2 }).type('application/x-test').spaces(2).replacer(['a']).suffix('\n');
+                return reply({ a: 1, b: 2, '<': '&' }).type('application/x-test').spaces(2).replacer(['a']).suffix('\n').escape(false);
             };
 
             const server = new Hapi.Server();
@@ -1282,7 +1319,7 @@ describe('Response', () => {
 
             const handler = function (request, reply) {
 
-                return reply({ a: 1, b: 2 }).type('application/x-test').replacer(['a']).suffix('\n').spaces(2);
+                return reply({ a: 1, b: 2, '<': '&' }).type('application/x-test').escape(false).replacer(['a']).suffix('\n').spaces(2);
             };
 
             const server = new Hapi.Server();
