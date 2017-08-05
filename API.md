@@ -2529,7 +2529,7 @@ following options:
     - `replacer` - the replacer function or array. Defaults to no action.
     - `space` - number of spaces to indent nested object keys. Defaults to no indentation.
     - `suffix` - string suffix added after conversion to JSON string. Defaults to no suffix.
-    - `escape` - calls [`Hoek.jsonEscape`](https://github.com/hapijs/hoek/blob/master/API.md#escapejsonstring) after conversion to JSON string. Defaults to `false`.
+    - `escape` - calls [`Hoek.jsonEscape()`](https://github.com/hapijs/hoek/blob/master/API.md#escapejsonstring) after conversion to JSON string. Defaults to `false`.
 
 - `jsonp` - enables JSONP support by setting the value to the query parameter name containing
   the function name used to wrap the response payload. For example, if the value is
