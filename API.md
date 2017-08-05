@@ -1902,7 +1902,7 @@ across multiple requests. Registers a cookie definitions where:
       deleted when the browser is closed).
     - `isSecure` - sets the 'Secure' flag. Defaults to `true`.
     - `isHttpOnly` - sets the 'HttpOnly' flag. Defaults to `true`.
-    - `isSameSite` - sets the 'SameSite' flag where the value must be one of:
+    - `isSameSite` - sets the ['SameSite' flag](https://www.owasp.org/index.php/SameSite).  The value must be one of:
         - `false` - no flag.
         - `'Strict'` - sets the value to `'Strict'` (this is the default value).
         - `'Lax'` - sets the value to `'Lax'`.
