@@ -2556,6 +2556,35 @@ describe('transmission', () => {
         });
     });
 
+    describe('writeHead()', () => {
+
+        it('set custom statusMessage', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const handler = function (request, reply) {
+
+                return reply({}).message('Great');
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+            server.start((err) => {
+
+                expect(err).to.not.exist();
+
+                const uri = 'http://localhost:' + server.info.port;
+
+                Wreck.get(uri, {}, (err, res) => {
+
+                    expect(err).to.not.exist();
+                    expect(res.statusMessage).to.equal('Great');
+                    server.stop(done);
+                });
+            });
+        });
+    });
+
     describe('cache()', () => {
 
         it('sets max-age value (method and route)', (done) => {
