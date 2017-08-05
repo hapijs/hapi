@@ -2687,6 +2687,8 @@ following options:
       'noopen'.
     - `noSniff` - boolean controlling the 'X-Content-Type-Options' header. Defaults to
       `true` setting the header to its only and default option, 'nosniff'.
+    - `referrerPolicy` - controls the 'Referrer-Policy' header. When set to `true` the header will
+      be set to `origin`, you may also specify a string value of 'no-referrer', 'no-referrer-when-downgrade', 'origin', 'origin-when-cross-origin', 'same-origin', 'strict-origin', 'strict-origin-when-cross-origin', or 'unsafe-url'. Defaults to `origin`.
 
 - <a name="route.config.state"></a>`state` - HTTP state management (cookies) allows
   the server to store information on the client which is sent back to the server with every
