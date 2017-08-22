@@ -2320,6 +2320,7 @@ Each incoming request passes through a pre-defined list of steps, along with opt
 - Read and parse payload
 - Authenticate request payload
 - **`'onPostAuth'`** extension point
+- Validate headers
 - Validate path parameters
 - Validate query
 - Validate payload
