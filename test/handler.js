@@ -37,6 +37,7 @@ describe('handler', () => {
 
             const handler = function (request) {
 
+                const a = null;
                 a.b.c;
             };
 
@@ -55,6 +56,7 @@ describe('handler', () => {
 
                 setImmediate(() => {
 
+                    const not = null;
                     not.here;
                 });
             };
@@ -64,7 +66,7 @@ describe('handler', () => {
             server.route({ method: 'GET', path: '/', handler });
             server.on('request-error', (request, err) => {
 
-                expect(err.message).to.equal('Uncaught error: not is not defined');
+                expect(err.message).to.equal('Uncaught error: Cannot read property \'here\' of null');
                 done();
             });
 
@@ -639,6 +641,7 @@ describe('handler', () => {
 
             const pre2 = function (request, reply) {
 
+                const a = null;
                 a.b.c = 0;
             };
 
@@ -681,6 +684,7 @@ describe('handler', () => {
 
             const pre2 = function (request, reply) {
 
+                const a = null;
                 a.b.c = 0;
             };
 
@@ -1465,6 +1469,7 @@ describe('handler', () => {
 
             const onRequest = function (request, next) {
 
+                const a = null;
                 a.b.c;
             };
 
