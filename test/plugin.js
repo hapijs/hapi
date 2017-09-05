@@ -3193,6 +3193,64 @@ describe('Plugin', () => {
                 });
             });
         });
+
+        it('validates custom schema', (done) => {
+
+            const data = '{"test":"true"}';
+
+            const server = new Hapi.Server();
+            server.connection({ routes: { compression: { test: { some: 'option' } } } });
+
+            const encoder = (options) => {
+
+                expect(options).to.equal({ some: 'option' });
+                return Zlib.createGzip();
+            };
+
+            server.encoder('test', encoder, { some: 'option', other: false });
+
+            const handler = function (request, reply) {
+
+                return reply(request.payload);
+            };
+
+            server.route({ method: 'POST', path: '/', handler });
+            server.start((err) => {
+
+                expect(err).to.not.exist();
+
+                const uri = 'http://localhost:' + server.info.port;
+
+                Zlib.gzip(new Buffer(data), (err, zipped) => {
+
+                    expect(err).to.not.exist();
+
+                    Wreck.post(uri, { headers: { 'accept-encoding': 'test' }, payload: data }, (err, res, body) => {
+
+                        expect(err).to.not.exist();
+                        expect(res.headers['content-encoding']).to.equal('test');
+                        expect(body.toString()).to.equal(zipped.toString());
+                        server.stop(done);
+                    });
+                });
+            });
+        });
+
+        it('throws error when custom schema fails validation', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection({ routes: { compression: { test: { some: 'bad' } } } });
+
+            server.encoder('test', Hoek.ignore, { some: 'option', other: false });
+
+            const fn = () => {
+
+                server.route({ method: 'POST', path: '/', handler: Hoek.ignore });
+            };
+
+            expect(fn).to.throw(/Invalid compression options/);
+            done();
+        });
     });
 
     describe('event()', () => {
