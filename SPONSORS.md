@@ -12,6 +12,7 @@
 - Contentful
 - Lob
 - Jeremy Whitbred
+- Srikanth Minnam
 
 
 # Supporters
@@ -45,3 +46,5 @@
 - Elba Sánchez Márquez
 - Peter Ka
 - Andreas Zeuch
+- Christian Giacomi
+- Saul Maddox
