@@ -747,7 +747,7 @@ describe('Connection', () => {
                     server.stop({ timeout: 20 }, (err) => {
 
                         expect(err).to.not.exist();
-                        expect(timer.elapsed()).to.be.between(9, 20);
+                        expect(timer.elapsed()).to.be.between(9, 21);
                         done();
                     });
 
