@@ -30,8 +30,7 @@ describe('CORS', () => {
             return reply();
         };
 
-        const server = new Hapi.Server();
-        server.connection({ routes: { cors: false } });
+        const server = new Hapi.Server({ routes: { cors: false } });
         server.route({ method: 'GET', path: '/', handler });
 
         server.inject({ method: 'OPTIONS', url: '/', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } }, (res) => {
@@ -48,8 +47,7 @@ describe('CORS', () => {
             return reply(Boom.badRequest());
         };
 
-        const server = new Hapi.Server();
-        server.connection({ routes: { cors: true } });
+        const server = new Hapi.Server({ routes: { cors: true } });
         server.route({ method: 'GET', path: '/', handler });
 
         server.inject({ method: 'OPTIONS', url: '/', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } }, (res) => {
@@ -66,8 +64,7 @@ describe('CORS', () => {
             return reply(Boom.badRequest());
         };
 
-        const server = new Hapi.Server({ connections: { routes: { cors: true } } });
-        server.connection();
+        const server = new Hapi.Server({ routes: { cors: true } });
         server.route({ method: 'GET', path: '/x', handler });
 
         server.inject({ method: 'OPTIONS', url: '/x', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } }, (res) => {
@@ -85,7 +82,6 @@ describe('CORS', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
         server.route({ method: 'GET', path: '/a', handler, config: { cors: true } });
         server.route({ method: 'GET', path: '/b', handler });
 
@@ -113,7 +109,6 @@ describe('CORS', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
         server.route({ method: 'GET', path: '/a', handler, config: { cors: true } });
         server.route({ method: 'GET', path: '/b', handler, config: { cors: true } });
         server.route({ method: 'GET', path: '/c', handler });
@@ -149,7 +144,6 @@ describe('CORS', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
         server.route({ method: 'GET', path: '/a', handler, config: { cors: true } });
         server.route({ method: 'POST', path: '/a', handler, config: { cors: true } });
 
@@ -169,8 +163,7 @@ describe('CORS', () => {
             return reply('ok');
         };
 
-        const server = new Hapi.Server();
-        server.connection({ routes: { cors: { origin: ['b'] } } });
+        const server = new Hapi.Server({ routes: { cors: { origin: ['b'] } } });
         server.route({ method: 'GET', path: '/a', handler, config: { cors: { origin: ['a'] } } });
         server.route({ method: 'GET', path: '/b', handler });
 
@@ -197,8 +190,7 @@ describe('CORS', () => {
             return reply();
         };
 
-        const server = new Hapi.Server();
-        server.connection({ routes: { cors: { credentials: true } } });
+        const server = new Hapi.Server({ routes: { cors: { credentials: true } } });
         server.route({ method: 'GET', path: '/', handler });
 
         server.inject({ url: '/', headers: { origin: 'http://example.com/' } }, (res) => {
@@ -217,8 +209,7 @@ describe('CORS', () => {
             return reply();
         };
 
-        const server = new Hapi.Server();
-        server.connection({ routes: { cors: { origin: ['http://example.com/'] } } });
+        const server = new Hapi.Server({ routes: { cors: { origin: ['http://example.com/'] } } });
         server.route({ method: 'GET', path: '/', handler, config: { cors: { credentials: true } } });
 
         server.inject({ url: '/', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } }, (res1) => {
@@ -262,7 +253,6 @@ describe('CORS', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', handler, config: { cors: true } });
 
             server.inject({ url: '/', headers: { origin: 'http://example.com/' } }, (res1) => {
@@ -289,8 +279,7 @@ describe('CORS', () => {
                 return reply('ok');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { cors: { origin: ['http://x.example.com', 'http://www.example.com'] } } });
+            const server = new Hapi.Server({ routes: { cors: { origin: ['http://x.example.com', 'http://www.example.com'] } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, (res) => {
@@ -310,8 +299,7 @@ describe('CORS', () => {
                 return reply('ok');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com'] } } });
+            const server = new Hapi.Server({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com'] } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ method: 'OPTIONS', url: '/', headers: { origin: 'http://test.example.com', 'access-control-request-method': 'GET' } }, (res) => {
@@ -330,8 +318,7 @@ describe('CORS', () => {
                 return reply('ok').header('access-control-expose-headers', 'something');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { cors: { additionalExposedHeaders: ['xyz'] } } });
+            const server = new Hapi.Server({ routes: { cors: { additionalExposedHeaders: ['xyz'] } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/', headers: { origin: 'http://example.com/' } }, (res) => {
@@ -351,8 +338,7 @@ describe('CORS', () => {
                 return reply('ok');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com'] } } });
+            const server = new Hapi.Server({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com'] } } });
             server.route({ method: 'GET', path: '/', handler, config: { cors: false } });
 
             server.inject({ url: '/', headers: { origin: 'http://x.example.com' } }, (res) => {
@@ -372,8 +358,7 @@ describe('CORS', () => {
                 return reply('Tada').header('vary', 'x-test');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } } });
+            const server = new Hapi.Server({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/', headers: { origin: 'http://www.example.com' } }, (res) => {
@@ -394,8 +379,7 @@ describe('CORS', () => {
                 return reply('Tada').header('vary', 'x-test');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { cors: { origin: ['*'] } } });
+            const server = new Hapi.Server({ routes: { cors: { origin: ['*'] } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/', headers: { origin: 'http://www.example.com' } }, (res) => {
@@ -416,8 +400,7 @@ describe('CORS', () => {
                 return reply('Tada').header('vary', 'x-test');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } } });
+            const server = new Hapi.Server({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/', headers: { origin: 'http://www.a.com' } }, (res) => {
@@ -438,8 +421,7 @@ describe('CORS', () => {
                 return reply('Tada').header('vary', 'x-test', true);
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.b.com', 'http://*.a.com'] } } });
+            const server = new Hapi.Server({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.b.com', 'http://*.a.com'] } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/', headers: { origin: 'http://www.a.com' } }, (res) => {
@@ -460,8 +442,7 @@ describe('CORS', () => {
                 return reply('ok');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { cors: { exposedHeaders: [] } } });
+            const server = new Hapi.Server({ routes: { cors: { exposedHeaders: [] } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } }, (res1) => {
@@ -486,14 +467,13 @@ describe('CORS', () => {
         it('ignores OPTIONS route', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({
                 method: 'OPTIONS',
                 path: '/',
                 handler: function (request, reply) { }
             });
 
-            expect(server.connections[0]._router.special.options).to.not.exist();
+            expect(server._router.special.options).to.not.exist();
             done();
         });
     });
@@ -502,8 +482,7 @@ describe('CORS', () => {
 
         it('errors on missing origin header', (done) => {
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { cors: true } });
+            const server = new Hapi.Server({ routes: { cors: true } });
             server.route({
                 method: 'GET',
                 path: '/',
@@ -520,8 +499,7 @@ describe('CORS', () => {
 
         it('errors on missing access-control-request-method header', (done) => {
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { cors: true } });
+            const server = new Hapi.Server({ routes: { cors: true } });
             server.route({
                 method: 'GET',
                 path: '/',
@@ -538,8 +516,7 @@ describe('CORS', () => {
 
         it('errors on missing route', (done) => {
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { cors: true } });
+            const server = new Hapi.Server({ routes: { cors: true } });
 
             server.inject({ method: 'OPTIONS', url: '/', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } }, (res) => {
 
@@ -550,8 +527,7 @@ describe('CORS', () => {
 
         it('errors on mismatching origin header', (done) => {
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { cors: { origin: ['a'] } } });
+            const server = new Hapi.Server({ routes: { cors: { origin: ['a'] } } });
             server.route({
                 method: 'GET',
                 path: '/',
@@ -573,8 +549,7 @@ describe('CORS', () => {
                 return reply('ok');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { cors: true } });
+            const server = new Hapi.Server({ routes: { cors: true } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({
@@ -600,8 +575,7 @@ describe('CORS', () => {
                 return reply('ok');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { cors: true } });
+            const server = new Hapi.Server({ routes: { cors: true } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({
@@ -627,8 +601,7 @@ describe('CORS', () => {
                 return reply('ok');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { cors: { additionalHeaders: ['Origin'] } } });
+            const server = new Hapi.Server({ routes: { cors: { additionalHeaders: ['Origin'] } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({
@@ -655,8 +628,7 @@ describe('CORS', () => {
                 return reply('ok');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { cors: true } });
+            const server = new Hapi.Server({ routes: { cors: true } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({
@@ -682,8 +654,7 @@ describe('CORS', () => {
                 return reply('ok');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { cors: true } });
+            const server = new Hapi.Server({ routes: { cors: true } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({
@@ -704,8 +675,7 @@ describe('CORS', () => {
 
         it('allows credentials', (done) => {
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { cors: { credentials: true } } });
+            const server = new Hapi.Server({ routes: { cors: { credentials: true } } });
             server.route({
                 method: 'GET',
                 path: '/',
@@ -722,8 +692,7 @@ describe('CORS', () => {
 
         it('correctly finds route when using vhost setting', (done) => {
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { cors: true } });
+            const server = new Hapi.Server({ routes: { cors: true } });
             server.route({
                 method: 'POST',
                 vhost: 'example.com',
@@ -745,8 +714,7 @@ describe('CORS', () => {
 
         it('skips CORS when missing origin header', (done) => {
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { cors: true } });
+            const server = new Hapi.Server({ routes: { cors: true } });
             server.route({
                 method: 'GET',
                 path: '/',

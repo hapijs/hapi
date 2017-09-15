@@ -1,6 +1,6 @@
 {
   "name": "hapi",
-  "version": "16.6.0",
+  "version": "17.0.0",
   "lockfileVersion": 1,
   "dependencies": {
     "accept": {
@@ -49,9 +49,9 @@
       "integrity": "sha1-qJ+7Ig9c4l7FboxKqKT9e1sNKf4="
     },
     "heavy": {
-      "version": "4.0.4",
-      "resolved": "https://registry.npmjs.org/heavy/-/heavy-4.0.4.tgz",
-      "integrity": "sha1-NskTNsAMz+hSyqTRUwhjNc0vAOk="
+      "version": "5.0.0",
+      "resolved": "https://registry.npmjs.org/heavy/-/heavy-5.0.0.tgz",
+      "integrity": "sha1-26kbUHxvAeM5NB+48wZLm7bk8YA="
     },
     "hoek": {
       "version": "4.2.0",

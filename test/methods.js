@@ -155,7 +155,6 @@ describe('Methods', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
         server.method('tools.add', add);
 
         server.initialize((err) => {
@@ -174,7 +173,6 @@ describe('Methods', () => {
     it('registers a method with bind and callback', (done) => {
 
         const server = new Hapi.Server();
-        server.connection();
 
         const context = { name: 'Bob' };
         const method = function (id, next) {
@@ -218,7 +216,6 @@ describe('Methods', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
         server.method('tools.add', add);
         server.method('tools.sub', sub);
 
@@ -283,7 +280,6 @@ describe('Methods', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
         server.method('test', method);
 
         server.initialize((err) => {
@@ -314,7 +310,6 @@ describe('Methods', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
         server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
         server.initialize((err) => {
@@ -345,7 +340,6 @@ describe('Methods', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
         server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 }, callback: false });
 
         server.initialize((err) => {
@@ -383,7 +377,6 @@ describe('Methods', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
         server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 }, callback: false });
 
         server.initialize((err) => {
@@ -420,7 +413,6 @@ describe('Methods', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
 
         const generateKey = function (id) {
 
@@ -456,7 +448,6 @@ describe('Methods', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
 
         const generateKey = function (id) {
 
@@ -486,7 +477,6 @@ describe('Methods', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
 
         const generateKey = function (id) {
 
@@ -517,7 +507,6 @@ describe('Methods', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
         server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
         server.initialize((err) => {
@@ -548,7 +537,6 @@ describe('Methods', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
         server.method('dropTest', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
         server.initialize((err) => {
@@ -583,7 +571,6 @@ describe('Methods', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
         server.method('dropErrTest', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
         server.initialize((err) => {
@@ -607,7 +594,6 @@ describe('Methods', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
         server.method('test', method, { cache: { generateTimeout: 10 } });
         server.method('test2', method, { cache: { generateTimeout: 10 } });
 
@@ -747,7 +733,6 @@ describe('Methods', () => {
     it('returns a valid result when calling a method when using the cache', (done) => {
 
         const server = new Hapi.Server();
-        server.connection();
         server.initialize((err) => {
 
             expect(err).to.not.exist();
@@ -814,7 +799,6 @@ describe('Methods', () => {
     it('returns a valid result when calling a method using the cache', (done) => {
 
         const server = new Hapi.Server({ cache: CatboxMemory });
-        server.connection();
 
         let gen = 0;
         const method = function (id, next) {
@@ -848,7 +832,6 @@ describe('Methods', () => {
     it('returns timeout when method taking too long using the cache', (done) => {
 
         const server = new Hapi.Server({ cache: CatboxMemory });
-        server.connection();
 
         let gen = 0;
         const method = function (id, next) {
@@ -887,7 +870,6 @@ describe('Methods', () => {
     it('supports empty key method', (done) => {
 
         const server = new Hapi.Server({ cache: CatboxMemory });
-        server.connection();
 
         let gen = 0;
         const terms = 'I agree to give my house';
@@ -921,7 +903,6 @@ describe('Methods', () => {
     it('returns valid results when calling a method (with different keys) using the cache', (done) => {
 
         const server = new Hapi.Server({ cache: CatboxMemory });
-        server.connection();
         let gen = 0;
         const method = function (id, next) {
 
@@ -954,7 +935,6 @@ describe('Methods', () => {
     it('errors when key generation fails', (done) => {
 
         const server = new Hapi.Server({ cache: CatboxMemory });
-        server.connection();
 
         const method = function (id, next) {
 
@@ -992,7 +972,6 @@ describe('Methods', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
         server.method('test', method, { bind: { gen: 7 } });
 
         server.initialize((err) => {
@@ -1022,7 +1001,6 @@ describe('Methods', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
         server.method('test', method, { bind: { gen: 7 }, cache: { expiresIn: 1000, generateTimeout: 10 } });
 
         server.initialize((err) => {
@@ -1049,11 +1027,10 @@ describe('Methods', () => {
         const bind = { gen: 7 };
         const method = function (id, next) {
 
-            return next(null, { id, gen: this.gen++, bound: (this === bind) });
+            return next(null, { id, gen: this.gen++, bound: this === bind });
         };
 
         const server = new Hapi.Server();
-        server.connection();
         server.method('test', method, { bind, cache: { expiresIn: 1000, generateTimeout: 10 } });
 
         server.initialize((err) => {

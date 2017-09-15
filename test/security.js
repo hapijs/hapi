@@ -26,7 +26,6 @@ describe('security', () => {
     it('blocks response splitting through the request.create method', (done) => {
 
         const server = new Hapi.Server();
-        server.connection();
 
         const createItemHandler = function (request, reply) {
 
@@ -54,7 +53,6 @@ describe('security', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
         server.state('encoded', { encoding: 'iron' });
         server.route({ method: 'POST', path: '/', handler });
 
@@ -79,7 +77,6 @@ describe('security', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
         server.state('encoded', { encoding: 'iron' });
         server.route({ method: 'POST', path: '/', handler });
 
@@ -104,7 +101,6 @@ describe('security', () => {
         };
 
         const server = new Hapi.Server();
-        server.connection();
         server.state('encoded', { encoding: 'iron' });
         server.route({ method: 'POST', path: '/', handler });
 
@@ -124,7 +120,6 @@ describe('security', () => {
     it('prevents xss in path validation response message', (done) => {
 
         const server = new Hapi.Server();
-        server.connection();
         server.state('encoded', { encoding: 'iron' });
 
         server.route({
@@ -152,7 +147,6 @@ describe('security', () => {
     it('prevents xss in payload validation response message', (done) => {
 
         const server = new Hapi.Server();
-        server.connection();
         server.route({
             method: 'POST', path: '/fail/payload', handler: function (request, reply) {
 
@@ -180,7 +174,6 @@ describe('security', () => {
     it('prevents xss in query validation response message', (done) => {
 
         const server = new Hapi.Server();
-        server.connection();
         server.route({
             method: 'GET', path: '/fail/query', handler: function (request, reply) {
 

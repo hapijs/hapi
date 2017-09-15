@@ -39,19 +39,10 @@ describe('Connection', () => {
 
     it('allows null port and host', (done) => {
 
-        const server = new Hapi.Server();
         expect(() => {
 
-            server.connection({ host: null, port: null });
+            new Hapi.Server({ host: null, port: null });
         }).to.not.throw();
-        done();
-    });
-
-    it('removes duplicate labels', (done) => {
-
-        const server = new Hapi.Server();
-        server.connection({ labels: ['a', 'b', 'a', 'c', 'b'] });
-        expect(server.connections[0].settings.labels).to.equal(['a', 'b', 'c']);
         done();
     });
 
@@ -59,29 +50,26 @@ describe('Connection', () => {
 
         expect(() => {
 
-            const server = new Hapi.Server({ connections: { routes: { auth: 'test' } } });
-            server.connection();
+            new Hapi.Server({ routes: { auth: 'test' } });
         }).not.to.throw();
         done();
     });
 
     it('throws when disabling autoListen and providing a port', (done) => {
 
-        const server = new Hapi.Server();
         expect(() => {
 
-            server.connection({ port: 80, autoListen: false });
+            new Hapi.Server({ port: 80, autoListen: false });
         }).to.throw('Cannot specify port when autoListen is false');
         done();
     });
 
     it('throws when disabling autoListen and providing special host', (done) => {
 
-        const server = new Hapi.Server();
         const port = Path.join(__dirname, 'hapi-server.socket');
         expect(() => {
 
-            server.connection({ port, autoListen: false });
+            new Hapi.Server({ port, autoListen: false });
         }).to.throw('Cannot specify port when autoListen is false');
         done();
     });
@@ -89,7 +77,6 @@ describe('Connection', () => {
     it('defaults address to 0.0.0.0 or :: when no host is provided', (done) => {
 
         const server = new Hapi.Server();
-        server.connection();
         server.start((err) => {
 
             expect(err).to.not.exist();
@@ -106,8 +93,7 @@ describe('Connection', () => {
 
     it('uses address when present instead of host', (done) => {
 
-        const server = new Hapi.Server();
-        server.connection({ host: 'no.such.domain.hapi', address: 'localhost' });
+        const server = new Hapi.Server({ host: 'no.such.domain.hapi', address: 'localhost' });
         server.start((err) => {
 
             expect(err).to.not.exist();
@@ -119,8 +105,7 @@ describe('Connection', () => {
 
     it('uses uri when present instead of host and port', (done) => {
 
-        const server = new Hapi.Server();
-        server.connection({ host: 'no.such.domain.hapi', address: 'localhost', uri: 'http://uri.example.com:8080' });
+        const server = new Hapi.Server({ host: 'no.such.domain.hapi', address: 'localhost', uri: 'http://uri.example.com:8080' });
         expect(server.info.uri).to.equal('http://uri.example.com:8080');
         server.start((err) => {
 
@@ -134,21 +119,19 @@ describe('Connection', () => {
 
     it('throws on uri ending with /', (done) => {
 
-        const server = new Hapi.Server();
         expect(() => {
 
-            server.connection({ uri: 'http://uri.example.com:8080/' });
-        }).to.throw(/Invalid connection options/);
+            new Hapi.Server({ uri: 'http://uri.example.com:8080/' });
+        }).to.throw(/Invalid server options/);
         done();
     });
 
     it('creates a server listening on a unix domain socket', { skip: process.platform === 'win32' }, (done) => {
 
         const port = Path.join(__dirname, 'hapi-server.socket');
-        const server = new Hapi.Server();
-        server.connection({ port });
+        const server = new Hapi.Server({ port });
 
-        expect(server.connections[0].type).to.equal('socket');
+        expect(server.type).to.equal('socket');
 
         server.start((err) => {
 
@@ -170,10 +153,9 @@ describe('Connection', () => {
     it('creates a server listening on a windows named pipe', (done) => {
 
         const port = '\\\\.\\pipe\\6653e55f-26ec-4268-a4f2-882f4089315c';
-        const server = new Hapi.Server();
-        server.connection({ port });
+        const server = new Hapi.Server({ port });
 
-        expect(server.connections[0].type).to.equal('socket');
+        expect(server.type).to.equal('socket');
 
         server.start((err) => {
 
@@ -190,8 +172,7 @@ describe('Connection', () => {
             cert: '-----BEGIN CERTIFICATE-----\nMIIDBjCCAe4CCQDvLNml6smHlTANBgkqhkiG9w0BAQUFADBFMQswCQYDVQQGEwJV\nUzETMBEGA1UECAwKU29tZS1TdGF0ZTEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0\ncyBQdHkgTHRkMB4XDTE0MDEyNTIxMjIxOFoXDTE1MDEyNTIxMjIxOFowRTELMAkG\nA1UEBhMCVVMxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoMGEludGVybmV0\nIFdpZGdpdHMgUHR5IEx0ZDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB\nANFKslwwqlgyqaDUECv33a9DpBuIFug1Gn8Xbnx/RppF/86Cs4P0hS6z4qc0hiDS\nlrcjL6O5j416qlYBNdCwyN1RVfCEen5wEU/gBfAluRzATxrf7H0FuFuKbrwR5AcV\nkltRL23nIDRCEvYUxrx15Bc5uMSdnvQx6dsaFQI0RAu9weyWxYXOWRhnISsPghZg\nIjcrFNA5gYEHGnNHoNqVqE/mBpk3kI+rEVzuu59scv4QNQ7jegOFgSt8DNzuAZ0x\ntHTW1lBG3u8gG1eYBMquexoSSHmMUb73lQ2l/dC6AKjOHFB9Ouq3IjjdFGwx1diz\n/yWh+Y8wY1Mgpyiy6ObJ5W8CAwEAATANBgkqhkiG9w0BAQUFAAOCAQEAoSc6Skb4\ng1e0ZqPKXBV2qbx7hlqIyYpubCl1rDiEdVzqYYZEwmst36fJRRrVaFuAM/1DYAmT\nWMhU+yTfA+vCS4tql9b9zUhPw/IDHpBDWyR01spoZFBF/hE1MGNpCSXXsAbmCiVf\naxrIgR2DNketbDxkQx671KwF1+1JOMo9ffXp+OhuRo5NaGIxhTsZ+f/MA4y084Aj\nDI39av50sTRTWWShlN+J7PtdQVA5SZD97oYbeUeL7gI18kAJww9eUdmT0nEjcwKs\nxsQT1fyKbo7AlZBY4KSlUMuGnn0VnAsB9b+LxtXlDfnjyM8bVQx1uAfRo0DO8p/5\n3J5DTjAU55deBQ==\n-----END CERTIFICATE-----\n'
         };
 
-        const server = new Hapi.Server();
-        server.connection({ tls: tlsOptions });
+        const server = new Hapi.Server({ tls: tlsOptions });
         expect(server.listener instanceof Https.Server).to.equal(true);
         done();
     });
@@ -204,8 +185,7 @@ describe('Connection', () => {
         };
 
         const listener = Http.createServer();
-        const server = new Hapi.Server();
-        server.connection({ listener });
+        const server = new Hapi.Server({ listener });
         server.route({ method: 'GET', path: '/', handler });
 
         server.start((err) => {
@@ -228,8 +208,7 @@ describe('Connection', () => {
         };
 
         const listener = Http.createServer();
-        const server = new Hapi.Server();
-        server.connection({ listener, tls: true });
+        const server = new Hapi.Server({ listener, tls: true });
         server.route({ method: 'GET', path: '/', handler });
 
         server.start((err) => {
@@ -248,8 +227,7 @@ describe('Connection', () => {
         };
 
         const listener = Http.createServer();
-        const server = new Hapi.Server();
-        server.connection({ listener, autoListen: false });
+        const server = new Hapi.Server({ listener, autoListen: false });
         server.route({ method: 'GET', path: '/', handler });
 
         listener.listen(0, 'localhost', () => {
@@ -276,24 +254,21 @@ describe('Connection', () => {
             return '';
         };
 
-        const server = new Hapi.Server();
-        server.connection({ port: 80 });
+        const server = new Hapi.Server({ port: 80 });
         expect(server.info.uri).to.equal('http://localhost:80');
         done();
     });
 
     it('sets info.uri without port when 0', (done) => {
 
-        const server = new Hapi.Server();
-        server.connection({ host: 'example.com' });
+        const server = new Hapi.Server({ host: 'example.com' });
         expect(server.info.uri).to.equal('http://example.com');
         done();
     });
 
     it('closes connection on socket timeout', { parallel: false }, (done) => {
 
-        const server = new Hapi.Server();
-        server.connection({ routes: { timeout: { socket: 50 }, payload: { timeout: 45 } } });
+        const server = new Hapi.Server({ routes: { timeout: { socket: 50 }, payload: { timeout: 45 } } });
         server.route({
             method: 'GET', path: '/', config: {
                 handler: function (request, reply) {
@@ -325,8 +300,7 @@ describe('Connection', () => {
             return reply();
         };
 
-        const server = new Hapi.Server();
-        server.connection({ routes: { timeout: { socket: false } } });
+        const server = new Hapi.Server({ routes: { timeout: { socket: false } } });
         server.route({ method: 'GET', path: '/', config: { handler } });
 
         server.start((err) => {
@@ -360,7 +334,6 @@ describe('Connection', () => {
         it('clears connections on close (HTTP)', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             let count = 0;
             server.route({
@@ -383,7 +356,7 @@ describe('Connection', () => {
 
                         expect(err).to.not.exist();
                         expect(count2).to.equal(0);
-                        expect(Object.keys(server.connections[0]._connections).length).to.equal(0);
+                        expect(Object.keys(server._sockets).length).to.equal(0);
                         expect(count).to.equal(1);
                         server.stop(done);
                     });
@@ -395,7 +368,7 @@ describe('Connection', () => {
 
                         expect(err).to.not.exist();
                         expect(count1).to.equal(1);
-                        expect(Object.keys(server.connections[0]._connections).length).to.equal(1);
+                        expect(Object.keys(server._sockets).length).to.equal(1);
                         expect(count).to.equal(1);
 
                         req.abort();
@@ -411,8 +384,7 @@ describe('Connection', () => {
                 cert: '-----BEGIN CERTIFICATE-----\nMIIDBjCCAe4CCQDvLNml6smHlTANBgkqhkiG9w0BAQUFADBFMQswCQYDVQQGEwJV\nUzETMBEGA1UECAwKU29tZS1TdGF0ZTEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0\ncyBQdHkgTHRkMB4XDTE0MDEyNTIxMjIxOFoXDTE1MDEyNTIxMjIxOFowRTELMAkG\nA1UEBhMCVVMxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoMGEludGVybmV0\nIFdpZGdpdHMgUHR5IEx0ZDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB\nANFKslwwqlgyqaDUECv33a9DpBuIFug1Gn8Xbnx/RppF/86Cs4P0hS6z4qc0hiDS\nlrcjL6O5j416qlYBNdCwyN1RVfCEen5wEU/gBfAluRzATxrf7H0FuFuKbrwR5AcV\nkltRL23nIDRCEvYUxrx15Bc5uMSdnvQx6dsaFQI0RAu9weyWxYXOWRhnISsPghZg\nIjcrFNA5gYEHGnNHoNqVqE/mBpk3kI+rEVzuu59scv4QNQ7jegOFgSt8DNzuAZ0x\ntHTW1lBG3u8gG1eYBMquexoSSHmMUb73lQ2l/dC6AKjOHFB9Ouq3IjjdFGwx1diz\n/yWh+Y8wY1Mgpyiy6ObJ5W8CAwEAATANBgkqhkiG9w0BAQUFAAOCAQEAoSc6Skb4\ng1e0ZqPKXBV2qbx7hlqIyYpubCl1rDiEdVzqYYZEwmst36fJRRrVaFuAM/1DYAmT\nWMhU+yTfA+vCS4tql9b9zUhPw/IDHpBDWyR01spoZFBF/hE1MGNpCSXXsAbmCiVf\naxrIgR2DNketbDxkQx671KwF1+1JOMo9ffXp+OhuRo5NaGIxhTsZ+f/MA4y084Aj\nDI39av50sTRTWWShlN+J7PtdQVA5SZD97oYbeUeL7gI18kAJww9eUdmT0nEjcwKs\nxsQT1fyKbo7AlZBY4KSlUMuGnn0VnAsB9b+LxtXlDfnjyM8bVQx1uAfRo0DO8p/5\n3J5DTjAU55deBQ==\n-----END CERTIFICATE-----\n'
             };
 
-            const server = new Hapi.Server();
-            server.connection({ tls: tlsOptions });
+            const server = new Hapi.Server({ tls: tlsOptions });
 
             let count = 0;
             server.route({
@@ -435,7 +407,7 @@ describe('Connection', () => {
 
                         expect(err).to.not.exist();
                         expect(count2).to.equal(0);
-                        expect(Object.keys(server.connections[0]._connections).length).to.equal(0);
+                        expect(Object.keys(server._sockets).length).to.equal(0);
                         expect(count).to.equal(1);
                         server.stop(done);
                     });
@@ -447,7 +419,7 @@ describe('Connection', () => {
 
                         expect(err).to.not.exist();
                         expect(count1).to.equal(1);
-                        expect(Object.keys(server.connections[0]._connections).length).to.equal(1);
+                        expect(Object.keys(server._sockets).length).to.equal(1);
                         expect(count).to.equal(1);
 
                         req.abort();
@@ -462,7 +434,6 @@ describe('Connection', () => {
         it('starts connection', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
             server.start((err) => {
 
                 expect(err).to.not.exist();
@@ -485,8 +456,7 @@ describe('Connection', () => {
                 cert: '-----BEGIN CERTIFICATE-----\nMIIDBjCCAe4CCQDvLNml6smHlTANBgkqhkiG9w0BAQUFADBFMQswCQYDVQQGEwJV\nUzETMBEGA1UECAwKU29tZS1TdGF0ZTEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0\ncyBQdHkgTHRkMB4XDTE0MDEyNTIxMjIxOFoXDTE1MDEyNTIxMjIxOFowRTELMAkG\nA1UEBhMCVVMxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoMGEludGVybmV0\nIFdpZGdpdHMgUHR5IEx0ZDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB\nANFKslwwqlgyqaDUECv33a9DpBuIFug1Gn8Xbnx/RppF/86Cs4P0hS6z4qc0hiDS\nlrcjL6O5j416qlYBNdCwyN1RVfCEen5wEU/gBfAluRzATxrf7H0FuFuKbrwR5AcV\nkltRL23nIDRCEvYUxrx15Bc5uMSdnvQx6dsaFQI0RAu9weyWxYXOWRhnISsPghZg\nIjcrFNA5gYEHGnNHoNqVqE/mBpk3kI+rEVzuu59scv4QNQ7jegOFgSt8DNzuAZ0x\ntHTW1lBG3u8gG1eYBMquexoSSHmMUb73lQ2l/dC6AKjOHFB9Ouq3IjjdFGwx1diz\n/yWh+Y8wY1Mgpyiy6ObJ5W8CAwEAATANBgkqhkiG9w0BAQUFAAOCAQEAoSc6Skb4\ng1e0ZqPKXBV2qbx7hlqIyYpubCl1rDiEdVzqYYZEwmst36fJRRrVaFuAM/1DYAmT\nWMhU+yTfA+vCS4tql9b9zUhPw/IDHpBDWyR01spoZFBF/hE1MGNpCSXXsAbmCiVf\naxrIgR2DNketbDxkQx671KwF1+1JOMo9ffXp+OhuRo5NaGIxhTsZ+f/MA4y084Aj\nDI39av50sTRTWWShlN+J7PtdQVA5SZD97oYbeUeL7gI18kAJww9eUdmT0nEjcwKs\nxsQT1fyKbo7AlZBY4KSlUMuGnn0VnAsB9b+LxtXlDfnjyM8bVQx1uAfRo0DO8p/5\n3J5DTjAU55deBQ==\n-----END CERTIFICATE-----\n'
             };
 
-            const server = new Hapi.Server();
-            server.connection({ host: '0.0.0.0', port: 0, tls: tlsOptions });
+            const server = new Hapi.Server({ host: '0.0.0.0', port: 0, tls: tlsOptions });
             server.start((err) => {
 
                 expect(err).to.not.exist();
@@ -505,8 +475,7 @@ describe('Connection', () => {
                 return '';
             };
 
-            const server = new Hapi.Server();
-            server.connection({ port: '8000' });
+            const server = new Hapi.Server({ port: '8000' });
             expect(server.info.host).to.equal('localhost');
             expect(server.info.uri).to.equal('http://localhost:8000');
             done();
@@ -515,7 +484,6 @@ describe('Connection', () => {
         it('ignored repeated calls', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
             server.start((err) => {
 
                 expect(err).to.not.exist();
@@ -530,24 +498,6 @@ describe('Connection', () => {
                 });
             });
         });
-
-        it('will return an error if the port is already in use', (done) => {
-
-            const server = new Hapi.Server();
-            server.connection();
-
-            server.start((err) => {
-
-                expect(err).to.not.exist();
-                server.connection({ port: server.info.port });
-                server.start((err) => {
-
-                    expect(err).to.exist();
-                    expect(err.message).to.match(/EADDRINUSE/);
-                    server.stop(done);
-                });
-            });
-        });
     });
 
     describe('_stop()', () => {
@@ -555,7 +505,6 @@ describe('Connection', () => {
         it('waits to stop until all connections are closed (HTTP)', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
             server.start((err) => {
 
                 expect(err).to.not.exist();
@@ -572,7 +521,7 @@ describe('Connection', () => {
 
                             expect(err).to.not.exist();
                             expect(count1).to.equal(2);
-                            expect(Object.keys(server.connections[0]._connections).length).to.equal(2);
+                            expect(Object.keys(server._sockets).length).to.equal(2);
 
                             server.stop((err) => {
 
@@ -584,7 +533,7 @@ describe('Connection', () => {
 
                                         expect(err).to.not.exist();
                                         expect(count2).to.equal(0);
-                                        expect(Object.keys(server.connections[0]._connections).length).to.equal(0);
+                                        expect(Object.keys(server._sockets).length).to.equal(0);
                                         done();
                                     });
                                 }, 10);
@@ -605,8 +554,7 @@ describe('Connection', () => {
                 cert: '-----BEGIN CERTIFICATE-----\nMIIDBjCCAe4CCQDvLNml6smHlTANBgkqhkiG9w0BAQUFADBFMQswCQYDVQQGEwJV\nUzETMBEGA1UECAwKU29tZS1TdGF0ZTEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0\ncyBQdHkgTHRkMB4XDTE0MDEyNTIxMjIxOFoXDTE1MDEyNTIxMjIxOFowRTELMAkG\nA1UEBhMCVVMxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoMGEludGVybmV0\nIFdpZGdpdHMgUHR5IEx0ZDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB\nANFKslwwqlgyqaDUECv33a9DpBuIFug1Gn8Xbnx/RppF/86Cs4P0hS6z4qc0hiDS\nlrcjL6O5j416qlYBNdCwyN1RVfCEen5wEU/gBfAluRzATxrf7H0FuFuKbrwR5AcV\nkltRL23nIDRCEvYUxrx15Bc5uMSdnvQx6dsaFQI0RAu9weyWxYXOWRhnISsPghZg\nIjcrFNA5gYEHGnNHoNqVqE/mBpk3kI+rEVzuu59scv4QNQ7jegOFgSt8DNzuAZ0x\ntHTW1lBG3u8gG1eYBMquexoSSHmMUb73lQ2l/dC6AKjOHFB9Ouq3IjjdFGwx1diz\n/yWh+Y8wY1Mgpyiy6ObJ5W8CAwEAATANBgkqhkiG9w0BAQUFAAOCAQEAoSc6Skb4\ng1e0ZqPKXBV2qbx7hlqIyYpubCl1rDiEdVzqYYZEwmst36fJRRrVaFuAM/1DYAmT\nWMhU+yTfA+vCS4tql9b9zUhPw/IDHpBDWyR01spoZFBF/hE1MGNpCSXXsAbmCiVf\naxrIgR2DNketbDxkQx671KwF1+1JOMo9ffXp+OhuRo5NaGIxhTsZ+f/MA4y084Aj\nDI39av50sTRTWWShlN+J7PtdQVA5SZD97oYbeUeL7gI18kAJww9eUdmT0nEjcwKs\nxsQT1fyKbo7AlZBY4KSlUMuGnn0VnAsB9b+LxtXlDfnjyM8bVQx1uAfRo0DO8p/5\n3J5DTjAU55deBQ==\n-----END CERTIFICATE-----\n'
             };
 
-            const server = new Hapi.Server();
-            server.connection({ tls: tlsOptions });
+            const server = new Hapi.Server({ tls: tlsOptions });
             server.start((err) => {
 
                 expect(err).to.not.exist();
@@ -625,7 +573,7 @@ describe('Connection', () => {
 
                             expect(err).to.not.exist();
                             expect(count1).to.equal(2);
-                            expect(Object.keys(server.connections[0]._connections).length).to.equal(2);
+                            expect(Object.keys(server._sockets).length).to.equal(2);
 
                             server.stop((err) => {
 
@@ -637,7 +585,7 @@ describe('Connection', () => {
 
                                         expect(err).to.not.exist();
                                         expect(count2).to.equal(0);
-                                        expect(Object.keys(server.connections[0]._connections).length).to.equal(0);
+                                        expect(Object.keys(server._sockets).length).to.equal(0);
                                         done();
                                     });
                                 }, 10);
@@ -654,7 +602,6 @@ describe('Connection', () => {
         it('immediately destroys unhandled connections', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
             server.start((err) => {
 
                 expect(err).to.not.exist();
@@ -672,9 +619,9 @@ describe('Connection', () => {
                     expect(err.errno).to.equal('ECONNRESET');
                 });
 
-                socket1.connect(server.info.port, server.connections[0].settings.host, () => {
+                socket1.connect(server.info.port, server.settings.host, () => {
 
-                    socket2.connect(server.info.port, server.connections[0].settings.host, () => {
+                    socket2.connect(server.info.port, server.settings.host, () => {
 
                         server.listener.getConnections((err, count) => {
 
@@ -697,7 +644,6 @@ describe('Connection', () => {
         it('waits to destroy handled connections until after the timeout', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = (request, reply) => {
 
@@ -724,7 +670,7 @@ describe('Connection', () => {
                 expect(err).to.not.exist();
 
                 const socket = new Net.Socket();
-                socket.connect(server.info.port, server.connections[0].settings.host, () => {
+                socket.connect(server.info.port, server.settings.host, () => {
 
                     socket.write('GET / HTTP/1.0\nHost: test\n\n');
                 });
@@ -734,7 +680,6 @@ describe('Connection', () => {
         it('waits to destroy connections if they close by themselves', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             const socket = new Net.Socket();
 
@@ -765,7 +710,7 @@ describe('Connection', () => {
             server.start((err) => {
 
                 expect(err).to.not.exist();
-                socket.connect(server.info.port, server.connections[0].settings.host, () => {
+                socket.connect(server.info.port, server.settings.host, () => {
 
                     socket.write('GET / HTTP/1.1\nHost: test\n\n');
                 });
@@ -775,7 +720,6 @@ describe('Connection', () => {
         it('immediately destroys idle keep-alive connections', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = (request, reply) => {
 
@@ -795,7 +739,7 @@ describe('Connection', () => {
                     expect(err.errno).to.equal('ECONNRESET');
                 });
 
-                socket.connect(server.info.port, server.connections[0].settings.host, () => {
+                socket.connect(server.info.port, server.settings.host, () => {
 
                     socket.write('GET / HTTP/1.1\nHost: test\nConnection: Keep-Alive\n\n\n');
                     socket.on('data', (data) => {
@@ -826,7 +770,6 @@ describe('Connection', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', handler });
             server.start((err) => {
 
@@ -843,7 +786,7 @@ describe('Connection', () => {
                         expect(err1).to.not.exist();
                         expect(res.headers.connection).to.equal('keep-alive');
                         expect(body.toString()).to.equal('ok');
-                        expect(server.connections[0]._started).to.equal(false);
+                        expect(server._started).to.equal(false);
                         expect(err2).to.exist();
                         done();
                     });
@@ -874,7 +817,6 @@ describe('Connection', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', handler });
             server.start((err) => {
 
@@ -919,8 +861,7 @@ describe('Connection', () => {
                 }, 150);
             };
 
-            const server = new Hapi.Server();
-            server.connection({ tls: tlsOptions });
+            const server = new Hapi.Server({ tls: tlsOptions });
             server.route({ method: 'GET', path: '/', handler });
             server.start((err) => {
 
@@ -940,7 +881,6 @@ describe('Connection', () => {
         it('removes connection event listeners after it stops', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
             const initial = server.listener.listeners('connection').length;
             server.start((err) => {
 
@@ -970,7 +910,6 @@ describe('Connection', () => {
         it('ignores repeated calls', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
             server.stop((err) => {
 
                 expect(err).to.not.exist();
@@ -983,8 +922,7 @@ describe('Connection', () => {
 
         it('rejects request due to high rss load', { parallel: false }, (done) => {
 
-            const server = new Hapi.Server({ load: { sampleInterval: 5 } });
-            server.connection({ load: { maxRssBytes: 1 } });
+            const server = new Hapi.Server({ load: { sampleInterval: 5, maxRssBytes: 1 } });
 
             const handler = function (request, reply) {
 
@@ -993,7 +931,7 @@ describe('Connection', () => {
                 return reply('ok');
             };
 
-            server.once('log', (event, tags) => {
+            server.events.once('log', (event, tags) => {
 
                 expect(event.internal).to.be.true();
                 expect(tags.load).to.be.true();
@@ -1027,7 +965,6 @@ describe('Connection', () => {
         it('returns a promise', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
             server.inject('/').then((res) => {
 
                 expect(res.statusCode).to.equal(404);
@@ -1043,7 +980,6 @@ describe('Connection', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
             const options = {
@@ -1051,7 +987,7 @@ describe('Connection', () => {
                 credentials: { foo: 'bar' }
             };
 
-            server.connections[0].inject(options, (res) => {
+            server.inject(options, (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(options.credentials).to.exist();
@@ -1067,7 +1003,6 @@ describe('Connection', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
             const options = {
@@ -1094,7 +1029,6 @@ describe('Connection', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
             const options = {
@@ -1120,7 +1054,6 @@ describe('Connection', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
             const options = {
@@ -1144,7 +1077,6 @@ describe('Connection', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
             const options = {
@@ -1153,7 +1085,7 @@ describe('Connection', () => {
                 artifacts: { bar: 'baz' }
             };
 
-            server.connections[0].inject(options, (res) => {
+            server.inject(options, (res) => {
 
                 expect(res.statusCode).to.equal(200);
                 expect(res.result.bar).to.equal('baz');
@@ -1170,7 +1102,6 @@ describe('Connection', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
             const options = {
@@ -1197,7 +1128,6 @@ describe('Connection', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
             const options = {
@@ -1227,7 +1157,6 @@ describe('Connection', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
             server.inject('/', (res) => {
@@ -1246,7 +1175,6 @@ describe('Connection', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
             server.inject({ url: '/', remoteAddress: '1.2.3.4' }, (res) => {
@@ -1265,7 +1193,6 @@ describe('Connection', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
             server.inject('/', (res) => {
@@ -1278,8 +1205,7 @@ describe('Connection', () => {
 
         it('sets correct host header', (done) => {
 
-            const server = new Hapi.Server();
-            server.connection({ host: 'example.com', port: 2080 });
+            const server = new Hapi.Server({ host: 'example.com', port: 2080 });
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1302,7 +1228,6 @@ describe('Connection', () => {
         it('returns an array of the current routes', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             server.route({ path: '/test/', method: 'get', handler: function () { } });
             server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
@@ -1314,39 +1239,9 @@ describe('Connection', () => {
             done();
         });
 
-        it('returns the labels for the connections', (done) => {
-
-            const server = new Hapi.Server();
-            server.connection({ labels: ['test'] });
-
-            server.route({ path: '/test/', method: 'get', handler: function () { } });
-            server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
-
-            const connection = server.table()[0];
-
-            expect(connection.labels).to.only.include(['test']);
-            done();
-        });
-
-        it('returns an array of the current routes (connection)', (done) => {
-
-            const server = new Hapi.Server();
-            server.connection();
-
-            server.route({ path: '/test/', method: 'get', handler: function () { } });
-            server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
-
-            const routes = server.connections[0].table();
-
-            expect(routes.length).to.equal(2);
-            expect(routes[0].path).to.equal('/test/');
-            done();
-        });
-
         it('combines global and vhost routes', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             server.route({ path: '/test/', method: 'get', handler: function () { } });
             server.route({ path: '/test/', vhost: 'one.example.com', method: 'get', handler: function () { } });
@@ -1362,7 +1257,6 @@ describe('Connection', () => {
         it('combines global and vhost routes and filters based on host', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             server.route({ path: '/test/', method: 'get', handler: function () { } });
             server.route({ path: '/test/', vhost: 'one.example.com', method: 'get', handler: function () { } });
@@ -1378,7 +1272,6 @@ describe('Connection', () => {
         it('accepts a list of hosts', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             server.route({ path: '/test/', method: 'get', handler: function () { } });
             server.route({ path: '/test/', vhost: 'one.example.com', method: 'get', handler: function () { } });
@@ -1394,7 +1287,6 @@ describe('Connection', () => {
         it('ignores unknown host', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             server.route({ path: '/test/', method: 'get', handler: function () { } });
             server.route({ path: '/test/', vhost: 'one.example.com', method: 'get', handler: function () { } });
@@ -1413,7 +1305,6 @@ describe('Connection', () => {
         it('supports adding an array of methods', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
             server.ext('onPreHandler', [
                 function (request, reply) {
 
@@ -1444,7 +1335,6 @@ describe('Connection', () => {
         it('sets bind via options', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
             const preHandler = function (request, reply) {
 
                 request.app.x = this.y;
@@ -1471,7 +1361,6 @@ describe('Connection', () => {
 
             const server = new Hapi.Server();
             server.register(Vision, Hoek.ignore);
-            server.connection();
 
             server.views({
                 engines: { html: Handlebars },
@@ -1514,7 +1403,6 @@ describe('Connection', () => {
         it('supports reply decorators on empty result', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
             const onRequest = function (request, reply) {
 
                 return reply().redirect('/elsewhere');
@@ -1533,7 +1421,6 @@ describe('Connection', () => {
         it('supports direct reply decorators', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
             const onRequest = function (request, reply) {
 
                 return reply.redirect('/elsewhere');
@@ -1552,7 +1439,6 @@ describe('Connection', () => {
         it('skips extensions once reply(data) is called', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             const preResponse1 = function (request, reply) {
 
@@ -1588,7 +1474,6 @@ describe('Connection', () => {
         it('skips extensions once reply(null, data) is called', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             const preResponse1 = function (request, reply) {
 
@@ -1624,7 +1509,6 @@ describe('Connection', () => {
         it('skips extensions once reply() is called', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             const preResponse1 = function (request, reply) {
 
@@ -1662,7 +1546,6 @@ describe('Connection', () => {
             it('replies with custom response', (done) => {
 
                 const server = new Hapi.Server();
-                server.connection();
                 const onRequest = function (request, reply) {
 
                     return reply(Boom.badRequest('boom'));
@@ -1681,7 +1564,6 @@ describe('Connection', () => {
             it('replies with error using reply(null, result)', (done) => {
 
                 const server = new Hapi.Server();
-                server.connection();
                 const onRequest = function (request, reply) {
 
                     return reply(null, Boom.badRequest('boom'));
@@ -1708,7 +1590,6 @@ describe('Connection', () => {
 
                 const server = new Hapi.Server();
                 server.register(Vision, Hoek.ignore);
-                server.connection();
 
                 server.views({
                     engines: { 'html': Handlebars },
@@ -1742,7 +1623,6 @@ describe('Connection', () => {
             it('replies with custom response', (done) => {
 
                 const server = new Hapi.Server();
-                server.connection();
 
                 const preRequest = function (request, reply) {
 
@@ -1787,7 +1667,6 @@ describe('Connection', () => {
             it('intercepts 404 responses', (done) => {
 
                 const server = new Hapi.Server();
-                server.connection();
 
                 const preResponse = function (request, reply) {
 
@@ -1808,7 +1687,6 @@ describe('Connection', () => {
 
                 const server = new Hapi.Server();
                 server.register(Inert, Hoek.ignore);
-                server.connection();
 
                 const preResponse = function (request, reply) {
 
@@ -1832,7 +1710,6 @@ describe('Connection', () => {
 
                 const server = new Hapi.Server();
                 server.register(Inert, Hoek.ignore);
-                server.connection();
 
                 const preResponse = function (request, reply) {
 
@@ -1856,7 +1733,6 @@ describe('Connection', () => {
 
                 const server = new Hapi.Server();
                 server.register(Inert, Hoek.ignore);
-                server.connection();
 
                 const preResponse = function (request, reply) {
 
@@ -1898,7 +1774,6 @@ describe('Connection', () => {
             it('executes multiple extensions', (done) => {
 
                 const server = new Hapi.Server();
-                server.connection();
 
                 const preResponse1 = function (request, reply) {
 
@@ -1937,11 +1812,9 @@ describe('Connection', () => {
         it('emits route event', (done) => {
 
             const server = new Hapi.Server();
-            server.connection({ labels: 'a' });
-            server.on('route', (route, connection, srv) => {
+            server.events.on('route', (route, srv) => {
 
                 expect(route.path).to.equal('/');
-                expect(connection.settings.labels).to.equal(['a']);
                 expect(srv).to.shallow.equal(server);
                 done();
             });
@@ -1964,7 +1837,6 @@ describe('Connection', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: '*', path: '/{p*}', handler });
             server.inject({ method: 'GET', url: '/page' }, (res) => {
 
@@ -1982,7 +1854,6 @@ describe('Connection', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', handler });
             server.inject({ method: 'GET', url: '/' }, (res1) => {
 
@@ -2011,7 +1882,6 @@ describe('Connection', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'POST', path: '/', handler });
             server.inject({ method: 'HEAD', url: '/' }, (res1) => {
 
@@ -2045,7 +1915,6 @@ describe('Connection', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', handler });
             server.ext('onPreResponse', preResponse);
             server.inject({ method: 'GET', url: '/' }, (res1) => {
@@ -2066,7 +1935,6 @@ describe('Connection', () => {
         it('allows methods array', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -2115,7 +1983,6 @@ describe('Connection', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route([
                 {
                     method: 'GET',
@@ -2169,7 +2036,6 @@ describe('Connection', () => {
         it('throws on methods array with id', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             expect(() => {
 
@@ -2194,7 +2060,6 @@ describe('Connection', () => {
         it('returns 404 when making a request to a route that does not exist', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
             server.inject({ method: 'GET', url: '/nope' }, (res) => {
 
                 expect(res.statusCode).to.equal(404);
@@ -2210,7 +2075,6 @@ describe('Connection', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/a/{p}', handler });
             server.inject('/a/%', (res) => {
 

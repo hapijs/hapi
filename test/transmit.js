@@ -39,7 +39,6 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
-            server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
             server.inject('/file', (res) => {
@@ -54,7 +53,6 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
-            server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
             server.inject({ url: '/file', headers: { 'if-modified-since': 'some crap' } }, (res) => {
@@ -67,7 +65,6 @@ describe('transmission', () => {
         it('returns 200 if last-modified is invalid', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
             const handler = function (request, reply) {
 
                 return reply('ok').header('last-modified', 'some crap');
@@ -86,7 +83,6 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
-            server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
             server.inject('/file', (res1) => {
@@ -121,7 +117,6 @@ describe('transmission', () => {
         it('closes file handlers when not using a manually open file stream', { skip: process.platform === 'win32' }, (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -163,7 +158,6 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
-            server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
             server.inject('/file', (res1) => {
@@ -184,7 +178,6 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
-            server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
             server.inject('/file', (res1) => {
@@ -204,7 +197,6 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
-            server.connection();
             server.route({ method: 'GET', path: '/', handler: { file: __dirname + '/../package.json' } });
 
             // Initial request - no etag
@@ -279,7 +271,6 @@ describe('transmission', () => {
         it('returns 304 when manually set to 304', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -322,7 +313,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/stream', handler });
 
             server.inject('/stream', (res) => {
@@ -360,7 +350,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/stream', handler });
 
             server.inject('/stream', (res) => {
@@ -378,7 +367,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
             server.inject('/?callback=me', (res) => {
@@ -398,7 +386,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
             server.inject('/?callback=me', (res) => {
@@ -418,7 +405,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
             server.inject('/?callback=me', (res) => {
@@ -438,7 +424,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
             server.inject('/?callback=me', (res) => {
@@ -457,7 +442,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
             server.inject('/', (res) => {
@@ -476,7 +460,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({
                 method: 'GET',
                 path: '/user/{name*2}',
@@ -508,7 +491,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
             server.inject('/?callback=me', (res) => {
@@ -527,7 +509,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
             server.inject('/?callback=me*', (res) => {
@@ -546,7 +527,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
             server.inject('/?callback=me', (res) => {
@@ -565,7 +545,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
             let validState = false;
@@ -590,7 +569,6 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
-            server.connection();
             server.route({ method: 'GET', path: '/public/{path*}', config: { cache: { privacy: 'public', expiresIn: 24 * 60 * 60 * 1000 } }, handler: { directory: { path: __dirname, listing: false, index: false } } });
 
             server.inject('/public/transmit.js', (res) => {
@@ -605,7 +583,6 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
-            server.connection();
             server.route({ method: 'GET', path: '/public/{path*}', handler: { directory: { path: __dirname, listing: false, index: false } } });
 
             server.inject('/public/transmit.js', (res) => {
@@ -620,7 +597,6 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
-            server.connection();
             server.route({ method: 'GET', path: '/public/{path*}', config: { cache: false }, handler: { directory: { path: __dirname, listing: false, index: false } } });
 
             server.inject('/public/transmit.js', (res) => {
@@ -637,7 +613,6 @@ describe('transmission', () => {
         it('sends empty payload on 204', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -655,8 +630,7 @@ describe('transmission', () => {
 
         it('sends 204 on empty payload', (done) => {
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { response: { emptyStatusCode: 204 } } });
+            const server = new Hapi.Server({ routes: { response: { emptyStatusCode: 204 } } });
 
             const handler = function (request, reply) {
 
@@ -674,8 +648,7 @@ describe('transmission', () => {
 
         it('does not send 204 for chunked transfer payloads', (done) => {
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { response: { emptyStatusCode: 204 } } });
+            const server = new Hapi.Server({ routes: { response: { emptyStatusCode: 204 } } });
 
             const handler = function (request, reply) {
 
@@ -708,7 +681,6 @@ describe('transmission', () => {
         it('skips compression on empty', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -728,7 +700,6 @@ describe('transmission', () => {
         it('skips compression for 206 responses', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -749,7 +720,6 @@ describe('transmission', () => {
         it('does not skip compression for chunked transfer payloads', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -782,7 +752,6 @@ describe('transmission', () => {
         it('sets vary header when accept-encoding is present but does not match', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -823,7 +792,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
@@ -855,7 +823,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', handler });
 
             server.start((err) => {
@@ -874,7 +841,6 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
-            server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
             server.inject('/file', (res1) => {
@@ -897,7 +863,6 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
-            server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
             server.inject('/file', (res1) => {
@@ -923,9 +888,8 @@ describe('transmission', () => {
 
         it('returns a gzipped file in the response when the request accepts gzip', (done) => {
 
-            const server = new Hapi.Server();
+            const server = new Hapi.Server({ routes: { files: { relativeTo: __dirname } } });
             server.register(Inert, Hoek.ignore);
-            server.connection({ routes: { files: { relativeTo: __dirname } } });
             const handler = function (request, reply) {
 
                 return reply.file(__dirname + '/../package.json');
@@ -945,9 +909,8 @@ describe('transmission', () => {
 
         it('returns a plain file when not compressible', (done) => {
 
-            const server = new Hapi.Server();
+            const server = new Hapi.Server({ routes: { files: { relativeTo: __dirname } } });
             server.register(Inert, Hoek.ignore);
-            server.connection({ routes: { files: { relativeTo: __dirname } } });
             const handler = function (request, reply) {
 
                 return reply.file(__dirname + '/file/image.png');
@@ -968,9 +931,8 @@ describe('transmission', () => {
 
         it('returns a plain file when compression disabled', (done) => {
 
-            const server = new Hapi.Server();
+            const server = new Hapi.Server({ routes: { files: { relativeTo: __dirname } }, compression: false });
             server.register(Inert, Hoek.ignore);
-            server.connection({ routes: { files: { relativeTo: __dirname } }, compression: false });
             const handler = function (request, reply) {
 
                 return reply.file(__dirname + '/../package.json');
@@ -989,9 +951,8 @@ describe('transmission', () => {
 
         it('returns a deflated file in the response when the request accepts deflate', (done) => {
 
-            const server = new Hapi.Server();
+            const server = new Hapi.Server({ routes: { files: { relativeTo: __dirname } } });
             server.register(Inert, Hoek.ignore);
-            server.connection({ routes: { files: { relativeTo: __dirname } } });
             const handler = function (request, reply) {
 
                 return reply.file(__dirname + '/../package.json');
@@ -1017,7 +978,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/stream', handler: streamHandler });
 
             server.inject({ url: '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'gzip' } }, (res) => {
@@ -1036,7 +996,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/stream', handler: streamHandler });
 
             server.inject({ url: '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'deflate' } }, (res) => {
@@ -1052,7 +1011,6 @@ describe('transmission', () => {
             const data = '{"test":"true"}';
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -1085,7 +1043,6 @@ describe('transmission', () => {
             const data = '{"test":"true"}';
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -1118,7 +1075,6 @@ describe('transmission', () => {
             const data = '{"test":"true"}';
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -1146,7 +1102,6 @@ describe('transmission', () => {
             const data = '{"test":"true"}';
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -1173,7 +1128,6 @@ describe('transmission', () => {
 
             const data = '{"test":"true"}';
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -1205,7 +1159,6 @@ describe('transmission', () => {
 
             const data = '{"test":"true"}';
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -1238,7 +1191,6 @@ describe('transmission', () => {
             const data = '{"test":"true"}';
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -1271,7 +1223,6 @@ describe('transmission', () => {
             const data = '{"test":"true"}';
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -1304,7 +1255,6 @@ describe('transmission', () => {
             const data = '{"test":"true"}';
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -1337,7 +1287,6 @@ describe('transmission', () => {
             const data = '{"test":"true"}';
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -1370,7 +1319,6 @@ describe('transmission', () => {
             const data = '{"test":"true"}';
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -1403,7 +1351,6 @@ describe('transmission', () => {
             const data = '{"test":"true"}';
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -1437,7 +1384,6 @@ describe('transmission', () => {
             const data = JSON.stringify(error.output.payload);
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -1478,7 +1424,6 @@ describe('transmission', () => {
             const data = JSON.stringify(wrappedError.output.payload);
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -1517,7 +1462,6 @@ describe('transmission', () => {
             const data = '{"test":"true"}';
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -1545,7 +1489,6 @@ describe('transmission', () => {
             const data = '{"test":"true"}';
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1579,7 +1522,6 @@ describe('transmission', () => {
                 expect(err).to.not.exist();
 
                 const server = new Hapi.Server();
-                server.connection();
 
                 const handler = function (request, reply) {
 
@@ -1608,7 +1550,6 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
-            server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
             server.inject('/file', (res1) => {
@@ -1641,7 +1582,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', handler });
 
             let response;
@@ -1699,7 +1639,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/stream', handler });
 
             server.inject({ url: '/stream', headers: { 'Accept-Encoding': 'gzip' } }, (res) => {
@@ -1739,7 +1678,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', handler: fileHandler });
             server.start((err) => {
 
@@ -1790,8 +1728,7 @@ describe('transmission', () => {
                 }
             };
 
-            const server = new Hapi.Server();
-            server.connection(config);
+            const server = new Hapi.Server(config);
             server.route({ method: 'GET', path: '/', handler: fileHandler });
             server.start((err) => {
 
@@ -1809,7 +1746,6 @@ describe('transmission', () => {
         it('does not leak stream data when request aborts before stream drains', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             let destroyed = false;
             const handler = function (request, reply) {
@@ -1867,7 +1803,6 @@ describe('transmission', () => {
         it('does not leak classic stream data when passed to request and aborted', (done) => {
 
             const server = new Hapi.Server({ debug: false });
-            server.connection();
 
             let destroyed = false;
             const handler = function (request, reply) {
@@ -1943,8 +1878,7 @@ describe('transmission', () => {
 
         it('does not leak stream data when request timeouts before stream drains', (done) => {
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { timeout: { server: 20, socket: 40 }, payload: { timeout: false } } });
+            const server = new Hapi.Server({ routes: { timeout: { server: 20, socket: 40 }, payload: { timeout: false } } });
 
             const handler = function (request, reply) {
 
@@ -1988,7 +1922,6 @@ describe('transmission', () => {
         it('does not leak stream data when request aborts before stream is returned', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             let clientRequest;
             const handler = function (request, reply) {
@@ -2048,7 +1981,6 @@ describe('transmission', () => {
         it('changes etag when content-encoding set manually', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
             const handler = function (request, reply) {
 
                 return reply('x').header('content-encoding', 'gzip').etag('abc');
@@ -2068,7 +2000,6 @@ describe('transmission', () => {
         it('head request retains content-length header', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
             const handler = function (request, reply) {
 
                 return reply('x').bytes(1);
@@ -2093,7 +2024,6 @@ describe('transmission', () => {
             };
 
             const upstream = new Hapi.Server();
-            upstream.connection();
             upstream.route({ method: 'GET', path: '/headers', handler: headersHandler });
             upstream.start(() => {
 
@@ -2111,7 +2041,6 @@ describe('transmission', () => {
                 };
 
                 const server = new Hapi.Server();
-                server.connection();
                 server.route({ method: 'GET', path: '/headers', handler: proxyHandler });
 
                 server.inject({ url: '/headers', headers: { 'accept-encoding': 'gzip' } }, (res) => {
@@ -2127,7 +2056,6 @@ describe('transmission', () => {
         it('ends response stream once', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             let count = 0;
             const onRequest = function (request, reply) {
@@ -2163,7 +2091,6 @@ describe('transmission', () => {
             it('returns a subset of a fileStream (start)', (done) => {
 
                 const server = new Hapi.Server();
-                server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 server.inject({ url: '/file', headers: { 'range': 'bytes=0-4' } }, (res) => {
@@ -2180,7 +2107,6 @@ describe('transmission', () => {
             it('ignores range request when disabled', (done) => {
 
                 const server = new Hapi.Server();
-                server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler, config: { response: { ranges: false } } });
 
                 server.inject({ url: '/file', headers: { 'range': 'bytes=0-4' } }, (res) => {
@@ -2193,7 +2119,6 @@ describe('transmission', () => {
             it('returns a subset of a fileStream (middle)', (done) => {
 
                 const server = new Hapi.Server();
-                server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 server.inject({ url: '/file', headers: { 'range': 'bytes=1-5' } }, (res) => {
@@ -2210,7 +2135,6 @@ describe('transmission', () => {
             it('returns a subset of a fileStream (-to)', (done) => {
 
                 const server = new Hapi.Server();
-                server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 server.inject({ url: '/file', headers: { 'range': 'bytes=-5' } }, (res) => {
@@ -2227,7 +2151,6 @@ describe('transmission', () => {
             it('returns a subset of a fileStream (from-)', (done) => {
 
                 const server = new Hapi.Server();
-                server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 server.inject({ url: '/file', headers: { 'range': 'bytes=42005-' } }, (res) => {
@@ -2244,7 +2167,6 @@ describe('transmission', () => {
             it('returns a subset of a fileStream (beyond end)', (done) => {
 
                 const server = new Hapi.Server();
-                server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 server.inject({ url: '/file', headers: { 'range': 'bytes=42005-42011' } }, (res) => {
@@ -2261,7 +2183,6 @@ describe('transmission', () => {
             it('returns a subset of a fileStream (if-range)', (done) => {
 
                 const server = new Hapi.Server();
-                server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 server.inject('/file', (res) => {
@@ -2284,7 +2205,6 @@ describe('transmission', () => {
             it('returns 200 on incorrect if-range', (done) => {
 
                 const server = new Hapi.Server();
-                server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 server.inject({ url: '/file', headers: { 'range': 'bytes=42005-42011', 'if-range': 'abc' } }, (res2) => {
@@ -2297,7 +2217,6 @@ describe('transmission', () => {
             it('returns 416 on invalid range (unit)', (done) => {
 
                 const server = new Hapi.Server();
-                server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 server.inject({ url: '/file', headers: { 'range': 'horses=1-5' } }, (res) => {
@@ -2311,7 +2230,6 @@ describe('transmission', () => {
             it('returns 416 on invalid range (inversed)', (done) => {
 
                 const server = new Hapi.Server();
-                server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 server.inject({ url: '/file', headers: { 'range': 'bytes=5-1' } }, (res) => {
@@ -2325,7 +2243,6 @@ describe('transmission', () => {
             it('returns 416 on invalid range (format)', (done) => {
 
                 const server = new Hapi.Server();
-                server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 server.inject({ url: '/file', headers: { 'range': 'bytes 1-5' } }, (res) => {
@@ -2339,7 +2256,6 @@ describe('transmission', () => {
             it('returns 416 on invalid range (empty range)', (done) => {
 
                 const server = new Hapi.Server();
-                server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 server.inject({ url: '/file', headers: { 'range': 'bytes=-' } }, (res) => {
@@ -2353,7 +2269,6 @@ describe('transmission', () => {
             it('returns 200 on multiple ranges', (done) => {
 
                 const server = new Hapi.Server();
-                server.connection();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 server.inject({ url: '/file', headers: { 'range': 'bytes=1-5,7-10' } }, (res) => {
@@ -2396,7 +2311,6 @@ describe('transmission', () => {
                 };
 
                 const server = new Hapi.Server();
-                server.connection();
                 const handler = function (request, reply) {
 
                     return reply(new TestStream());
@@ -2447,7 +2361,6 @@ describe('transmission', () => {
                 };
 
                 const server = new Hapi.Server();
-                server.connection();
                 const handler = function (request, reply) {
 
                     return reply(new TestStream());
@@ -2470,7 +2383,6 @@ describe('transmission', () => {
         it('skips undefined header values', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -2489,7 +2401,6 @@ describe('transmission', () => {
         it('does not add connection close header to normal requests', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -2508,7 +2419,6 @@ describe('transmission', () => {
         it('returns 500 when node rejects a header', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -2527,7 +2437,6 @@ describe('transmission', () => {
         it('returns 500 for out of range status code', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -2561,7 +2470,6 @@ describe('transmission', () => {
         it('set custom statusMessage', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -2590,7 +2498,6 @@ describe('transmission', () => {
         it('sets max-age value (method and route)', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             const method = function (id, next) {
 
@@ -2623,7 +2530,6 @@ describe('transmission', () => {
         it('sets max-age value (expiresAt)', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             const handler = function (request, reply) {
 
@@ -2651,7 +2557,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', config: { handler, cache: { expiresIn: 120000 } } });
             server.inject('/', (res) => {
 
@@ -2668,7 +2573,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', config: { handler, cache: { otherwise: 'no-store' } } });
             server.inject('/', (res) => {
 
@@ -2684,8 +2588,7 @@ describe('transmission', () => {
                 return reply(Boom.badRequest());
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { cache: { statuses: [200, 400] } } });
+            const server = new Hapi.Server({ routes: { cache: { statuses: [200, 400] } } });
             server.route({ method: 'GET', path: '/', config: { handler, cache: { expiresIn: 120000 } } });
             server.inject('/', (res) => {
 
@@ -2697,7 +2600,6 @@ describe('transmission', () => {
         it('does not return max-age value when route is not cached', (done) => {
 
             const server = new Hapi.Server();
-            server.connection();
             const activeItemHandler = function (request, reply) {
 
                 return reply({
@@ -2717,7 +2619,6 @@ describe('transmission', () => {
         it('caches using non default cache', (done) => {
 
             const server = new Hapi.Server({ cache: { name: 'primary', engine: CatboxMemory } });
-            server.connection();
             const defaults = server.cache({ segment: 'a', expiresIn: 2000 });
             const primary = server.cache({ segment: 'a', expiresIn: 2000, cache: 'primary' });
 
@@ -2759,7 +2660,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
@@ -2778,7 +2678,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
@@ -2796,7 +2695,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', config: { cache: false, handler } });
 
             server.inject('/', (res) => {
@@ -2814,7 +2712,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
@@ -2829,7 +2726,6 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.register(Inert, Hoek.ignore);
-            server.connection();
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' }, config: { cache: { expiresIn: 60000 } } });
 
             server.inject('/file', (res1) => {
@@ -2845,9 +2741,8 @@ describe('transmission', () => {
 
         it('forbids caching on 304 if 200 is not included', (done) => {
 
-            const server = new Hapi.Server();
+            const server = new Hapi.Server({ routes: { cache: { statuses: [400] } } });
             server.register(Inert, Hoek.ignore);
-            server.connection({ routes: { cache: { statuses: [400] } } });
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' }, config: { cache: { expiresIn: 60000 } } });
 
             server.inject('/file', (res1) => {
@@ -2872,7 +2767,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
@@ -2895,8 +2789,7 @@ describe('transmission', () => {
                 return reply('Test');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { security: true } });
+            const server = new Hapi.Server({ routes: { security: true } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
@@ -2923,8 +2816,7 @@ describe('transmission', () => {
                 security: false
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { security: true } });
+            const server = new Hapi.Server({ routes: { security: true } });
             server.route({ method: 'GET', path: '/', handler, config });
 
             server.inject({ url: '/' }, (res) => {
@@ -2948,8 +2840,7 @@ describe('transmission', () => {
                 return reply('Test');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { security: { hsts: false } } });
+            const server = new Hapi.Server({ routes: { security: { hsts: false } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
@@ -2973,8 +2864,7 @@ describe('transmission', () => {
                 return reply('Test');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { security: { hsts: true } } });
+            const server = new Hapi.Server({ routes: { security: { hsts: true } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
@@ -2993,8 +2883,7 @@ describe('transmission', () => {
                 return reply('Test');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { security: { hsts: 123456789 } } });
+            const server = new Hapi.Server({ routes: { security: { hsts: 123456789 } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
@@ -3013,8 +2902,7 @@ describe('transmission', () => {
                 return reply('Test');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { security: { hsts: { maxAge: 123456789, includeSubDomains: true } } } });
+            const server = new Hapi.Server({ routes: { security: { hsts: { maxAge: 123456789, includeSubDomains: true } } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
@@ -3033,8 +2921,7 @@ describe('transmission', () => {
                 return reply('Test');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { security: { hsts: { maxAge: 123456789 } } } });
+            const server = new Hapi.Server({ routes: { security: { hsts: { maxAge: 123456789 } } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
@@ -3053,8 +2940,7 @@ describe('transmission', () => {
                 return reply('Test');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { security: { hsts: { includeSubdomains: true } } } });
+            const server = new Hapi.Server({ routes: { security: { hsts: { includeSubdomains: true } } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
@@ -3073,8 +2959,7 @@ describe('transmission', () => {
                 return reply('Test');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { security: { hsts: { includeSubDomains: true } } } });
+            const server = new Hapi.Server({ routes: { security: { hsts: { includeSubDomains: true } } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
@@ -3093,8 +2978,7 @@ describe('transmission', () => {
                 return reply('Test');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { security: { hsts: { includeSubDomains: true, preload: true } } } });
+            const server = new Hapi.Server({ routes: { security: { hsts: { includeSubDomains: true, preload: true } } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
@@ -3113,8 +2997,7 @@ describe('transmission', () => {
                 return reply('Test');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { security: { xframe: false } } });
+            const server = new Hapi.Server({ routes: { security: { xframe: false } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
@@ -3137,8 +3020,7 @@ describe('transmission', () => {
                 return reply('Test');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { security: { xframe: true } } });
+            const server = new Hapi.Server({ routes: { security: { xframe: true } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
@@ -3157,8 +3039,7 @@ describe('transmission', () => {
                 return reply('Test');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { security: { xframe: 'sameorigin' } } });
+            const server = new Hapi.Server({ routes: { security: { xframe: 'sameorigin' } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
@@ -3177,8 +3058,7 @@ describe('transmission', () => {
                 return reply('Test');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { security: { xframe: { rule: 'allow-from', source: 'http://example.com' } } } });
+            const server = new Hapi.Server({ routes: { security: { xframe: { rule: 'allow-from', source: 'http://example.com' } } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
@@ -3197,8 +3077,7 @@ describe('transmission', () => {
                 return reply('Test');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { security: { xframe: { rule: 'deny' } } } });
+            const server = new Hapi.Server({ routes: { security: { xframe: { rule: 'deny' } } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
@@ -3217,8 +3096,7 @@ describe('transmission', () => {
                 return reply('Test');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { security: { xframe: { rule: 'allow-from' } } } });
+            const server = new Hapi.Server({ routes: { security: { xframe: { rule: 'allow-from' } } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
@@ -3237,8 +3115,7 @@ describe('transmission', () => {
                 return reply('Test');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { security: { noOpen: false } } });
+            const server = new Hapi.Server({ routes: { security: { noOpen: false } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
@@ -3257,8 +3134,7 @@ describe('transmission', () => {
                 return reply('Test');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { security: { noSniff: false } } });
+            const server = new Hapi.Server({ routes: { security: { noSniff: false } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
@@ -3277,8 +3153,7 @@ describe('transmission', () => {
                 return reply('Test');
             };
 
-            const server = new Hapi.Server();
-            server.connection({ routes: { security: { xss: false } } });
+            const server = new Hapi.Server({ routes: { security: { xss: false } } });
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject({ url: '/' }, (res) => {
@@ -3305,7 +3180,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
@@ -3324,7 +3198,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
@@ -3343,7 +3216,6 @@ describe('transmission', () => {
             };
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ method: 'GET', path: '/', handler });
 
             server.inject('/', (res) => {
