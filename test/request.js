@@ -513,7 +513,7 @@ describe('Request', () => {
 
             server.ext('onPreResponse', preResponse);
 
-            server.events.on('tail', () => {
+            server.events.on('response', () => {
 
                 server.stop(done);
             });
@@ -799,62 +799,6 @@ describe('Request', () => {
 
                 expect(errs).to.equal(0);
                 done();
-            });
-        });
-    });
-
-    describe('tail()', () => {
-
-        it('generates tail event', (done) => {
-
-            const handler = function (request, reply) {
-
-                const t1 = request.addTail('t1');
-                const t2 = request.addTail('t2');
-
-                reply('Done');
-
-                t1();
-                t1();                           // Ignored
-                setTimeout(t2, 10);
-            };
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler });
-
-            let result = null;
-
-            server.events.once('tail', (request) => {
-
-                expect(result).to.equal('Done');
-                done();
-            });
-
-            server.inject('/', (res) => {
-
-                result = res.result;
-            });
-        });
-
-        it('generates tail event without name', (done) => {
-
-            const handler = function (request, reply) {
-
-                const tail = request.tail();
-                reply('Done');
-                tail();
-            };
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler });
-
-            server.events.once('tail', (request) => {
-
-                done();
-            });
-
-            server.inject('/', (res) => {
-
             });
         });
     });
