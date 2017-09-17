@@ -15,7 +15,7 @@
     "web"
   ],
   "engines": {
-    "node": ">=4.8.0"
+    "node": ">=8.3.0"
   },
   "dependencies": {
     "accept": "^2.1.4",
