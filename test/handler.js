@@ -30,7 +30,7 @@ describe('handler', () => {
 
     describe('execute()', () => {
 
-        it.skip('returns 500 on handler exception (same tick)', (done) => {
+        it('returns 500 on handler exception (same tick)', (done) => {
 
             const server = new Hapi.Server({ debug: false });
 
@@ -49,14 +49,17 @@ describe('handler', () => {
             });
         });
 
-        it.skip('returns 500 on handler exception (next tick)', { parallel: false }, (done) => {
+        it.skip('returns 500 on handler exception (promise inners)', { parallel: false }, (done) => {
 
             const handler = function (request) {
 
-                setImmediate(() => {
+                return new Promise(() => {
 
-                    const not = null;
-                    not.here;
+                    setImmediate(() => {
+
+                        const not = null;
+                        not.here;
+                    });
                 });
             };
 
@@ -80,6 +83,66 @@ describe('handler', () => {
 
                 expect(res.statusCode).to.equal(500);
             });
+        });
+
+        it.skip('returns 500 on handler exception (next tick)', { parallel: false }, async () => {
+
+            const handler = function (request) {
+
+                setImmediate(() => {
+
+                    const not = null;
+                    not.here;
+                });
+
+                return 'ok';
+            };
+
+            const server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler });
+            const log = server.events.once('request-error');
+
+            const orig = console.error;
+            console.error = function () {
+
+                console.error = orig;
+                expect(arguments[0]).to.equal('Debug:');
+                expect(arguments[1]).to.equal('internal, implementation, error');
+            };
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+
+            const [, err] = await log;
+            expect(err.message).to.equal('Uncaught error: Cannot read property \'here\' of null');
+        });
+
+        it('returns 500 on handler exception (next tick await)', { parallel: false }, async () => {
+
+            const handler = async function (request) {
+
+                await new Promise((resolve) => setImmediate(resolve));
+                const not = null;
+                not.here;
+            };
+
+            const server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler });
+            const log = server.events.once('request-error');
+
+            const orig = console.error;
+            console.error = function () {
+
+                console.error = orig;
+                expect(arguments[0]).to.equal('Debug:');
+                expect(arguments[1]).to.equal('internal, implementation, error');
+            };
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+
+            const [, err] = await log;
+            expect(err.message).to.equal('Cannot read property \'here\' of null');
         });
     });
 
@@ -116,7 +179,6 @@ describe('handler', () => {
             const handler = function (request, reply) {
 
                 expect(arguments.length).to.equal(2);
-                expect(reply.send).to.not.exist();
                 return reply('ok');
             };
 

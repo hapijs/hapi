@@ -1811,7 +1811,7 @@ describe('transmission', () => {
 
             const headersHandler = function (request, reply) {
 
-                reply({ status: 'success' })
+                return reply({ status: 'success' })
                     .vary('X-Custom3');
             };
 
@@ -2295,7 +2295,7 @@ describe('transmission', () => {
 
             const profileHandler = function (request, reply) {
 
-                server.methods.profile(0, (err, data, ttl) => reply(err, data));
+                return new Promise((resolve) => server.methods.profile(0, (ignoreErr, data, ttl) => resolve(data)));
             };
 
             server.route({ method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { expiresIn: 120000, privacy: 'private' } } });

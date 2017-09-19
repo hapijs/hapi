@@ -232,12 +232,10 @@ describe('Connection', () => {
         const server = new Hapi.Server({ routes: { timeout: { socket: 50 }, payload: { timeout: 45 } } });
         server.route({
             method: 'GET', path: '/', config: {
-                handler: function (request, reply) {
+                handler: async function (request, reply) {
 
-                    setTimeout(() => {
-
-                        return reply('too late');
-                    }, 70);
+                    await internals.wai(70);
+                    return 'too late';
                 }
             }
         });
@@ -293,6 +291,7 @@ describe('Connection', () => {
                 handler: function (request, reply) {
 
                     ++count;
+                    return reply.close({ end: false });
                 }
             });
 
@@ -331,6 +330,7 @@ describe('Connection', () => {
                 handler: function (request, reply) {
 
                     ++count;
+                    return reply.close({ end: false });
                 }
             });
 
@@ -482,7 +482,7 @@ describe('Connection', () => {
         it('waits to destroy handled connections until after the timeout', async () => {
 
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: (request, reply) => { } });
+            server.route({ method: 'GET', path: '/', handler: (request, reply) => reply.close({ end: false }) });
             await server.start();
 
             const socket = await internals.socket(server);
@@ -500,7 +500,7 @@ describe('Connection', () => {
         it('waits to destroy connections if they close by themselves', async () => {
 
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: (request, reply) => { } });
+            server.route({ method: 'GET', path: '/', handler: (request, reply) => reply.close({ end: false }) });
             await server.start();
 
             const socket = await internals.socket(server);
@@ -572,10 +572,11 @@ describe('Connection', () => {
         it('finishes in-progress requests and ends connection', async () => {
 
             let stop;
-            const handler = (request, reply) => {
+            const handler = async (request, reply) => {
 
                 stop = server.stop({ timeout: 200 });
-                setImmediate(() => reply('ok'));
+                await internals.wait(0);
+                return 'ok';
             };
 
             const server = new Hapi.Server();
@@ -605,10 +606,11 @@ describe('Connection', () => {
             const server = new Hapi.Server({ tls: tlsOptions });
 
             let stop;
-            const handler = (request, reply) => {
+            const handler = async (request, reply) => {
 
                 stop = server.stop({ timeout: 200 });
-                setTimeout(() => reply('ok'), 150);
+                await internals.wait(150);
+                return 'ok';
             };
 
             server.route({ method: 'GET', path: '/', handler });
@@ -909,23 +911,17 @@ describe('Connection', () => {
             });
         });
 
-        it('sets correct host header', (done) => {
+        it('sets correct host header', async () => {
 
             const server = new Hapi.Server({ host: 'example.com', port: 2080 });
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: function (request, reply) {
-
-                    reply(request.headers.host);
-                }
+                handler: (request, reply) => request.headers.host
             });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal('example.com:2080');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('example.com:2080');
         });
     });
 

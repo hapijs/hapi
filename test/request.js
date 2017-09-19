@@ -413,18 +413,17 @@ describe('Request', () => {
             const server = new Hapi.Server();
 
             let clientRequest;
-            const handler = function (request, reply) {
+            const handler = async function (request, reply) {
 
                 clientRequest.abort();
+                await internals.wait(10);
 
                 setTimeout(() => {
 
-                    reply(new Error('fail'));
-                    setTimeout(() => {
-
-                        server.stop().then(done);
-                    }, 10);
+                    server.stop().then(done);
                 }, 10);
+
+                throw new Error('fail');
             };
 
             server.route({ method: 'GET', path: '/', handler });
@@ -480,13 +479,11 @@ describe('Request', () => {
 
             let clientRequest;
 
-            const handler = function (request, reply) {
+            const handler = async function (request, reply) {
 
                 clientRequest.abort();
-                setTimeout(() => {
-
-                    return reply(new Error('boom'));
-                }, 10);
+                await internals.wait(10);
+                throw new Error('boom');
             };
 
             const server = new Hapi.Server();
@@ -609,24 +606,19 @@ describe('Request', () => {
 
         it('closes response after server timeout', (done) => {
 
-            const handler = function (request, reply) {
+            const handler = async function (request, reply) {
 
-                setTimeout(() => {
+                await internals.wait(100);
 
-                    const stream = new Stream.Readable();
-                    stream._read = function (size) {
+                const stream = new Stream.Readable();
+                stream._read = function (size) {
 
-                        this.push('value');
-                        this.push(null);
-                    };
+                    this.push('value');
+                    this.push(null);
+                };
 
-                    stream.close = function () {
-
-                        done();
-                    };
-
-                    return reply(stream);
-                }, 100);
+                stream.close = done;
+                return stream;
             };
 
             const server = new Hapi.Server({ routes: { timeout: { server: 50 } } });
@@ -642,28 +634,19 @@ describe('Request', () => {
             });
         });
 
-        it('does not attempt to close error response after server timeout', (done) => {
+        it('does not attempt to close error response after server timeout', async () => {
 
-            const handler = function (request, reply) {
+            const handler = async function (request, reply) {
 
-                setTimeout(() => {
-
-                    return reply(new Error('after'));
-                }, 10);
+                await internals.wait(10);
+                throw new Error('after');
             };
 
             const server = new Hapi.Server({ routes: { timeout: { server: 5 } } });
-            server.route({
-                method: 'GET',
-                path: '/',
-                handler
-            });
+            server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(503);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(503);
         });
 
         it('emits request-error once', (done) => {
@@ -1090,7 +1073,7 @@ describe('Request', () => {
 
         it('handles hostname in HTTP request resource', (done) => {
 
-            const server = new Hapi.Server();
+            const server = new Hapi.Server({ debug: false });
 
             let socket;
             server.route({
@@ -1141,59 +1124,49 @@ describe('Request', () => {
             });
         });
 
-        it('emits a request event', (done) => {
+        it('emits a request event', async () => {
 
             const server = new Hapi.Server();
 
-            const handler = function (request, reply) {
+            const handler = async function (request, reply) {
 
-                server.events.on('request', (req, event, tags) => {
-
-                    expect(event).to.contain(['request', 'timestamp', 'tags', 'data', 'internal']);
-                    expect(event.data).to.equal('data');
-                    expect(event.internal).to.be.false();
-                    expect(tags).to.equal({ test: true });
-                    return reply();
-                });
-
+                const log = server.events.once('request');
                 request.log(['test'], 'data');
+                const [, event, tags] = await log;
+                expect(event).to.contain(['request', 'timestamp', 'tags', 'data', 'internal']);
+                expect(event.data).to.equal('data');
+                expect(event.internal).to.be.false();
+                expect(tags).to.equal({ test: true });
+                return null;
             };
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('emits a request event (function data)', (done) => {
+        it('emits a request event (function data)', async () => {
 
             const server = new Hapi.Server({ routes: { log: true } });
 
-            const handler = function (request, reply) {
+            const handler = async function (request, reply) {
 
-                server.events.on('request', (req, event, tags) => {
-
-                    expect(event).to.contain(['request', 'timestamp', 'tags', 'data', 'internal']);
-                    expect(event.data).to.equal('data');
-                    expect(event.internal).to.be.false();
-                    expect(tags).to.equal({ test: true });
-                    expect(request.getLog('test')[0].data).to.equal('data');
-                    return reply();
-                });
-
+                const log = server.events.once('request');
                 request.log(['test'], () => 'data');
+                const [, event, tags] = await log;
+                expect(event).to.contain(['request', 'timestamp', 'tags', 'data', 'internal']);
+                expect(event.data).to.equal('data');
+                expect(event.internal).to.be.false();
+                expect(tags).to.equal({ test: true });
+                expect(request.getLog('test')[0].data).to.equal('data');
+                return null;
             };
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
         });
 
         it('outputs log to debug console without data', { parallel: false }, (done) => {
@@ -1495,31 +1468,30 @@ describe('Request', () => {
 
     describe('timeout', { parallel: false }, () => {
 
-        it('returns server error message when server taking too long', (done) => {
+        it('returns server error message when server taking too long', async () => {
 
-            const timeoutHandler = function (request, reply) { };
+            const handler = async function (request, reply) {
+
+                await internals.wait(100);
+                return 'too slow';
+            };
 
             const server = new Hapi.Server({ routes: { timeout: { server: 50 } } });
-            server.route({ method: 'GET', path: '/timeout', config: { handler: timeoutHandler } });
+            server.route({ method: 'GET', path: '/timeout', handler });
 
             const timer = new Hoek.Bench();
 
-            server.inject('/timeout', (res) => {
-
-                expect(res.statusCode).to.equal(503);
-                expect(timer.elapsed()).to.be.at.least(45);
-                done();
-            });
+            const res = await server.inject('/timeout');
+            expect(res.statusCode).to.equal(503);
+            expect(timer.elapsed()).to.be.at.least(50);
         });
 
-        it('returns server error message when server timeout happens during request execution (and handler yields)', (done) => {
+        it('returns server error message when server timeout happens during request execution (and handler yields)', async () => {
 
-            const handler = function (request, reply) {
+            const handler = async function (request, reply) {
 
-                setTimeout(() => {
-
-                    return reply();
-                }, 20);
+                await internals.wait(20);
+                return null;
             };
 
             const server = new Hapi.Server({ routes: { timeout: { server: 10 } } });
@@ -1532,11 +1504,8 @@ describe('Request', () => {
 
             server.ext('onPostHandler', postHandler);
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(503);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(503);
         });
 
         it('returns server error message when server timeout is short and already occurs when request executes', (done) => {
@@ -1560,11 +1529,12 @@ describe('Request', () => {
             });
         });
 
-        it('handles server handler timeout with onPreResponse ext', (done) => {
+        it('handles server handler timeout with onPreResponse ext', async () => {
 
-            const handler = function (request, reply) {
+            const handler = async function (request, reply) {
 
-                setTimeout(reply, 20);
+                await internals.wait(20);
+                return null;
             };
 
             const server = new Hapi.Server({ routes: { timeout: { server: 10 } } });
@@ -1576,33 +1546,25 @@ describe('Request', () => {
 
             server.ext('onPreResponse', preResponse);
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(503);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(503);
         });
 
-        it('does not return an error response when server is slow but faster than timeout', (done) => {
+        it('does not return an error response when server is slow but faster than timeout', async () => {
 
-            const slowHandler = function (request, reply) {
+            const slowHandler = async function (request, reply) {
 
-                setTimeout(() => {
-
-                    return reply('Slow');
-                }, 30);
+                await internals.wait(30);
+                return 'slow';
             };
 
             const server = new Hapi.Server({ routes: { timeout: { server: 50 } } });
             server.route({ method: 'GET', path: '/slow', config: { handler: slowHandler } });
 
             const timer = new Hoek.Bench();
-            server.inject('/slow', (res) => {
-
-                expect(timer.elapsed()).to.be.at.least(20);
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject('/slow');
+            expect(timer.elapsed()).to.be.at.least(20);
+            expect(res.statusCode).to.equal(200);
         });
 
         it('does not return an error when server is responding when the timeout occurs', async () => {
@@ -1744,3 +1706,9 @@ describe('Request', () => {
         });
     });
 });
+
+
+internals.wait = function (timeout) {
+
+    return new Promise((resolve, reject) => setTimeout(resolve, timeout));
+};

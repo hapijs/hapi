@@ -27,52 +27,35 @@ const expect = Code.expect;
 
 describe('authentication', () => {
 
-    it('requires and authenticates a request', (done) => {
-
-        const handler = function (request, reply) {
-
-            return reply(request.auth.credentials.user);
-        };
+    it('requires and authenticates a request', async () => {
 
         const server = new Hapi.Server();
         server.auth.scheme('custom', internals.implementation);
-        server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
-        server.route({ method: 'GET', path: '/', handler });
+        server.auth.strategy('default', 'custom', true, { users: { steve: { user: 'steve' } } });
+        server.route({ method: 'GET', path: '/', handler: (request) => request.auth.credentials.user });
 
-        server.inject('/', (res1) => {
+        const res1 = await server.inject('/');
+        expect(res1.statusCode).to.equal(401);
 
-            expect(res1.statusCode).to.equal(401);
-
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res2) => {
-
-                expect(res2.statusCode).to.equal(200);
-                done();
-            });
-        });
+        const res2 = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+        expect(res2.statusCode).to.equal(200);
+        expect(res2.result).to.equal('steve');
     });
 
-    it('disables authentication on a route', (done) => {
-
-        const handler = function (request, reply) {
-
-            return reply(request.auth.isAuthenticated);
-        };
+    it('disables authentication on a route', async () => {
 
         const server = new Hapi.Server();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
-        server.route({ method: 'POST', path: '/', config: { auth: false, handler } });
+        server.route({ method: 'POST', path: '/', config: { auth: false, handler: (request) => request.auth.isAuthenticated } });
 
-        server.inject({ url: '/', method: 'POST' }, (res1) => {
+        const res1 = await server.inject({ url: '/', method: 'POST' });
+        expect(res1.statusCode).to.equal(200);
+        expect(res1.result).to.be.false();
 
-            expect(res1.statusCode).to.equal(200);
-
-            server.inject({ url: '/', method: 'POST', headers: { authorization: 'Custom steve' } }, (res2) => {
-
-                expect(res2.statusCode).to.equal(200);
-                done();
-            });
-        });
+        const res2 = await server.inject({ url: '/', method: 'POST', headers: { authorization: 'Custom steve' } });
+        expect(res2.statusCode).to.equal(200);
+        expect(res2.result).to.be.false();
     });
 
     it('defaults cache to private if request authenticated', (done) => {
@@ -151,15 +134,10 @@ describe('authentication', () => {
 
         it.skip('errors when strategy authenticate function throws', (done) => {
 
-            const handler = function (request, reply) {
-
-                return reply(request.auth.credentials.user);
-            };
-
             const server = new Hapi.Server({ debug: false });
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true);
-            server.route({ method: 'GET', path: '/', handler });
+            server.route({ method: 'GET', path: '/', handler: (request) => request.auth.credentials.user });
 
             server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
 
@@ -517,19 +495,17 @@ describe('authentication', () => {
             });
         });
 
-        it('authenticates using credentials object', (done) => {
+        it('authenticates using credentials object', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true, { users: { steve: { user: 'steve' } } });
 
-            const doubleHandler = function (request, reply) {
+            const doubleHandler = async function (request, reply) {
 
                 const options = { url: '/2', credentials: request.auth.credentials };
-                server.inject(options, (res) => {
-
-                    return reply(res.result);
-                });
+                const res = await server.inject(options);
+                return reply(res.result);
             };
 
             const handler = function (request, reply) {
@@ -540,27 +516,22 @@ describe('authentication', () => {
             server.route({ method: 'GET', path: '/1', handler: doubleHandler });
             server.route({ method: 'GET', path: '/2', handler });
 
-            server.inject({ url: '/1', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.result).to.equal('steve');
-                done();
-            });
+            const res = await server.inject({ url: '/1', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('steve');
         });
 
-        it('authenticates using credentials object (with artifacts)', (done) => {
+        it('authenticates using credentials object (with artifacts)', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true, { users: { steve: { user: 'steve' } } });
 
-            const doubleHandler = function (request, reply) {
+            const doubleHandler = async function (request, reply) {
 
                 const options = { url: '/2', credentials: request.auth.credentials, artifacts: '!' };
-                server.inject(options, (res) => {
-
-                    return reply(res.result);
-                });
+                const res = await server.inject(options);
+                return reply(res.result);
             };
 
             const handler = function (request, reply) {
@@ -571,12 +542,9 @@ describe('authentication', () => {
             server.route({ method: 'GET', path: '/1', handler: doubleHandler });
             server.route({ method: 'GET', path: '/2', handler });
 
-            server.inject({ url: '/1', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.result).to.equal('steve!');
-                done();
-            });
+            const res = await server.inject({ url: '/1', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('steve!');
         });
 
         it('authenticates a request with custom auth settings', (done) => {
@@ -2005,17 +1973,20 @@ describe('authentication', () => {
 
     describe('test()', () => {
 
-        it('tests a request', (done) => {
+        it('tests a request', async () => {
 
             const handler = function (request, reply) {
 
-                request.server.auth.test('default', request, (err, credentials) => {
+                return new Promise((resolve) => {
 
-                    if (err) {
-                        return reply({ status: false });
-                    }
+                    request.server.auth.test('default', request, (err, credentials) => {
 
-                    return reply({ status: true, user: credentials.name });
+                        if (err) {
+                            return resolve({ status: false });
+                        }
+
+                        return resolve({ status: true, user: credentials.name });
+                    });
                 });
             };
 
@@ -2024,19 +1995,14 @@ describe('authentication', () => {
             server.auth.strategy('default', 'custom', { users: { steve: { name: 'steve' } } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res1) => {
+            const res1 = await server.inject('/');
+            expect(res1.statusCode).to.equal(200);
+            expect(res1.result.status).to.equal(false);
 
-                expect(res1.statusCode).to.equal(200);
-                expect(res1.result.status).to.equal(false);
-
-                server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res2) => {
-
-                    expect(res2.statusCode).to.equal(200);
-                    expect(res2.result.status).to.equal(true);
-                    expect(res2.result.user).to.equal('steve');
-                    done();
-                });
-            });
+            const res2 = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res2.statusCode).to.equal(200);
+            expect(res2.result.status).to.equal(true);
+            expect(res2.result.user).to.equal('steve');
         });
     });
 });

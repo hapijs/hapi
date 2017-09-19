@@ -409,7 +409,7 @@ describe('Plugin', () => {
 
                         expect(request.route.realm.pluginOptions).to.equal(options);
                         expect(reply.realm.pluginOptions).to.equal(options);
-                        reply('foo');
+                        return 'foo';
                     }
                 });
                 return next();
@@ -429,7 +429,7 @@ describe('Plugin', () => {
 
                         expect(request.route.realm.pluginOptions).to.equal(options);
                         expect(reply.realm.pluginOptions).to.equal(options);
-                        reply('bar');
+                        return 'bar';
                     }
                 });
                 return next();
@@ -443,6 +443,7 @@ describe('Plugin', () => {
                 { register: foo, options: { something: true } },
                 { register: bar, options: { something: false } }
             ];
+
             server.register(plugins, (err) => {
 
                 expect(err).to.not.exist();

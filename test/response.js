@@ -498,6 +498,7 @@ describe('Response', () => {
 
                 const response = reply('ok').etag('abc').vary('x');
                 delete response.headers.etag;
+                return response;
             };
 
             const server = new Hapi.Server();
@@ -1320,6 +1321,8 @@ describe('Response', () => {
 
                         output += '!';
                     });
+
+                    return response;
                 }
             });
 

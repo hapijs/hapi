@@ -1269,7 +1269,7 @@ describe('validation', () => {
                 },
                 handler: function (request, reply) {
 
-                    reply().code(204);
+                    return reply().code(204);
                 }
             }
         });
@@ -1282,11 +1282,6 @@ describe('validation', () => {
     });
 
     it('throws on sample with response modify', (done) => {
-
-        const handler = function (request, reply) {
-
-            return reply({ a: 1, b: 2 });
-        };
 
         const server = new Hapi.Server({ debug: false });
         expect(() => {
@@ -1303,7 +1298,7 @@ describe('validation', () => {
                         sample: 90
                     }
                 },
-                handler
+                handler: () => ({ a: 1, b: 2 })
             });
         }).to.throw(/"modify" conflict with forbidden peer "sample"/);
         done();

@@ -49,7 +49,7 @@ describe('Reply', () => {
         });
     });
 
-    it.skip('throws when reply called twice', (done) => {
+    it('throws when reply called twice', (done) => {
 
         const handler = function (request, reply) {
 
@@ -156,22 +156,6 @@ describe('Reply', () => {
             server.inject('/', (res) => {
 
                 expect(res.statusCode).to.equal(400);
-                done();
-            });
-        });
-
-        it.skip('errors when reply() is called with a third argument', (done) => {
-
-            const handler = function (request, reply) {
-
-                return reply(null, 'ok', 'third');
-            };
-
-            const server = new Hapi.Server({ debug: false });
-            server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(500);
                 done();
             });
         });
@@ -341,7 +325,7 @@ describe('Reply', () => {
                 const stream = new Stream();
                 stream.writable = true;
 
-                reply(stream);
+                return reply(stream);
             };
 
             const writableHandler = function (request, reply) {
@@ -349,7 +333,7 @@ describe('Reply', () => {
                 const writable = new Stream.Writable();
                 writable._write = function () { };
 
-                reply(writable);
+                return reply(writable);
             };
 
             const server = new Hapi.Server({ debug: false });
@@ -374,7 +358,7 @@ describe('Reply', () => {
             expect(updates).to.equal(2);
         });
 
-        it.skip('errors on an http client stream reply', async () => {
+        it('errors on an http client stream reply', async () => {
 
             const handler = function (request, reply) {
 
@@ -391,7 +375,7 @@ describe('Reply', () => {
             server.route({ method: 'GET', path: '/stream', handler: streamHandler });
 
             await server.initialize();
-            const res = server.inject('/stream');
+            const res = await server.inject('/stream');
             expect(res.statusCode).to.equal(500);
         });
 
@@ -581,49 +565,6 @@ describe('Reply', () => {
         });
     });
 
-    describe('hold()', () => {
-
-        it('undo scheduled next tick in reply interface', (done) => {
-
-            const server = new Hapi.Server();
-
-            const handler = function (request, reply) {
-
-                return reply('123').hold().send();
-            };
-
-            server.route({ method: 'GET', path: '/domain', handler });
-
-            server.inject('/domain', (res) => {
-
-                expect(res.result).to.equal('123');
-                done();
-            });
-        });
-
-        it('sends reply after timed handler', (done) => {
-
-            const server = new Hapi.Server();
-
-            const handler = function (request, reply) {
-
-                const response = reply('123').hold();
-                setTimeout(() => {
-
-                    response.send();
-                }, 10);
-            };
-
-            server.route({ method: 'GET', path: '/domain', handler });
-
-            server.inject('/domain', (res) => {
-
-                expect(res.result).to.equal('123');
-                done();
-            });
-        });
-    });
-
     describe('close()', () => {
 
         it('returns a reply with manual end', (done) => {
@@ -664,7 +605,7 @@ describe('Reply', () => {
 
     describe('continue()', () => {
 
-        it('sets empty reply on continue in handler', (done) => {
+        it.skip('sets empty reply on continue in handler', (done) => {
 
             const handler = function (request, reply) {
 
