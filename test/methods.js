@@ -127,7 +127,7 @@ describe('Methods', () => {
         done();
     });
 
-    it('registers a method (promise)', (done) => {
+    it('registers a method (promise)', async () => {
 
         const add = function (a, b) {
 
@@ -140,11 +140,8 @@ describe('Methods', () => {
         const server = new Hapi.Server();
         server.method('add', add, { callback: false });
 
-        server.methods.add(1, 5).then((result) => {
-
-            expect(result).to.equal(6);
-            done();
-        });
+        const result = await server.methods.add(1, 5);
+        expect(result).to.equal(6);
     });
 
     it('registers a method with nested name', (done) => {
@@ -157,16 +154,11 @@ describe('Methods', () => {
         const server = new Hapi.Server();
         server.method('tools.add', add);
 
-        server.initialize((err) => {
+        server.methods.tools.add(1, 5, (err, result) => {
 
             expect(err).to.not.exist();
-
-            server.methods.tools.add(1, 5, (err, result) => {
-
-                expect(err).to.not.exist();
-                expect(result).to.equal(6);
-                done();
-            });
+            expect(result).to.equal(6);
+            done();
         });
     });
 
@@ -219,20 +211,15 @@ describe('Methods', () => {
         server.method('tools.add', add);
         server.method('tools.sub', sub);
 
-        server.initialize((err) => {
+        server.methods.tools.add(1, 5, (err, result1) => {
 
             expect(err).to.not.exist();
-
-            server.methods.tools.add(1, 5, (err, result1) => {
+            expect(result1).to.equal(6);
+            server.methods.tools.sub(1, 5, (err, result2) => {
 
                 expect(err).to.not.exist();
-                expect(result1).to.equal(6);
-                server.methods.tools.sub(1, 5, (err, result2) => {
-
-                    expect(err).to.not.exist();
-                    expect(result2).to.equal(-4);
-                    done();
-                });
+                expect(result2).to.equal(-4);
+                done();
             });
         });
     });
@@ -282,21 +269,16 @@ describe('Methods', () => {
         const server = new Hapi.Server();
         server.method('test', method);
 
-        server.initialize((err) => {
+        server.methods.test(1, (err, result1) => {
 
             expect(err).to.not.exist();
+            expect(result1.gen).to.equal(0);
 
-            server.methods.test(1, (err, result1) => {
+            server.methods.test(1, (err, result2) => {
 
                 expect(err).to.not.exist();
-                expect(result1.gen).to.equal(0);
-
-                server.methods.test(1, (err, result2) => {
-
-                    expect(err).to.not.exist();
-                    expect(result2.gen).to.equal(1);
-                    done();
-                });
+                expect(result2.gen).to.equal(1);
+                done();
             });
         });
     });
@@ -312,9 +294,7 @@ describe('Methods', () => {
         const server = new Hapi.Server();
         server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
-        server.initialize((err) => {
-
-            expect(err).to.not.exist();
+        server.initialize().then(() => {
 
             server.methods.test(1, (err, result1) => {
 
@@ -342,9 +322,7 @@ describe('Methods', () => {
         const server = new Hapi.Server();
         server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 }, callback: false });
 
-        server.initialize((err) => {
-
-            expect(err).to.not.exist();
+        server.initialize().then(() => {
 
             server.methods.test(1, (err, result1) => {
 
@@ -379,9 +357,7 @@ describe('Methods', () => {
         const server = new Hapi.Server();
         server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 }, callback: false });
 
-        server.initialize((err) => {
-
-            expect(err).to.not.exist();
+        server.initialize().then(() => {
 
             server.methods.test(1, (err, result1) => {
 
@@ -421,9 +397,7 @@ describe('Methods', () => {
 
         server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 }, generateKey });
 
-        server.initialize((err) => {
-
-            expect(err).to.not.exist();
+        server.initialize().then(() => {
 
             server.methods.test(1, (err, result1) => {
 
@@ -456,9 +430,7 @@ describe('Methods', () => {
 
         server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 }, generateKey });
 
-        server.initialize((err) => {
-
-            expect(err).to.not.exist();
+        server.initialize().then(() => {
 
             server.methods.test(1, (err, result) => {
 
@@ -485,9 +457,7 @@ describe('Methods', () => {
 
         server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 }, generateKey });
 
-        server.initialize((err) => {
-
-            expect(err).to.not.exist();
+        server.initialize().then(() => {
 
             server.methods.test(1, (err, result) => {
 
@@ -509,9 +479,7 @@ describe('Methods', () => {
         const server = new Hapi.Server();
         server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
-        server.initialize((err) => {
-
-            expect(err).to.not.exist();
+        server.initialize().then(() => {
 
             server.methods.test(1, (err, result1) => {
 
@@ -539,9 +507,7 @@ describe('Methods', () => {
         const server = new Hapi.Server();
         server.method('dropTest', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
-        server.initialize((err) => {
-
-            expect(err).to.not.exist();
+        server.initialize().then(() => {
 
             server.methods.dropTest(2, (err, result1) => {
 
@@ -573,9 +539,7 @@ describe('Methods', () => {
         const server = new Hapi.Server();
         server.method('dropErrTest', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
-        server.initialize((err) => {
-
-            expect(err).to.not.exist();
+        server.initialize().then(() => {
 
             const invalid = () => { };
             server.methods.dropErrTest.cache.drop(invalid, (err) => {
@@ -597,9 +561,7 @@ describe('Methods', () => {
         server.method('test', method, { cache: { generateTimeout: 10 } });
         server.method('test2', method, { cache: { generateTimeout: 10 } });
 
-        server.initialize((err) => {
-
-            expect(err).to.not.exist();
+        server.initialize().then(() => {
 
             server.methods.test(1, (err) => {
 
@@ -733,9 +695,7 @@ describe('Methods', () => {
     it('returns a valid result when calling a method when using the cache', (done) => {
 
         const server = new Hapi.Server();
-        server.initialize((err) => {
-
-            expect(err).to.not.exist();
+        server.initialize().then(() => {
 
             const method = function (id, str, next) {
 
@@ -808,9 +768,7 @@ describe('Methods', () => {
 
         server.method('user', method, { cache: { expiresIn: 2000, generateTimeout: 10 } });
 
-        server.initialize((err) => {
-
-            expect(err).to.not.exist();
+        server.initialize().then(() => {
 
             const id = Math.random();
             server.methods.user(id, (err, result1) => {
@@ -844,9 +802,7 @@ describe('Methods', () => {
 
         server.method('user', method, { cache: { expiresIn: 2000, generateTimeout: 3 } });
 
-        server.initialize((err) => {
-
-            expect(err).to.not.exist();
+        server.initialize().then(() => {
 
             const id = Math.random();
             server.methods.user(id, (err, result1) => {
@@ -880,9 +836,7 @@ describe('Methods', () => {
 
         server.method('tos', method, { cache: { expiresIn: 2000, generateTimeout: 10 } });
 
-        server.initialize((err) => {
-
-            expect(err).to.not.exist();
+        server.initialize().then(() => {
 
             server.methods.tos((err, result1) => {
 
@@ -910,9 +864,7 @@ describe('Methods', () => {
         };
 
         server.method('user', method, { cache: { expiresIn: 2000, generateTimeout: 10 } });
-        server.initialize((err) => {
-
-            expect(err).to.not.exist();
+        server.initialize().then(() => {
 
             const id1 = Math.random();
             server.methods.user(id1, (err, result1) => {
@@ -943,9 +895,7 @@ describe('Methods', () => {
 
         server.method([{ name: 'user', method, options: { cache: { expiresIn: 2000, generateTimeout: 10 } } }]);
 
-        server.initialize((err) => {
-
-            expect(err).to.not.exist();
+        server.initialize().then(() => {
 
             server.methods.user(1, (err, result1) => {
 
@@ -974,21 +924,16 @@ describe('Methods', () => {
         const server = new Hapi.Server();
         server.method('test', method, { bind: { gen: 7 } });
 
-        server.initialize((err) => {
+        server.methods.test(1, (err, result1) => {
 
             expect(err).to.not.exist();
+            expect(result1.gen).to.equal(7);
 
-            server.methods.test(1, (err, result1) => {
+            server.methods.test(1, (err, result2) => {
 
                 expect(err).to.not.exist();
-                expect(result1.gen).to.equal(7);
-
-                server.methods.test(1, (err, result2) => {
-
-                    expect(err).to.not.exist();
-                    expect(result2.gen).to.equal(8);
-                    done();
-                });
+                expect(result2.gen).to.equal(8);
+                done();
             });
         });
     });
@@ -1003,9 +948,7 @@ describe('Methods', () => {
         const server = new Hapi.Server();
         server.method('test', method, { bind: { gen: 7 }, cache: { expiresIn: 1000, generateTimeout: 10 } });
 
-        server.initialize((err) => {
-
-            expect(err).to.not.exist();
+        server.initialize().then(() => {
 
             server.methods.test(1, (err, result1) => {
 
@@ -1033,9 +976,7 @@ describe('Methods', () => {
         const server = new Hapi.Server();
         server.method('test', method, { bind, cache: { expiresIn: 1000, generateTimeout: 10 } });
 
-        server.initialize((err) => {
-
-            expect(err).to.not.exist();
+        server.initialize().then(() => {
 
             server.methods.test(1, (err, result1) => {
 

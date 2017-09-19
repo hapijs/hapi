@@ -9,6 +9,8 @@ const Https = require('https');
 const Net = require('net');
 const Os = require('os');
 const Path = require('path');
+const TLS = require('tls');
+
 const Boom = require('boom');
 const Code = require('code');
 const Handlebars = require('handlebars');
@@ -18,8 +20,6 @@ const Inert = require('inert');
 const Lab = require('lab');
 const Vision = require('vision');
 const Wreck = require('wreck');
-const Stream = require('stream');
-const TLS = require('tls');
 
 
 // Declare internals
@@ -37,135 +37,111 @@ const expect = Code.expect;
 
 describe('Connection', () => {
 
-    it('allows null port and host', (done) => {
+    it('allows null port and host', async () => {
 
         expect(() => {
 
             new Hapi.Server({ host: null, port: null });
         }).to.not.throw();
-        done();
     });
 
-    it('does not throw when given a default authentication strategy', (done) => {
+    it('does not throw when given a default authentication strategy', async () => {
 
         expect(() => {
 
             new Hapi.Server({ routes: { auth: 'test' } });
         }).not.to.throw();
-        done();
     });
 
-    it('throws when disabling autoListen and providing a port', (done) => {
+    it('throws when disabling autoListen and providing a port', async () => {
 
         expect(() => {
 
             new Hapi.Server({ port: 80, autoListen: false });
         }).to.throw('Cannot specify port when autoListen is false');
-        done();
     });
 
-    it('throws when disabling autoListen and providing special host', (done) => {
+    it('throws when disabling autoListen and providing special host', async () => {
 
         const port = Path.join(__dirname, 'hapi-server.socket');
         expect(() => {
 
             new Hapi.Server({ port, autoListen: false });
         }).to.throw('Cannot specify port when autoListen is false');
-        done();
     });
 
-    it('defaults address to 0.0.0.0 or :: when no host is provided', (done) => {
+    it('defaults address to 0.0.0.0 or :: when no host is provided', async () => {
 
         const server = new Hapi.Server();
-        server.start((err) => {
+        await server.start();
 
-            expect(err).to.not.exist();
+        let expectedBoundAddress = '0.0.0.0';
+        if (Net.isIPv6(server.listener.address().address)) {
+            expectedBoundAddress = '::';
+        }
 
-            let expectedBoundAddress = '0.0.0.0';
-            if (Net.isIPv6(server.listener.address().address)) {
-                expectedBoundAddress = '::';
-            }
-
-            expect(server.info.address).to.equal(expectedBoundAddress);
-            server.stop(done);
-        });
+        expect(server.info.address).to.equal(expectedBoundAddress);
+        await server.stop();
     });
 
-    it('uses address when present instead of host', (done) => {
+    it('uses address when present instead of host', async () => {
 
         const server = new Hapi.Server({ host: 'no.such.domain.hapi', address: 'localhost' });
-        server.start((err) => {
-
-            expect(err).to.not.exist();
-            expect(server.info.host).to.equal('no.such.domain.hapi');
-            expect(server.info.address).to.equal('127.0.0.1');
-            server.stop(done);
-        });
+        await server.start();
+        expect(server.info.host).to.equal('no.such.domain.hapi');
+        expect(server.info.address).to.equal('127.0.0.1');
+        await server.stop();
     });
 
-    it('uses uri when present instead of host and port', (done) => {
+    it('uses uri when present instead of host and port', async () => {
 
         const server = new Hapi.Server({ host: 'no.such.domain.hapi', address: 'localhost', uri: 'http://uri.example.com:8080' });
         expect(server.info.uri).to.equal('http://uri.example.com:8080');
-        server.start((err) => {
-
-            expect(err).to.not.exist();
-            expect(server.info.host).to.equal('no.such.domain.hapi');
-            expect(server.info.address).to.equal('127.0.0.1');
-            expect(server.info.uri).to.equal('http://uri.example.com:8080');
-            server.stop(done);
-        });
+        await server.start();
+        expect(server.info.host).to.equal('no.such.domain.hapi');
+        expect(server.info.address).to.equal('127.0.0.1');
+        expect(server.info.uri).to.equal('http://uri.example.com:8080');
+        await server.stop();
     });
 
-    it('throws on uri ending with /', (done) => {
+    it('throws on uri ending with /', async () => {
 
         expect(() => {
 
             new Hapi.Server({ uri: 'http://uri.example.com:8080/' });
         }).to.throw(/Invalid server options/);
-        done();
     });
 
-    it('creates a server listening on a unix domain socket', { skip: process.platform === 'win32' }, (done) => {
+    it('creates a server listening on a unix domain socket', { skip: process.platform === 'win32' }, async () => {
 
         const port = Path.join(__dirname, 'hapi-server.socket');
         const server = new Hapi.Server({ port });
 
         expect(server.type).to.equal('socket');
 
-        server.start((err) => {
+        await server.start();
+        const absSocketPath = Path.resolve(port);
+        expect(server.info.port).to.equal(absSocketPath);
+        await server.stop();
 
-            expect(err).to.not.exist();
-            const absSocketPath = Path.resolve(port);
-            expect(server.info.port).to.equal(absSocketPath);
-            server.stop((err) => {
-
-                expect(err).to.not.exist();
-
-                if (Fs.existsSync(port)) {
-                    Fs.unlinkSync(port);
-                }
-                done();
-            });
-        });
+        if (Fs.existsSync(port)) {
+            Fs.unlinkSync(port);
+        }
     });
 
-    it('creates a server listening on a windows named pipe', (done) => {
+    it('creates a server listening on a windows named pipe', async () => {
 
         const port = '\\\\.\\pipe\\6653e55f-26ec-4268-a4f2-882f4089315c';
         const server = new Hapi.Server({ port });
 
         expect(server.type).to.equal('socket');
 
-        server.start((err) => {
-
-            expect(err).to.not.exist();
-            expect(server.info.port).to.equal(port);
-            server.stop(done);
-        });
+        await server.start();
+        expect(server.info.port).to.equal(port);
+        await server.stop();
     });
 
-    it('creates an https server when passed tls options', (done) => {
+    it('creates an https server when passed tls options', async () => {
 
         const tlsOptions = {
             key: '-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA0UqyXDCqWDKpoNQQK/fdr0OkG4gW6DUafxdufH9GmkX/zoKz\ng/SFLrPipzSGINKWtyMvo7mPjXqqVgE10LDI3VFV8IR6fnART+AF8CW5HMBPGt/s\nfQW4W4puvBHkBxWSW1EvbecgNEIS9hTGvHXkFzm4xJ2e9DHp2xoVAjREC73B7JbF\nhc5ZGGchKw+CFmAiNysU0DmBgQcac0eg2pWoT+YGmTeQj6sRXO67n2xy/hA1DuN6\nA4WBK3wM3O4BnTG0dNbWUEbe7yAbV5gEyq57GhJIeYxRvveVDaX90LoAqM4cUH06\n6rciON0UbDHV2LP/JaH5jzBjUyCnKLLo5snlbwIDAQABAoIBAQDJm7YC3pJJUcxb\nc8x8PlHbUkJUjxzZ5MW4Zb71yLkfRYzsxrTcyQA+g+QzA4KtPY8XrZpnkgm51M8e\n+B16AcIMiBxMC6HgCF503i16LyyJiKrrDYfGy2rTK6AOJQHO3TXWJ3eT3BAGpxuS\n12K2Cq6EvQLCy79iJm7Ks+5G6EggMZPfCVdEhffRm2Epl4T7LpIAqWiUDcDfS05n\nNNfAGxxvALPn+D+kzcSF6hpmCVrFVTf9ouhvnr+0DpIIVPwSK/REAF3Ux5SQvFuL\njPmh3bGwfRtcC5d21QNrHdoBVSN2UBLmbHUpBUcOBI8FyivAWJhRfKnhTvXMFG8L\nwaXB51IZAoGBAP/E3uz6zCyN7l2j09wmbyNOi1AKvr1WSmuBJveITouwblnRSdvc\nsYm4YYE0Vb94AG4n7JIfZLKtTN0xvnCo8tYjrdwMJyGfEfMGCQQ9MpOBXAkVVZvP\ne2k4zHNNsfvSc38UNSt7K0HkVuH5BkRBQeskcsyMeu0qK4wQwdtiCoBDAoGBANF7\nFMppYxSW4ir7Jvkh0P8bP/Z7AtaSmkX7iMmUYT+gMFB5EKqFTQjNQgSJxS/uHVDE\nSC5co8WGHnRk7YH2Pp+Ty1fHfXNWyoOOzNEWvg6CFeMHW2o+/qZd4Z5Fep6qCLaa\nFvzWWC2S5YslEaaP8DQ74aAX4o+/TECrxi0z2lllAoGAdRB6qCSyRsI/k4Rkd6Lv\nw00z3lLMsoRIU6QtXaZ5rN335Awyrfr5F3vYxPZbOOOH7uM/GDJeOJmxUJxv+cia\nPQDflpPJZU4VPRJKFjKcb38JzO6C3Gm+po5kpXGuQQA19LgfDeO2DNaiHZOJFrx3\nm1R3Zr/1k491lwokcHETNVkCgYBPLjrZl6Q/8BhlLrG4kbOx+dbfj/euq5NsyHsX\n1uI7bo1Una5TBjfsD8nYdUr3pwWltcui2pl83Ak+7bdo3G8nWnIOJ/WfVzsNJzj7\n/6CvUzR6sBk5u739nJbfgFutBZBtlSkDQPHrqA7j3Ysibl3ZIJlULjMRKrnj6Ans\npCDwkQKBgQCM7gu3p7veYwCZaxqDMz5/GGFUB1My7sK0hcT7/oH61yw3O8pOekee\nuctI1R3NOudn1cs5TAy/aypgLDYTUGQTiBRILeMiZnOrvQQB9cEf7TFgDoRNCcDs\nV/ZWiegVB/WY7H0BkCekuq5bHwjgtJTpvHGqQ9YD7RhE8RSYOhdQ/Q==\n-----END RSA PRIVATE KEY-----\n',
@@ -174,10 +150,9 @@ describe('Connection', () => {
 
         const server = new Hapi.Server({ tls: tlsOptions });
         expect(server.listener instanceof Https.Server).to.equal(true);
-        done();
     });
 
-    it('uses a provided listener', (done) => {
+    it('uses a provided listener', async () => {
 
         const handler = function (request, reply) {
 
@@ -188,19 +163,13 @@ describe('Connection', () => {
         const server = new Hapi.Server({ listener });
         server.route({ method: 'GET', path: '/', handler });
 
-        server.start((err) => {
-
-            expect(err).to.not.exist();
-            Wreck.get('http://localhost:' + server.info.port + '/', {}, (err, res, body) => {
-
-                expect(err).to.not.exist();
-                expect(body.toString()).to.equal('ok');
-                server.stop(done);
-            });
-        });
+        await server.start();
+        const { payload } = await Wreck.get('http://localhost:' + server.info.port + '/');
+        expect(payload.toString()).to.equal('ok');
+        await server.stop();
     });
 
-    it('uses a provided listener (TLS)', (done) => {
+    it('uses a provided listener (TLS)', async () => {
 
         const handler = function (request, reply) {
 
@@ -211,15 +180,12 @@ describe('Connection', () => {
         const server = new Hapi.Server({ listener, tls: true });
         server.route({ method: 'GET', path: '/', handler });
 
-        server.start((err) => {
-
-            expect(err).to.not.exist();
-            expect(server.info.protocol).to.equal('https');
-            server.stop(done);
-        });
+        await server.start();
+        expect(server.info.protocol).to.equal('https');
+        await server.stop();
     });
 
-    it('uses a provided listener with manual listen', (done) => {
+    it('uses a provided listener with manual listen', async () => {
 
         const handler = function (request, reply) {
 
@@ -230,22 +196,19 @@ describe('Connection', () => {
         const server = new Hapi.Server({ listener, autoListen: false });
         server.route({ method: 'GET', path: '/', handler });
 
-        listener.listen(0, 'localhost', () => {
+        const listen = () => {
 
-            server.start((err) => {
+            return new Promise((resolve) => listener.listen(0, 'localhost', resolve));
+        };
 
-                expect(err).to.not.exist();
-                Wreck.get('http://localhost:' + server.info.port + '/', {}, (err, res, body) => {
-
-                    expect(err).to.not.exist();
-                    expect(body.toString()).to.equal('ok');
-                    server.stop(done);
-                });
-            });
-        });
+        await listen();
+        await server.start();
+        const { payload } = await Wreck.get('http://localhost:' + server.info.port + '/');
+        expect(payload.toString()).to.equal('ok');
+        await server.stop();
     });
 
-    it('sets info.uri with default localhost when no hostname', { parallel: false }, (done) => {
+    it('sets info.uri with default localhost when no hostname', async () => {
 
         const orig = Os.hostname;
         Os.hostname = function () {
@@ -256,17 +219,15 @@ describe('Connection', () => {
 
         const server = new Hapi.Server({ port: 80 });
         expect(server.info.uri).to.equal('http://localhost:80');
-        done();
     });
 
-    it('sets info.uri without port when 0', (done) => {
+    it('sets info.uri without port when 0', async () => {
 
         const server = new Hapi.Server({ host: 'example.com' });
         expect(server.info.uri).to.equal('http://example.com');
-        done();
     });
 
-    it('closes connection on socket timeout', { parallel: false }, (done) => {
+    it('closes connection on socket timeout', async () => {
 
         const server = new Hapi.Server({ routes: { timeout: { socket: 50 }, payload: { timeout: 45 } } });
         server.route({
@@ -281,19 +242,18 @@ describe('Connection', () => {
             }
         });
 
-        server.start((err) => {
+        await server.start();
+        try {
+            await Wreck.request('GET', 'http://localhost:' + server.info.port + '/');
+        }
+        catch (err) {
+            expect(err.message).to.equal('Client request error: socket hang up');
+        }
 
-            expect(err).to.not.exist();
-            Wreck.request('GET', 'http://localhost:' + server.info.port + '/', {}, (err, res) => {
-
-                expect(err).to.exist();
-                expect(err.message).to.equal('Client request error: socket hang up');
-                server.stop(done);
-            });
-        });
+        await server.stop();
     });
 
-    it('disables node socket timeout', { parallel: false }, (done) => {
+    it('disables node socket timeout', { parallel: false }, async () => {
 
         const handler = function (request, reply) {
 
@@ -303,35 +263,26 @@ describe('Connection', () => {
         const server = new Hapi.Server({ routes: { timeout: { socket: false } } });
         server.route({ method: 'GET', path: '/', config: { handler } });
 
-        server.start((err) => {
+        await server.start();
 
-            expect(err).to.not.exist();
+        let timeout;
+        const orig = Net.Socket.prototype.setTimeout;
+        Net.Socket.prototype.setTimeout = function () {
 
-            let timeout;
-            const orig = Net.Socket.prototype.setTimeout;
-            Net.Socket.prototype.setTimeout = function () {
+            timeout = 'gotcha';
+            Net.Socket.prototype.setTimeout = orig;
+            return orig.apply(this, arguments);
+        };
 
-                timeout = 'gotcha';
-                Net.Socket.prototype.setTimeout = orig;
-                return orig.apply(this, arguments);
-            };
-
-            Wreck.request('GET', 'http://localhost:' + server.info.port + '/', {}, (err, res) => {
-
-                expect(err).to.not.exist();
-                Wreck.read(res, {}, (err, payload) => {
-
-                    expect(err).to.not.exist();
-                    expect(timeout).to.equal('gotcha');
-                    server.stop(done);
-                });
-            });
-        });
+        const res = await Wreck.request('GET', 'http://localhost:' + server.info.port + '/');
+        await Wreck.read(res);
+        expect(timeout).to.equal('gotcha');
+        await server.stop();
     });
 
     describe('_init()', () => {
 
-        it('clears connections on close (HTTP)', (done) => {
+        it('clears connections on close (HTTP)', async () => {
 
             const server = new Hapi.Server();
 
@@ -345,39 +296,26 @@ describe('Connection', () => {
                 }
             });
 
-            server.start((err) => {
+            await server.start();
+            const promise = Wreck.request('GET', `http://localhost:${server.info.port}/`, { rejectUnauthorized: false });
 
-                expect(err).to.not.exist();
+            await internals.wait(50);
+            const count1 = await internals.countConnections(server);
+            expect(count1).to.equal(1);
+            expect(Object.keys(server._sockets).length).to.equal(1);
+            expect(count).to.equal(1);
 
-                const req = Wreck.request('GET', `http://localhost:${server.info.port}/`, { rejectUnauthorized: false }, (err, res) => {
+            promise.req.abort();
+            await expect(promise).to.reject();
 
-                    expect(err).to.exist();
-                    server.listener.getConnections((err, count2) => {
-
-                        expect(err).to.not.exist();
-                        expect(count2).to.equal(0);
-                        expect(Object.keys(server._sockets).length).to.equal(0);
-                        expect(count).to.equal(1);
-                        server.stop(done);
-                    });
-                });
-
-                setTimeout(() => {
-
-                    server.listener.getConnections((err, count1) => {
-
-                        expect(err).to.not.exist();
-                        expect(count1).to.equal(1);
-                        expect(Object.keys(server._sockets).length).to.equal(1);
-                        expect(count).to.equal(1);
-
-                        req.abort();
-                    });
-                }, 50);
-            });
+            const count2 = await internals.countConnections(server);
+            expect(count2).to.equal(0);
+            expect(Object.keys(server._sockets).length).to.equal(0);
+            expect(count).to.equal(1);
+            await server.stop();
         });
 
-        it('clears connections on close (HTTPS)', (done) => {
+        it('clears connections on close (HTTPS)', async () => {
 
             const tlsOptions = {
                 key: '-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA0UqyXDCqWDKpoNQQK/fdr0OkG4gW6DUafxdufH9GmkX/zoKz\ng/SFLrPipzSGINKWtyMvo7mPjXqqVgE10LDI3VFV8IR6fnART+AF8CW5HMBPGt/s\nfQW4W4puvBHkBxWSW1EvbecgNEIS9hTGvHXkFzm4xJ2e9DHp2xoVAjREC73B7JbF\nhc5ZGGchKw+CFmAiNysU0DmBgQcac0eg2pWoT+YGmTeQj6sRXO67n2xy/hA1DuN6\nA4WBK3wM3O4BnTG0dNbWUEbe7yAbV5gEyq57GhJIeYxRvveVDaX90LoAqM4cUH06\n6rciON0UbDHV2LP/JaH5jzBjUyCnKLLo5snlbwIDAQABAoIBAQDJm7YC3pJJUcxb\nc8x8PlHbUkJUjxzZ5MW4Zb71yLkfRYzsxrTcyQA+g+QzA4KtPY8XrZpnkgm51M8e\n+B16AcIMiBxMC6HgCF503i16LyyJiKrrDYfGy2rTK6AOJQHO3TXWJ3eT3BAGpxuS\n12K2Cq6EvQLCy79iJm7Ks+5G6EggMZPfCVdEhffRm2Epl4T7LpIAqWiUDcDfS05n\nNNfAGxxvALPn+D+kzcSF6hpmCVrFVTf9ouhvnr+0DpIIVPwSK/REAF3Ux5SQvFuL\njPmh3bGwfRtcC5d21QNrHdoBVSN2UBLmbHUpBUcOBI8FyivAWJhRfKnhTvXMFG8L\nwaXB51IZAoGBAP/E3uz6zCyN7l2j09wmbyNOi1AKvr1WSmuBJveITouwblnRSdvc\nsYm4YYE0Vb94AG4n7JIfZLKtTN0xvnCo8tYjrdwMJyGfEfMGCQQ9MpOBXAkVVZvP\ne2k4zHNNsfvSc38UNSt7K0HkVuH5BkRBQeskcsyMeu0qK4wQwdtiCoBDAoGBANF7\nFMppYxSW4ir7Jvkh0P8bP/Z7AtaSmkX7iMmUYT+gMFB5EKqFTQjNQgSJxS/uHVDE\nSC5co8WGHnRk7YH2Pp+Ty1fHfXNWyoOOzNEWvg6CFeMHW2o+/qZd4Z5Fep6qCLaa\nFvzWWC2S5YslEaaP8DQ74aAX4o+/TECrxi0z2lllAoGAdRB6qCSyRsI/k4Rkd6Lv\nw00z3lLMsoRIU6QtXaZ5rN335Awyrfr5F3vYxPZbOOOH7uM/GDJeOJmxUJxv+cia\nPQDflpPJZU4VPRJKFjKcb38JzO6C3Gm+po5kpXGuQQA19LgfDeO2DNaiHZOJFrx3\nm1R3Zr/1k491lwokcHETNVkCgYBPLjrZl6Q/8BhlLrG4kbOx+dbfj/euq5NsyHsX\n1uI7bo1Una5TBjfsD8nYdUr3pwWltcui2pl83Ak+7bdo3G8nWnIOJ/WfVzsNJzj7\n/6CvUzR6sBk5u739nJbfgFutBZBtlSkDQPHrqA7j3Ysibl3ZIJlULjMRKrnj6Ans\npCDwkQKBgQCM7gu3p7veYwCZaxqDMz5/GGFUB1My7sK0hcT7/oH61yw3O8pOekee\nuctI1R3NOudn1cs5TAy/aypgLDYTUGQTiBRILeMiZnOrvQQB9cEf7TFgDoRNCcDs\nV/ZWiegVB/WY7H0BkCekuq5bHwjgtJTpvHGqQ9YD7RhE8RSYOhdQ/Q==\n-----END RSA PRIVATE KEY-----\n',
@@ -396,60 +334,44 @@ describe('Connection', () => {
                 }
             });
 
-            server.start((err) => {
+            await server.start();
+            const promise = Wreck.request('GET', `https://localhost:${server.info.port}/`, { rejectUnauthorized: false });
 
-                expect(err).to.not.exist();
+            await internals.wait(50);
+            const count1 = await internals.countConnections(server);
+            expect(count1).to.equal(1);
+            expect(Object.keys(server._sockets).length).to.equal(1);
+            expect(count).to.equal(1);
 
-                const req = Wreck.request('GET', `https://localhost:${server.info.port}/`, { rejectUnauthorized: false }, (err, res) => {
+            promise.req.abort();
+            await expect(promise).to.reject();
 
-                    expect(err).to.exist();
-                    server.listener.getConnections((err, count2) => {
-
-                        expect(err).to.not.exist();
-                        expect(count2).to.equal(0);
-                        expect(Object.keys(server._sockets).length).to.equal(0);
-                        expect(count).to.equal(1);
-                        server.stop(done);
-                    });
-                });
-
-                setTimeout(() => {
-
-                    server.listener.getConnections((err, count1) => {
-
-                        expect(err).to.not.exist();
-                        expect(count1).to.equal(1);
-                        expect(Object.keys(server._sockets).length).to.equal(1);
-                        expect(count).to.equal(1);
-
-                        req.abort();
-                    });
-                }, 100);
-            });
+            const count2 = await internals.countConnections(server);
+            expect(count2).to.equal(0);
+            expect(Object.keys(server._sockets).length).to.equal(0);
+            expect(count).to.equal(1);
+            await server.stop();
         });
     });
 
     describe('_start()', () => {
 
-        it('starts connection', (done) => {
+        it('starts connection', async () => {
 
             const server = new Hapi.Server();
-            server.start((err) => {
+            await server.start();
+            let expectedBoundAddress = '0.0.0.0';
+            if (Net.isIPv6(server.listener.address().address)) {
+                expectedBoundAddress = '::';
+            }
 
-                expect(err).to.not.exist();
-                let expectedBoundAddress = '0.0.0.0';
-                if (Net.isIPv6(server.listener.address().address)) {
-                    expectedBoundAddress = '::';
-                }
-
-                expect(server.info.host).to.equal(Os.hostname());
-                expect(server.info.address).to.equal(expectedBoundAddress);
-                expect(server.info.port).to.be.a.number().and.above(1);
-                server.stop(done);
-            });
+            expect(server.info.host).to.equal(Os.hostname());
+            expect(server.info.address).to.equal(expectedBoundAddress);
+            expect(server.info.port).to.be.a.number().and.above(1);
+            await server.stop();
         });
 
-        it('starts connection (tls)', (done) => {
+        it('starts connection (tls)', async () => {
 
             const tlsOptions = {
                 key: '-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA0UqyXDCqWDKpoNQQK/fdr0OkG4gW6DUafxdufH9GmkX/zoKz\ng/SFLrPipzSGINKWtyMvo7mPjXqqVgE10LDI3VFV8IR6fnART+AF8CW5HMBPGt/s\nfQW4W4puvBHkBxWSW1EvbecgNEIS9hTGvHXkFzm4xJ2e9DHp2xoVAjREC73B7JbF\nhc5ZGGchKw+CFmAiNysU0DmBgQcac0eg2pWoT+YGmTeQj6sRXO67n2xy/hA1DuN6\nA4WBK3wM3O4BnTG0dNbWUEbe7yAbV5gEyq57GhJIeYxRvveVDaX90LoAqM4cUH06\n6rciON0UbDHV2LP/JaH5jzBjUyCnKLLo5snlbwIDAQABAoIBAQDJm7YC3pJJUcxb\nc8x8PlHbUkJUjxzZ5MW4Zb71yLkfRYzsxrTcyQA+g+QzA4KtPY8XrZpnkgm51M8e\n+B16AcIMiBxMC6HgCF503i16LyyJiKrrDYfGy2rTK6AOJQHO3TXWJ3eT3BAGpxuS\n12K2Cq6EvQLCy79iJm7Ks+5G6EggMZPfCVdEhffRm2Epl4T7LpIAqWiUDcDfS05n\nNNfAGxxvALPn+D+kzcSF6hpmCVrFVTf9ouhvnr+0DpIIVPwSK/REAF3Ux5SQvFuL\njPmh3bGwfRtcC5d21QNrHdoBVSN2UBLmbHUpBUcOBI8FyivAWJhRfKnhTvXMFG8L\nwaXB51IZAoGBAP/E3uz6zCyN7l2j09wmbyNOi1AKvr1WSmuBJveITouwblnRSdvc\nsYm4YYE0Vb94AG4n7JIfZLKtTN0xvnCo8tYjrdwMJyGfEfMGCQQ9MpOBXAkVVZvP\ne2k4zHNNsfvSc38UNSt7K0HkVuH5BkRBQeskcsyMeu0qK4wQwdtiCoBDAoGBANF7\nFMppYxSW4ir7Jvkh0P8bP/Z7AtaSmkX7iMmUYT+gMFB5EKqFTQjNQgSJxS/uHVDE\nSC5co8WGHnRk7YH2Pp+Ty1fHfXNWyoOOzNEWvg6CFeMHW2o+/qZd4Z5Fep6qCLaa\nFvzWWC2S5YslEaaP8DQ74aAX4o+/TECrxi0z2lllAoGAdRB6qCSyRsI/k4Rkd6Lv\nw00z3lLMsoRIU6QtXaZ5rN335Awyrfr5F3vYxPZbOOOH7uM/GDJeOJmxUJxv+cia\nPQDflpPJZU4VPRJKFjKcb38JzO6C3Gm+po5kpXGuQQA19LgfDeO2DNaiHZOJFrx3\nm1R3Zr/1k491lwokcHETNVkCgYBPLjrZl6Q/8BhlLrG4kbOx+dbfj/euq5NsyHsX\n1uI7bo1Una5TBjfsD8nYdUr3pwWltcui2pl83Ak+7bdo3G8nWnIOJ/WfVzsNJzj7\n/6CvUzR6sBk5u739nJbfgFutBZBtlSkDQPHrqA7j3Ysibl3ZIJlULjMRKrnj6Ans\npCDwkQKBgQCM7gu3p7veYwCZaxqDMz5/GGFUB1My7sK0hcT7/oH61yw3O8pOekee\nuctI1R3NOudn1cs5TAy/aypgLDYTUGQTiBRILeMiZnOrvQQB9cEf7TFgDoRNCcDs\nV/ZWiegVB/WY7H0BkCekuq5bHwjgtJTpvHGqQ9YD7RhE8RSYOhdQ/Q==\n-----END RSA PRIVATE KEY-----\n',
@@ -457,16 +379,13 @@ describe('Connection', () => {
             };
 
             const server = new Hapi.Server({ host: '0.0.0.0', port: 0, tls: tlsOptions });
-            server.start((err) => {
-
-                expect(err).to.not.exist();
-                expect(server.info.host).to.equal('0.0.0.0');
-                expect(server.info.port).to.not.equal(0);
-                server.stop(done);
-            });
+            await server.start();
+            expect(server.info.host).to.equal('0.0.0.0');
+            expect(server.info.port).to.not.equal(0);
+            await server.stop();
         });
 
-        it('sets info with defaults when missing hostname and address', { parallel: false }, (done) => {
+        it('sets info with defaults when missing hostname and address', { parallel: false }, async () => {
 
             const hostname = Os.hostname;
             Os.hostname = function () {
@@ -478,76 +397,44 @@ describe('Connection', () => {
             const server = new Hapi.Server({ port: '8000' });
             expect(server.info.host).to.equal('localhost');
             expect(server.info.uri).to.equal('http://localhost:8000');
-            done();
         });
 
-        it('ignored repeated calls', (done) => {
+        it('ignored repeated calls', async () => {
 
             const server = new Hapi.Server();
-            server.start((err) => {
-
-                expect(err).to.not.exist();
-                server.start((err) => {
-
-                    expect(err).to.not.exist();
-                    server.stop((err) => {
-
-                        expect(err).to.not.exist();
-                        done();
-                    });
-                });
-            });
+            await server.start();
+            await server.start();
+            await server.stop();
         });
     });
 
     describe('_stop()', () => {
 
-        it('waits to stop until all connections are closed (HTTP)', (done) => {
+        it('waits to stop until all connections are closed (HTTP)', async () => {
 
             const server = new Hapi.Server();
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
-                const socket1 = new Net.Socket();
-                const socket2 = new Net.Socket();
-                socket1.on('error', () => { });
-                socket2.on('error', () => { });
+            const socket1 = await internals.socket(server);
+            const socket2 = await internals.socket(server);
 
-                socket1.connect(server.info.port, '127.0.0.1', () => {
+            const count1 = await internals.countConnections(server);
+            expect(count1).to.equal(2);
+            expect(Object.keys(server._sockets).length).to.equal(2);
 
-                    socket2.connect(server.info.port, '127.0.0.1', () => {
+            const stop = server.stop();
+            socket1.end();
+            socket2.end();
 
-                        server.listener.getConnections((err, count1) => {
+            await stop;
+            await internals.wait(10);
 
-                            expect(err).to.not.exist();
-                            expect(count1).to.equal(2);
-                            expect(Object.keys(server._sockets).length).to.equal(2);
-
-                            server.stop((err) => {
-
-                                expect(err).to.not.exist();
-
-                                setTimeout(() => {
-
-                                    server.listener.getConnections((err, count2) => {
-
-                                        expect(err).to.not.exist();
-                                        expect(count2).to.equal(0);
-                                        expect(Object.keys(server._sockets).length).to.equal(0);
-                                        done();
-                                    });
-                                }, 10);
-                            });
-
-                            socket1.end();
-                            socket2.end();
-                        });
-                    });
-                });
-            });
+            const count2 = await internals.countConnections(server);
+            expect(count2).to.equal(0);
+            expect(Object.keys(server._sockets).length).to.equal(0);
         });
 
-        it('waits to stop until all connections are closed (HTTPS)', (done) => {
+        it('waits to stop until all connections are closed (HTTPS)', async () => {
 
             const tlsOptions = {
                 key: '-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA0UqyXDCqWDKpoNQQK/fdr0OkG4gW6DUafxdufH9GmkX/zoKz\ng/SFLrPipzSGINKWtyMvo7mPjXqqVgE10LDI3VFV8IR6fnART+AF8CW5HMBPGt/s\nfQW4W4puvBHkBxWSW1EvbecgNEIS9hTGvHXkFzm4xJ2e9DHp2xoVAjREC73B7JbF\nhc5ZGGchKw+CFmAiNysU0DmBgQcac0eg2pWoT+YGmTeQj6sRXO67n2xy/hA1DuN6\nA4WBK3wM3O4BnTG0dNbWUEbe7yAbV5gEyq57GhJIeYxRvveVDaX90LoAqM4cUH06\n6rciON0UbDHV2LP/JaH5jzBjUyCnKLLo5snlbwIDAQABAoIBAQDJm7YC3pJJUcxb\nc8x8PlHbUkJUjxzZ5MW4Zb71yLkfRYzsxrTcyQA+g+QzA4KtPY8XrZpnkgm51M8e\n+B16AcIMiBxMC6HgCF503i16LyyJiKrrDYfGy2rTK6AOJQHO3TXWJ3eT3BAGpxuS\n12K2Cq6EvQLCy79iJm7Ks+5G6EggMZPfCVdEhffRm2Epl4T7LpIAqWiUDcDfS05n\nNNfAGxxvALPn+D+kzcSF6hpmCVrFVTf9ouhvnr+0DpIIVPwSK/REAF3Ux5SQvFuL\njPmh3bGwfRtcC5d21QNrHdoBVSN2UBLmbHUpBUcOBI8FyivAWJhRfKnhTvXMFG8L\nwaXB51IZAoGBAP/E3uz6zCyN7l2j09wmbyNOi1AKvr1WSmuBJveITouwblnRSdvc\nsYm4YYE0Vb94AG4n7JIfZLKtTN0xvnCo8tYjrdwMJyGfEfMGCQQ9MpOBXAkVVZvP\ne2k4zHNNsfvSc38UNSt7K0HkVuH5BkRBQeskcsyMeu0qK4wQwdtiCoBDAoGBANF7\nFMppYxSW4ir7Jvkh0P8bP/Z7AtaSmkX7iMmUYT+gMFB5EKqFTQjNQgSJxS/uHVDE\nSC5co8WGHnRk7YH2Pp+Ty1fHfXNWyoOOzNEWvg6CFeMHW2o+/qZd4Z5Fep6qCLaa\nFvzWWC2S5YslEaaP8DQ74aAX4o+/TECrxi0z2lllAoGAdRB6qCSyRsI/k4Rkd6Lv\nw00z3lLMsoRIU6QtXaZ5rN335Awyrfr5F3vYxPZbOOOH7uM/GDJeOJmxUJxv+cia\nPQDflpPJZU4VPRJKFjKcb38JzO6C3Gm+po5kpXGuQQA19LgfDeO2DNaiHZOJFrx3\nm1R3Zr/1k491lwokcHETNVkCgYBPLjrZl6Q/8BhlLrG4kbOx+dbfj/euq5NsyHsX\n1uI7bo1Una5TBjfsD8nYdUr3pwWltcui2pl83Ak+7bdo3G8nWnIOJ/WfVzsNJzj7\n/6CvUzR6sBk5u739nJbfgFutBZBtlSkDQPHrqA7j3Ysibl3ZIJlULjMRKrnj6Ans\npCDwkQKBgQCM7gu3p7veYwCZaxqDMz5/GGFUB1My7sK0hcT7/oH61yw3O8pOekee\nuctI1R3NOudn1cs5TAy/aypgLDYTUGQTiBRILeMiZnOrvQQB9cEf7TFgDoRNCcDs\nV/ZWiegVB/WY7H0BkCekuq5bHwjgtJTpvHGqQ9YD7RhE8RSYOhdQ/Q==\n-----END RSA PRIVATE KEY-----\n',
@@ -555,169 +442,82 @@ describe('Connection', () => {
             };
 
             const server = new Hapi.Server({ tls: tlsOptions });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
-                const socket1 = new Net.Socket();
-                const socket2 = new Net.Socket();
-                socket1.on('error', () => { });
-                socket2.on('error', () => { });
+            const socket1 = await internals.socket(server, 'tls');
+            const socket2 = await internals.socket(server, 'tls');
 
-                socket1.connect(server.info.port, '127.0.0.1');
-                TLS.connect({ socket: socket1, rejectUnauthorized: false }, () => {
+            const count1 = await internals.countConnections(server);
+            expect(count1).to.equal(2);
+            expect(Object.keys(server._sockets).length).to.equal(2);
 
-                    socket2.connect(server.info.port, '127.0.0.1');
-                    TLS.connect({ socket: socket2, rejectUnauthorized: false }, () => {
+            const stop = server.stop();
+            socket1.end();
+            socket2.end();
 
-                        server.listener.getConnections((err, count1) => {
+            await stop;
+            await internals.wait(10);
 
-                            expect(err).to.not.exist();
-                            expect(count1).to.equal(2);
-                            expect(Object.keys(server._sockets).length).to.equal(2);
-
-                            server.stop((err) => {
-
-                                expect(err).to.not.exist();
-
-                                setTimeout(() => {
-
-                                    server.listener.getConnections((err, count2) => {
-
-                                        expect(err).to.not.exist();
-                                        expect(count2).to.equal(0);
-                                        expect(Object.keys(server._sockets).length).to.equal(0);
-                                        done();
-                                    });
-                                }, 10);
-                            });
-
-                            socket1.end();
-                            socket2.end();
-                        });
-                    });
-                });
-            });
+            const count2 = await internals.countConnections(server);
+            expect(count2).to.equal(0);
+            expect(Object.keys(server._sockets).length).to.equal(0);
         });
 
-        it('immediately destroys unhandled connections', (done) => {
+        it('immediately destroys unhandled connections', async () => {
 
             const server = new Hapi.Server();
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
+            await internals.socket(server);
+            await internals.socket(server);
 
-                const socket1 = new Net.Socket();
-                const socket2 = new Net.Socket();
+            const count1 = await internals.countConnections(server);
+            expect(count1).to.equal(2);
 
-                socket1.once('error', (err) => {
-
-                    expect(err.errno).to.equal('ECONNRESET');
-                });
-
-                socket2.once('error', (err) => {
-
-                    expect(err.errno).to.equal('ECONNRESET');
-                });
-
-                socket1.connect(server.info.port, server.settings.host, () => {
-
-                    socket2.connect(server.info.port, server.settings.host, () => {
-
-                        server.listener.getConnections((err, count) => {
-
-                            expect(err).to.not.exist();
-                            expect(count).to.be.greaterThan(0);
-                            const timer = new Hoek.Bench();
-
-                            server.stop({ timeout: 20 }, (err) => {
-
-                                expect(err).to.not.exist();
-                                expect(timer.elapsed()).to.be.at.most(19);
-                                done();
-                            });
-                        });
-                    });
-                });
-            });
+            const timer = new Hoek.Bench();
+            await server.stop({ timeout: 20 });
+            expect(timer.elapsed()).to.be.at.most(20);
         });
 
-        it('waits to destroy handled connections until after the timeout', (done) => {
+        it('waits to destroy handled connections until after the timeout', async () => {
 
             const server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: (request, reply) => { } });
+            await server.start();
 
-            const handler = (request, reply) => {
+            const socket = await internals.socket(server);
+            socket.write('GET / HTTP/1.0\nHost: test\n\n');
+            await internals.wait(10);
 
-                server.listener.getConnections((err, count) => {
+            const count1 = await internals.countConnections(server);
+            expect(count1).to.equal(1);
 
-                    expect(err).to.not.exist();
-                    expect(count).to.be.greaterThan(0);
-                    const timer = new Hoek.Bench();
-
-                    server.stop({ timeout: 20 }, (err) => {
-
-                        expect(err).to.not.exist();
-                        expect(timer.elapsed()).to.be.at.least(19);
-                        reply();
-                        done();
-                    });
-                });
-            };
-
-            server.route({ method: 'GET', path: '/', handler });
-
-            server.start((err) => {
-
-                expect(err).to.not.exist();
-
-                const socket = new Net.Socket();
-                socket.connect(server.info.port, server.settings.host, () => {
-
-                    socket.write('GET / HTTP/1.0\nHost: test\n\n');
-                });
-            });
+            const timer = new Hoek.Bench();
+            await server.stop({ timeout: 20 });
+            expect(timer.elapsed()).to.be.at.least(20);
         });
 
-        it('waits to destroy connections if they close by themselves', (done) => {
+        it('waits to destroy connections if they close by themselves', async () => {
 
             const server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: (request, reply) => { } });
+            await server.start();
 
-            const socket = new Net.Socket();
+            const socket = await internals.socket(server);
+            socket.write('GET / HTTP/1.0\nHost: test\n\n');
+            await internals.wait(10);
 
-            const handler = (request, reply) => {
+            const count1 = await internals.countConnections(server);
+            expect(count1).to.equal(1);
 
-                const stream = new Stream.Readable();
-                stream._read = (size) => {
+            setTimeout(() => socket.end(), 10);
 
-                    const timer = new Hoek.Bench();
-                    server.stop({ timeout: 20 }, (err) => {
-
-                        expect(err).to.not.exist();
-                        expect(timer.elapsed()).to.be.between(9, 21);
-                        done();
-                    });
-
-                    setTimeout(() => {
-
-                        socket.end();
-                    }, 10);
-                };
-
-                reply(stream);
-            };
-
-            server.route({ method: 'GET', path: '/', handler });
-
-            server.start((err) => {
-
-                expect(err).to.not.exist();
-                socket.connect(server.info.port, server.settings.host, () => {
-
-                    socket.write('GET / HTTP/1.1\nHost: test\n\n');
-                });
-            });
+            const timer = new Hoek.Bench();
+            await server.stop({ timeout: 200 });
+            expect(timer.elapsed()).to.be.below(20);
         });
 
-        it('immediately destroys idle keep-alive connections', (done) => {
+        it('immediately destroys idle keep-alive connections', async () => {
 
             const server = new Hapi.Server();
 
@@ -728,199 +528,126 @@ describe('Connection', () => {
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
+            const socket = await internals.socket(server);
+            socket.write('GET / HTTP/1.1\nHost: test\nConnection: Keep-Alive\n\n\n');
+            await new Promise((resolve) => socket.on('data', resolve));
 
-                const socket = new Net.Socket();
+            const count = await internals.countConnections(server);
+            expect(count).to.equal(1);
 
-                socket.once('error', (err) => {
-
-                    expect(err.errno).to.equal('ECONNRESET');
-                });
-
-                socket.connect(server.info.port, server.settings.host, () => {
-
-                    socket.write('GET / HTTP/1.1\nHost: test\nConnection: Keep-Alive\n\n\n');
-                    socket.on('data', (data) => {
-
-                        server.listener.getConnections((err, count) => {
-
-                            expect(err).to.not.exist();
-                            expect(count).to.be.greaterThan(0);
-                            const timer = new Hoek.Bench();
-
-                            server.stop({ timeout: 20 }, (err) => {
-
-                                expect(err).to.not.exist();
-                                expect(timer.elapsed()).to.be.at.most(20);
-                                done();
-                            });
-                        });
-                    });
-                });
-            });
+            const timer = new Hoek.Bench();
+            await server.stop({ timeout: 20 });
+            expect(timer.elapsed()).to.be.at.most(20);
         });
 
-        it('refuses to handle new incoming requests on persistent connections', (done) => {
+        it('refuses to handle new incoming requests on persistent connections', async () => {
+
+            const server = new Hapi.Server();
 
             const handler = (request, reply) => {
 
                 return reply('ok');
             };
 
-            const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
+            const agent = new Http.Agent({ keepAlive: true, maxSockets: 1 });
+            const first = Wreck.get('http://localhost:' + server.info.port + '/', { agent });
+            const second = Wreck.get('http://localhost:' + server.info.port + '/', { agent });
 
-                const agent = new Http.Agent({ keepAlive: true, maxSockets: 1 });
-                let err2;
+            const { res, payload } = await first;
+            const stop = server.stop();
 
-                Wreck.get('http://localhost:' + server.info.port + '/', { agent }, (err1, res, body) => {
+            await expect(second).to.reject();
+            await stop;
 
-                    server.stop((err3) => {
-
-                        expect(err3).to.not.exist();
-                        expect(err1).to.not.exist();
-                        expect(res.headers.connection).to.equal('keep-alive');
-                        expect(body.toString()).to.equal('ok');
-                        expect(server._started).to.equal(false);
-                        expect(err2).to.exist();
-                        done();
-                    });
-                });
-
-                Wreck.get('http://localhost:' + server.info.port + '/', { agent }, (err, res, body) => {
-
-                    err2 = err;
-                });
-            });
+            expect(res.headers.connection).to.equal('keep-alive');
+            expect(payload.toString()).to.equal('ok');
+            expect(server._started).to.equal(false);
         });
 
-        it('finishes in-progress requests and ends connection', (done) => {
+        it('finishes in-progress requests and ends connection', async () => {
 
-            let err1 = true;
-
+            let stop;
             const handler = (request, reply) => {
 
-                server.stop({ timeout: 200 }, (err) => {
-
-                    err1 = err;
-                });
-
-                setImmediate(() => {
-
-                    return reply('ok');
-                });
+                stop = server.stop({ timeout: 200 });
+                setImmediate(() => reply('ok'));
             };
 
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
+            const agent = new Http.Agent({ keepAlive: true, maxSockets: 1 });
 
-                const agent = new Http.Agent({ keepAlive: true, maxSockets: 1 });
+            const first = Wreck.get('http://localhost:' + server.info.port + '/', { agent });
+            const second = Wreck.get('http://localhost:' + server.info.port + '/404', { agent });
 
-                Wreck.get('http://localhost:' + server.info.port + '/', { agent }, (err, res, body) => {
+            const { res, payload } = await first;
+            expect(res.headers.connection).to.equal('close');
+            expect(payload.toString()).to.equal('ok');
 
-                    expect(err).to.not.exist();
-                    expect(res.headers.connection).to.equal('close');
-                    expect(body.toString()).to.equal('ok');
-                });
-
-                Wreck.get('http://localhost:' + server.info.port + '/404', { agent }, (err, res, body) => {
-
-                    expect(err).to.exist();
-                    expect(err1).to.not.exist();
-                    done();
-                });
-            });
+            await expect(second).to.reject();
+            await expect(stop).to.not.reject();
         });
 
-        it('does not close longpoll HTTPS requests before response (if within timeout)', (done) => {
+        it('does not close longpoll HTTPS requests before response (if within timeout)', async () => {
 
             const tlsOptions = {
                 key: '-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA0UqyXDCqWDKpoNQQK/fdr0OkG4gW6DUafxdufH9GmkX/zoKz\ng/SFLrPipzSGINKWtyMvo7mPjXqqVgE10LDI3VFV8IR6fnART+AF8CW5HMBPGt/s\nfQW4W4puvBHkBxWSW1EvbecgNEIS9hTGvHXkFzm4xJ2e9DHp2xoVAjREC73B7JbF\nhc5ZGGchKw+CFmAiNysU0DmBgQcac0eg2pWoT+YGmTeQj6sRXO67n2xy/hA1DuN6\nA4WBK3wM3O4BnTG0dNbWUEbe7yAbV5gEyq57GhJIeYxRvveVDaX90LoAqM4cUH06\n6rciON0UbDHV2LP/JaH5jzBjUyCnKLLo5snlbwIDAQABAoIBAQDJm7YC3pJJUcxb\nc8x8PlHbUkJUjxzZ5MW4Zb71yLkfRYzsxrTcyQA+g+QzA4KtPY8XrZpnkgm51M8e\n+B16AcIMiBxMC6HgCF503i16LyyJiKrrDYfGy2rTK6AOJQHO3TXWJ3eT3BAGpxuS\n12K2Cq6EvQLCy79iJm7Ks+5G6EggMZPfCVdEhffRm2Epl4T7LpIAqWiUDcDfS05n\nNNfAGxxvALPn+D+kzcSF6hpmCVrFVTf9ouhvnr+0DpIIVPwSK/REAF3Ux5SQvFuL\njPmh3bGwfRtcC5d21QNrHdoBVSN2UBLmbHUpBUcOBI8FyivAWJhRfKnhTvXMFG8L\nwaXB51IZAoGBAP/E3uz6zCyN7l2j09wmbyNOi1AKvr1WSmuBJveITouwblnRSdvc\nsYm4YYE0Vb94AG4n7JIfZLKtTN0xvnCo8tYjrdwMJyGfEfMGCQQ9MpOBXAkVVZvP\ne2k4zHNNsfvSc38UNSt7K0HkVuH5BkRBQeskcsyMeu0qK4wQwdtiCoBDAoGBANF7\nFMppYxSW4ir7Jvkh0P8bP/Z7AtaSmkX7iMmUYT+gMFB5EKqFTQjNQgSJxS/uHVDE\nSC5co8WGHnRk7YH2Pp+Ty1fHfXNWyoOOzNEWvg6CFeMHW2o+/qZd4Z5Fep6qCLaa\nFvzWWC2S5YslEaaP8DQ74aAX4o+/TECrxi0z2lllAoGAdRB6qCSyRsI/k4Rkd6Lv\nw00z3lLMsoRIU6QtXaZ5rN335Awyrfr5F3vYxPZbOOOH7uM/GDJeOJmxUJxv+cia\nPQDflpPJZU4VPRJKFjKcb38JzO6C3Gm+po5kpXGuQQA19LgfDeO2DNaiHZOJFrx3\nm1R3Zr/1k491lwokcHETNVkCgYBPLjrZl6Q/8BhlLrG4kbOx+dbfj/euq5NsyHsX\n1uI7bo1Una5TBjfsD8nYdUr3pwWltcui2pl83Ak+7bdo3G8nWnIOJ/WfVzsNJzj7\n/6CvUzR6sBk5u739nJbfgFutBZBtlSkDQPHrqA7j3Ysibl3ZIJlULjMRKrnj6Ans\npCDwkQKBgQCM7gu3p7veYwCZaxqDMz5/GGFUB1My7sK0hcT7/oH61yw3O8pOekee\nuctI1R3NOudn1cs5TAy/aypgLDYTUGQTiBRILeMiZnOrvQQB9cEf7TFgDoRNCcDs\nV/ZWiegVB/WY7H0BkCekuq5bHwjgtJTpvHGqQ9YD7RhE8RSYOhdQ/Q==\n-----END RSA PRIVATE KEY-----\n',
                 cert: '-----BEGIN CERTIFICATE-----\nMIIDBjCCAe4CCQDvLNml6smHlTANBgkqhkiG9w0BAQUFADBFMQswCQYDVQQGEwJV\nUzETMBEGA1UECAwKU29tZS1TdGF0ZTEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0\ncyBQdHkgTHRkMB4XDTE0MDEyNTIxMjIxOFoXDTE1MDEyNTIxMjIxOFowRTELMAkG\nA1UEBhMCVVMxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoMGEludGVybmV0\nIFdpZGdpdHMgUHR5IEx0ZDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB\nANFKslwwqlgyqaDUECv33a9DpBuIFug1Gn8Xbnx/RppF/86Cs4P0hS6z4qc0hiDS\nlrcjL6O5j416qlYBNdCwyN1RVfCEen5wEU/gBfAluRzATxrf7H0FuFuKbrwR5AcV\nkltRL23nIDRCEvYUxrx15Bc5uMSdnvQx6dsaFQI0RAu9weyWxYXOWRhnISsPghZg\nIjcrFNA5gYEHGnNHoNqVqE/mBpk3kI+rEVzuu59scv4QNQ7jegOFgSt8DNzuAZ0x\ntHTW1lBG3u8gG1eYBMquexoSSHmMUb73lQ2l/dC6AKjOHFB9Ouq3IjjdFGwx1diz\n/yWh+Y8wY1Mgpyiy6ObJ5W8CAwEAATANBgkqhkiG9w0BAQUFAAOCAQEAoSc6Skb4\ng1e0ZqPKXBV2qbx7hlqIyYpubCl1rDiEdVzqYYZEwmst36fJRRrVaFuAM/1DYAmT\nWMhU+yTfA+vCS4tql9b9zUhPw/IDHpBDWyR01spoZFBF/hE1MGNpCSXXsAbmCiVf\naxrIgR2DNketbDxkQx671KwF1+1JOMo9ffXp+OhuRo5NaGIxhTsZ+f/MA4y084Aj\nDI39av50sTRTWWShlN+J7PtdQVA5SZD97oYbeUeL7gI18kAJww9eUdmT0nEjcwKs\nxsQT1fyKbo7AlZBY4KSlUMuGnn0VnAsB9b+LxtXlDfnjyM8bVQx1uAfRo0DO8p/5\n3J5DTjAU55deBQ==\n-----END CERTIFICATE-----\n'
             };
 
+            const server = new Hapi.Server({ tls: tlsOptions });
+
+            let stop;
             const handler = (request, reply) => {
 
-                server.stop({ timeout: 200 }, (err) => {
-
-                    expect(err).to.not.exist();
-                    done();
-                });
-
-                setTimeout(() => {
-
-                    return reply('ok');
-                }, 150);
+                stop = server.stop({ timeout: 200 });
+                setTimeout(() => reply('ok'), 150);
             };
 
-            const server = new Hapi.Server({ tls: tlsOptions });
             server.route({ method: 'GET', path: '/', handler });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
+            const agent = new Https.Agent({ keepAlive: true, maxSockets: 1, rejectUnauthorized: false });
+            const { res, payload } = await Wreck.get('https://localhost:' + server.info.port + '/', { agent });
+            expect(res.headers.connection).to.equal('close');
+            expect(payload.toString()).to.equal('ok');
 
-                const agent = new Https.Agent({ keepAlive: true, maxSockets: 1, rejectUnauthorized: false });
-
-                Wreck.get('https://localhost:' + server.info.port + '/', { agent }, (err, res, body) => {
-
-                    expect(err).to.not.exist();
-                    expect(res.headers.connection).to.equal('close');
-                    expect(body.toString()).to.equal('ok');
-                });
-            });
+            await stop;
         });
 
-        it('removes connection event listeners after it stops', (done) => {
+        it('removes connection event listeners after it stops', async () => {
 
             const server = new Hapi.Server();
             const initial = server.listener.listeners('connection').length;
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
+            expect(server.listener.listeners('connection').length).to.be.greaterThan(initial);
 
-                expect(server.listener.listeners('connection').length).to.be.greaterThan(initial);
+            await server.stop();
+            await server.start();
+            await server.stop();
 
-                server.stop((err) => {
-
-                    expect(err).to.not.exist();
-
-                    server.start((err) => {
-
-                        expect(err).to.not.exist();
-
-                        server.stop((err) => {
-
-                            expect(err).to.not.exist();
-                            expect(server.listener.listeners('connection').length).to.equal(initial);
-                            done();
-                        });
-                    });
-                });
-            });
+            expect(server.listener.listeners('connection').length).to.equal(initial);
         });
 
-        it('ignores repeated calls', (done) => {
+        it('ignores repeated calls', async () => {
 
             const server = new Hapi.Server();
-            server.stop((err) => {
-
-                expect(err).to.not.exist();
-                server.stop(done);
-            });
+            await server.stop();
+            await server.stop();
         });
     });
 
     describe('_dispatch()', () => {
 
-        it('rejects request due to high rss load', { parallel: false }, (done) => {
+        it('rejects request due to high rss load', { parallel: false }, async () => {
 
             const server = new Hapi.Server({ load: { sampleInterval: 5, maxRssBytes: 1 } });
 
@@ -931,48 +658,30 @@ describe('Connection', () => {
                 return reply('ok');
             };
 
-            server.events.once('log', (event, tags) => {
-
-                expect(event.internal).to.be.true();
-                expect(tags.load).to.be.true();
-                expect(event.data.rss > 10000).to.equal(true);
-                server.stop(done);
-            });
+            const log = server.events.once('log');
 
             server.route({ method: 'GET', path: '/', handler });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
+            const res1 = await server.inject('/');
+            expect(res1.statusCode).to.equal(200);
 
-                server.inject('/', (res1) => {
+            await internals.wait(0);
+            const res2 = await server.inject('/');
+            expect(res2.statusCode).to.equal(503);
 
-                    expect(res1.statusCode).to.equal(200);
+            const [event, tags] = await log;
+            expect(event.internal).to.be.true();
+            expect(event.data.rss > 10000).to.equal(true);
+            expect(tags.load).to.be.true();
 
-                    setImmediate(() => {
-
-                        server.inject('/', (res2) => {
-
-                            expect(res2.statusCode).to.equal(503);
-                        });
-                    });
-                });
-            });
+            await server.stop();
         });
     });
 
     describe('inject()', () => {
 
-        it('returns a promise', (done) => {
-
-            const server = new Hapi.Server();
-            server.inject('/').then((res) => {
-
-                expect(res.statusCode).to.equal(404);
-                done();
-            });
-        });
-
-        it('keeps the options.credentials object untouched', (done) => {
+        it('keeps the options.credentials object untouched', async () => {
 
             const handler = function (request, reply) {
 
@@ -987,12 +696,9 @@ describe('Connection', () => {
                 credentials: { foo: 'bar' }
             };
 
-            server.inject(options, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(options.credentials).to.exist();
-                done();
-            });
+            const res = await server.inject(options);
+            expect(res.statusCode).to.equal(200);
+            expect(options.credentials).to.exist();
         });
 
         it('sets credentials (with host header)', (done) => {
@@ -1932,7 +1638,7 @@ describe('Connection', () => {
             });
         });
 
-        it('allows methods array', (done) => {
+        it('allows methods array', async () => {
 
             const server = new Hapi.Server();
 
@@ -1943,36 +1649,26 @@ describe('Connection', () => {
 
             const config = { method: ['GET', 'PUT', 'POST', 'DELETE'], path: '/', handler };
             server.route(config);
-            server.inject({ method: 'HEAD', url: '/' }, (res1) => {
+            expect(config.method).to.equal(['GET', 'PUT', 'POST', 'DELETE']);                       // Ensure config is cloned
 
-                expect(res1.statusCode).to.equal(200);
+            const res1 = await server.inject({ method: 'HEAD', url: '/' });
+            expect(res1.statusCode).to.equal(200);
 
-                server.inject({ method: 'GET', url: '/' }, (res2) => {
+            const res2 = await server.inject({ method: 'GET', url: '/' });
+            expect(res2.statusCode).to.equal(200);
+            expect(res2.payload).to.equal('get');
 
-                    expect(res2.statusCode).to.equal(200);
-                    expect(res2.payload).to.equal('get');
+            const res3 = await server.inject({ method: 'PUT', url: '/' });
+            expect(res3.statusCode).to.equal(200);
+            expect(res3.payload).to.equal('put');
 
-                    server.inject({ method: 'PUT', url: '/' }, (res3) => {
+            const res4 = await server.inject({ method: 'POST', url: '/' });
+            expect(res4.statusCode).to.equal(200);
+            expect(res4.payload).to.equal('post');
 
-                        expect(res3.statusCode).to.equal(200);
-                        expect(res3.payload).to.equal('put');
-
-                        server.inject({ method: 'POST', url: '/' }, (res4) => {
-
-                            expect(res4.statusCode).to.equal(200);
-                            expect(res4.payload).to.equal('post');
-
-                            server.inject({ method: 'DELETE', url: '/' }, (res5) => {
-
-                                expect(res5.statusCode).to.equal(200);
-                                expect(res5.payload).to.equal('delete');
-                                expect(config.method).to.equal(['GET', 'PUT', 'POST', 'DELETE']);
-                                done();
-                            });
-                        });
-                    });
-                });
-            });
+            const res5 = await server.inject({ method: 'DELETE', url: '/' });
+            expect(res5.statusCode).to.equal(200);
+            expect(res5.payload).to.equal('delete');
         });
 
         it('adds routes using single and array methods', (done) => {
@@ -2084,3 +1780,35 @@ describe('Connection', () => {
         });
     });
 });
+
+
+internals.countConnections = function (server) {
+
+    return new Promise((resolve, reject) => {
+
+        server.listener.getConnections((err, count) => {
+
+            return (err ? reject(err) : resolve(count));
+        });
+    });
+};
+
+
+internals.wait = function (timeout) {
+
+    return new Promise((resolve, reject) => setTimeout(resolve, timeout));
+};
+
+
+internals.socket = function (server, mode) {
+
+    const socket = new Net.Socket();
+    socket.on('error', Hoek.ignore);
+
+    if (mode === 'tls') {
+        socket.connect(server.info.port, '127.0.0.1');
+        return new Promise((resolve) => TLS.connect({ socket, rejectUnauthorized: false }, () => resolve(socket)));
+    }
+
+    return new Promise((resolve) => socket.connect(server.info.port, '127.0.0.1', () => resolve(socket)));
+};

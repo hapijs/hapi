@@ -4,7 +4,6 @@
 
 const Code = require('code');
 const Hapi = require('..');
-const Hoek = require('hoek');
 const Lab = require('lab');
 
 
@@ -53,7 +52,7 @@ describe('Server', () => {
 
     describe('start()', () => {
 
-        it('starts and stops', (done) => {
+        it('starts and stops', async () => {
 
             const server = new Hapi.Server();
 
@@ -70,22 +69,16 @@ describe('Server', () => {
                 ++stopped;
             });
 
-            server.start((err) => {
+            await server.start();
+            expect(server._started).to.equal(true);
 
-                expect(err).to.not.exist();
-                expect(server._started).to.equal(true);
-
-                server.stop(() => {
-
-                    expect(server._started).to.equal(false);
-                    expect(started).to.equal(1);
-                    expect(stopped).to.equal(1);
-                    done();
-                });
-            });
+            await server.stop();
+            expect(server._started).to.equal(false);
+            expect(started).to.equal(1);
+            expect(stopped).to.equal(1);
         });
 
-        it('initializes, starts, and stops', (done) => {
+        it('initializes, starts, and stops', async () => {
 
             const server = new Hapi.Server();
 
@@ -102,95 +95,36 @@ describe('Server', () => {
                 ++stopped;
             });
 
-            server.initialize((err) => {
+            await server.initialize();
+            await server.start();
+            expect(server._started).to.equal(true);
 
-                expect(err).to.not.exist();
-
-                server.start((err) => {
-
-                    expect(err).to.not.exist();
-                    expect(server._started).to.equal(true);
-
-                    server.stop(() => {
-
-                        expect(server._started).to.equal(false);
-                        expect(started).to.equal(1);
-                        expect(stopped).to.equal(1);
-                        done();
-                    });
-                });
-            });
+            await server.stop();
+            expect(server._started).to.equal(false);
+            expect(started).to.equal(1);
+            expect(stopped).to.equal(1);
         });
 
-        it('initializes, starts, and stops (promises)', (done) => {
+        it('does not re-initialize the server', async () => {
 
             const server = new Hapi.Server();
-
-            let started = 0;
-            let stopped = 0;
-
-            server.events.on('start', () => {
-
-                ++started;
-            });
-
-            server.events.on('stop', () => {
-
-                ++stopped;
-            });
-
-            server.initialize().then(() => {
-
-                server.start().then(() => {
-
-                    expect(server._started).to.equal(true);
-
-                    server.stop().then(() => {
-
-                        expect(server._started).to.equal(false);
-                        expect(started).to.equal(1);
-                        expect(stopped).to.equal(1);
-                        done();
-                    });
-                });
-            });
+            await server.initialize();
+            await server.initialize();
         });
 
-        it('does not re-initialize the server', (done) => {
-
-            const server = new Hapi.Server();
-
-            server.initialize((err) => {
-
-                expect(err).to.not.exist();
-
-                server.initialize((err) => {
-
-                    expect(err).to.not.exist();
-                    done();
-                });
-            });
-        });
-
-        it('returns connection start error', (done) => {
+        it('returns connection start error', async () => {
 
             const server1 = new Hapi.Server();
-            server1.start((err) => {
+            await server1.start();
+            const port = server1.info.port;
 
-                expect(err).to.not.exist();
-                const port = server1.info.port;
+            const server2 = new Hapi.Server({ port });
+            await expect(server2.start()).to.reject(/EADDRINUSE/);
 
-                const server2 = new Hapi.Server({ port });
-                server2.start((err) => {
-
-                    expect(err).to.exist();
-                    expect(err.message).to.match(/EADDRINUSE/);
-                    server1.stop(done);
-                });
-            });
+            await server1.stop();
         });
 
-        it('returns onPostStart error', (done) => {
+        it('returns onPostStart error', async () => {
 
             const server = new Hapi.Server();
 
@@ -201,15 +135,10 @@ describe('Server', () => {
 
             server.ext('onPostStart', postStart);
 
-            server.start((err) => {
-
-                expect(err).to.exist();
-                expect(err.message).to.equal('boom');
-                server.stop(done);
-            });
+            await expect(server.start()).to.reject('boom');
         });
 
-        it('errors on bad cache start', (done) => {
+        it('errors on bad cache start', async () => {
 
             const cache = {
                 engine: {
@@ -222,74 +151,39 @@ describe('Server', () => {
             };
 
             const server = new Hapi.Server({ cache });
-            server.start((err) => {
-
-                expect(err.message).to.equal('oops');
-                server.stop(done);
-            });
+            await expect(server.start()).to.reject('oops');
         });
 
-        it('fails to start server when registration incomplete', (done) => {
+        it('fails to start server when registration incomplete', async () => {
 
             const plugin = function () { };
             plugin.attributes = { name: 'plugin' };
 
             const server = new Hapi.Server();
-            server.register(plugin, Hoek.ignore);
-            server.start((err) => {
-
-                expect(err).to.exist();
-                expect(err.message).to.equal('Cannot start server before plugins finished registration');
-                done();
-            });
+            server.register(plugin);
+            await expect(server.start()).to.reject('Cannot start server before plugins finished registration');
         });
 
-        it('fails to start server when registration incomplete (promise)', (done) => {
+        it('fails to initialize server when not stopped', async () => {
 
             const plugin = function () { };
             plugin.attributes = { name: 'plugin' };
 
             const server = new Hapi.Server();
-            server.register(plugin, Hoek.ignore);
-            server.start().catch((err) => {
-
-                expect(err).to.exist();
-                expect(err.message).to.equal('Cannot start server before plugins finished registration');
-                done();
-            });
+            await server.start();
+            await expect(server.initialize()).to.reject('Cannot initialize server while it is in started phase');
         });
 
-        it('fails to initialize server when not stopped', (done) => {
+        it('fails to start server when starting', async () => {
 
             const plugin = function () { };
             plugin.attributes = { name: 'plugin' };
 
             const server = new Hapi.Server();
-            server.start((err) => {
-
-                expect(err).to.not.exist();
-                server.initialize((err) => {
-
-                    expect(err).to.exist();
-                    expect(err.message).to.equal('Cannot initialize server while it is in started phase');
-                    done();
-                });
-            });
-        });
-
-        it('fails to start server when starting', (done) => {
-
-            const plugin = function () { };
-            plugin.attributes = { name: 'plugin' };
-
-            const server = new Hapi.Server();
-            server.start(Hoek.ignore);
-            server.start((err) => {
-
-                expect(err).to.exist();
-                expect(err.message).to.equal('Cannot start server while it is in initializing phase');
-                done();
-            });
+            const starting = server.start();
+            await expect(server.start()).to.reject('Cannot start server while it is in initializing phase');
+            await starting;
+            await server.stop();
         });
     });
 
@@ -299,9 +193,8 @@ describe('Server', () => {
 
             const server = new Hapi.Server();
             const cache = server.cache({ segment: 'test', expiresIn: 1000 });
-            server.initialize((err) => {
+            server.initialize().then(() => {
 
-                expect(err).to.not.exist();
                 cache.set('a', 'going in', 0, (err) => {
 
                     expect(err).to.not.exist();
@@ -310,9 +203,8 @@ describe('Server', () => {
                         expect(err).to.not.exist();
                         expect(value1).to.equal('going in');
 
-                        server.stop((err) => {
+                        server.stop().then(() => {
 
-                            expect(err).to.not.exist();
                             cache.get('a', (err, value2, cached2, report2) => {
 
                                 expect(err).to.exist();
@@ -337,7 +229,7 @@ describe('Server', () => {
             });
         });
 
-        it('returns an extension error (onPreStop)', (done) => {
+        it('returns an extension error (onPreStop)', async () => {
 
             const server = new Hapi.Server();
             const preStop = function (srv, next) {
@@ -347,18 +239,11 @@ describe('Server', () => {
 
             server.ext('onPreStop', preStop);
 
-            server.start((err) => {
-
-                expect(err).to.not.exist();
-                server.stop((err) => {
-
-                    expect(err.message).to.equal('failed cleanup');
-                    done();
-                });
-            });
+            await server.start();
+            await expect(server.stop()).to.reject('failed cleanup');
         });
 
-        it('returns an extension error (onPostStop)', (done) => {
+        it('returns an extension error (onPostStop)', async () => {
 
             const server = new Hapi.Server();
 
@@ -369,28 +254,17 @@ describe('Server', () => {
 
             server.ext('onPostStop', postStop);
 
-            server.start((err) => {
-
-                expect(err).to.not.exist();
-                server.stop((err) => {
-
-                    expect(err.message).to.equal('failed cleanup');
-                    done();
-                });
-            });
+            await server.start();
+            await expect(server.stop()).to.reject('failed cleanup');
         });
 
-        it('errors when stopping a stopping server', (done) => {
+        it('errors when stopping a stopping server', async () => {
 
             const server = new Hapi.Server();
 
-            server.stop(Hoek.ignore);
-            server.stop((err) => {
-
-                expect(err).to.exist();
-                expect(err.message).to.equal('Cannot stop server while in stopping phase');
-                done();
-            });
+            const stopping = server.stop();
+            await expect(server.stop()).to.reject('Cannot stop server while in stopping phase');
+            await stopping;
         });
     });
 
@@ -424,7 +298,7 @@ describe('Server', () => {
 
     describe('load', { parallel: false }, () => {
 
-        it('measures loop delay', (done) => {
+        it('measures loop delay', async () => {
 
             const server = new Hapi.Server({ load: { sampleInterval: 4 } });
 
@@ -436,34 +310,29 @@ describe('Server', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
+            await server.inject('/');
+            expect(server.load.eventLoopDelay).to.be.below(6);
 
-                server.inject('/', (res1) => {
+            await internals.wait(0);
 
-                    expect(server.load.eventLoopDelay).to.be.below(6);
+            await server.inject('/');
+            expect(server.load.eventLoopDelay).to.be.above(0);
 
-                    setImmediate(() => {
+            await internals.wait(0);
 
-                        server.inject('/', (res2) => {
-
-                            expect(server.load.eventLoopDelay).to.be.above(0);
-
-                            setImmediate(() => {
-
-                                server.inject('/', (res3) => {
-
-                                    expect(server.load.eventLoopDelay).to.be.above(0);
-                                    expect(server.load.heapUsed).to.be.above(1024 * 1024);
-                                    expect(server.load.rss).to.be.above(1024 * 1024);
-                                    server.stop(done);
-                                });
-                            });
-                        });
-                    });
-                });
-            });
+            await server.inject('/');
+            expect(server.load.eventLoopDelay).to.be.above(0);
+            expect(server.load.heapUsed).to.be.above(1024 * 1024);
+            expect(server.load.rss).to.be.above(1024 * 1024);
+            await server.stop();
         });
     });
 });
+
+
+internals.wait = function (timeout) {
+
+    return new Promise((resolve, reject) => setTimeout(resolve, timeout));
+};

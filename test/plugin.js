@@ -669,7 +669,7 @@ describe('Plugin', () => {
             });
         });
 
-        it('sets multiple dependencies in one statement', (done) => {
+        it('sets multiple dependencies in one statement', async () => {
 
             const a = function (srv, options, next) {
 
@@ -700,26 +700,13 @@ describe('Plugin', () => {
             };
 
             const server = new Hapi.Server();
-            server.register(b, (err) => {
-
-                expect(err).to.not.exist();
-                server.register(c, (err) => {
-
-                    expect(err).to.not.exist();
-                    server.register(a, (err) => {
-
-                        expect(err).to.not.exist();
-                        server.initialize((err) => {
-
-                            expect(err).to.not.exist();
-                            done();
-                        });
-                    });
-                });
-            });
+            await server.register(b);
+            await server.register(c);
+            await server.register(a);
+            await server.initialize();
         });
 
-        it('sets multiple dependencies in attributes', (done) => {
+        it('sets multiple dependencies in attributes', async () => {
 
             const a = function (srv, options, next) {
 
@@ -750,26 +737,13 @@ describe('Plugin', () => {
             };
 
             const server = new Hapi.Server();
-            server.register(b, (err) => {
-
-                expect(err).to.not.exist();
-                server.register(c, (err) => {
-
-                    expect(err).to.not.exist();
-                    server.register(a, (err) => {
-
-                        expect(err).to.not.exist();
-                        server.initialize((err) => {
-
-                            expect(err).to.not.exist();
-                            done();
-                        });
-                    });
-                });
-            });
+            await server.register(b);
+            await server.register(c);
+            await server.register(a);
+            await server.initialize();
         });
 
-        it('sets multiple dependencies in multiple statements', (done) => {
+        it('sets multiple dependencies in multiple statements', async () => {
 
             const a = function (srv, options, next) {
 
@@ -801,26 +775,13 @@ describe('Plugin', () => {
             };
 
             const server = new Hapi.Server();
-            server.register(b, (err) => {
-
-                expect(err).to.not.exist();
-                server.register(c, (err) => {
-
-                    expect(err).to.not.exist();
-                    server.register(a, (err) => {
-
-                        expect(err).to.not.exist();
-                        server.initialize((err) => {
-
-                            expect(err).to.not.exist();
-                            done();
-                        });
-                    });
-                });
-            });
+            await server.register(b);
+            await server.register(c);
+            await server.register(a);
+            await server.initialize();
         });
 
-        it('sets multiple dependencies in multiple locations', (done) => {
+        it('sets multiple dependencies in multiple locations', async () => {
 
             const a = function (srv, options, next) {
 
@@ -852,26 +813,13 @@ describe('Plugin', () => {
             };
 
             const server = new Hapi.Server();
-            server.register(b, (err) => {
-
-                expect(err).to.not.exist();
-                server.register(c, (err) => {
-
-                    expect(err).to.not.exist();
-                    server.register(a, (err) => {
-
-                        expect(err).to.not.exist();
-                        server.initialize((err) => {
-
-                            expect(err).to.not.exist();
-                            done();
-                        });
-                    });
-                });
-            });
+            await server.register(b);
+            await server.register(c);
+            await server.register(a);
+            await server.initialize();
         });
 
-        it('register a plugin once per connection (no selection left)', (done) => {
+        it('register a plugin once per connection (no selection left)', async () => {
 
             let count = 0;
             const b = function (srv, options, next) {
@@ -898,20 +846,10 @@ describe('Plugin', () => {
             };
 
             const server = new Hapi.Server();
-            server.register(b, (err) => {
-
-                expect(err).to.not.exist();
-                server.register(a, (err) => {
-
-                    expect(err).to.not.exist();
-                    server.initialize((err) => {
-
-                        expect(err).to.not.exist();
-                        expect(count).to.equal(1);
-                        done();
-                    });
-                });
-            });
+            await server.register(b);
+            await server.register(a);
+            await server.initialize();
+            expect(count).to.equal(1);
         });
 
         it('throws when once used with plugin options', (done) => {
@@ -974,7 +912,7 @@ describe('Plugin', () => {
             done();
         });
 
-        it('exposes server decorations to next register', (done) => {
+        it('exposes server decorations to next register', async () => {
 
             const server = new Hapi.Server();
 
@@ -1001,18 +939,11 @@ describe('Plugin', () => {
                 name: 'a'
             };
 
-            server.register([a, b], (err) => {
-
-                expect(err).to.not.exist();
-                server.initialize((err) => {
-
-                    expect(err).to.not.exist();
-                    done();
-                });
-            });
+            await server.register([a, b]);
+            await server.initialize();
         });
 
-        it('exposes server decorations to dependency (dependency first)', (done) => {
+        it('exposes server decorations to dependency (dependency first)', async () => {
 
             const server = new Hapi.Server();
 
@@ -1046,18 +977,11 @@ describe('Plugin', () => {
                 name: 'b'
             };
 
-            server.register([a, b], (err) => {
-
-                expect(err).to.not.exist();
-                server.initialize((err) => {
-
-                    expect(err).to.not.exist();
-                    done();
-                });
-            });
+            await server.register([a, b]);
+            await server.initialize();
         });
 
-        it('exposes server decorations to dependency (dependency second)', (done) => {
+        it('exposes server decorations to dependency (dependency second)', async () => {
 
             const server = new Hapi.Server();
 
@@ -1089,18 +1013,11 @@ describe('Plugin', () => {
                 name: 'b'
             };
 
-            server.register([b, a], (err) => {
-
-                expect(err).to.not.exist();
-                server.initialize((err) => {
-
-                    expect(err).to.not.exist();
-                    done();
-                });
-            });
+            await server.register([b, a]);
+            await server.initialize();
         });
 
-        it('exposes server decorations to next register when nested', (done) => {
+        it('exposes server decorations to next register when nested', async () => {
 
             const server = new Hapi.Server();
 
@@ -1131,15 +1048,8 @@ describe('Plugin', () => {
                 name: 'b'
             };
 
-            server.register([b], (err) => {
-
-                expect(err).to.not.exist();
-                server.initialize((err) => {
-
-                    expect(err).to.not.exist();
-                    done();
-                });
-            });
+            await server.register([b]);
+            await server.initialize();
         });
     });
 
@@ -1230,9 +1140,7 @@ describe('Plugin', () => {
 
             const server = new Hapi.Server();
             const cache = server.cache({ segment: 'test', expiresIn: 1000 });
-            server.initialize((err) => {
-
-                expect(err).to.not.exist();
+            server.initialize().then(() => {
 
                 cache.set('a', 'going in', 0, (err) => {
 
@@ -1261,9 +1169,7 @@ describe('Plugin', () => {
 
             const server = new Hapi.Server({ cache: { engine: CatboxMemory, partition: 'hapi-test-other' } });
             const cache = server.cache({ segment: 'test', expiresIn: 1000 });
-            server.initialize((err) => {
-
-                expect(err).to.not.exist();
+            server.initialize().then(() => {
 
                 cache.set('a', 'going in', 0, (err) => {
 
@@ -1353,9 +1259,7 @@ describe('Plugin', () => {
             server.register(test, (err) => {
 
                 expect(err).to.not.exist();
-                server.initialize((err) => {
-
-                    expect(err).to.not.exist();
+                server.initialize().then(() => {
 
                     server.plugins.test.set('a', '1', (err) => {
 
@@ -1394,9 +1298,7 @@ describe('Plugin', () => {
 
                     expect(err).to.exist();
 
-                    server.initialize((err) => {
-
-                        expect(err).to.not.exist();
+                    server.initialize().then(() => {
 
                         cache.set('a', 'going in', 0, (err) => {
 
@@ -1417,9 +1319,8 @@ describe('Plugin', () => {
 
             const server = new Hapi.Server();
 
-            server.initialize((err) => {
+            server.initialize().then(() => {
 
-                expect(err).to.not.exist();
                 server.cache.provision({ engine: CatboxMemory, name: 'dynamic' }, (err) => {
 
                     expect(err).to.not.exist();
@@ -1444,9 +1345,8 @@ describe('Plugin', () => {
 
             const server = new Hapi.Server();
 
-            server.initialize((err) => {
+            server.initialize().then(() => {
 
-                expect(err).to.not.exist();
                 server.cache.provision({ engine: CatboxMemory, name: 'dynamic' }).then(() => {
 
                     const cache = server.cache({ cache: 'dynamic', segment: 'test', expiresIn: 1000 });
@@ -1753,7 +1653,7 @@ describe('Plugin', () => {
 
     describe('dependency()', () => {
 
-        it('fails to register single plugin with dependencies', (done) => {
+        it('fails to register single plugin with dependencies', async () => {
 
             const test = function (srv, options, next) {
 
@@ -1766,19 +1666,11 @@ describe('Plugin', () => {
             };
 
             const server = new Hapi.Server();
-            server.register(test, (err) => {
-
-                expect(err).to.not.exist();
-                server.initialize((err) => {
-
-                    expect(err).to.exist();
-                    expect(err.message).to.equal('Plugin test missing dependency none');
-                    done();
-                });
-            });
+            await server.register(test);
+            await expect(server.initialize()).to.reject('Plugin test missing dependency none');
         });
 
-        it('fails to register single plugin with dependencies (attributes)', (done) => {
+        it('fails to register single plugin with dependencies (attributes)', async () => {
 
             const test = function (srv, options, next) {
 
@@ -1791,31 +1683,15 @@ describe('Plugin', () => {
             };
 
             const server = new Hapi.Server();
-            server.register(test, (err) => {
-
-                expect(err).to.not.exist();
-                server.initialize((err) => {
-
-                    expect(err).to.exist();
-                    expect(err.message).to.equal('Plugin test missing dependency none');
-                    done();
-                });
-            });
+            await server.register(test);
+            await expect(server.initialize()).to.reject('Plugin test missing dependency none');
         });
 
-        it('fails to register multiple plugins with dependencies', (done) => {
+        it('fails to register multiple plugins with dependencies', async () => {
 
             const server = new Hapi.Server({ port: 80, host: 'localhost' });
-            server.register([internals.plugins.deps1, internals.plugins.deps3], (err) => {
-
-                expect(err).to.not.exist();
-                server.initialize((err) => {
-
-                    expect(err).to.exist();
-                    expect(err.message).to.equal('Plugin deps1 missing dependency deps2');
-                    done();
-                });
-            });
+            await server.register([internals.plugins.deps1, internals.plugins.deps3]);
+            await expect(server.initialize()).to.reject('Plugin deps1 missing dependency deps2');
         });
 
         it('recognizes dependencies from peer plugins', (done) => {
@@ -1856,7 +1732,7 @@ describe('Plugin', () => {
             });
         });
 
-        it('errors when missing inner dependencies', (done) => {
+        it('errors when missing inner dependencies', async () => {
 
             const b = function (srv, options, next) {
 
@@ -1878,19 +1754,11 @@ describe('Plugin', () => {
             };
 
             const server = new Hapi.Server({ port: 80, host: 'localhost' });
-            server.register(a, (err) => {
-
-                expect(err).to.not.exist();
-                server.initialize((err) => {
-
-                    expect(err).to.exist();
-                    expect(err.message).to.equal('Plugin b missing dependency c');
-                    done();
-                });
-            });
+            await server.register(a);
+            await expect(server.initialize()).to.reject('Plugin b missing dependency c');
         });
 
-        it('errors when missing inner dependencies (attributes)', (done) => {
+        it('errors when missing inner dependencies (attributes)', async () => {
 
             const b = function (srv, options, next) {
 
@@ -1912,22 +1780,14 @@ describe('Plugin', () => {
             };
 
             const server = new Hapi.Server({ port: 80, host: 'localhost' });
-            server.register(a, (err) => {
-
-                expect(err).to.not.exist();
-                server.initialize((err) => {
-
-                    expect(err).to.exist();
-                    expect(err.message).to.equal('Plugin b missing dependency c');
-                    done();
-                });
-            });
+            await server.register(a);
+            await expect(server.initialize()).to.reject('Plugin b missing dependency c');
         });
     });
 
     describe('encoder()', () => {
 
-        it('adds custom encoder', (done) => {
+        it('adds custom encoder', async () => {
 
             const data = '{"test":"true"}';
 
@@ -1947,31 +1807,23 @@ describe('Plugin', () => {
             };
 
             server.route({ method: 'POST', path: '/', handler });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
+            const uri = 'http://localhost:' + server.info.port;
 
-                const uri = 'http://localhost:' + server.info.port;
 
-                Zlib.gzip(new Buffer(data), (err, zipped) => {
 
-                    expect(err).to.not.exist();
-
-                    Wreck.post(uri, { headers: { 'accept-encoding': 'test' }, payload: data }, (err, res, body) => {
-
-                        expect(err).to.not.exist();
-                        expect(res.headers['content-encoding']).to.equal('test');
-                        expect(body.toString()).to.equal(zipped.toString());
-                        server.stop(done);
-                    });
-                });
-            });
+            const zipped = await new Promise((resolve) => Zlib.gzip(new Buffer(data), (ignoreErr, compressed) => resolve(compressed)));
+            const { res, payload } = await Wreck.post(uri, { headers: { 'accept-encoding': 'test' }, payload: data });
+            expect(res.headers['content-encoding']).to.equal('test');
+            expect(payload.toString()).to.equal(zipped.toString());
+            await server.stop();
         });
     });
 
     describe('events', () => {
 
-        it('extends server events', (done) => {
+        it('extends server events', async () => {
 
             const server = new Hapi.Server();
 
@@ -1994,25 +1846,19 @@ describe('Plugin', () => {
 
             server.events.on('test', (update) => updates.push({ id: 'server', update }));
 
-            server.register(test, (err) => {
+            await server.register(test);
 
-                expect(err).to.not.exist();
+            server.events.emit('test', 1);
+            server.events.emit({ name: 'test', channel: 'x' }, 2);
+            await plugin.events.emit({ name: 'test', channel: 'y' }, 3);
 
-                server.events.emit('test', 1);
-                server.events.emit({ name: 'test', channel: 'x' }, 2);
-                plugin.events.emit({ name: 'test', channel: 'y' }, 3, () => {
-
-                    expect(updates).to.equal([
-                        { id: 'server', update: 1 },
-                        { id: 'server', channel: 'x', update: 2 },
-                        { id: 'server', update: 2 },
-                        { id: 'server', update: 3 },
-                        { id: 'plugin', channel: 'y', update: 3 }
-                    ]);
-
-                    done();
-                });
-            });
+            expect(updates).to.equal([
+                { id: 'server', update: 1 },
+                { id: 'server', channel: 'x', update: 2 },
+                { id: 'server', update: 2 },
+                { id: 'server', update: 3 },
+                { id: 'plugin', channel: 'y', update: 3 }
+            ]);
         });
     });
 
@@ -2078,7 +1924,7 @@ describe('Plugin', () => {
             });
         });
 
-        it('adds multiple ext functions with complex dependencies', (done) => {
+        it('adds multiple ext functions with complex dependencies', async () => {
 
             // Generate a plugin with a specific index and ext dependencies.
 
@@ -2114,28 +1960,19 @@ describe('Plugin', () => {
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.register([
+            await server.register([
                 pluginCurrier(1, { after: 'deps2' }),
                 pluginCurrier(2),
                 pluginCurrier(3, { before: ['deps1', 'deps2'] })
-            ], (err) => {
+            ]);
 
-                expect(err).to.not.exist();
+            await server.initialize();
 
-                server.initialize((err) => {
-
-                    expect(err).to.not.exist();
-
-                    server.inject('/', (res) => {
-
-                        expect(res.result).to.equal('|3|2|1|');
-                        done();
-                    });
-                });
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('|3|2|1|');
         });
 
-        it('binds server ext to context (options)', (done) => {
+        it('binds server ext to context (options)', async () => {
 
             const server = new Hapi.Server();
 
@@ -2151,15 +1988,11 @@ describe('Plugin', () => {
 
             server.ext('onPreStart', preStart, { bind });
 
-            server.initialize((err) => {
-
-                expect(err).to.not.exist();
-                expect(bind.state).to.be.true();
-                done();
-            });
+            await server.initialize();
+            expect(bind.state).to.be.true();
         });
 
-        it('binds server ext to context (realm)', (done) => {
+        it('binds server ext to context (realm)', async () => {
 
             const server = new Hapi.Server();
 
@@ -2176,15 +2009,11 @@ describe('Plugin', () => {
 
             server.ext('onPreStart', preStart);
 
-            server.initialize((err) => {
-
-                expect(err).to.not.exist();
-                expect(bind.state).to.be.true();
-                done();
-            });
+            await server.initialize();
+            expect(bind.state).to.be.true();
         });
 
-        it('extends server actions', (done) => {
+        it('extends server actions', async () => {
 
             const server = new Hapi.Server();
 
@@ -2221,21 +2050,14 @@ describe('Plugin', () => {
 
             server.ext('onPostStop', postStop);
 
-            server.start((err) => {
+            await server.start();
+            expect(result).to.equal('12');
 
-                expect(err).to.not.exist();
-                expect(result).to.equal('12');
-
-                server.stop((err) => {
-
-                    expect(err).to.not.exist();
-                    expect(result).to.equal('1234');
-                    done();
-                });
-            });
+            await server.stop();
+            expect(result).to.equal('1234');
         });
 
-        it('extends server actions (single call)', (done) => {
+        it('extends server actions (single call)', async () => {
 
             const server = new Hapi.Server();
 
@@ -2275,18 +2097,11 @@ describe('Plugin', () => {
                 }
             ]);
 
-            server.start((err) => {
+            await server.start();
+            expect(result).to.equal('12');
 
-                expect(err).to.not.exist();
-                expect(result).to.equal('12');
-
-                server.stop((err) => {
-
-                    expect(err).to.not.exist();
-                    expect(result).to.equal('1234');
-                    done();
-                });
-            });
+            await server.stop();
+            expect(result).to.equal('1234');
         });
 
         it('combine route extensions', (done) => {
@@ -2366,7 +2181,7 @@ describe('Plugin', () => {
             });
         });
 
-        it('calls method after plugin', (done) => {
+        it('calls method after plugin', async () => {
 
             const x = function (srv, options, next) {
 
@@ -2392,19 +2207,12 @@ describe('Plugin', () => {
 
             server.ext('onPreStart', preStart, { after: 'x' });
 
-            server.register(x, (err) => {
-
-                expect(err).to.not.exist();
-                server.initialize((err) => {
-
-                    expect(err).to.not.exist();
-                    expect(called).to.be.true();
-                    done();
-                });
-            });
+            await server.register(x);
+            await server.initialize();
+            expect(called).to.be.true();
         });
 
-        it('calls method before start', (done) => {
+        it('calls method before start', async () => {
 
             const server = new Hapi.Server();
 
@@ -2417,15 +2225,11 @@ describe('Plugin', () => {
 
             server.ext('onPreStart', preStart);
 
-            server.initialize((err) => {
-
-                expect(err).to.not.exist();
-                expect(called).to.be.true();
-                done();
-            });
+            await server.initialize();
+            expect(called).to.be.true();
         });
 
-        it('calls method before start even if plugin not registered', (done) => {
+        it('calls method before start even if plugin not registered', async () => {
 
             const server = new Hapi.Server();
 
@@ -2438,15 +2242,11 @@ describe('Plugin', () => {
 
             server.ext('onPreStart', preStart, { after: 'x' });
 
-            server.initialize((err) => {
-
-                expect(err).to.not.exist();
-                expect(called).to.be.true();
-                done();
-            });
+            await server.initialize();
+            expect(called).to.be.true();
         });
 
-        it('fails to start server when after method fails', (done) => {
+        it('fails to start server when after method fails', async () => {
 
             const test = function (srv, options, next) {
 
@@ -2472,31 +2272,19 @@ describe('Plugin', () => {
             };
 
             const server = new Hapi.Server();
-            server.register(test, (err) => {
-
-                expect(err).to.not.exist();
-                server.initialize((err) => {
-
-                    expect(err).to.exist();
-                    done();
-                });
-            });
+            await server.register(test);
+            await expect(server.initialize()).to.reject('Not in the mood');
         });
 
-        it('errors when added after initialization', (done) => {
+        it('errors when added after initialization', async () => {
 
             const server = new Hapi.Server();
 
-            server.initialize((err) => {
+            await server.initialize();
+            expect(() => {
 
-                expect(err).to.not.exist();
-                expect(() => {
-
-                    server.ext('onPreStart', () => { });
-                }).to.throw('Cannot add onPreStart (after) extension after the server was initialized');
-
-                done();
-            });
+                server.ext('onPreStart', () => { });
+            }).to.throw('Cannot add onPreStart (after) extension after the server was initialized');
         });
     });
 
@@ -2794,7 +2582,7 @@ describe('Plugin', () => {
             });
         });
 
-        it.skip('emits log events after handler error when server is started', (done) => {
+        it.skip('emits log events after handler error when server is started', async () => {
 
             const server = new Hapi.Server({ debug: false });
 
@@ -2822,23 +2610,14 @@ describe('Plugin', () => {
                 }
             });
 
-            server.register(test, (err) => {
+            await server.register(test);
+            await server.start();
+            const res = await server.inject('/');
 
-                expect(err).to.not.exist();
-                server.start((err) => {
-
-                    expect(err).to.not.exist();
-                    server.inject('/', (res) => {
-
-                        expect(res.statusCode).to.equal(500);
-                        setTimeout(() => {
-
-                            expect(updates).to.equal([['1'], 'request-error', 'response']);
-                            server.stop(done);
-                        }, 10);
-                    });
-                });
-            });
+            expect(res.statusCode).to.equal(500);
+            await internals.wait(10);
+            expect(updates).to.equal([['1'], 'request-error', 'response']);
+            await server.stop();
         });
 
         it('outputs logs for all server log events with a wildcard', (done) => {
@@ -3592,4 +3371,10 @@ internals.plugins.test2.attributes = {
         name: 'test2',
         version: '1.0.0'
     }
+};
+
+
+internals.wait = function (timeout) {
+
+    return new Promise((resolve, reject) => setTimeout(resolve, timeout));
 };

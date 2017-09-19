@@ -334,7 +334,7 @@ describe('Reply', () => {
             });
         });
 
-        it('errors on non-readable stream reply', (done) => {
+        it('errors on non-readable stream reply', async () => {
 
             const streamHandler = function (request, reply) {
 
@@ -363,26 +363,18 @@ describe('Reply', () => {
                 ++updates;
             });
 
-            server.initialize((err) => {
+            await server.initialize();
+            const res1 = await server.inject('/stream');
 
-                expect(err).to.not.exist();
-                server.inject('/stream', (res1) => {
+            expect(res1.statusCode).to.equal(500);
+            const res2 = await server.inject('/writable');
 
-                    expect(res1.statusCode).to.equal(500);
-                    server.inject('/writable', (res2) => {
-
-                        expect(res2.statusCode).to.equal(500);
-                        setTimeout(() => {
-
-                            expect(updates).to.equal(2);
-                            done();
-                        }, 10);
-                    });
-                });
-            });
+            expect(res2.statusCode).to.equal(500);
+            await internals.wait(10);
+            expect(updates).to.equal(2);
         });
 
-        it.skip('errors on an http client stream reply', (done) => {
+        it.skip('errors on an http client stream reply', async () => {
 
             const handler = function (request, reply) {
 
@@ -398,16 +390,9 @@ describe('Reply', () => {
             server.route({ method: 'GET', path: '/', handler });
             server.route({ method: 'GET', path: '/stream', handler: streamHandler });
 
-            server.initialize((err) => {
-
-                expect(err).to.not.exist();
-
-                server.inject('/stream', (res) => {
-
-                    expect(res.statusCode).to.equal(500);
-                    done();
-                });
-            });
+            await server.initialize();
+            const res = server.inject('/stream');
+            expect(res.statusCode).to.equal(500);
         });
 
         it('errors on objectMode stream reply', (done) => {
@@ -941,3 +926,9 @@ describe('Reply', () => {
         });
     });
 });
+
+
+internals.wait = function (timeout) {
+
+    return new Promise((resolve, reject) => setTimeout(resolve, timeout));
+};

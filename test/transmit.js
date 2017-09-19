@@ -802,7 +802,7 @@ describe('transmission', () => {
             });
         });
 
-        it('handles stream errors on the response after the response has been piped (http)', (done) => {
+        it('handles stream errors on the response after the response has been piped (http)', async () => {
 
             const handler = function (request, reply) {
 
@@ -825,16 +825,9 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.start((err) => {
-
-                expect(err).to.not.exist();
-
-                Wreck.request('GET', 'http://localhost:' + server.info.port + '/', {}, (err, res) => {
-
-                    expect(err).to.exist();
-                    server.stop(done);
-                });
-            });
+            await server.start();
+            await expect(Wreck.request('GET', 'http://localhost:' + server.info.port + '/')).to.reject();
+            await server.stop();
         });
 
         it('matches etag header list value', (done) => {
@@ -1006,7 +999,7 @@ describe('transmission', () => {
             });
         });
 
-        it('returns a gzip response on a post request when accept-encoding: gzip is requested', (done) => {
+        it('returns a gzip response on a post request when accept-encoding: gzip is requested', async () => {
 
             const data = '{"test":"true"}';
 
@@ -1018,27 +1011,17 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'POST', path: '/', handler });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
+            const uri = 'http://localhost:' + server.info.port;
+            const zipped = await internals.compress('gzip', new Buffer(data));
 
-                const uri = 'http://localhost:' + server.info.port;
-
-                Zlib.gzip(new Buffer(data), (err, zipped) => {
-
-                    expect(err).to.not.exist();
-
-                    Wreck.post(uri, { headers: { 'accept-encoding': 'gzip' }, payload: data }, (err, res, body) => {
-
-                        expect(err).to.not.exist();
-                        expect(body.toString()).to.equal(zipped.toString());
-                        server.stop(done);
-                    });
-                });
-            });
+            const { payload } = await Wreck.post(uri, { headers: { 'accept-encoding': 'gzip' }, payload: data });
+            expect(payload.toString()).to.equal(zipped.toString());
+            await server.stop();
         });
 
-        it('returns a gzip response on a get request when accept-encoding: gzip is requested', (done) => {
+        it('returns a gzip response on a get request when accept-encoding: gzip is requested', async () => {
 
             const data = '{"test":"true"}';
 
@@ -1050,27 +1033,16 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
-
-                const uri = 'http://localhost:' + server.info.port;
-
-                Zlib.gzip(new Buffer(data), (err, zipped) => {
-
-                    expect(err).to.not.exist();
-
-                    Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } }, (err, res, body) => {
-
-                        expect(err).to.not.exist();
-                        expect(body.toString()).to.equal(zipped.toString());
-                        server.stop(done);
-                    });
-                });
-            });
+            const uri = 'http://localhost:' + server.info.port;
+            const zipped = await internals.compress('gzip', new Buffer(data));
+            const { payload } = await Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } });
+            expect(payload.toString()).to.equal(zipped.toString());
+            await server.stop();
         });
 
-        it('returns a gzip response on a post request when accept-encoding: * is requested', (done) => {
+        it('returns a gzip response on a post request when accept-encoding: * is requested', async () => {
 
             const data = '{"test":"true"}';
 
@@ -1082,22 +1054,15 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'POST', path: '/', handler });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
-
-                const uri = 'http://localhost:' + server.info.port;
-
-                Wreck.post(uri, { headers: { 'accept-encoding': '*' }, payload: data }, (err, res, body) => {
-
-                    expect(err).to.not.exist();
-                    expect(body.toString()).to.equal(data);
-                    server.stop(done);
-                });
-            });
+            const uri = 'http://localhost:' + server.info.port;
+            const { payload } = await Wreck.post(uri, { headers: { 'accept-encoding': '*' }, payload: data });
+            expect(payload.toString()).to.equal(data);
+            await server.stop();
         });
 
-        it('returns a gzip response on a get request when accept-encoding: * is requested', (done) => {
+        it('returns a gzip response on a get request when accept-encoding: * is requested', async () => {
 
             const data = '{"test":"true"}';
 
@@ -1109,22 +1074,15 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
-
-                const uri = 'http://localhost:' + server.info.port;
-
-                Wreck.get(uri, { headers: { 'accept-encoding': '*' } }, (err, res, body) => {
-
-                    expect(err).to.not.exist();
-                    expect(body.toString()).to.equal(data);
-                    server.stop(done);
-                });
-            });
+            const uri = 'http://localhost:' + server.info.port;
+            const { payload } = await Wreck.get(uri, { headers: { 'accept-encoding': '*' } });
+            expect(payload.toString()).to.equal(data);
+            await server.stop();
         });
 
-        it('returns a deflate response on a post request when accept-encoding: deflate is requested', (done) => {
+        it('returns a deflate response on a post request when accept-encoding: deflate is requested', async () => {
 
             const data = '{"test":"true"}';
             const server = new Hapi.Server();
@@ -1135,27 +1093,16 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'POST', path: '/', handler });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
-
-                const uri = 'http://localhost:' + server.info.port;
-
-                Zlib.deflate(new Buffer(data), (err, deflated) => {
-
-                    expect(err).to.not.exist();
-
-                    Wreck.post(uri, { headers: { 'accept-encoding': 'deflate' }, payload: data }, (err, res, body) => {
-
-                        expect(err).to.not.exist();
-                        expect(body.toString()).to.equal(deflated.toString());
-                        server.stop(done);
-                    });
-                });
-            });
+            const uri = 'http://localhost:' + server.info.port;
+            const deflated = await internals.compress('deflate', new Buffer(data));
+            const { payload } = await Wreck.post(uri, { headers: { 'accept-encoding': 'deflate' }, payload: data });
+            expect(payload.toString()).to.equal(deflated.toString());
+            await server.stop();
         });
 
-        it('returns a deflate response on a get request when accept-encoding: deflate is requested', (done) => {
+        it('returns a deflate response on a get request when accept-encoding: deflate is requested', async () => {
 
             const data = '{"test":"true"}';
             const server = new Hapi.Server();
@@ -1166,27 +1113,16 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
-
-                const uri = 'http://localhost:' + server.info.port;
-
-                Zlib.deflate(new Buffer(data), (err, deflated) => {
-
-                    expect(err).to.not.exist();
-
-                    Wreck.get(uri, { headers: { 'accept-encoding': 'deflate' } }, (err, res, body) => {
-
-                        expect(err).to.not.exist();
-                        expect(body.toString()).to.equal(deflated.toString());
-                        server.stop(done);
-                    });
-                });
-            });
+            const uri = 'http://localhost:' + server.info.port;
+            const deflated = await internals.compress('deflate', new Buffer(data));
+            const { payload } = await Wreck.get(uri, { headers: { 'accept-encoding': 'deflate' } });
+            expect(payload.toString()).to.equal(deflated.toString());
+            await server.stop();
         });
 
-        it('returns a gzip response on a post request when accept-encoding: gzip;q=1, deflate;q=0.5 is requested', (done) => {
+        it('returns a gzip response on a post request when accept-encoding: gzip;q=1, deflate;q=0.5 is requested', async () => {
 
             const data = '{"test":"true"}';
 
@@ -1198,27 +1134,16 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'POST', path: '/', handler });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
-
-                const uri = 'http://localhost:' + server.info.port;
-
-                Zlib.gzip(new Buffer(data), (err, zipped) => {
-
-                    expect(err).to.not.exist();
-
-                    Wreck.post(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5' }, payload: data }, (err, res, body) => {
-
-                        expect(err).to.not.exist();
-                        expect(body.toString()).to.equal(zipped.toString());
-                        server.stop(done);
-                    });
-                });
-            });
+            const uri = 'http://localhost:' + server.info.port;
+            const zipped = await internals.compress('gzip', new Buffer(data));
+            const { payload } = await Wreck.post(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5' }, payload: data });
+            expect(payload.toString()).to.equal(zipped.toString());
+            await server.stop();
         });
 
-        it('returns a gzip response on a get request when accept-encoding: gzip;q=1, deflate;q=0.5 is requested', (done) => {
+        it('returns a gzip response on a get request when accept-encoding: gzip;q=1, deflate;q=0.5 is requested', async () => {
 
             const data = '{"test":"true"}';
 
@@ -1230,27 +1155,16 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
-
-                const uri = 'http://localhost:' + server.info.port;
-
-                Zlib.gzip(new Buffer(data), (err, zipped) => {
-
-                    expect(err).to.not.exist();
-
-                    Wreck.get(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5' } }, (err, res, body) => {
-
-                        expect(err).to.not.exist();
-                        expect(body.toString()).to.equal(zipped.toString());
-                        server.stop(done);
-                    });
-                });
-            });
+            const uri = 'http://localhost:' + server.info.port;
+            const zipped = await internals.compress('gzip', new Buffer(data));
+            const { payload } = await Wreck.get(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5' } });
+            expect(payload.toString()).to.equal(zipped.toString());
+            await server.stop();
         });
 
-        it('returns a deflate response on a post request when accept-encoding: deflate;q=1, gzip;q=0.5 is requested', (done) => {
+        it('returns a deflate response on a post request when accept-encoding: deflate;q=1, gzip;q=0.5 is requested', async () => {
 
             const data = '{"test":"true"}';
 
@@ -1262,27 +1176,16 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'POST', path: '/', handler });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
-
-                const uri = 'http://localhost:' + server.info.port;
-
-                Zlib.deflate(new Buffer(data), (err, deflated) => {
-
-                    expect(err).to.not.exist();
-
-                    Wreck.post(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5' }, payload: data }, (err, res, body) => {
-
-                        expect(err).to.not.exist();
-                        expect(body.toString()).to.equal(deflated.toString());
-                        server.stop(done);
-                    });
-                });
-            });
+            const uri = 'http://localhost:' + server.info.port;
+            const deflated = await internals.compress('deflate', new Buffer(data));
+            const { payload } = await Wreck.post(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5' }, payload: data });
+            expect(payload.toString()).to.equal(deflated.toString());
+            await server.stop();
         });
 
-        it('returns a deflate response on a get request when accept-encoding: deflate;q=1, gzip;q=0.5 is requested', (done) => {
+        it('returns a deflate response on a get request when accept-encoding: deflate;q=1, gzip;q=0.5 is requested', async () => {
 
             const data = '{"test":"true"}';
 
@@ -1294,27 +1197,16 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
-
-                const uri = 'http://localhost:' + server.info.port;
-
-                Zlib.deflate(new Buffer(data), (err, deflated) => {
-
-                    expect(err).to.not.exist();
-
-                    Wreck.get(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5' } }, (err, res, body) => {
-
-                        expect(err).to.not.exist();
-                        expect(body.toString()).to.equal(deflated.toString());
-                        server.stop(done);
-                    });
-                });
-            });
+            const uri = 'http://localhost:' + server.info.port;
+            const deflated = await internals.compress('deflate', new Buffer(data));
+            const { payload } = await Wreck.get(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5' } });
+            expect(payload.toString()).to.equal(deflated.toString());
+            await server.stop();
         });
 
-        it('returns a gzip response on a post request when accept-encoding: deflate, gzip is requested', (done) => {
+        it('returns a gzip response on a post request when accept-encoding: deflate, gzip is requested', async () => {
 
             const data = '{"test":"true"}';
 
@@ -1326,27 +1218,16 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'POST', path: '/', handler });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
-
-                const uri = 'http://localhost:' + server.info.port;
-
-                Zlib.gzip(new Buffer(data), (err, zipped) => {
-
-                    expect(err).to.not.exist();
-
-                    Wreck.post(uri, { headers: { 'accept-encoding': 'deflate, gzip' }, payload: data }, (err, res, body) => {
-
-                        expect(err).to.not.exist();
-                        expect(body.toString()).to.equal(zipped.toString());
-                        server.stop(done);
-                    });
-                });
-            });
+            const uri = 'http://localhost:' + server.info.port;
+            const zipped = await internals.compress('gzip', new Buffer(data));
+            const { payload } = await Wreck.post(uri, { headers: { 'accept-encoding': 'deflate, gzip' }, payload: data });
+            expect(payload.toString()).to.equal(zipped.toString());
+            await server.stop();
         });
 
-        it('returns a gzip response on a get request when accept-encoding: deflate, gzip is requested', (done) => {
+        it('returns a gzip response on a get request when accept-encoding: deflate, gzip is requested', async () => {
 
             const data = '{"test":"true"}';
 
@@ -1358,27 +1239,16 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
-
-                const uri = 'http://localhost:' + server.info.port;
-
-                Zlib.gzip(new Buffer(data), (err, zipped) => {
-
-                    expect(err).to.not.exist();
-
-                    Wreck.get(uri, { headers: { 'accept-encoding': 'deflate, gzip' } }, (err, res, body) => {
-
-                        expect(err).to.not.exist();
-                        expect(body.toString()).to.equal(zipped.toString());
-                        server.stop(done);
-                    });
-                });
-            });
+            const uri = 'http://localhost:' + server.info.port;
+            const zipped = await internals.compress('gzip', new Buffer(data));
+            const { payload } = await Wreck.get(uri, { headers: { 'accept-encoding': 'deflate, gzip' } });
+            expect(payload.toString()).to.equal(zipped.toString());
+            await server.stop();
         });
 
-        it('boom object reused does not affect encoding header.', (done) => {
+        it('boom object reused does not affect encoding header.', async () => {
 
             const error = Boom.badRequest();
             const data = JSON.stringify(error.output.payload);
@@ -1391,33 +1261,19 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
+            const uri = 'http://localhost:' + server.info.port;
+            const zipped = await internals.compress('gzip', new Buffer(data));
+            const err1 = await expect(Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } })).to.reject();
+            expect(err1.data.payload.toString()).to.equal(zipped.toString());
 
-                const uri = 'http://localhost:' + server.info.port;
-
-                Zlib.gzip(new Buffer(data), (err, zipped) => {
-
-                    expect(err).to.not.exist();
-
-                    Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } }, (err, res, body) => {
-
-                        expect(err).to.exist();
-                        expect(err.data.payload.toString()).to.equal(zipped.toString());
-
-                        Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } }, (err2, res2, body2) => {
-
-                            expect(err2).to.exist();
-                            expect(err2.data.payload.toString()).to.equal(zipped.toString());
-                            server.stop(done);
-                        });
-                    });
-                });
-            });
+            const err2 = await expect(Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } })).to.reject();
+            expect(err2.data.payload.toString()).to.equal(zipped.toString());
+            await server.stop();
         });
 
-        it('Error reused does not affect encoding header.', (done) => {
+        it('Error reused does not affect encoding header.', async () => {
 
             const error = new Error('something went wrong');
             const wrappedError = Boom.boomify(error);
@@ -1431,33 +1287,19 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
+            const uri = 'http://localhost:' + server.info.port;
+            const zipped = await internals.compress('gzip', new Buffer(data));
+            const err1 = await expect(Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } })).to.reject();
+            expect(err1.data.payload.toString()).to.equal(zipped.toString());
 
-                const uri = 'http://localhost:' + server.info.port;
-
-                Zlib.gzip(new Buffer(data), (err, zipped) => {
-
-                    expect(err).to.not.exist();
-
-                    Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } }, (err, res, body) => {
-
-                        expect(err).to.exist();
-                        expect(err.data.payload.toString()).to.equal(zipped.toString());
-
-                        Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } }, (err2, res2, body2) => {
-
-                            expect(err2).to.exist();
-                            expect(err2.data.payload.toString()).to.equal(zipped.toString());
-                            server.stop(done);
-                        });
-                    });
-                });
-            });
+            const err2 = await expect(Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } })).to.reject();
+            expect(err2.data.payload.toString()).to.equal(zipped.toString());
+            await server.stop();
         });
 
-        it('returns an identity response on a post request when accept-encoding is missing', (done) => {
+        it('returns an identity response on a post request when accept-encoding is missing', async () => {
 
             const data = '{"test":"true"}';
 
@@ -1469,22 +1311,15 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'POST', path: '/', handler });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
-
-                const uri = 'http://localhost:' + server.info.port;
-
-                Wreck.post(uri, { payload: data }, (err, res, body) => {
-
-                    expect(err).to.not.exist();
-                    expect(body.toString()).to.equal(data);
-                    server.stop(done);
-                });
-            });
+            const uri = 'http://localhost:' + server.info.port;
+            const { payload } = await Wreck.post(uri, { payload: data });
+            expect(payload.toString()).to.equal(data);
+            await server.stop();
         });
 
-        it('returns an identity response on a get request when accept-encoding is missing', (done) => {
+        it('returns an identity response on a get request when accept-encoding is missing', async () => {
 
             const data = '{"test":"true"}';
 
@@ -1498,52 +1333,34 @@ describe('transmission', () => {
                 }
             });
 
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
-
-                const uri = 'http://localhost:' + server.info.port;
-
-                Wreck.get(uri, {}, (err, res, body) => {
-
-                    expect(err).to.not.exist();
-                    expect(body.toString().toString()).to.equal(data);
-                    server.stop(done);
-                });
-            });
+            const uri = 'http://localhost:' + server.info.port;
+            const { payload } = await Wreck.get(uri);
+            expect(payload.toString().toString()).to.equal(data);
+            await server.stop();
         });
 
-        it('returns a gzip response when forced by the handler', (done) => {
+        it('returns a gzip response when forced by the handler', async () => {
 
             const data = '{"test":"true"}';
 
-            Zlib.gzip(new Buffer(data), (err, zipped) => {
+            const zipped = await internals.compress('gzip', new Buffer(data));
 
-                expect(err).to.not.exist();
+            const server = new Hapi.Server();
 
-                const server = new Hapi.Server();
+            const handler = function (request, reply) {
 
-                const handler = function (request, reply) {
+                return reply(zipped).type('text/plain').header('content-encoding', 'gzip');
+            };
 
-                    return reply(zipped).type('text/plain').header('content-encoding', 'gzip');
-                };
+            server.route({ method: 'POST', path: '/', handler });
+            await server.start();
 
-                server.route({ method: 'POST', path: '/', handler });
-                server.start((err) => {
-
-                    expect(err).to.not.exist();
-
-                    const uri = 'http://localhost:' + server.info.port;
-
-                    Wreck.post(uri, { headers: { 'accept-encoding': 'gzip' }, payload: data }, (err, res, body) => {
-
-                        expect(err).to.not.exist();
-                        expect(body.toString()).to.equal(zipped.toString());
-                        server.stop(done);
-                    });
-                });
-
-            });
+            const uri = 'http://localhost:' + server.info.port;
+            const { payload } = await Wreck.post(uri, { headers: { 'accept-encoding': 'gzip' }, payload: data });
+            expect(payload.toString()).to.equal(zipped.toString());
+            await server.stop();
         });
 
         it('does not open file stream on 304', (done) => {
@@ -1648,7 +1465,7 @@ describe('transmission', () => {
             });
         });
 
-        it('does not truncate the response when stream finishes before response is done', (done) => {
+        it('does not truncate the response when stream finishes before response is done', async () => {
 
             const chunkTimes = 10;
             const filePath = __dirname + '/response.js';
@@ -1679,20 +1496,14 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler: fileHandler });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
-
-                Wreck.get('http://localhost:' + server.info.port, (err, res, body) => {
-
-                    expect(err).to.not.exist();
-                    expect(body.toString()).to.equal(expectedBody);
-                    server.stop(done);
-                });
-            });
+            const { payload } = await Wreck.get('http://localhost:' + server.info.port);
+            expect(payload.toString()).to.equal(expectedBody);
+            await server.stop();
         });
 
-        it('does not truncate the response when stream finishes before response is done using https', (done) => {
+        it('does not truncate the response when stream finishes before response is done using https', async () => {
 
             const chunkTimes = 10;
             const filePath = __dirname + '/response.js';
@@ -1730,17 +1541,11 @@ describe('transmission', () => {
 
             const server = new Hapi.Server(config);
             server.route({ method: 'GET', path: '/', handler: fileHandler });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
-
-                Wreck.get('https://localhost:' + server.info.port, { rejectUnauthorized: false }, (err, res, body) => {
-
-                    expect(err).to.not.exist();
-                    expect(body.toString()).to.equal(expectedBody);
-                    server.stop(done);
-                });
-            });
+            const { payload } = await Wreck.get('https://localhost:' + server.info.port, { rejectUnauthorized: false });
+            expect(payload.toString()).to.equal(expectedBody);
+            await server.stop();
         });
 
         it('does not leak stream data when request aborts before stream drains', (done) => {
@@ -1773,7 +1578,7 @@ describe('transmission', () => {
 
                 stream.once('end', () => {
 
-                    server.stop(done);
+                    server.stop().then(done);
                 });
 
                 return reply(stream);
@@ -1781,13 +1586,9 @@ describe('transmission', () => {
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.start((err) => {
+            server.start().then(() => {
 
-                expect(err).to.not.exist();
-
-                Wreck.request('GET', 'http://localhost:' + server.info.port, {}, (err, res) => {
-
-                    expect(err).to.not.exist();
+                Wreck.request('GET', 'http://localhost:' + server.info.port).then((res) => {
 
                     res.on('data', (chunk) => {
 
@@ -1849,7 +1650,7 @@ describe('transmission', () => {
 
                 stream.once('end', () => {
 
-                    server.stop(done);
+                    server.stop().then(done);
                 });
 
                 return reply(stream);
@@ -1857,13 +1658,9 @@ describe('transmission', () => {
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.start((err) => {
+            server.start().then(() => {
 
-                expect(err).to.not.exist();
-
-                Wreck.request('GET', 'http://localhost:' + server.info.port, {}, (err, res) => {
-
-                    expect(err).to.not.exist();
+                Wreck.request('GET', 'http://localhost:' + server.info.port).then((res) => {
 
                     res.on('data', (chunk) => {
 
@@ -1899,7 +1696,7 @@ describe('transmission', () => {
 
                 stream.once('end', () => {
 
-                    server.stop(done);
+                    server.stop().then(done);
                 });
 
                 return reply(stream);
@@ -1907,13 +1704,10 @@ describe('transmission', () => {
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.start((err) => {
+            server.start().then(() => {
 
-                expect(err).to.not.exist();
+                Wreck.request('GET', 'http://localhost:' + server.info.port).then((res) => {
 
-                Wreck.request('GET', 'http://localhost:' + server.info.port, {}, (err, res) => {
-
-                    expect(err).to.not.exist();
                     res.on('data', (chunk) => { });
                 });
             });
@@ -1953,7 +1747,7 @@ describe('transmission', () => {
                 stream.once('end', () => {
 
                     expect(responded).to.be.true();
-                    server.stop(done);
+                    server.stop().then(done);
                 });
 
                 setTimeout(() => {
@@ -1964,9 +1758,7 @@ describe('transmission', () => {
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.start((err) => {
-
-                expect(err).to.not.exist();
+            server.start().then(() => {
 
                 clientRequest = Http.request({
                     hostname: 'localhost',
@@ -2025,7 +1817,7 @@ describe('transmission', () => {
 
             const upstream = new Hapi.Server();
             upstream.route({ method: 'GET', path: '/headers', handler: headersHandler });
-            upstream.start(() => {
+            upstream.start().then(() => {
 
                 const proxyHandler = function (request, reply) {
 
@@ -2033,9 +1825,8 @@ describe('transmission', () => {
                     options.headers = Hoek.clone(request.headers);
                     delete options.headers.host;
 
-                    Wreck.request(request.method, 'http://localhost:' + upstream.info.port + '/headers', options, (err, res) => {
+                    Wreck.request(request.method, 'http://localhost:' + upstream.info.port + '/headers', options).then((res) => {
 
-                        expect(err).to.not.exist();
                         reply(res).code(res.statusCode);
                     });
                 };
@@ -2048,7 +1839,7 @@ describe('transmission', () => {
                     expect(res.statusCode).to.equal(200);
                     expect(res.headers.vary).to.equal('X-Custom3,accept-encoding');
 
-                    upstream.stop(done);
+                    upstream.stop().then(done);
                 });
             });
         });
@@ -2467,7 +2258,7 @@ describe('transmission', () => {
 
     describe('writeHead()', () => {
 
-        it('set custom statusMessage', (done) => {
+        it('set custom statusMessage', async () => {
 
             const server = new Hapi.Server();
 
@@ -2477,25 +2268,18 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
-
-                const uri = 'http://localhost:' + server.info.port;
-
-                Wreck.get(uri, {}, (err, res) => {
-
-                    expect(err).to.not.exist();
-                    expect(res.statusMessage).to.equal('Great');
-                    server.stop(done);
-                });
-            });
+            const uri = 'http://localhost:' + server.info.port;
+            const { res } = await Wreck.get(uri);
+            expect(res.statusMessage).to.equal('Great');
+            await server.stop();
         });
     });
 
     describe('cache()', () => {
 
-        it('sets max-age value (method and route)', (done) => {
+        it('sets max-age value (method and route)', async () => {
 
             const server = new Hapi.Server();
 
@@ -2515,19 +2299,14 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { expiresIn: 120000, privacy: 'private' } } });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
-
-                server.inject('/profile', (res) => {
-
-                    expect(res.headers['cache-control']).to.equal('max-age=120, must-revalidate, private');
-                    server.stop(done);
-                });
-            });
+            const res = await server.inject('/profile');
+            expect(res.headers['cache-control']).to.equal('max-age=120, must-revalidate, private');
+            await server.stop();
         });
 
-        it('sets max-age value (expiresAt)', (done) => {
+        it('sets max-age value (expiresAt)', async () => {
 
             const server = new Hapi.Server();
 
@@ -2537,16 +2316,11 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', config: { handler, cache: { expiresAt: '10:00' } } });
-            server.start((err) => {
+            await server.start();
 
-                expect(err).to.not.exist();
-
-                server.inject('/', (res) => {
-
-                    expect(res.headers['cache-control']).to.match(/^max-age=\d+, must-revalidate$/);
-                    server.stop(done);
-                });
-            });
+            const res = await server.inject('/');
+            expect(res.headers['cache-control']).to.match(/^max-age=\d+, must-revalidate$/);
+            await server.stop();
         });
 
         it('returns no-cache on error', (done) => {
@@ -2597,7 +2371,7 @@ describe('transmission', () => {
             });
         });
 
-        it('does not return max-age value when route is not cached', (done) => {
+        it('does not return max-age value when route is not cached', async () => {
 
             const server = new Hapi.Server();
             const activeItemHandler = function (request, reply) {
@@ -2609,11 +2383,8 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/item2', config: { handler: activeItemHandler } });
-            server.inject('/item2', (res) => {
-
-                expect(res.headers['cache-control']).to.not.equal('max-age=120, must-revalidate');
-                server.stop(done);
-            });
+            const res = await server.inject('/item2');
+            expect(res.headers['cache-control']).to.not.equal('max-age=120, must-revalidate');
         });
 
         it('caches using non default cache', (done) => {
@@ -2622,9 +2393,7 @@ describe('transmission', () => {
             const defaults = server.cache({ segment: 'a', expiresIn: 2000 });
             const primary = server.cache({ segment: 'a', expiresIn: 2000, cache: 'primary' });
 
-            server.start((err) => {
-
-                expect(err).to.not.exist();
+            server.start().then(() => {
 
                 defaults.set('b', 1, null, (err) => {
 
@@ -2643,7 +2412,7 @@ describe('transmission', () => {
 
                                 expect(err).to.not.exist();
                                 expect(cached2.item).to.equal(2);
-                                server.stop(done);
+                                server.stop().then(done);
                             });
                         });
                     });
@@ -3248,4 +3017,10 @@ internals.TimerStream.prototype._read = function (size) {
         this.push('hi');
         this.push(null);
     }, 5);
+};
+
+
+internals.compress = function (encoder, value) {
+
+    return new Promise((resolve) => Zlib[encoder](value, (ignoreErr, compressed) => resolve(compressed)));
 };

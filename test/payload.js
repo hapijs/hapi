@@ -6,6 +6,7 @@ const Fs = require('fs');
 const Http = require('http');
 const Path = require('path');
 const Zlib = require('zlib');
+
 const Code = require('code');
 const Hapi = require('..');
 const Hoek = require('hoek');
@@ -28,7 +29,7 @@ const expect = Code.expect;
 
 describe('payload', () => {
 
-    it('sets payload', (done) => {
+    it('sets payload', async () => {
 
         const payload = '{"x":"1","y":"2","z":"3"}';
 
@@ -43,12 +44,9 @@ describe('payload', () => {
         const server = new Hapi.Server();
         server.route({ method: 'POST', path: '/', config: { handler } });
 
-        server.inject({ method: 'POST', url: '/', payload }, (res) => {
-
-            expect(res.result).to.exist();
-            expect(res.result.x).to.equal('1');
-            done();
-        });
+        const res = await server.inject({ method: 'POST', url: '/', payload });
+        expect(res.result).to.exist();
+        expect(res.result.x).to.equal('1');
     });
 
     it('handles request socket error', (done) => {
@@ -88,7 +86,7 @@ describe('payload', () => {
         server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { close: true, end: false } }, (res) => { });
     });
 
-    it('handles aborted request', (done) => {
+    it('handles aborted request', async () => {
 
         const handler = function (request, reply) {
 
@@ -98,40 +96,28 @@ describe('payload', () => {
         const server = new Hapi.Server();
         server.route({ method: 'POST', path: '/', config: { handler, payload: { parse: false } } });
 
-        server.events.on('log', (event, tags) => {
+        const log = server.events.once('log');
 
-            expect(event.data.message).to.equal('Parse Error');
-            server.stop({ timeout: 10 }, done);
-        });
+        await server.start();
 
-        server.start((err) => {
+        const options = {
+            hostname: 'localhost',
+            port: server.info.port,
+            path: '/',
+            method: 'POST',
+            headers: {
+                'Content-Length': '10'
+            }
+        };
 
-            expect(err).to.not.exist();
+        const req = Http.request(options, (res) => { });
+        req.on('error', Hoek.ignore);
+        req.write('Hello\n');
+        setTimeout(() => req.abort(), 50);
 
-            const options = {
-                hostname: 'localhost',
-                port: server.info.port,
-                path: '/',
-                method: 'POST',
-                headers: {
-                    'Content-Length': '10'
-                }
-            };
-
-            const req = Http.request(options, (res) => { });
-
-            req.write('Hello\n');
-
-            req.on('error', (err) => {
-
-                expect(err.code).to.equal('ECONNRESET');
-            });
-
-            setTimeout(() => {
-
-                req.abort();
-            }, 50);
-        });
+        const [event] = await log;
+        expect(event.data.message).to.equal('Parse Error');
+        await server.stop({ timeout: 10 });
     });
 
     it('errors when payload too big', (done) => {
@@ -156,7 +142,7 @@ describe('payload', () => {
         });
     });
 
-    it('returns 413 with response when payload is not consumed', (done) => {
+    it('returns 413 with response when payload is not consumed', async () => {
 
         const payload = new Buffer(10 * 1024 * 1024).toString();
 
@@ -168,24 +154,17 @@ describe('payload', () => {
         const server = new Hapi.Server();
         server.route({ method: 'POST', path: '/', config: { handler, payload: { maxBytes: 1024 * 1024 } } });
 
-        server.start((err) => {
+        await server.start();
 
-            expect(err).to.not.exist();
+        const uri = 'http://localhost:' + server.info.port;
+        const err = await expect(Wreck.post(uri, { payload })).to.reject();
+        expect(err.data.res.statusCode).to.equal(413);
+        expect(err.data.payload.toString()).to.equal('{"statusCode":413,"error":"Request Entity Too Large","message":"Payload content length greater than maximum allowed: 1048576"}');
 
-            const uri = 'http://localhost:' + server.info.port;
-
-            Wreck.post(uri, { payload }, (err, res, body) => {
-
-                expect(err).to.exist();
-                expect(err.data.response.statusCode).to.equal(413);
-                expect(err.data.payload.toString()).to.equal('{"statusCode":413,"error":"Request Entity Too Large","message":"Payload content length greater than maximum allowed: 1048576"}');
-
-                server.stop(done);
-            });
-        });
+        await server.stop();
     });
 
-    it('handles expect 100-continue', (done) => {
+    it('handles expect 100-continue', async () => {
 
         const handler = function (request, reply) {
 
@@ -195,21 +174,14 @@ describe('payload', () => {
         const server = new Hapi.Server();
         server.route({ method: 'POST', path: '/', config: { handler } });
 
-        server.start((err) => {
+        await server.start();
 
-            expect(err).to.not.exist();
+        const uri = 'http://localhost:' + server.info.port;
+        const { res, payload } = await Wreck.post(uri, { payload: { hello: true }, headers: { expect: '100-continue' } });
+        expect(res.statusCode).to.equal(200);
+        expect(payload.toString()).to.equal('{"hello":true}');
 
-            const uri = 'http://localhost:' + server.info.port;
-
-            Wreck.post(uri, { payload: { hello: true }, headers: { expect: '100-continue' } }, (err, res, body) => {
-
-                expect(err).to.not.exist();
-                expect(res.statusCode).to.equal(200);
-                expect(body.toString()).to.equal('{"hello":true}');
-
-                server.stop(done);
-            });
-        });
+        await server.stop();
     });
 
     it('peeks at unparsed data', (done) => {
@@ -419,7 +391,7 @@ describe('payload', () => {
         });
     });
 
-    it('returns an error on unsupported mime type', (done) => {
+    it('returns an error on unsupported mime type', async () => {
 
         const handler = function (request, reply) {
 
@@ -428,30 +400,19 @@ describe('payload', () => {
 
         const server = new Hapi.Server();
         server.route({ method: 'POST', path: '/', config: { handler } });
+        await server.start();
 
-        server.start((err) => {
+        const options = {
+            headers: {
+                'Content-Type': 'application/unknown',
+                'Content-Length': '18'
+            },
+            payload: '{ "key": "value" }'
+        };
 
-            expect(err).to.not.exist();
-
-            const options = {
-                hostname: 'localhost',
-                port: server.info.port,
-                path: '/?x=4',
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/unknown',
-                    'Content-Length': '18'
-                }
-            };
-
-            const req = Http.request(options, (res) => {
-
-                expect(res.statusCode).to.equal(415);
-                server.stop({ timeout: 1 }, done);
-            });
-
-            req.end('{ "key": "value" }');
-        });
+        const err = await expect(Wreck.post(`http://localhost:${server.info.port}/?x=4`, options)).to.reject();
+        expect(err.output.statusCode).to.equal(415);
+        await server.stop({ timeout: 1 });
     });
 
     it('ignores unsupported mime type', (done) => {
@@ -599,32 +560,32 @@ describe('payload', () => {
     it('returns parsed multipart data', (done) => {
 
         const multipartPayload =
-                '--AaB03x\r\n' +
-                'content-disposition: form-data; name="x"\r\n' +
-                '\r\n' +
-                'First\r\n' +
-                '--AaB03x\r\n' +
-                'content-disposition: form-data; name="x"\r\n' +
-                '\r\n' +
-                'Second\r\n' +
-                '--AaB03x\r\n' +
-                'content-disposition: form-data; name="x"\r\n' +
-                '\r\n' +
-                'Third\r\n' +
-                '--AaB03x\r\n' +
-                'content-disposition: form-data; name="field1"\r\n' +
-                '\r\n' +
-                'Joe Blow\r\nalmost tricked you!\r\n' +
-                '--AaB03x\r\n' +
-                'content-disposition: form-data; name="field1"\r\n' +
-                '\r\n' +
-                'Repeated name segment\r\n' +
-                '--AaB03x\r\n' +
-                'content-disposition: form-data; name="pics"; filename="file1.txt"\r\n' +
-                'Content-Type: text/plain\r\n' +
-                '\r\n' +
-                '... contents of file1.txt ...\r\r\n' +
-                '--AaB03x--\r\n';
+            '--AaB03x\r\n' +
+            'content-disposition: form-data; name="x"\r\n' +
+            '\r\n' +
+            'First\r\n' +
+            '--AaB03x\r\n' +
+            'content-disposition: form-data; name="x"\r\n' +
+            '\r\n' +
+            'Second\r\n' +
+            '--AaB03x\r\n' +
+            'content-disposition: form-data; name="x"\r\n' +
+            '\r\n' +
+            'Third\r\n' +
+            '--AaB03x\r\n' +
+            'content-disposition: form-data; name="field1"\r\n' +
+            '\r\n' +
+            'Joe Blow\r\nalmost tricked you!\r\n' +
+            '--AaB03x\r\n' +
+            'content-disposition: form-data; name="field1"\r\n' +
+            '\r\n' +
+            'Repeated name segment\r\n' +
+            '--AaB03x\r\n' +
+            'content-disposition: form-data; name="pics"; filename="file1.txt"\r\n' +
+            'Content-Type: text/plain\r\n' +
+            '\r\n' +
+            '... contents of file1.txt ...\r\r\n' +
+            '--AaB03x--\r\n';
 
         const handler = function (request, reply) {
 
@@ -674,83 +635,77 @@ describe('payload', () => {
         });
     });
 
-    it('times out when client request taking too long', (done) => {
+    it('times out when client request taking too long', async () => {
 
         const handler = function (request, reply) {
 
-            return reply('fast');
+            return reply();
         };
 
         const server = new Hapi.Server({ routes: { payload: { timeout: 50 } } });
-        server.route({ method: 'POST', path: '/fast', config: { handler } });
-        server.start((err) => {
+        server.route({ method: 'POST', path: '/', config: { handler } });
+        await server.start();
 
-            expect(err).to.not.exist();
+        const request = () => {
 
-            const timer = new Hoek.Bench();
             const options = {
                 hostname: '127.0.0.1',
                 port: server.info.port,
-                path: '/fast',
+                path: '/',
                 method: 'POST'
             };
 
-            const req = Http.request(options, (res) => {
-
-                expect(res.statusCode).to.equal(408);
-                expect(timer.elapsed()).to.be.at.least(45);
-                server.stop({ timeout: 1 }, done);
-            });
-
-            req.on('error', Hoek.ignore);                    // Will error out, so don't allow error to escape test
-
+            const req = Http.request(options);
+            req.on('error', Hoek.ignore);
             req.write('{}\n');
-            setTimeout(() => {
+            setTimeout(() => req.end(), 100);
+            return new Promise((resolve) => req.once('response', resolve));
+        };
 
-                req.end();
-            }, 100);
-        });
+        const timer = new Hoek.Bench();
+        const res = await request();
+        expect(res.statusCode).to.equal(408);
+        expect(timer.elapsed()).to.be.at.least(50);
+
+        await server.stop({ timeout: 1 });
     });
 
-    it('times out when client request taking too long (route override)', (done) => {
+    it('times out when client request taking too long (route override)', async () => {
 
         const handler = function (request, reply) {
 
-            return reply('fast');
+            return reply();
         };
 
         const server = new Hapi.Server({ routes: { payload: { timeout: false } } });
-        server.route({ method: 'POST', path: '/fast', config: { payload: { timeout: 50 }, handler } });
-        server.start((err) => {
+        server.route({ method: 'POST', path: '/', config: { payload: { timeout: 50 }, handler } });
+        await server.start();
 
-            expect(err).to.not.exist();
+        const request = () => {
 
-            const timer = new Hoek.Bench();
             const options = {
                 hostname: '127.0.0.1',
                 port: server.info.port,
-                path: '/fast',
+                path: '/',
                 method: 'POST'
             };
 
-            const req = Http.request(options, (res) => {
-
-                expect(res.statusCode).to.equal(408);
-                expect(timer.elapsed()).to.be.at.least(45);
-                server.stop({ timeout: 1 }, done);
-            });
-
-            req.on('error', Hoek.ignore);                    // Will error out, so don't allow error to escape test
-
+            const req = Http.request(options);
+            req.on('error', Hoek.ignore);
             req.write('{}\n');
-            setTimeout(() => {
+            setTimeout(() => req.end(), 100);
+            return new Promise((resolve) => req.once('response', resolve));
+        };
 
-                req.end();
-            }, 100);
-        });
+        const timer = new Hoek.Bench();
+        const res = await request();
+        expect(res.statusCode).to.equal(408);
+        expect(timer.elapsed()).to.be.at.least(50);
+
+        await server.stop({ timeout: 1 });
     });
 
-    it('returns payload when timeout is not triggered', (done) => {
+    it('returns payload when timeout is not triggered', async () => {
 
         const handler = function (request, reply) {
 
@@ -758,57 +713,42 @@ describe('payload', () => {
         };
 
         const server = new Hapi.Server({ routes: { payload: { timeout: 50 } } });
-        server.route({ method: 'POST', path: '/fast', config: { handler } });
-        server.start((err) => {
-
-            expect(err).to.not.exist();
-
-            const options = {
-                hostname: '127.0.0.1',
-                port: server.info.port,
-                path: '/fast',
-                method: 'POST'
-            };
-
-            const req = Http.request(options, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                server.stop({ timeout: 1 }, done);
-            });
-
-            req.end();
-        });
+        server.route({ method: 'POST', path: '/', config: { handler } });
+        await server.start();
+        const { res } = await Wreck.post(`http://localhost:${server.info.port}/`);
+        expect(res.statusCode).to.equal(200);
+        await server.stop({ timeout: 1 });
     });
 
     it('errors if multipart payload exceeds byte limit', (done) => {
 
         const multipartPayload =
-                '--AaB03x\r\n' +
-                'content-disposition: form-data; name="x"\r\n' +
-                '\r\n' +
-                'First\r\n' +
-                '--AaB03x\r\n' +
-                'content-disposition: form-data; name="x"\r\n' +
-                '\r\n' +
-                'Second\r\n' +
-                '--AaB03x\r\n' +
-                'content-disposition: form-data; name="x"\r\n' +
-                '\r\n' +
-                'Third\r\n' +
-                '--AaB03x\r\n' +
-                'content-disposition: form-data; name="field1"\r\n' +
-                '\r\n' +
-                'Joe Blow\r\nalmost tricked you!\r\n' +
-                '--AaB03x\r\n' +
-                'content-disposition: form-data; name="field1"\r\n' +
-                '\r\n' +
-                'Repeated name segment\r\n' +
-                '--AaB03x\r\n' +
-                'content-disposition: form-data; name="pics"; filename="file1.txt"\r\n' +
-                'Content-Type: text/plain\r\n' +
-                '\r\n' +
-                '... contents of file1.txt ...\r\r\n' +
-                '--AaB03x--\r\n';
+            '--AaB03x\r\n' +
+            'content-disposition: form-data; name="x"\r\n' +
+            '\r\n' +
+            'First\r\n' +
+            '--AaB03x\r\n' +
+            'content-disposition: form-data; name="x"\r\n' +
+            '\r\n' +
+            'Second\r\n' +
+            '--AaB03x\r\n' +
+            'content-disposition: form-data; name="x"\r\n' +
+            '\r\n' +
+            'Third\r\n' +
+            '--AaB03x\r\n' +
+            'content-disposition: form-data; name="field1"\r\n' +
+            '\r\n' +
+            'Joe Blow\r\nalmost tricked you!\r\n' +
+            '--AaB03x\r\n' +
+            'content-disposition: form-data; name="field1"\r\n' +
+            '\r\n' +
+            'Repeated name segment\r\n' +
+            '--AaB03x\r\n' +
+            'content-disposition: form-data; name="pics"; filename="file1.txt"\r\n' +
+            'Content-Type: text/plain\r\n' +
+            '\r\n' +
+            '... contents of file1.txt ...\r\r\n' +
+            '--AaB03x--\r\n';
 
         const handler = function (request, reply) {
 

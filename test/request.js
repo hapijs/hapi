@@ -80,7 +80,7 @@ describe('Request.Generator', () => {
 
 describe('Request', () => {
 
-    it('sets client address', (done) => {
+    it('sets client address', async () => {
 
         const server = new Hapi.Server();
 
@@ -98,17 +98,11 @@ describe('Request', () => {
 
         server.route({ method: 'GET', path: '/', handler });
 
-        server.start((err) => {
+        await server.start();
 
-            expect(err).to.not.exist();
-
-            Wreck.get('http://localhost:' + server.info.port, (err, res, body) => {
-
-                expect(err).to.not.exist();
-                expect(body.toString()).to.equal('ok');
-                server.stop(done);
-            });
-        });
+        const { payload } = await Wreck.get('http://localhost:' + server.info.port);
+        expect(payload.toString()).to.equal('ok');
+        await server.stop();
     });
 
     it('sets referrer', (done) => {
@@ -306,9 +300,7 @@ describe('Request', () => {
 
             server.ext('onRequest', onRequest);
 
-            server.start((err) => {
-
-                expect(err).to.not.exist();
+            server.start().then(() => {
 
                 let total = 2;
                 const createConnection = function () {
@@ -334,7 +326,7 @@ describe('Request', () => {
                     }
                     else {
                         expect(disconnected).to.equal(4);       // Each connection sents two HTTP requests
-                        server.stop(done);
+                        server.stop().then(done);
                     }
                 };
 
@@ -357,7 +349,7 @@ describe('Request', () => {
             let client;
             const onRequest = function (request, reply) {
 
-                request.once('disconnect', () => server.stop(done));
+                request.once('disconnect', () => server.stop().then(done));
                 return reply.continue();
             };
 
@@ -371,9 +363,7 @@ describe('Request', () => {
 
             server.ext('onPreHandler', onPreHandler);
 
-            server.start((err) => {
-
-                expect(err).to.not.exist();
+            server.start().then(() => {
 
                 client = Net.connect(server.info.port, () => {
 
@@ -432,16 +422,14 @@ describe('Request', () => {
                     reply(new Error('fail'));
                     setTimeout(() => {
 
-                        server.stop(done);
+                        server.stop().then(done);
                     }, 10);
                 }, 10);
             };
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.start((err) => {
-
-                expect(err).to.not.exist();
+            server.start().then(() => {
 
                 clientRequest = Http.request({
                     hostname: 'localhost',
@@ -468,16 +456,14 @@ describe('Request', () => {
                     reply.continue();
                     setTimeout(() => {
 
-                        server.stop(done);
+                        server.stop().then(done);
                     }, 10);
                 }, 10);
             };
 
             server.ext('onPreHandler', preHandler);
 
-            server.start((err) => {
-
-                expect(err).to.not.exist();
+            server.start().then(() => {
 
                 clientRequest = Http.request({
                     hostname: 'localhost',
@@ -515,10 +501,10 @@ describe('Request', () => {
 
             server.events.on('response', () => {
 
-                server.stop(done);
+                server.stop().then(done);
             });
 
-            server.start((err) => {
+            server.start().then((err) => {
 
                 expect(err).to.not.exist();
 
@@ -533,7 +519,7 @@ describe('Request', () => {
             });
         });
 
-        it('returns not found on internal only route (external)', (done) => {
+        it('returns not found on internal only route (external)', async () => {
 
             const server = new Hapi.Server();
             server.route({
@@ -548,17 +534,11 @@ describe('Request', () => {
                 }
             });
 
-            server.start((err) => {
-
-                expect(err).to.not.exist();
-                Wreck.get('http://localhost:' + server.info.port, (err, res, body) => {
-
-                    expect(err).to.exist();
-                    expect(err.data.response.statusCode).to.equal(404);
-                    expect(err.data.payload.toString()).to.equal('{"statusCode":404,"error":"Not Found","message":"Not Found"}');
-                    server.stop(done);
-                });
-            });
+            await server.start();
+            const err = await expect(Wreck.get('http://localhost:' + server.info.port)).to.reject();
+            expect(err.data.res.statusCode).to.equal(404);
+            expect(err.data.payload.toString()).to.equal('{"statusCode":404,"error":"Not Found","message":"Not Found"}');
+            await server.stop();
         });
 
         it('returns not found on internal only route (inject)', (done) => {
@@ -1120,11 +1100,11 @@ describe('Request', () => {
 
                     expect(request.info.hostname).to.equal('host.com');
                     socket.destroy();
-                    server.stop(done);
+                    server.stop().then(done);
                 }
             });
 
-            server.start((err) => {
+            server.start().then((err) => {
 
                 expect(err).to.not.exist();
                 socket = Net.createConnection(server.info.port, '127.0.0.1', () => socket.write('GET http://host.com\r\n\r\n'));
@@ -1625,7 +1605,7 @@ describe('Request', () => {
             });
         });
 
-        it('does not return an error when server is responding when the timeout occurs', (done) => {
+        it('does not return an error when server is responding when the timeout occurs', async () => {
 
             const TestStream = function () {
 
@@ -1660,21 +1640,15 @@ describe('Request', () => {
 
             const server = new Hapi.Server({ routes: { timeout: { server: 100 } } });
             server.route({ method: 'GET', path: '/', handler });
-            server.start((err) => {
-
-                expect(err).to.not.exist();
-                Wreck.get('http://localhost:' + server.info.port, (err, res, payload) => {
-
-                    expect(err).to.not.exist();
-                    expect(ended).to.be.true();
-                    expect(timer.elapsed()).to.be.at.least(150);
-                    expect(res.statusCode).to.equal(200);
-                    server.stop({ timeout: 1 }, done);
-                });
-            });
+            await server.start();
+            const { res } = await Wreck.get('http://localhost:' + server.info.port);
+            expect(ended).to.be.true();
+            expect(timer.elapsed()).to.be.at.least(150);
+            expect(res.statusCode).to.equal(200);
+            await server.stop({ timeout: 1 });
         });
 
-        it('does not return an error response when server is slower than timeout but response has started', (done) => {
+        it('does not return an error response when server is slower than timeout but response has started', async () => {
 
             const streamHandler = function (request, reply) {
 
@@ -1708,24 +1682,11 @@ describe('Request', () => {
 
             const server = new Hapi.Server({ routes: { timeout: { server: 50 } } });
             server.route({ method: 'GET', path: '/stream', config: { handler: streamHandler } });
-            server.start((err) => {
 
-                expect(err).to.not.exist();
-
-                const options = {
-                    hostname: '127.0.0.1',
-                    port: server.info.port,
-                    path: '/stream',
-                    method: 'GET'
-                };
-
-                const req = Http.request(options, (res) => {
-
-                    expect(res.statusCode).to.equal(200);
-                    server.stop({ timeout: 1 }, done);
-                });
-                req.end();
-            });
+            await server.start();
+            const { res } = await Wreck.get(`http://localhost:${server.info.port}/stream`);
+            expect(res.statusCode).to.equal(200);
+            await server.stop({ timeout: 1 });
         });
 
         it('does not return an error response when server takes less than timeout to respond', (done) => {
@@ -1752,9 +1713,7 @@ describe('Request', () => {
             const server = new Hapi.Server({ routes: { timeout: { server: 50 }, payload: { timeout: 50 } } });
             server.route({ method: 'POST', path: '/timeout', config: { handler: timeoutHandler } });
 
-            server.start((err) => {
-
-                expect(err).to.not.exist();
+            server.start().then(() => {
 
                 const timer = new Hoek.Bench();
                 const options = {
@@ -1768,7 +1727,7 @@ describe('Request', () => {
 
                     expect([503, 408]).to.contain(res.statusCode);
                     expect(timer.elapsed()).to.be.at.least(45);
-                    server.stop({ timeout: 1 }, done);
+                    server.stop({ timeout: 1 }).then(done);
                 });
 
                 req.on('error', (err) => {

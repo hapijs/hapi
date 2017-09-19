@@ -1167,7 +1167,7 @@ describe('handler', () => {
             });
         });
 
-        it('logs server method using string notation when cache enabled', (done) => {
+        it('logs server method using string notation when cache enabled', async () => {
 
             const server = new Hapi.Server({ routes: { log: true } });
 
@@ -1192,21 +1192,14 @@ describe('handler', () => {
                 }
             });
 
-            server.initialize((err) => {
-
-                expect(err).to.not.exist();
-
-                server.inject('/user/5', (res) => {
-
-                    expect(res.result[0].tags).to.equal(['pre', 'method', 'user']);
-                    expect(res.result[0].internal).to.equal(true);
-                    expect(res.result[0].data.msec).to.exist();
-                    done();
-                });
-            });
+            await server.initialize();
+            const res = await server.inject('/user/5');
+            expect(res.result[0].tags).to.equal(['pre', 'method', 'user']);
+            expect(res.result[0].internal).to.equal(true);
+            expect(res.result[0].data.msec).to.exist();
         });
 
-        it('uses server method with cache via string notation', (done) => {
+        it('uses server method with cache via string notation', async () => {
 
             const server = new Hapi.Server();
 
@@ -1232,21 +1225,13 @@ describe('handler', () => {
                 }
             });
 
-            server.initialize((err) => {
+            await server.initialize();
 
-                expect(err).to.not.exist();
+            const res1 = await server.inject('/user/5');
+            expect(res1.result).to.equal(0);
 
-                server.inject('/user/5', (res1) => {
-
-                    expect(res1.result).to.equal(0);
-
-                    server.inject('/user/5', (res2) => {
-
-                        expect(res2.result).to.equal(0);
-                        done();
-                    });
-                });
-            });
+            const res2 = await server.inject('/user/5');
+            expect(res2.result).to.equal(0);
         });
     });
 
