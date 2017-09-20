@@ -35,34 +35,28 @@ describe('transmission', () => {
 
     describe('marshal()', () => {
 
-        it('returns valid http date responses in last-modified header', (done) => {
+        it('returns valid http date responses in last-modified header', async () => {
 
             const server = new Hapi.Server();
-            server.register(Inert, Hoek.ignore);
+            await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
-            server.inject('/file', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers['last-modified']).to.equal(Fs.statSync(__dirname + '/../package.json').mtime.toUTCString());
-                done();
-            });
+            const res = await server.inject('/file');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['last-modified']).to.equal(Fs.statSync(__dirname + '/../package.json').mtime.toUTCString());
         });
 
-        it('returns 200 if if-modified-since is invalid', (done) => {
+        it('returns 200 if if-modified-since is invalid', async () => {
 
             const server = new Hapi.Server();
-            server.register(Inert, Hoek.ignore);
+            await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
-            server.inject({ url: '/file', headers: { 'if-modified-since': 'some crap' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ url: '/file', headers: { 'if-modified-since': 'some crap' } });
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('returns 200 if last-modified is invalid', (done) => {
+        it('returns 200 if last-modified is invalid', async () => {
 
             const server = new Hapi.Server();
             const handler = function (request, reply) {
@@ -72,49 +66,46 @@ describe('transmission', () => {
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/', headers: { 'if-modified-since': 'Fri, 28 Mar 2014 22:52:39 GMT' } }, (res2) => {
-
-                expect(res2.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { 'if-modified-since': 'Fri, 28 Mar 2014 22:52:39 GMT' } });
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('closes file handlers when not reading file stream', { skip: process.platform === 'win32' }, (done) => {
+        it('closes file handlers when not reading file stream', { skip: process.platform === 'win32' }, async () => {
 
             const server = new Hapi.Server();
-            server.register(Inert, Hoek.ignore);
+            await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
-            server.inject('/file', (res1) => {
+            const res1 = await server.inject('/file');
+            const res2 = await server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers.date } });
+            expect(res2.statusCode).to.equal(304);
 
-                server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers.date } }, (res2) => {
+            await new Promise((resolve) => {
 
-                    expect(res2.statusCode).to.equal(304);
-                    const cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
-                    let lsof = '';
-                    cmd.stdout.on('data', (buffer) => {
+                const cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
+                let lsof = '';
+                cmd.stdout.on('data', (buffer) => {
 
-                        lsof += buffer.toString();
-                    });
-
-                    cmd.stdout.on('end', () => {
-
-                        let count = 0;
-                        const lines = lsof.split('\n');
-                        for (let i = 0; i < lines.length; ++i) {
-                            count += (lines[i].match(/package.json/) === null ? 0 : 1);
-                        }
-
-                        expect(count).to.equal(0);
-                        done();
-                    });
-
-                    cmd.stdin.end();
+                    lsof += buffer.toString();
                 });
+
+                cmd.stdout.on('end', () => {
+
+                    let count = 0;
+                    const lines = lsof.split('\n');
+                    for (let i = 0; i < lines.length; ++i) {
+                        count += (lines[i].match(/package.json/) === null ? 0 : 1);
+                    }
+
+                    expect(count).to.equal(0);
+                    resolve();
+                });
+
+                cmd.stdin.end();
             });
         });
 
-        it('closes file handlers when not using a manually open file stream', { skip: process.platform === 'win32' }, (done) => {
+        it('closes file handlers when not using a manually open file stream', { skip: process.platform === 'win32' }, async () => {
 
             const server = new Hapi.Server();
 
@@ -125,150 +116,123 @@ describe('transmission', () => {
 
             server.route({ method: 'GET', path: '/file', handler });
 
-            server.inject('/file', (res1) => {
+            const res1 = await server.inject('/file');
+            const res2 = await server.inject({ url: '/file', headers: { 'if-none-match': res1.headers.etag } });
+            expect(res2.statusCode).to.equal(304);
 
-                server.inject({ url: '/file', headers: { 'if-none-match': res1.headers.etag } }, (res2) => {
+            await new Promise((resolve) => {
 
-                    expect(res2.statusCode).to.equal(304);
-                    const cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
-                    let lsof = '';
-                    cmd.stdout.on('data', (buffer) => {
+                const cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
+                let lsof = '';
+                cmd.stdout.on('data', (buffer) => {
 
-                        lsof += buffer.toString();
-                    });
-
-                    cmd.stdout.on('end', () => {
-
-                        let count = 0;
-                        const lines = lsof.split('\n');
-                        for (let i = 0; i < lines.length; ++i) {
-                            count += (lines[i].match(/package.json/) === null ? 0 : 1);
-                        }
-
-                        expect(count).to.equal(0);
-                        done();
-                    });
-
-                    cmd.stdin.end();
+                    lsof += buffer.toString();
                 });
+
+                cmd.stdout.on('end', () => {
+
+                    let count = 0;
+                    const lines = lsof.split('\n');
+                    for (let i = 0; i < lines.length; ++i) {
+                        count += (lines[i].match(/package.json/) === null ? 0 : 1);
+                    }
+
+                    expect(count).to.equal(0);
+                    resolve();
+                });
+
+                cmd.stdin.end();
             });
         });
 
-        it('returns a 304 when the request has if-modified-since and the response has not been modified since (larger)', (done) => {
+        it('returns a 304 when the request has if-modified-since and the response has not been modified since (larger)', async () => {
 
             const server = new Hapi.Server();
-            server.register(Inert, Hoek.ignore);
+            await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
-            server.inject('/file', (res1) => {
-
-                const last = new Date(Date.parse(res1.headers['last-modified']) + 1000);
-                server.inject({ url: '/file', headers: { 'if-modified-since': last.toUTCString() } }, (res2) => {
-
-                    expect(res2.statusCode).to.equal(304);
-                    expect(res2.headers['content-length']).to.not.exist();
-                    expect(res2.headers.etag).to.exist();
-                    expect(res2.headers['last-modified']).to.exist();
-                    done();
-                });
-            });
+            const res1 = await server.inject('/file');
+            const last = new Date(Date.parse(res1.headers['last-modified']) + 1000);
+            const res2 = await server.inject({ url: '/file', headers: { 'if-modified-since': last.toUTCString() } });
+            expect(res2.statusCode).to.equal(304);
+            expect(res2.headers['content-length']).to.not.exist();
+            expect(res2.headers.etag).to.exist();
+            expect(res2.headers['last-modified']).to.exist();
         });
 
-        it('returns a 304 when the request has if-modified-since and the response has not been modified since (equal)', (done) => {
+        it('returns a 304 when the request has if-modified-since and the response has not been modified since (equal)', async () => {
 
             const server = new Hapi.Server();
-            server.register(Inert, Hoek.ignore);
+            await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
-            server.inject('/file', (res1) => {
-
-                server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers['last-modified'] } }, (res2) => {
-
-                    expect(res2.statusCode).to.equal(304);
-                    expect(res2.headers['content-length']).to.not.exist();
-                    expect(res2.headers.etag).to.exist();
-                    expect(res2.headers['last-modified']).to.exist();
-                    done();
-                });
-            });
+            const res1 = await server.inject('/file');
+            const res2 = await server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers['last-modified'] } });
+            expect(res2.statusCode).to.equal(304);
+            expect(res2.headers['content-length']).to.not.exist();
+            expect(res2.headers.etag).to.exist();
+            expect(res2.headers['last-modified']).to.exist();
         });
 
-        it('matches etag with content-encoding', (done) => {
+        it('matches etag with content-encoding', async () => {
 
             const server = new Hapi.Server();
-            server.register(Inert, Hoek.ignore);
+            await server.register(Inert);
             server.route({ method: 'GET', path: '/', handler: { file: __dirname + '/../package.json' } });
 
             // Initial request - no etag
 
-            server.inject('/', (res1) => {
+            const res1 = await server.inject('/');
+            expect(res1.statusCode).to.equal(200);
 
-                expect(res1.statusCode).to.equal(200);
+            // Second request - etag
 
-                // Second request - etag
+            const res2 = await server.inject('/');
+            expect(res2.statusCode).to.equal(200);
+            expect(res2.headers.etag).to.exist();
+            expect(res2.headers.etag).to.not.contain('-');
 
-                server.inject('/', (res2) => {
+            const baseTag = res2.headers.etag.slice(0, -1);
+            const gzipTag = baseTag + '-gzip"';
 
-                    expect(res2.statusCode).to.equal(200);
-                    expect(res2.headers.etag).to.exist();
-                    expect(res2.headers.etag).to.not.contain('-');
+            // Conditional request
 
-                    const baseTag = res2.headers.etag.slice(0, -1);
-                    const gzipTag = baseTag + '-gzip"';
+            const res3 = await server.inject({ url: '/', headers: { 'if-none-match': res2.headers.etag } });
+            expect(res3.statusCode).to.equal(304);
+            expect(res3.headers.etag).to.equal(res2.headers.etag);
 
-                    // Conditional request
+            // Conditional request with accept-encoding
 
-                    server.inject({ url: '/', headers: { 'if-none-match': res2.headers.etag } }, (res3) => {
+            const res4 = await server.inject({ url: '/', headers: { 'if-none-match': res2.headers.etag, 'accept-encoding': 'gzip' } });
+            expect(res4.statusCode).to.equal(304);
+            expect(res4.headers.etag).to.equal(gzipTag);
 
-                        expect(res3.statusCode).to.equal(304);
-                        expect(res3.headers.etag).to.equal(res2.headers.etag);
+            // Conditional request with vary etag
 
-                        // Conditional request with accept-encoding
+            const res5 = await server.inject({ url: '/', headers: { 'if-none-match': res4.headers.etag, 'accept-encoding': 'gzip' } });
+            expect(res5.statusCode).to.equal(304);
+            expect(res5.headers.etag).to.equal(gzipTag);
 
-                        server.inject({ url: '/', headers: { 'if-none-match': res2.headers.etag, 'accept-encoding': 'gzip' } }, (res4) => {
+            // Request with accept-encoding (gzip)
 
-                            expect(res4.statusCode).to.equal(304);
-                            expect(res4.headers.etag).to.equal(gzipTag);
+            const res6 = await server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } });
+            expect(res6.statusCode).to.equal(200);
+            expect(res6.headers.etag).to.equal(gzipTag);
 
-                            // Conditional request with vary etag
+            // Request with accept-encoding (deflate)
 
-                            server.inject({ url: '/', headers: { 'if-none-match': res4.headers.etag, 'accept-encoding': 'gzip' } }, (res5) => {
+            const res7 = await server.inject({ url: '/', headers: { 'accept-encoding': 'deflate' } });
+            expect(res7.statusCode).to.equal(200);
+            expect(res7.headers.etag).to.equal(baseTag + '-deflate"');
 
-                                expect(res5.statusCode).to.equal(304);
-                                expect(res5.headers.etag).to.equal(gzipTag);
+            // Conditional request with accept-encoding (gzip)
 
-                                // Request with accept-encoding (gzip)
-
-                                server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } }, (res6) => {
-
-                                    expect(res6.statusCode).to.equal(200);
-                                    expect(res6.headers.etag).to.equal(gzipTag);
-
-                                    // Request with accept-encoding (deflate)
-
-                                    server.inject({ url: '/', headers: { 'accept-encoding': 'deflate' } }, (res7) => {
-
-                                        expect(res7.statusCode).to.equal(200);
-                                        expect(res7.headers.etag).to.equal(baseTag + '-deflate"');
-
-                                        // Conditional request with accept-encoding (gzip)
-
-                                        server.inject({ url: '/', headers: { 'if-none-match': res7.headers.etag, 'accept-encoding': 'gzip' } }, (res8) => {
-
-                                            expect(res8.statusCode).to.equal(304);
-                                            expect(res8.headers.etag).to.equal(gzipTag);
-                                            done();
-                                        });
-                                    });
-                                });
-                            });
-                        });
-                    });
-                });
-            });
+            const res8 = await server.inject({ url: '/', headers: { 'if-none-match': res7.headers.etag, 'accept-encoding': 'gzip' } });
+            expect(res8.statusCode).to.equal(304);
+            expect(res8.headers.etag).to.equal(gzipTag);
         });
 
-        it('returns 304 when manually set to 304', (done) => {
+        it('returns 304 when manually set to 304', async () => {
 
             const server = new Hapi.Server();
 
@@ -279,14 +243,11 @@ describe('transmission', () => {
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(304);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(304);
         });
 
-        it('returns a stream reply with custom response headers', (done) => {
+        it('returns a stream reply with custom response headers', async () => {
 
             const handler = function (request, reply) {
 
@@ -315,15 +276,12 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/stream', handler });
 
-            server.inject('/stream', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers.custom).to.equal('header');
-                done();
-            });
+            const res = await server.inject('/stream');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers.custom).to.equal('header');
         });
 
-        it('returns a stream reply with custom response status code', (done) => {
+        it('returns a stream reply with custom response status code', async () => {
 
             const handler = function (request, reply) {
 
@@ -352,14 +310,11 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/stream', handler });
 
-            server.inject('/stream', (res) => {
-
-                expect(res.statusCode).to.equal(201);
-                done();
-            });
+            const res = await server.inject('/stream');
+            expect(res.statusCode).to.equal(201);
         });
 
-        it('returns an JSONP response', (done) => {
+        it('returns an JSONP response', async () => {
 
             const handler = function (request, reply) {
 
@@ -369,16 +324,13 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
-            server.inject('/?callback=me', (res) => {
-
-                expect(res.payload).to.equal('/**/me({"some":"value"});');
-                expect(res.headers['content-length']).to.equal(25);
-                expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
-                done();
-            });
+            const res = await server.inject('/?callback=me');
+            expect(res.payload).to.equal('/**/me({"some":"value"});');
+            expect(res.headers['content-length']).to.equal(25);
+            expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
         });
 
-        it('returns an JSONP response with no payload', (done) => {
+        it('returns an JSONP response with no payload', async () => {
 
             const handler = function (request, reply) {
 
@@ -388,16 +340,13 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
-            server.inject('/?callback=me', (res) => {
-
-                expect(res.payload).to.equal('/**/me();');
-                expect(res.headers['content-length']).to.equal(9);
-                expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
-                done();
-            });
+            const res = await server.inject('/?callback=me');
+            expect(res.payload).to.equal('/**/me();');
+            expect(res.headers['content-length']).to.equal(9);
+            expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
         });
 
-        it('returns an JSONP response (no charset)', (done) => {
+        it('returns an JSONP response (no charset)', async () => {
 
             const handler = function (request, reply) {
 
@@ -407,16 +356,13 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
-            server.inject('/?callback=me', (res) => {
-
-                expect(res.payload).to.equal('/**/me({"some":"value"});');
-                expect(res.headers['content-length']).to.equal(25);
-                expect(res.headers['content-type']).to.equal('text/javascript');
-                done();
-            });
+            const res = await server.inject('/?callback=me');
+            expect(res.payload).to.equal('/**/me({"some":"value"});');
+            expect(res.headers['content-length']).to.equal(25);
+            expect(res.headers['content-type']).to.equal('text/javascript');
         });
 
-        it('returns a X-Content-Type-Options: nosniff header on JSONP responses', (done) => {
+        it('returns a X-Content-Type-Options: nosniff header on JSONP responses', async () => {
 
             const handler = function (request, reply) {
 
@@ -426,15 +372,12 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
-            server.inject('/?callback=me', (res) => {
-
-                expect(res.payload).to.equal('/**/me({"some":"value"});');
-                expect(res.headers['x-content-type-options']).to.equal('nosniff');
-                done();
-            });
+            const res = await server.inject('/?callback=me');
+            expect(res.payload).to.equal('/**/me({"some":"value"});');
+            expect(res.headers['x-content-type-options']).to.equal('nosniff');
         });
 
-        it('returns a normal response when JSONP enabled but not requested', (done) => {
+        it('returns a normal response when JSONP enabled but not requested', async () => {
 
             const handler = function (request, reply) {
 
@@ -444,14 +387,11 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.payload).to.equal('{"some":"value"}');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.payload).to.equal('{"some":"value"}');
         });
 
-        it('returns an JSONP response with compression', (done) => {
+        it('returns an JSONP response with compression', async () => {
 
             const handler = function (request, reply) {
 
@@ -469,21 +409,23 @@ describe('transmission', () => {
                 }
             });
 
-            server.inject({ url: '/user/1/2?callback=docall', headers: { 'accept-encoding': 'gzip' } }, (res) => {
+            const res = await server.inject({ url: '/user/1/2?callback=docall', headers: { 'accept-encoding': 'gzip' } });
+            expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
+            expect(res.headers['content-encoding']).to.equal('gzip');
+            expect(res.headers.vary).to.equal('accept-encoding');
 
-                expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
-                expect(res.headers['content-encoding']).to.equal('gzip');
-                expect(res.headers.vary).to.equal('accept-encoding');
+            await new Promise((resolve) => {
+
                 Zlib.unzip(res.rawPayload, (err, result) => {
 
                     expect(err).to.not.exist();
                     expect(result.toString()).to.equal('/**/docall({"first":"1","last":"2"});');
-                    done();
+                    resolve();
                 });
             });
         });
 
-        it('returns an JSONP response when response is a buffer', (done) => {
+        it('returns an JSONP response when response is a buffer', async () => {
 
             const handler = function (request, reply) {
 
@@ -493,15 +435,12 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
-            server.inject('/?callback=me', (res) => {
-
-                expect(res.payload).to.equal('/**/me(value);');
-                expect(res.headers['content-length']).to.equal(14);
-                done();
-            });
+            const res = await server.inject('/?callback=me');
+            expect(res.payload).to.equal('/**/me(value);');
+            expect(res.headers['content-length']).to.equal(14);
         });
 
-        it('returns response on bad JSONP parameter', (done) => {
+        it('returns response on bad JSONP parameter', async () => {
 
             const handler = function (request, reply) {
 
@@ -511,15 +450,12 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
-            server.inject('/?callback=me*', (res) => {
-
-                expect(res.result).to.exist();
-                expect(res.result.message).to.equal('Invalid JSONP parameter value');
-                done();
-            });
+            const res = await server.inject('/?callback=me*');
+            expect(res.result).to.exist();
+            expect(res.result.message).to.equal('Invalid JSONP parameter value');
         });
 
-        it('returns an JSONP handler error', (done) => {
+        it('returns an JSONP handler error', async () => {
 
             const handler = function (request, reply) {
 
@@ -529,15 +465,12 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
-            server.inject('/?callback=me', (res) => {
-
-                expect(res.payload).to.equal('/**/me({"statusCode":400,"error":"Bad Request","message":"wrong"});');
-                expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
-                done();
-            });
+            const res = await server.inject('/?callback=me');
+            expect(res.payload).to.equal('/**/me({"statusCode":400,"error":"Bad Request","message":"wrong"});');
+            expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
         });
 
-        it('returns an JSONP state error', (done) => {
+        it('returns an JSONP state error', async () => {
 
             const handler = function (request, reply) {
 
@@ -556,61 +489,49 @@ describe('transmission', () => {
 
             server.ext('onPreResponse', preResponse);
 
-            server.inject({ method: 'GET', url: '/?callback=me', headers: { cookie: '+' } }, (res) => {
-
-                expect(res.payload).to.equal('/**/me({"statusCode":400,"error":"Bad Request","message":"Invalid cookie header"});');
-                expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
-                expect(validState).to.equal(true);
-                done();
-            });
+            const res = await server.inject({ method: 'GET', url: '/?callback=me', headers: { cookie: '+' } });
+            expect(res.payload).to.equal('/**/me({"statusCode":400,"error":"Bad Request","message":"Invalid cookie header"});');
+            expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
+            expect(validState).to.equal(true);
         });
 
-        it('sets specific caching headers', (done) => {
+        it('sets specific caching headers', async () => {
 
             const server = new Hapi.Server();
-            server.register(Inert, Hoek.ignore);
+            await server.register(Inert);
             server.route({ method: 'GET', path: '/public/{path*}', config: { cache: { privacy: 'public', expiresIn: 24 * 60 * 60 * 1000 } }, handler: { directory: { path: __dirname, listing: false, index: false } } });
 
-            server.inject('/public/transmit.js', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers['cache-control']).to.equal('max-age=86400, must-revalidate, public');
-                done();
-            });
+            const res = await server.inject('/public/transmit.js');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['cache-control']).to.equal('max-age=86400, must-revalidate, public');
         });
 
-        it('sets caching headers', (done) => {
+        it('sets caching headers', async () => {
 
             const server = new Hapi.Server();
-            server.register(Inert, Hoek.ignore);
+            await server.register(Inert);
             server.route({ method: 'GET', path: '/public/{path*}', handler: { directory: { path: __dirname, listing: false, index: false } } });
 
-            server.inject('/public/transmit.js', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers['cache-control']).to.equal('no-cache');
-                done();
-            });
+            const res = await server.inject('/public/transmit.js');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['cache-control']).to.equal('no-cache');
         });
 
-        it('does not set caching headers if disabled', (done) => {
+        it('does not set caching headers if disabled', async () => {
 
             const server = new Hapi.Server();
-            server.register(Inert, Hoek.ignore);
+            await server.register(Inert);
             server.route({ method: 'GET', path: '/public/{path*}', config: { cache: false }, handler: { directory: { path: __dirname, listing: false, index: false } } });
 
-            server.inject('/public/transmit.js', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers['cache-control']).to.be.undefined();
-                done();
-            });
+            const res = await server.inject('/public/transmit.js');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['cache-control']).to.be.undefined();
         });
     });
 
     describe('transmit()', () => {
 
-        it('sends empty payload on 204', (done) => {
+        it('sends empty payload on 204', async () => {
 
             const server = new Hapi.Server();
 
@@ -620,15 +541,12 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(204);
-                expect(res.result).to.equal(null);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(204);
+            expect(res.result).to.equal(null);
         });
 
-        it('sends 204 on empty payload', (done) => {
+        it('sends 204 on empty payload', async () => {
 
             const server = new Hapi.Server({ routes: { response: { emptyStatusCode: 204 } } });
 
@@ -638,15 +556,12 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(204);
-                expect(res.result).to.equal(null);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(204);
+            expect(res.result).to.equal(null);
         });
 
-        it('does not send 204 for chunked transfer payloads', (done) => {
+        it('does not send 204 for chunked transfer payloads', async () => {
 
             const server = new Hapi.Server({ routes: { response: { emptyStatusCode: 204 } } });
 
@@ -670,15 +585,12 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.result).to.equal('success');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('success');
         });
 
-        it('skips compression on empty', (done) => {
+        it('skips compression on empty', async () => {
 
             const server = new Hapi.Server();
 
@@ -688,16 +600,13 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler });
-            server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.result).to.equal(null);
-                expect(res.headers['content-encoding']).to.not.exist();
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } });
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal(null);
+            expect(res.headers['content-encoding']).to.not.exist();
         });
 
-        it('skips compression for 206 responses', (done) => {
+        it('skips compression for 206 responses', async () => {
 
             const server = new Hapi.Server();
 
@@ -707,17 +616,14 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler });
-            server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } }, (res) => {
-
-                expect(res.statusCode).to.equal(206);
-                expect(res.result).to.equal('test');
-                expect(res.headers['content-length']).to.equal(4);
-                expect(res.headers['content-encoding']).to.not.exist();
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } });
+            expect(res.statusCode).to.equal(206);
+            expect(res.result).to.equal('test');
+            expect(res.headers['content-length']).to.equal(4);
+            expect(res.headers['content-encoding']).to.not.exist();
         });
 
-        it('does not skip compression for chunked transfer payloads', (done) => {
+        it('does not skip compression for chunked transfer payloads', async () => {
 
             const server = new Hapi.Server();
 
@@ -741,15 +647,12 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler });
-            server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers['content-encoding']).to.equal('gzip');
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } });
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['content-encoding']).to.equal('gzip');
         });
 
-        it('sets vary header when accept-encoding is present but does not match', (done) => {
+        it('sets vary header when accept-encoding is present but does not match', async () => {
 
             const server = new Hapi.Server();
 
@@ -759,15 +662,12 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler });
-            server.inject({ url: '/', headers: { 'accept-encoding': 'example' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers.vary).to.equal('accept-encoding');
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { 'accept-encoding': 'example' } });
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers.vary).to.equal('accept-encoding');
         });
 
-        it('handles stream errors on the response after the response has been piped (inject)', (done) => {
+        it('handles stream errors on the response after the response has been piped (inject)', async () => {
 
             const handler = function (request, reply) {
 
@@ -794,12 +694,9 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                expect(res.result.message).to.equal('An internal server error occurred');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+            expect(res.result.message).to.equal('An internal server error occurred');
         });
 
         it('handles stream errors on the response after the response has been piped (http)', async () => {
@@ -830,59 +727,47 @@ describe('transmission', () => {
             await server.stop();
         });
 
-        it('matches etag header list value', (done) => {
+        it('matches etag header list value', async () => {
 
             const server = new Hapi.Server();
-            server.register(Inert, Hoek.ignore);
+            await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
-            server.inject('/file', (res1) => {
+            await server.inject('/file');
 
-                server.inject('/file', (res2) => {
+            const res2 = await server.inject('/file');
+            expect(res2.statusCode).to.equal(200);
+            expect(res2.headers.etag).to.exist();
 
-                    expect(res2.statusCode).to.equal(200);
-                    expect(res2.headers.etag).to.exist();
-
-                    server.inject({ url: '/file', headers: { 'if-none-match': 'x, ' + res2.headers.etag } }, (res3) => {
-
-                        expect(res3.statusCode).to.equal(304);
-                        done();
-                    });
-                });
-            });
+            const res3 = await server.inject({ url: '/file', headers: { 'if-none-match': 'x, ' + res2.headers.etag } });
+            expect(res3.statusCode).to.equal(304);
         });
 
-        it('changes etag when content encoding is used', (done) => {
+        it('changes etag when content encoding is used', async () => {
 
             const server = new Hapi.Server();
-            server.register(Inert, Hoek.ignore);
+            await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
-            server.inject('/file', (res1) => {
+            await server.inject('/file');
 
-                server.inject('/file', (res2) => {
+            const res2 = await server.inject('/file');
+            expect(res2.statusCode).to.equal(200);
+            expect(res2.headers.etag).to.exist();
+            expect(res2.headers['last-modified']).to.exist();
 
-                    expect(res2.statusCode).to.equal(200);
-                    expect(res2.headers.etag).to.exist();
-                    expect(res2.headers['last-modified']).to.exist();
-
-                    server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, (res3) => {
-
-                        expect(res3.statusCode).to.equal(200);
-                        expect(res3.headers.vary).to.equal('accept-encoding');
-                        expect(res3.headers.etag).to.not.equal(res2.headers.etag);
-                        expect(res3.headers.etag).to.equal(res2.headers.etag.slice(0, -1) + '-gzip"');
-                        expect(res3.headers['last-modified']).to.equal(res2.headers['last-modified']);
-                        done();
-                    });
-                });
-            });
+            const res3 = await server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } });
+            expect(res3.statusCode).to.equal(200);
+            expect(res3.headers.vary).to.equal('accept-encoding');
+            expect(res3.headers.etag).to.not.equal(res2.headers.etag);
+            expect(res3.headers.etag).to.equal(res2.headers.etag.slice(0, -1) + '-gzip"');
+            expect(res3.headers['last-modified']).to.equal(res2.headers['last-modified']);
         });
 
-        it('returns a gzipped file in the response when the request accepts gzip', (done) => {
+        it('returns a gzipped file in the response when the request accepts gzip', async () => {
 
             const server = new Hapi.Server({ routes: { files: { relativeTo: __dirname } } });
-            server.register(Inert, Hoek.ignore);
+            await server.register(Inert);
             const handler = function (request, reply) {
 
                 return reply.file(__dirname + '/../package.json');
@@ -890,20 +775,17 @@ describe('transmission', () => {
 
             server.route({ method: 'GET', path: '/file', handler });
 
-            server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, (res) => {
-
-                expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
-                expect(res.headers['content-encoding']).to.equal('gzip');
-                expect(res.headers['content-length']).to.not.exist();
-                expect(res.payload).to.exist();
-                done();
-            });
+            const res = await server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } });
+            expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
+            expect(res.headers['content-encoding']).to.equal('gzip');
+            expect(res.headers['content-length']).to.not.exist();
+            expect(res.payload).to.exist();
         });
 
-        it('returns a plain file when not compressible', (done) => {
+        it('returns a plain file when not compressible', async () => {
 
             const server = new Hapi.Server({ routes: { files: { relativeTo: __dirname } } });
-            server.register(Inert, Hoek.ignore);
+            await server.register(Inert);
             const handler = function (request, reply) {
 
                 return reply.file(__dirname + '/file/image.png');
@@ -911,21 +793,18 @@ describe('transmission', () => {
 
             server.route({ method: 'GET', path: '/file', handler });
 
-            server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, (res) => {
-
-                expect(res.headers['content-type']).to.equal('image/png');
-                expect(res.headers['content-encoding']).to.not.exist();
-                expect(res.headers['content-length']).to.equal(42010);
-                expect(res.headers.vary).to.not.exist();
-                expect(res.payload).to.exist();
-                done();
-            });
+            const res = await server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } });
+            expect(res.headers['content-type']).to.equal('image/png');
+            expect(res.headers['content-encoding']).to.not.exist();
+            expect(res.headers['content-length']).to.equal(42010);
+            expect(res.headers.vary).to.not.exist();
+            expect(res.payload).to.exist();
         });
 
-        it('returns a plain file when compression disabled', (done) => {
+        it('returns a plain file when compression disabled', async () => {
 
             const server = new Hapi.Server({ routes: { files: { relativeTo: __dirname } }, compression: false });
-            server.register(Inert, Hoek.ignore);
+            await server.register(Inert);
             const handler = function (request, reply) {
 
                 return reply.file(__dirname + '/../package.json');
@@ -933,19 +812,16 @@ describe('transmission', () => {
 
             server.route({ method: 'GET', path: '/file', handler });
 
-            server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } }, (res) => {
-
-                expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
-                expect(res.headers['content-encoding']).to.not.exist();
-                expect(res.payload).to.exist();
-                done();
-            });
+            const res = await server.inject({ url: '/file', headers: { 'accept-encoding': 'gzip' } });
+            expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
+            expect(res.headers['content-encoding']).to.not.exist();
+            expect(res.payload).to.exist();
         });
 
-        it('returns a deflated file in the response when the request accepts deflate', (done) => {
+        it('returns a deflated file in the response when the request accepts deflate', async () => {
 
             const server = new Hapi.Server({ routes: { files: { relativeTo: __dirname } } });
-            server.register(Inert, Hoek.ignore);
+            await server.register(Inert);
             const handler = function (request, reply) {
 
                 return reply.file(__dirname + '/../package.json');
@@ -953,17 +829,14 @@ describe('transmission', () => {
 
             server.route({ method: 'GET', path: '/file', handler });
 
-            server.inject({ url: '/file', headers: { 'accept-encoding': 'deflate' } }, (res) => {
-
-                expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
-                expect(res.headers['content-encoding']).to.equal('deflate');
-                expect(res.headers['content-length']).to.not.exist();
-                expect(res.payload).to.exist();
-                done();
-            });
+            const res = await server.inject({ url: '/file', headers: { 'accept-encoding': 'deflate' } });
+            expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
+            expect(res.headers['content-encoding']).to.equal('deflate');
+            expect(res.headers['content-length']).to.not.exist();
+            expect(res.payload).to.exist();
         });
 
-        it('returns a gzipped stream reply without a content-length header when accept-encoding is gzip', (done) => {
+        it('returns a gzipped stream reply without a content-length header when accept-encoding is gzip', async () => {
 
             const streamHandler = function (request, reply) {
 
@@ -973,15 +846,12 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/stream', handler: streamHandler });
 
-            server.inject({ url: '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'gzip' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers['content-length']).to.not.exist();
-                done();
-            });
+            const res = await server.inject({ url: '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'gzip' } });
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['content-length']).to.not.exist();
         });
 
-        it('returns a deflated stream reply without a content-length header when accept-encoding is deflate', (done) => {
+        it('returns a deflated stream reply without a content-length header when accept-encoding is deflate', async () => {
 
             const streamHandler = function (request, reply) {
 
@@ -991,12 +861,9 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/stream', handler: streamHandler });
 
-            server.inject({ url: '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'deflate' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers['content-length']).to.not.exist();
-                done();
-            });
+            const res = await server.inject({ url: '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'deflate' } });
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['content-length']).to.not.exist();
         });
 
         it('returns a gzip response on a post request when accept-encoding: gzip is requested', async () => {
@@ -1363,35 +1230,31 @@ describe('transmission', () => {
             await server.stop();
         });
 
-        it('does not open file stream on 304', (done) => {
+        it('does not open file stream on 304', async () => {
 
             const server = new Hapi.Server();
-            server.register(Inert, Hoek.ignore);
+            await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
-            server.inject('/file', (res1) => {
+            const res1 = await server.inject('/file');
 
-                const preResponse = function (request, reply) {
+            const preResponse = function (request, reply) {
 
-                    request.response._marshal = function () {
+                request.response._marshal = function () {
 
-                        throw new Error('not called');
-                    };
-
-                    return reply.continue();
+                    throw new Error('not called');
                 };
 
-                server.ext('onPreResponse', preResponse);
+                return reply.continue();
+            };
 
-                server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers.date } }, (res2) => {
+            server.ext('onPreResponse', preResponse);
 
-                    expect(res2.statusCode).to.equal(304);
-                    done();
-                });
-            });
+            const res2 = await server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers.date } });
+            expect(res2.statusCode).to.equal(304);
         });
 
-        it('object listeners are maintained after transmission is complete', (done) => {
+        it('object listeners are maintained after transmission is complete', async () => {
 
             const handler = function (request, reply) {
 
@@ -1402,27 +1265,23 @@ describe('transmission', () => {
             server.route({ method: 'GET', path: '/', handler });
 
             let response;
+            let log;
+
             const preResponse = function (request, reply) {
 
                 response = request.response;
                 response.registerEvent('special');
-                response.once('special', () => {
-
-                    done();
-                });
-
+                log = response.once('special');
                 return reply.continue();
             };
 
             server.ext('onPreResponse', preResponse);
-
-            server.inject('/', (res) => {
-
-                response.emit('special');
-            });
+            await server.inject('/');
+            response.emit('special');
+            await log;
         });
 
-        it('stops processing the stream when the request closes', (done) => {
+        it('stops processing the stream when the request closes', async () => {
 
             const ErrStream = function (request) {
 
@@ -1458,11 +1317,8 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/stream', handler });
 
-            server.inject({ url: '/stream', headers: { 'Accept-Encoding': 'gzip' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ url: '/stream', headers: { 'Accept-Encoding': 'gzip' } });
+            expect(res.statusCode).to.equal(200);
         });
 
         it('does not truncate the response when stream finishes before response is done', async () => {
@@ -1601,76 +1457,76 @@ describe('transmission', () => {
             });
         });
 
-        it('does not leak classic stream data when passed to request and aborted', (done) => {
+        it('does not leak classic stream data when passed to request and aborted', async () => {
 
             const server = new Hapi.Server({ debug: false });
 
-            let destroyed = false;
-            const handler = function (request, reply) {
+            await new Promise((resolve) => {
 
-                const stream = new Stream();
-                stream.readable = true;
+                let destroyed = false;
+                const handler = function (request, reply) {
 
-                let paused = true;
-                const _read = function () {
+                    const stream = new Stream();
+                    stream.readable = true;
 
-                    setImmediate(() => {
+                    let paused = true;
+                    const _read = function () {
+
+                        setImmediate(() => {
+
+                            if (paused) {
+                                return;
+                            }
+
+                            const chunk = new Array(1024).join('x');
+
+                            if (destroyed) {
+                                stream.emit('data', chunk);
+                                stream.readable = false;
+                                stream.emit('end');
+                            }
+                            else {
+                                stream.emit('data', chunk);
+                                _read();
+                            }
+                        });
+                    };
+
+                    stream.resume = function () {
 
                         if (paused) {
-                            return;
-                        }
-
-                        const chunk = new Array(1024).join('x');
-
-                        if (destroyed) {
-                            stream.emit('data', chunk);
-                            stream.readable = false;
-                            stream.emit('end');
-                        }
-                        else {
-                            stream.emit('data', chunk);
+                            paused = false;
                             _read();
                         }
-                    });
+                    };
+                    stream.pause = function () {
+
+                        paused = true;
+                    };
+
+                    stream.resume();
+                    stream.once('end', resolve);
+                    return stream;
                 };
 
-                stream.resume = function () {
+                server.route({ method: 'GET', path: '/', handler });
 
-                    if (paused) {
-                        paused = false;
-                        _read();
-                    }
-                };
-                stream.pause = function () {
+                server.start().then(() => {
 
-                    paused = true;
-                };
+                    Wreck.request('GET', 'http://localhost:' + server.info.port).then((res) => {
 
-                stream.resume();
+                        res.on('data', (chunk) => {
 
-                stream.once('end', () => {
-
-                    server.stop().then(done);
-                });
-
-                return reply(stream);
-            };
-
-            server.route({ method: 'GET', path: '/', handler });
-
-            server.start().then(() => {
-
-                Wreck.request('GET', 'http://localhost:' + server.info.port).then((res) => {
-
-                    res.on('data', (chunk) => {
-
-                        if (!destroyed) {
-                            destroyed = true;
-                            res.destroy();
-                        }
+                            if (!destroyed) {
+                                destroyed = true;
+                                res.destroy();
+                            }
+                        });
                     });
                 });
             });
+
+            await server.stop();
         });
 
         it('does not leak stream data when request timeouts before stream drains', (done) => {
@@ -1718,7 +1574,7 @@ describe('transmission', () => {
             const server = new Hapi.Server();
 
             let clientRequest;
-            const handler = function (request, reply) {
+            const handler = async function (request, reply) {
 
                 clientRequest.abort();
 
@@ -1750,10 +1606,8 @@ describe('transmission', () => {
                     server.stop().then(done);
                 });
 
-                setTimeout(() => {
-
-                    return reply(stream);
-                }, 100);
+                await internals.wait(100);
+                return stream;
             };
 
             server.route({ method: 'GET', path: '/', handler });
@@ -1770,7 +1624,7 @@ describe('transmission', () => {
             });
         });
 
-        it('changes etag when content-encoding set manually', (done) => {
+        it('changes etag when content-encoding set manually', async () => {
 
             const server = new Hapi.Server();
             const handler = function (request, reply) {
@@ -1780,16 +1634,13 @@ describe('transmission', () => {
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers.etag).to.exist();
-                expect(res.headers.etag).to.match(/-gzip"$/);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers.etag).to.exist();
+            expect(res.headers.etag).to.match(/-gzip"$/);
         });
 
-        it('head request retains content-length header', (done) => {
+        it('head request retains content-length header', async () => {
 
             const server = new Hapi.Server();
             const handler = function (request, reply) {
@@ -1799,15 +1650,12 @@ describe('transmission', () => {
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ method: 'HEAD', url: '/' }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers['content-length']).to.equal(1);
-                done();
-            });
+            const res = await server.inject({ method: 'HEAD', url: '/' });
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['content-length']).to.equal(1);
         });
 
-        it('does not set accept-encoding multiple times', (done) => {
+        it('does not set accept-encoding multiple times', async () => {
 
             const headersHandler = function (request, reply) {
 
@@ -1817,34 +1665,29 @@ describe('transmission', () => {
 
             const upstream = new Hapi.Server();
             upstream.route({ method: 'GET', path: '/headers', handler: headersHandler });
-            upstream.start().then(() => {
+            await upstream.start();
 
-                const proxyHandler = function (request, reply) {
+            const proxyHandler = async function (request, reply) {
 
-                    const options = {};
-                    options.headers = Hoek.clone(request.headers);
-                    delete options.headers.host;
+                const options = {};
+                options.headers = Hoek.clone(request.headers);
+                delete options.headers.host;
 
-                    Wreck.request(request.method, 'http://localhost:' + upstream.info.port + '/headers', options).then((res) => {
+                const res = await Wreck.request(request.method, 'http://localhost:' + upstream.info.port + '/headers', options);
+                return reply(res).code(res.statusCode);
+            };
 
-                        reply(res).code(res.statusCode);
-                    });
-                };
+            const server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/headers', handler: proxyHandler });
 
-                const server = new Hapi.Server();
-                server.route({ method: 'GET', path: '/headers', handler: proxyHandler });
+            const res = await server.inject({ url: '/headers', headers: { 'accept-encoding': 'gzip' } });
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers.vary).to.equal('X-Custom3,accept-encoding');
 
-                server.inject({ url: '/headers', headers: { 'accept-encoding': 'gzip' } }, (res) => {
-
-                    expect(res.statusCode).to.equal(200);
-                    expect(res.headers.vary).to.equal('X-Custom3,accept-encoding');
-
-                    upstream.stop().then(done);
-                });
-            });
+            await upstream.stop();
         });
 
-        it('ends response stream once', (done) => {
+        it('ends response stream once', async () => {
 
             const server = new Hapi.Server();
 
@@ -1864,11 +1707,8 @@ describe('transmission', () => {
             };
 
             server.ext('onRequest', onRequest);
-            server.inject('/', (res) => {
-
-                expect(count).to.equal(1);
-                done();
-            });
+            await server.inject('/');
+            expect(count).to.equal(1);
         });
 
         describe('response range', () => {
@@ -1879,198 +1719,155 @@ describe('transmission', () => {
                 return reply(Fs.createReadStream(filePath)).bytes(Fs.statSync(filePath).size);
             };
 
-            it('returns a subset of a fileStream (start)', (done) => {
+            it('returns a subset of a fileStream (start)', async () => {
 
                 const server = new Hapi.Server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
-                server.inject({ url: '/file', headers: { 'range': 'bytes=0-4' } }, (res) => {
-
-                    expect(res.statusCode).to.equal(206);
-                    expect(res.headers['content-length']).to.equal(5);
-                    expect(res.headers['content-range']).to.equal('bytes 0-4/42010');
-                    expect(res.headers['accept-ranges']).to.equal('bytes');
-                    expect(res.rawPayload.toString('binary')).to.equal('\x89PNG\r');
-                    done();
-                });
+                const res = await server.inject({ url: '/file', headers: { 'range': 'bytes=0-4' } });
+                expect(res.statusCode).to.equal(206);
+                expect(res.headers['content-length']).to.equal(5);
+                expect(res.headers['content-range']).to.equal('bytes 0-4/42010');
+                expect(res.headers['accept-ranges']).to.equal('bytes');
+                expect(res.rawPayload.toString('binary')).to.equal('\x89PNG\r');
             });
 
-            it('ignores range request when disabled', (done) => {
+            it('ignores range request when disabled', async () => {
 
                 const server = new Hapi.Server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler, config: { response: { ranges: false } } });
 
-                server.inject({ url: '/file', headers: { 'range': 'bytes=0-4' } }, (res) => {
-
-                    expect(res.statusCode).to.equal(200);
-                    done();
-                });
+                const res = await server.inject({ url: '/file', headers: { 'range': 'bytes=0-4' } });
+                expect(res.statusCode).to.equal(200);
             });
 
-            it('returns a subset of a fileStream (middle)', (done) => {
+            it('returns a subset of a fileStream (middle)', async () => {
 
                 const server = new Hapi.Server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
-                server.inject({ url: '/file', headers: { 'range': 'bytes=1-5' } }, (res) => {
-
-                    expect(res.statusCode).to.equal(206);
-                    expect(res.headers['content-length']).to.equal(5);
-                    expect(res.headers['content-range']).to.equal('bytes 1-5/42010');
-                    expect(res.headers['accept-ranges']).to.equal('bytes');
-                    expect(res.payload).to.equal('PNG\r\n');
-                    done();
-                });
+                const res = await server.inject({ url: '/file', headers: { 'range': 'bytes=1-5' } });
+                expect(res.statusCode).to.equal(206);
+                expect(res.headers['content-length']).to.equal(5);
+                expect(res.headers['content-range']).to.equal('bytes 1-5/42010');
+                expect(res.headers['accept-ranges']).to.equal('bytes');
+                expect(res.payload).to.equal('PNG\r\n');
             });
 
-            it('returns a subset of a fileStream (-to)', (done) => {
+            it('returns a subset of a fileStream (-to)', async () => {
 
                 const server = new Hapi.Server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
-                server.inject({ url: '/file', headers: { 'range': 'bytes=-5' } }, (res) => {
-
-                    expect(res.statusCode).to.equal(206);
-                    expect(res.headers['content-length']).to.equal(5);
-                    expect(res.headers['content-range']).to.equal('bytes 42005-42009/42010');
-                    expect(res.headers['accept-ranges']).to.equal('bytes');
-                    expect(res.rawPayload.toString('binary')).to.equal('D\xAEB\x60\x82');
-                    done();
-                });
+                const res = await server.inject({ url: '/file', headers: { 'range': 'bytes=-5' } });
+                expect(res.statusCode).to.equal(206);
+                expect(res.headers['content-length']).to.equal(5);
+                expect(res.headers['content-range']).to.equal('bytes 42005-42009/42010');
+                expect(res.headers['accept-ranges']).to.equal('bytes');
+                expect(res.rawPayload.toString('binary')).to.equal('D\xAEB\x60\x82');
             });
 
-            it('returns a subset of a fileStream (from-)', (done) => {
+            it('returns a subset of a fileStream (from-)', async () => {
 
                 const server = new Hapi.Server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
-                server.inject({ url: '/file', headers: { 'range': 'bytes=42005-' } }, (res) => {
-
-                    expect(res.statusCode).to.equal(206);
-                    expect(res.headers['content-length']).to.equal(5);
-                    expect(res.headers['content-range']).to.equal('bytes 42005-42009/42010');
-                    expect(res.headers['accept-ranges']).to.equal('bytes');
-                    expect(res.rawPayload.toString('binary')).to.equal('D\xAEB\x60\x82');
-                    done();
-                });
+                const res = await server.inject({ url: '/file', headers: { 'range': 'bytes=42005-' } });
+                expect(res.statusCode).to.equal(206);
+                expect(res.headers['content-length']).to.equal(5);
+                expect(res.headers['content-range']).to.equal('bytes 42005-42009/42010');
+                expect(res.headers['accept-ranges']).to.equal('bytes');
+                expect(res.rawPayload.toString('binary')).to.equal('D\xAEB\x60\x82');
             });
 
-            it('returns a subset of a fileStream (beyond end)', (done) => {
+            it('returns a subset of a fileStream (beyond end)', async () => {
 
                 const server = new Hapi.Server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
-                server.inject({ url: '/file', headers: { 'range': 'bytes=42005-42011' } }, (res) => {
-
-                    expect(res.statusCode).to.equal(206);
-                    expect(res.headers['content-length']).to.equal(5);
-                    expect(res.headers['content-range']).to.equal('bytes 42005-42009/42010');
-                    expect(res.headers['accept-ranges']).to.equal('bytes');
-                    expect(res.rawPayload.toString('binary')).to.equal('D\xAEB\x60\x82');
-                    done();
-                });
+                const res = await server.inject({ url: '/file', headers: { 'range': 'bytes=42005-42011' } });
+                expect(res.statusCode).to.equal(206);
+                expect(res.headers['content-length']).to.equal(5);
+                expect(res.headers['content-range']).to.equal('bytes 42005-42009/42010');
+                expect(res.headers['accept-ranges']).to.equal('bytes');
+                expect(res.rawPayload.toString('binary')).to.equal('D\xAEB\x60\x82');
             });
 
-            it('returns a subset of a fileStream (if-range)', (done) => {
+            it('returns a subset of a fileStream (if-range)', async () => {
 
                 const server = new Hapi.Server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
-                server.inject('/file', (res) => {
-
-                    server.inject('/file', (res1) => {
-
-                        server.inject({ url: '/file', headers: { 'range': 'bytes=42005-42011', 'if-range': res1.headers.etag } }, (res2) => {
-
-                            expect(res2.statusCode).to.equal(206);
-                            expect(res2.headers['content-length']).to.equal(5);
-                            expect(res2.headers['content-range']).to.equal('bytes 42005-42009/42010');
-                            expect(res2.headers['accept-ranges']).to.equal('bytes');
-                            expect(res2.rawPayload.toString('binary')).to.equal('D\xAEB\x60\x82');
-                            done();
-                        });
-                    });
-                });
+                await server.inject('/file');
+                const res1 = await server.inject('/file');
+                const res2 = await server.inject({ url: '/file', headers: { 'range': 'bytes=42005-42011', 'if-range': res1.headers.etag } });
+                expect(res2.statusCode).to.equal(206);
+                expect(res2.headers['content-length']).to.equal(5);
+                expect(res2.headers['content-range']).to.equal('bytes 42005-42009/42010');
+                expect(res2.headers['accept-ranges']).to.equal('bytes');
+                expect(res2.rawPayload.toString('binary')).to.equal('D\xAEB\x60\x82');
             });
 
-            it('returns 200 on incorrect if-range', (done) => {
+            it('returns 200 on incorrect if-range', async () => {
 
                 const server = new Hapi.Server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
-                server.inject({ url: '/file', headers: { 'range': 'bytes=42005-42011', 'if-range': 'abc' } }, (res2) => {
-
-                    expect(res2.statusCode).to.equal(200);
-                    done();
-                });
+                const res = await server.inject({ url: '/file', headers: { 'range': 'bytes=42005-42011', 'if-range': 'abc' } });
+                expect(res.statusCode).to.equal(200);
             });
 
-            it('returns 416 on invalid range (unit)', (done) => {
+            it('returns 416 on invalid range (unit)', async () => {
 
                 const server = new Hapi.Server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
-                server.inject({ url: '/file', headers: { 'range': 'horses=1-5' } }, (res) => {
-
-                    expect(res.statusCode).to.equal(416);
-                    expect(res.headers['content-range']).to.equal('bytes */42010');
-                    done();
-                });
+                const res = await server.inject({ url: '/file', headers: { 'range': 'horses=1-5' } });
+                expect(res.statusCode).to.equal(416);
+                expect(res.headers['content-range']).to.equal('bytes */42010');
             });
 
-            it('returns 416 on invalid range (inversed)', (done) => {
+            it('returns 416 on invalid range (inversed)', async () => {
 
                 const server = new Hapi.Server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
-                server.inject({ url: '/file', headers: { 'range': 'bytes=5-1' } }, (res) => {
-
-                    expect(res.statusCode).to.equal(416);
-                    expect(res.headers['content-range']).to.equal('bytes */42010');
-                    done();
-                });
+                const res = await server.inject({ url: '/file', headers: { 'range': 'bytes=5-1' } });
+                expect(res.statusCode).to.equal(416);
+                expect(res.headers['content-range']).to.equal('bytes */42010');
             });
 
-            it('returns 416 on invalid range (format)', (done) => {
+            it('returns 416 on invalid range (format)', async () => {
 
                 const server = new Hapi.Server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
-                server.inject({ url: '/file', headers: { 'range': 'bytes 1-5' } }, (res) => {
-
-                    expect(res.statusCode).to.equal(416);
-                    expect(res.headers['content-range']).to.equal('bytes */42010');
-                    done();
-                });
+                const res = await server.inject({ url: '/file', headers: { 'range': 'bytes 1-5' } });
+                expect(res.statusCode).to.equal(416);
+                expect(res.headers['content-range']).to.equal('bytes */42010');
             });
 
-            it('returns 416 on invalid range (empty range)', (done) => {
+            it('returns 416 on invalid range (empty range)', async () => {
 
                 const server = new Hapi.Server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
-                server.inject({ url: '/file', headers: { 'range': 'bytes=-' } }, (res) => {
-
-                    expect(res.statusCode).to.equal(416);
-                    expect(res.headers['content-range']).to.equal('bytes */42010');
-                    done();
-                });
+                const res = await server.inject({ url: '/file', headers: { 'range': 'bytes=-' } });
+                expect(res.statusCode).to.equal(416);
+                expect(res.headers['content-range']).to.equal('bytes */42010');
             });
 
-            it('returns 200 on multiple ranges', (done) => {
+            it('returns 200 on multiple ranges', async () => {
 
                 const server = new Hapi.Server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
-                server.inject({ url: '/file', headers: { 'range': 'bytes=1-5,7-10' } }, (res) => {
-
-                    expect(res.statusCode).to.equal(200);
-                    expect(res.headers['content-length']).to.equal(42010);
-                    done();
-                });
+                const res = await server.inject({ url: '/file', headers: { 'range': 'bytes=1-5,7-10' } });
+                expect(res.statusCode).to.equal(200);
+                expect(res.headers['content-length']).to.equal(42010);
             });
 
-            it('returns a subset of a stream', (done) => {
+            it('returns a subset of a stream', async () => {
 
                 const TestStream = function () {
 
@@ -2109,18 +1906,15 @@ describe('transmission', () => {
 
                 server.route({ method: 'GET', path: '/', handler });
 
-                server.inject({ url: '/', headers: { 'range': 'bytes=2-4' } }, (res) => {
-
-                    expect(res.statusCode).to.equal(206);
-                    expect(res.headers['content-length']).to.equal(3);
-                    expect(res.headers['content-range']).to.equal('bytes 2-4/10');
-                    expect(res.headers['accept-ranges']).to.equal('bytes');
-                    expect(res.payload).to.equal('234');
-                    done();
-                });
+                const res = await server.inject({ url: '/', headers: { 'range': 'bytes=2-4' } });
+                expect(res.statusCode).to.equal(206);
+                expect(res.headers['content-length']).to.equal(3);
+                expect(res.headers['content-range']).to.equal('bytes 2-4/10');
+                expect(res.headers['accept-ranges']).to.equal('bytes');
+                expect(res.payload).to.equal('234');
             });
 
-            it('returns a consolidated range', (done) => {
+            it('returns a consolidated range', async () => {
 
                 const TestStream = function () {
 
@@ -2159,19 +1953,16 @@ describe('transmission', () => {
 
                 server.route({ method: 'GET', path: '/', handler });
 
-                server.inject({ url: '/', headers: { 'range': 'bytes=0-1,1-2, 3-5' } }, (res) => {
-
-                    expect(res.statusCode).to.equal(206);
-                    expect(res.headers['content-length']).to.equal(6);
-                    expect(res.headers['content-range']).to.equal('bytes 0-5/10');
-                    expect(res.headers['accept-ranges']).to.equal('bytes');
-                    expect(res.payload).to.equal('012345');
-                    done();
-                });
+                const res = await server.inject({ url: '/', headers: { 'range': 'bytes=0-1,1-2, 3-5' } });
+                expect(res.statusCode).to.equal(206);
+                expect(res.headers['content-length']).to.equal(6);
+                expect(res.headers['content-range']).to.equal('bytes 0-5/10');
+                expect(res.headers['accept-ranges']).to.equal('bytes');
+                expect(res.payload).to.equal('012345');
             });
         });
 
-        it('skips undefined header values', (done) => {
+        it('skips undefined header values', async () => {
 
             const server = new Hapi.Server();
 
@@ -2181,15 +1972,12 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers.x).to.not.exist();
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers.x).to.not.exist();
         });
 
-        it('does not add connection close header to normal requests', (done) => {
+        it('does not add connection close header to normal requests', async () => {
 
             const server = new Hapi.Server();
 
@@ -2199,15 +1987,12 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers.connection).to.not.equal('close');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers.connection).to.not.equal('close');
         });
 
-        it('returns 500 when node rejects a header', (done) => {
+        it('returns 500 when node rejects a header', async () => {
 
             const server = new Hapi.Server();
 
@@ -2217,15 +2002,12 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                expect(res.headers.x).to.not.exist();
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+            expect(res.headers.x).to.not.exist();
         });
 
-        it('returns 500 for out of range status code', (done) => {
+        it('returns 500 for out of range status code', async () => {
 
             const server = new Hapi.Server();
 
@@ -2248,11 +2030,8 @@ describe('transmission', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
         });
     });
 
@@ -2323,7 +2102,7 @@ describe('transmission', () => {
             await server.stop();
         });
 
-        it('returns no-cache on error', (done) => {
+        it('returns no-cache on error', async () => {
 
             const handler = function (request, reply) {
 
@@ -2332,14 +2111,11 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler, cache: { expiresIn: 120000 } } });
-            server.inject('/', (res) => {
-
-                expect(res.headers['cache-control']).to.equal('no-cache');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.headers['cache-control']).to.equal('no-cache');
         });
 
-        it('returns custom value on error', (done) => {
+        it('returns custom value on error', async () => {
 
             const handler = function (request, reply) {
 
@@ -2348,14 +2124,11 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler, cache: { otherwise: 'no-store' } } });
-            server.inject('/', (res) => {
-
-                expect(res.headers['cache-control']).to.equal('no-store');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.headers['cache-control']).to.equal('no-store');
         });
 
-        it('sets cache-control on error with status override', (done) => {
+        it('sets cache-control on error with status override', async () => {
 
             const handler = function (request, reply) {
 
@@ -2364,11 +2137,8 @@ describe('transmission', () => {
 
             const server = new Hapi.Server({ routes: { cache: { statuses: [200, 400] } } });
             server.route({ method: 'GET', path: '/', config: { handler, cache: { expiresIn: 120000 } } });
-            server.inject('/', (res) => {
-
-                expect(res.headers['cache-control']).to.equal('max-age=120, must-revalidate');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.headers['cache-control']).to.equal('max-age=120, must-revalidate');
         });
 
         it('does not return max-age value when route is not cached', async () => {
@@ -2387,13 +2157,15 @@ describe('transmission', () => {
             expect(res.headers['cache-control']).to.not.equal('max-age=120, must-revalidate');
         });
 
-        it('caches using non default cache', (done) => {
+        it('caches using non default cache', async () => {
 
             const server = new Hapi.Server({ cache: { name: 'primary', engine: CatboxMemory } });
             const defaults = server.cache({ segment: 'a', expiresIn: 2000 });
             const primary = server.cache({ segment: 'a', expiresIn: 2000, cache: 'primary' });
 
-            server.start().then(() => {
+            await server.start();
+
+            await new Promise((resolve) => {
 
                 defaults.set('b', 1, null, (err) => {
 
@@ -2412,15 +2184,17 @@ describe('transmission', () => {
 
                                 expect(err).to.not.exist();
                                 expect(cached2.item).to.equal(2);
-                                server.stop().then(done);
+                                resolve();
                             });
                         });
                     });
                 });
             });
+
+            await server.stop();
         });
 
-        it('leaves existing cache-control header', (done) => {
+        it('leaves existing cache-control header', async () => {
 
             const handler = function (request, reply) {
 
@@ -2431,15 +2205,12 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(400);
-                expect(res.headers['cache-control']).to.equal('some value');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(400);
+            expect(res.headers['cache-control']).to.equal('some value');
         });
 
-        it('sets cache-control header from ttl without policy', (done) => {
+        it('sets cache-control header from ttl without policy', async () => {
 
             const handler = function (request, reply) {
 
@@ -2449,14 +2220,11 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.headers['cache-control']).to.equal('max-age=10, must-revalidate');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.headers['cache-control']).to.equal('max-age=10, must-revalidate');
         });
 
-        it('sets cache-control header from ttl with disabled policy', (done) => {
+        it('sets cache-control header from ttl with disabled policy', async () => {
 
             const handler = function (request, reply) {
 
@@ -2466,14 +2234,11 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { cache: false, handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.headers['cache-control']).to.equal('max-age=10, must-revalidate');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.headers['cache-control']).to.equal('max-age=10, must-revalidate');
         });
 
-        it('leaves existing cache-control header (ttl)', (done) => {
+        it('leaves existing cache-control header (ttl)', async () => {
 
             const handler = function (request, reply) {
 
@@ -2483,52 +2248,39 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers['cache-control']).to.equal('none');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['cache-control']).to.equal('none');
         });
 
-        it('includes caching header with 304', (done) => {
+        it('includes caching header with 304', async () => {
 
             const server = new Hapi.Server();
-            server.register(Inert, Hoek.ignore);
+            await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' }, config: { cache: { expiresIn: 60000 } } });
 
-            server.inject('/file', (res1) => {
-
-                server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers['last-modified'] } }, (res2) => {
-
-                    expect(res2.statusCode).to.equal(304);
-                    expect(res2.headers['cache-control']).to.equal('max-age=60, must-revalidate');
-                    done();
-                });
-            });
+            const res1 = await server.inject('/file');
+            const res2 = await server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers['last-modified'] } });
+            expect(res2.statusCode).to.equal(304);
+            expect(res2.headers['cache-control']).to.equal('max-age=60, must-revalidate');
         });
 
-        it('forbids caching on 304 if 200 is not included', (done) => {
+        it('forbids caching on 304 if 200 is not included', async () => {
 
             const server = new Hapi.Server({ routes: { cache: { statuses: [400] } } });
-            server.register(Inert, Hoek.ignore);
+            await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' }, config: { cache: { expiresIn: 60000 } } });
 
-            server.inject('/file', (res1) => {
-
-                server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers['last-modified'] } }, (res2) => {
-
-                    expect(res2.statusCode).to.equal(304);
-                    expect(res2.headers['cache-control']).to.equal('no-cache');
-                    done();
-                });
-            });
+            const res1 = await server.inject('/file');
+            const res2 = await server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers['last-modified'] } });
+            expect(res2.statusCode).to.equal(304);
+            expect(res2.headers['cache-control']).to.equal('no-cache');
         });
     });
 
     describe('security()', () => {
 
-        it('does not set security headers by default', (done) => {
+        it('does not set security headers by default', async () => {
 
             const handler = function (request, reply) {
 
@@ -2538,20 +2290,17 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/' }, (res) => {
-
-                expect(res.result).to.exist();
-                expect(res.result).to.equal('Test');
-                expect(res.headers['strict-transport-security']).to.not.exist();
-                expect(res.headers['x-frame-options']).to.not.exist();
-                expect(res.headers['x-xss-protection']).to.not.exist();
-                expect(res.headers['x-download-options']).to.not.exist();
-                expect(res.headers['x-content-type-options']).to.not.exist();
-                done();
-            });
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['strict-transport-security']).to.not.exist();
+            expect(res.headers['x-frame-options']).to.not.exist();
+            expect(res.headers['x-xss-protection']).to.not.exist();
+            expect(res.headers['x-download-options']).to.not.exist();
+            expect(res.headers['x-content-type-options']).to.not.exist();
         });
 
-        it('returns default security headers when security is true', (done) => {
+        it('returns default security headers when security is true', async () => {
 
             const handler = function (request, reply) {
 
@@ -2561,20 +2310,17 @@ describe('transmission', () => {
             const server = new Hapi.Server({ routes: { security: true } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/' }, (res) => {
-
-                expect(res.result).to.exist();
-                expect(res.result).to.equal('Test');
-                expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
-                expect(res.headers['x-frame-options']).to.equal('DENY');
-                expect(res.headers['x-xss-protection']).to.equal('1; mode=block');
-                expect(res.headers['x-download-options']).to.equal('noopen');
-                expect(res.headers['x-content-type-options']).to.equal('nosniff');
-                done();
-            });
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
+            expect(res.headers['x-frame-options']).to.equal('DENY');
+            expect(res.headers['x-xss-protection']).to.equal('1; mode=block');
+            expect(res.headers['x-download-options']).to.equal('noopen');
+            expect(res.headers['x-content-type-options']).to.equal('nosniff');
         });
 
-        it('does not set default security headers when the route sets security false', (done) => {
+        it('does not set default security headers when the route sets security false', async () => {
 
             const handler = function (request, reply) {
 
@@ -2588,21 +2334,17 @@ describe('transmission', () => {
             const server = new Hapi.Server({ routes: { security: true } });
             server.route({ method: 'GET', path: '/', handler, config });
 
-            server.inject({ url: '/' }, (res) => {
-
-                expect(res.result).to.exist();
-                expect(res.result).to.equal('Test');
-                expect(res.headers['strict-transport-security']).to.not.exist();
-                expect(res.headers['x-frame-options']).to.not.exist();
-                expect(res.headers['x-xss-protection']).to.not.exist();
-                expect(res.headers['x-download-options']).to.not.exist();
-                expect(res.headers['x-content-type-options']).to.not.exist();
-                done();
-            });
-
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['strict-transport-security']).to.not.exist();
+            expect(res.headers['x-frame-options']).to.not.exist();
+            expect(res.headers['x-xss-protection']).to.not.exist();
+            expect(res.headers['x-download-options']).to.not.exist();
+            expect(res.headers['x-content-type-options']).to.not.exist();
         });
 
-        it('does not return hsts header when secuirty.hsts is false', (done) => {
+        it('does not return hsts header when secuirty.hsts is false', async () => {
 
             const handler = function (request, reply) {
 
@@ -2612,21 +2354,17 @@ describe('transmission', () => {
             const server = new Hapi.Server({ routes: { security: { hsts: false } } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/' }, (res) => {
-
-                expect(res.result).to.exist();
-                expect(res.result).to.equal('Test');
-                expect(res.headers['strict-transport-security']).to.not.exist();
-                expect(res.headers['x-frame-options']).to.equal('DENY');
-                expect(res.headers['x-xss-protection']).to.equal('1; mode=block');
-                expect(res.headers['x-download-options']).to.equal('noopen');
-                expect(res.headers['x-content-type-options']).to.equal('nosniff');
-                done();
-            });
-
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['strict-transport-security']).to.not.exist();
+            expect(res.headers['x-frame-options']).to.equal('DENY');
+            expect(res.headers['x-xss-protection']).to.equal('1; mode=block');
+            expect(res.headers['x-download-options']).to.equal('noopen');
+            expect(res.headers['x-content-type-options']).to.equal('nosniff');
         });
 
-        it('returns only default hsts header when security.hsts is true', (done) => {
+        it('returns only default hsts header when security.hsts is true', async () => {
 
             const handler = function (request, reply) {
 
@@ -2636,16 +2374,13 @@ describe('transmission', () => {
             const server = new Hapi.Server({ routes: { security: { hsts: true } } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/' }, (res) => {
-
-                expect(res.result).to.exist();
-                expect(res.result).to.equal('Test');
-                expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
-                done();
-            });
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
         });
 
-        it('returns correct hsts header when security.hsts is a number', (done) => {
+        it('returns correct hsts header when security.hsts is a number', async () => {
 
             const handler = function (request, reply) {
 
@@ -2655,16 +2390,13 @@ describe('transmission', () => {
             const server = new Hapi.Server({ routes: { security: { hsts: 123456789 } } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/' }, (res) => {
-
-                expect(res.result).to.exist();
-                expect(res.result).to.equal('Test');
-                expect(res.headers['strict-transport-security']).to.equal('max-age=123456789');
-                done();
-            });
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['strict-transport-security']).to.equal('max-age=123456789');
         });
 
-        it('returns correct hsts header when security.hsts is an object', (done) => {
+        it('returns correct hsts header when security.hsts is an object', async () => {
 
             const handler = function (request, reply) {
 
@@ -2674,16 +2406,13 @@ describe('transmission', () => {
             const server = new Hapi.Server({ routes: { security: { hsts: { maxAge: 123456789, includeSubDomains: true } } } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/' }, (res) => {
-
-                expect(res.result).to.exist();
-                expect(res.result).to.equal('Test');
-                expect(res.headers['strict-transport-security']).to.equal('max-age=123456789; includeSubDomains');
-                done();
-            });
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['strict-transport-security']).to.equal('max-age=123456789; includeSubDomains');
         });
 
-        it('returns the correct hsts header when security.hsts is an object only sepcifying maxAge', (done) => {
+        it('returns the correct hsts header when security.hsts is an object only sepcifying maxAge', async () => {
 
             const handler = function (request, reply) {
 
@@ -2693,16 +2422,13 @@ describe('transmission', () => {
             const server = new Hapi.Server({ routes: { security: { hsts: { maxAge: 123456789 } } } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/' }, (res) => {
-
-                expect(res.result).to.exist();
-                expect(res.result).to.equal('Test');
-                expect(res.headers['strict-transport-security']).to.equal('max-age=123456789');
-                done();
-            });
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['strict-transport-security']).to.equal('max-age=123456789');
         });
 
-        it('returns correct hsts header when security.hsts is an object only specifying includeSubdomains', (done) => {
+        it('returns correct hsts header when security.hsts is an object only specifying includeSubdomains', async () => {
 
             const handler = function (request, reply) {
 
@@ -2712,16 +2438,13 @@ describe('transmission', () => {
             const server = new Hapi.Server({ routes: { security: { hsts: { includeSubdomains: true } } } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/' }, (res) => {
-
-                expect(res.result).to.exist();
-                expect(res.result).to.equal('Test');
-                expect(res.headers['strict-transport-security']).to.equal('max-age=15768000; includeSubDomains');
-                done();
-            });
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['strict-transport-security']).to.equal('max-age=15768000; includeSubDomains');
         });
 
-        it('returns correct hsts header when security.hsts is an object only specifying includeSubDomains', (done) => {
+        it('returns correct hsts header when security.hsts is an object only specifying includeSubDomains', async () => {
 
             const handler = function (request, reply) {
 
@@ -2731,16 +2454,13 @@ describe('transmission', () => {
             const server = new Hapi.Server({ routes: { security: { hsts: { includeSubDomains: true } } } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/' }, (res) => {
-
-                expect(res.result).to.exist();
-                expect(res.result).to.equal('Test');
-                expect(res.headers['strict-transport-security']).to.equal('max-age=15768000; includeSubDomains');
-                done();
-            });
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['strict-transport-security']).to.equal('max-age=15768000; includeSubDomains');
         });
 
-        it('returns correct hsts header when security.hsts is an object only specifying includeSubDomains and preload', (done) => {
+        it('returns correct hsts header when security.hsts is an object only specifying includeSubDomains and preload', async () => {
 
             const handler = function (request, reply) {
 
@@ -2750,16 +2470,13 @@ describe('transmission', () => {
             const server = new Hapi.Server({ routes: { security: { hsts: { includeSubDomains: true, preload: true } } } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/' }, (res) => {
-
-                expect(res.result).to.exist();
-                expect(res.result).to.equal('Test');
-                expect(res.headers['strict-transport-security']).to.equal('max-age=15768000; includeSubDomains; preload');
-                done();
-            });
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['strict-transport-security']).to.equal('max-age=15768000; includeSubDomains; preload');
         });
 
-        it('does not return the xframe header whe security.xframe is false', (done) => {
+        it('does not return the xframe header whe security.xframe is false', async () => {
 
             const handler = function (request, reply) {
 
@@ -2769,20 +2486,17 @@ describe('transmission', () => {
             const server = new Hapi.Server({ routes: { security: { xframe: false } } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/' }, (res) => {
-
-                expect(res.result).to.exist();
-                expect(res.result).to.equal('Test');
-                expect(res.headers['x-frame-options']).to.not.exist();
-                expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
-                expect(res.headers['x-xss-protection']).to.equal('1; mode=block');
-                expect(res.headers['x-download-options']).to.equal('noopen');
-                expect(res.headers['x-content-type-options']).to.equal('nosniff');
-                done();
-            });
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['x-frame-options']).to.not.exist();
+            expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
+            expect(res.headers['x-xss-protection']).to.equal('1; mode=block');
+            expect(res.headers['x-download-options']).to.equal('noopen');
+            expect(res.headers['x-content-type-options']).to.equal('nosniff');
         });
 
-        it('returns only default xframe header when security.xframe is true', (done) => {
+        it('returns only default xframe header when security.xframe is true', async () => {
 
             const handler = function (request, reply) {
 
@@ -2792,16 +2506,13 @@ describe('transmission', () => {
             const server = new Hapi.Server({ routes: { security: { xframe: true } } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/' }, (res) => {
-
-                expect(res.result).to.exist();
-                expect(res.result).to.equal('Test');
-                expect(res.headers['x-frame-options']).to.equal('DENY');
-                done();
-            });
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['x-frame-options']).to.equal('DENY');
         });
 
-        it('returns correct xframe header when security.xframe is a string', (done) => {
+        it('returns correct xframe header when security.xframe is a string', async () => {
 
             const handler = function (request, reply) {
 
@@ -2811,16 +2522,13 @@ describe('transmission', () => {
             const server = new Hapi.Server({ routes: { security: { xframe: 'sameorigin' } } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/' }, (res) => {
-
-                expect(res.result).to.exist();
-                expect(res.result).to.equal('Test');
-                expect(res.headers['x-frame-options']).to.equal('SAMEORIGIN');
-                done();
-            });
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['x-frame-options']).to.equal('SAMEORIGIN');
         });
 
-        it('returns correct xframe header when security.xframe is an object', (done) => {
+        it('returns correct xframe header when security.xframe is an object', async () => {
 
             const handler = function (request, reply) {
 
@@ -2830,16 +2538,13 @@ describe('transmission', () => {
             const server = new Hapi.Server({ routes: { security: { xframe: { rule: 'allow-from', source: 'http://example.com' } } } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/' }, (res) => {
-
-                expect(res.result).to.exist();
-                expect(res.result).to.equal('Test');
-                expect(res.headers['x-frame-options']).to.equal('ALLOW-FROM http://example.com');
-                done();
-            });
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['x-frame-options']).to.equal('ALLOW-FROM http://example.com');
         });
 
-        it('returns correct xframe header when security.xframe is an object', (done) => {
+        it('returns correct xframe header when security.xframe is an object', async () => {
 
             const handler = function (request, reply) {
 
@@ -2849,16 +2554,13 @@ describe('transmission', () => {
             const server = new Hapi.Server({ routes: { security: { xframe: { rule: 'deny' } } } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/' }, (res) => {
-
-                expect(res.result).to.exist();
-                expect(res.result).to.equal('Test');
-                expect(res.headers['x-frame-options']).to.equal('DENY');
-                done();
-            });
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['x-frame-options']).to.equal('DENY');
         });
 
-        it('returns sameorigin xframe header when rule is allow-from but source is unspecified', (done) => {
+        it('returns sameorigin xframe header when rule is allow-from but source is unspecified', async () => {
 
             const handler = function (request, reply) {
 
@@ -2868,16 +2570,14 @@ describe('transmission', () => {
             const server = new Hapi.Server({ routes: { security: { xframe: { rule: 'allow-from' } } } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/' }, (res) => {
+            const res = await server.inject({ url: '/' });
 
-                expect(res.result).to.exist();
-                expect(res.result).to.equal('Test');
-                expect(res.headers['x-frame-options']).to.equal('SAMEORIGIN');
-                done();
-            });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['x-frame-options']).to.equal('SAMEORIGIN');
         });
 
-        it('does not set x-download-options if noOpen is false', (done) => {
+        it('does not set x-download-options if noOpen is false', async () => {
 
             const handler = function (request, reply) {
 
@@ -2887,16 +2587,13 @@ describe('transmission', () => {
             const server = new Hapi.Server({ routes: { security: { noOpen: false } } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/' }, (res) => {
-
-                expect(res.result).to.exist();
-                expect(res.result).to.equal('Test');
-                expect(res.headers['x-download-options']).to.not.exist();
-                done();
-            });
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['x-download-options']).to.not.exist();
         });
 
-        it('does not set x-content-type-options if noSniff is false', (done) => {
+        it('does not set x-content-type-options if noSniff is false', async () => {
 
             const handler = function (request, reply) {
 
@@ -2906,16 +2603,13 @@ describe('transmission', () => {
             const server = new Hapi.Server({ routes: { security: { noSniff: false } } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/' }, (res) => {
-
-                expect(res.result).to.exist();
-                expect(res.result).to.equal('Test');
-                expect(res.headers['x-content-type-options']).to.not.exist();
-                done();
-            });
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['x-content-type-options']).to.not.exist();
         });
 
-        it('does not set the x-xss-protection header when security.xss is false', (done) => {
+        it('does not set the x-xss-protection header when security.xss is false', async () => {
 
             const handler = function (request, reply) {
 
@@ -2925,23 +2619,20 @@ describe('transmission', () => {
             const server = new Hapi.Server({ routes: { security: { xss: false } } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/' }, (res) => {
-
-                expect(res.result).to.exist();
-                expect(res.result).to.equal('Test');
-                expect(res.headers['x-xss-protection']).to.not.exist();
-                expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
-                expect(res.headers['x-frame-options']).to.equal('DENY');
-                expect(res.headers['x-download-options']).to.equal('noopen');
-                expect(res.headers['x-content-type-options']).to.equal('nosniff');
-                done();
-            });
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['x-xss-protection']).to.not.exist();
+            expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
+            expect(res.headers['x-frame-options']).to.equal('DENY');
+            expect(res.headers['x-download-options']).to.equal('noopen');
+            expect(res.headers['x-content-type-options']).to.equal('nosniff');
         });
     });
 
     describe('content()', () => {
 
-        it('does not modify content-type header when charset manually set', (done) => {
+        it('does not modify content-type header when charset manually set', async () => {
 
             const handler = function (request, reply) {
 
@@ -2951,15 +2642,12 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers['content-type']).to.equal('text/plain; charset=ISO-8859-1');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['content-type']).to.equal('text/plain; charset=ISO-8859-1');
         });
 
-        it('does not modify content-type header when charset is unset', (done) => {
+        it('does not modify content-type header when charset is unset', async () => {
 
             const handler = function (request, reply) {
 
@@ -2969,15 +2657,12 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers['content-type']).to.equal('text/plain');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['content-type']).to.equal('text/plain');
         });
 
-        it('does not modify content-type header when charset is unset (default type)', (done) => {
+        it('does not modify content-type header when charset is unset (default type)', async () => {
 
             const handler = function (request, reply) {
 
@@ -2987,12 +2672,9 @@ describe('transmission', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers['content-type']).to.equal('text/html');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['content-type']).to.equal('text/html');
         });
     });
 });
@@ -3023,4 +2705,10 @@ internals.TimerStream.prototype._read = function (size) {
 internals.compress = function (encoder, value) {
 
     return new Promise((resolve) => Zlib[encoder](value, (ignoreErr, compressed) => resolve(compressed)));
+};
+
+
+internals.wait = function (timeout) {
+
+    return new Promise((resolve, reject) => setTimeout(resolve, timeout));
 };

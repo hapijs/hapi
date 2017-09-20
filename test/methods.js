@@ -162,39 +162,6 @@ describe('Methods', () => {
         });
     });
 
-    it('registers a method with bind and callback', (done) => {
-
-        const server = new Hapi.Server();
-
-        const context = { name: 'Bob' };
-        const method = function (id, next) {
-
-            return next(null, { id, name: this.name });
-        };
-
-        server.method('user', method, { bind: context });
-
-        server.route({
-            method: 'GET',
-            path: '/user/{id}',
-            config: {
-                pre: [
-                    'user(params.id)'
-                ],
-                handler: function (request, reply) {
-
-                    return reply(request.pre.user);
-                }
-            }
-        });
-
-        server.inject('/user/5', (res) => {
-
-            expect(res.result).to.equal({ id: '5', name: 'Bob' });
-            done();
-        });
-    });
-
     it('registers two methods with shared nested name', (done) => {
 
         const add = function (a, b, next) {

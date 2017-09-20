@@ -5,7 +5,6 @@
 const Boom = require('boom');
 const Code = require('code');
 const Hapi = require('..');
-const Hoek = require('hoek');
 const Inert = require('inert');
 const Joi = require('joi');
 const Lab = require('lab');
@@ -1561,10 +1560,10 @@ describe('validation', () => {
         });
     });
 
-    it('errors on non-plain-object responses', (done) => {
+    it('errors on non-plain-object responses', async () => {
 
         const server = new Hapi.Server({ debug: false });
-        server.register(Inert, Hoek.ignore);
+        await server.register(Inert);
         server.route({
             method: 'GET',
             path: '/',
@@ -1581,11 +1580,8 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(500);
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(500);
     });
 
     it('logs invalid responses', (done) => {

@@ -624,7 +624,7 @@ describe('Reply', () => {
             });
         });
 
-        it('sets empty reply on continue in prerequisite', (done) => {
+        it('sets empty reply on continue in prerequisite', async () => {
 
             const pre1 = function (request, reply) {
 
@@ -663,16 +663,13 @@ describe('Reply', () => {
                 }
             });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.result).to.equal({
-                    m1: null,
-                    m2: null
-                });
-                expect(res.payload).to.equal('{"m1":null,"m2":null}');
-                done();
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal({
+                m1: null,
+                m2: null
             });
+            expect(res.payload).to.equal('{"m1":null,"m2":null}');
         });
 
         it('overrides response in post handler extension', (done) => {

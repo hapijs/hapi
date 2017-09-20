@@ -3,11 +3,11 @@
 // Load modules
 
 const Path = require('path');
+
 const Boom = require('boom');
 const Code = require('code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
-const Hoek = require('hoek');
 const Inert = require('inert');
 const Lab = require('lab');
 const Vision = require('vision');
@@ -291,10 +291,10 @@ describe('handler', () => {
 
     describe('register()', () => {
 
-        it('returns a file', (done) => {
+        it('returns a file', async () => {
 
             const server = new Hapi.Server({ routes: { files: { relativeTo: Path.join(__dirname, '../') } } });
-            server.register(Inert, Hoek.ignore);
+            await server.register(Inert);
             const handler = function (request, reply) {
 
                 return reply.file('./package.json').code(499);
@@ -302,21 +302,18 @@ describe('handler', () => {
 
             server.route({ method: 'GET', path: '/file', handler });
 
-            server.inject('/file', (res) => {
-
-                expect(res.statusCode).to.equal(499);
-                expect(res.payload).to.contain('hapi');
-                expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
-                expect(res.headers['content-length']).to.exist();
-                expect(res.headers['content-disposition']).to.not.exist();
-                done();
-            });
+            const res = await server.inject('/file');
+            expect(res.statusCode).to.equal(499);
+            expect(res.payload).to.contain('hapi');
+            expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
+            expect(res.headers['content-length']).to.exist();
+            expect(res.headers['content-disposition']).to.not.exist();
         });
 
-        it('returns a view', (done) => {
+        it('returns a view', async () => {
 
             const server = new Hapi.Server();
-            server.register(Vision, Hoek.ignore);
+            await server.register(Vision);
 
             server.views({
                 engines: { 'html': Handlebars },
@@ -330,17 +327,14 @@ describe('handler', () => {
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal('<h1>steve</h1>');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('<h1>steve</h1>');
         });
     });
 
     describe('prerequisitesConfig()', () => {
 
-        it('shows the complete prerequisite pipeline in the response', (done) => {
+        it('shows the complete prerequisite pipeline in the response', async () => {
 
             const pre1 = function (request, reply) {
 
@@ -352,12 +346,10 @@ describe('handler', () => {
                 return reply(request.pre.m1 + request.pre.m3 + request.pre.m4);
             };
 
-            const pre3 = function (request, reply) {
+            const pre3 = async function (request, reply) {
 
-                process.nextTick(() => {
-
-                    return reply(' ');
-                });
+                await internals.wait(0);
+                return reply(' ');
             };
 
             const pre4 = function (request, reply) {
@@ -393,11 +385,8 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal('Hello World!');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('Hello World!');
         });
 
         it('allows a single prerequisite', (done) => {
@@ -469,12 +458,10 @@ describe('handler', () => {
                 return reply(request.pre.m1 + request.pre.m3 + request.pre.m4);
             };
 
-            const pre3 = function (request, reply) {
+            const pre3 = async function (request, reply) {
 
-                process.nextTick(() => {
-
-                    return reply(' ').takeover();
-                });
+                await internals.wait(0);
+                return reply(' ').takeover();
             };
 
             const pre4 = function (request, reply) {
@@ -554,7 +541,7 @@ describe('handler', () => {
             });
         });
 
-        it.skip('returns error if prerequisite returns promise, and handler throws an error', (done) => {
+        it('returns error if prerequisite returns promise, and handler throws an error', (done) => {
 
             const pre1 = function (request, reply) {
 
@@ -631,7 +618,7 @@ describe('handler', () => {
             });
         });
 
-        it.skip('returns 500 if prerequisite throws', (done) => {
+        it('returns 500 if prerequisite throws', (done) => {
 
             const pre1 = function (request, reply) {
 
@@ -670,11 +657,11 @@ describe('handler', () => {
             });
         });
 
-        it.skip('returns 500 if prerequisite loses domain binding', (done) => {
+        it('returns 500 if prerequisite loses domain binding', (done) => {
 
             const pre1 = function (request, reply) {
 
-                Promise.resolve().then(() => {
+                return Promise.resolve().then(() => {
 
                     reply('Hello');
                 });
@@ -709,353 +696,6 @@ describe('handler', () => {
                 expect(res.result.statusCode).to.equal(500);
                 done();
             });
-        });
-
-        it('returns a user record using server method', (done) => {
-
-            const server = new Hapi.Server();
-
-            const method = function (id, next) {
-
-                return next(null, { id, name: 'Bob' });
-            };
-
-            server.method('user', method);
-
-            server.route({
-                method: 'GET',
-                path: '/user/{id}',
-                config: {
-                    pre: [
-                        'user(params.id)'
-                    ],
-                    handler: function (request, reply) {
-
-                        return reply(request.pre.user);
-                    }
-                }
-            });
-
-            server.inject('/user/5', (res) => {
-
-                expect(res.result).to.equal({ id: '5', name: 'Bob' });
-                done();
-            });
-        });
-
-        it('returns a user record using server method (nested method name)', (done) => {
-
-            const server = new Hapi.Server();
-
-            const method = function (id, next) {
-
-                return next(null, { id, name: 'Bob' });
-            };
-
-            server.method('user.get', method);
-
-            server.route({
-                method: 'GET',
-                path: '/user/{id}',
-                config: {
-                    pre: [
-                        'user.get(params.id)'
-                    ],
-                    handler: function (request, reply) {
-
-                        return reply(request.pre['user.get']);
-                    }
-                }
-            });
-
-            server.inject('/user/5', (res) => {
-
-                expect(res.result).to.equal({ id: '5', name: 'Bob' });
-                done();
-            });
-        });
-
-        it('returns a user record using server method in object', (done) => {
-
-            const server = new Hapi.Server();
-
-            const method = function (id, next) {
-
-                return next(null, { id, name: 'Bob' });
-            };
-
-            server.method('user', method);
-
-            server.route({
-                method: 'GET',
-                path: '/user/{id}',
-                config: {
-                    pre: [
-                        {
-                            method: 'user(params.id)',
-                            assign: 'steve'
-                        }
-                    ],
-                    handler: function (request, reply) {
-
-                        return reply(request.pre.steve);
-                    }
-                }
-            });
-
-            server.inject('/user/5', (res) => {
-
-                expect(res.result).to.equal({ id: '5', name: 'Bob' });
-                done();
-            });
-        });
-
-        it('returns a user name using multiple server methods', (done) => {
-
-            const server = new Hapi.Server();
-
-            const user = function (id, next) {
-
-                return next(null, { id, name: 'Bob' });
-            };
-
-            server.method('user', user);
-
-            const name = function (obj, next) {
-
-                return next(null, obj.name);
-            };
-
-            server.method('name', name);
-
-            server.route({
-                method: 'GET',
-                path: '/user/{id}/name',
-                config: {
-                    pre: [
-                        'user(params.id)',
-                        'name(pre.user)'
-                    ],
-                    handler: function (request, reply) {
-
-                        return reply(request.pre.name);
-                    }
-                }
-            });
-
-            server.inject('/user/5/name', (res) => {
-
-                expect(res.result).to.equal('Bob');
-                done();
-            });
-        });
-
-        it('returns a user record using server method with trailing space', (done) => {
-
-            const server = new Hapi.Server();
-
-            const method = function (id, next) {
-
-                return next(null, { id, name: 'Bob' });
-            };
-
-            server.method('user', method);
-
-            server.route({
-                method: 'GET',
-                path: '/user/{id}',
-                config: {
-                    pre: [
-                        'user(params.id )'
-                    ],
-                    handler: function (request, reply) {
-
-                        return reply(request.pre.user);
-                    }
-                }
-            });
-
-            server.inject('/user/5', (res) => {
-
-                expect(res.result).to.equal({ id: '5', name: 'Bob' });
-                done();
-            });
-        });
-
-        it('returns a user record using server method with leading space', (done) => {
-
-            const server = new Hapi.Server();
-
-            const method = function (id, next) {
-
-                return next(null, { id, name: 'Bob' });
-            };
-
-            server.method('user', method);
-
-            server.route({
-                method: 'GET',
-                path: '/user/{id}',
-                config: {
-                    pre: [
-                        'user( params.id)'
-                    ],
-                    handler: function (request, reply) {
-
-                        return reply(request.pre.user);
-                    }
-                }
-            });
-
-            server.inject('/user/5', (res) => {
-
-                expect(res.result).to.equal({ id: '5', name: 'Bob' });
-                done();
-            });
-        });
-
-        it('returns a user record using server method with zero args', (done) => {
-
-            const server = new Hapi.Server();
-
-            const method = function (next) {
-
-                return next(null, { name: 'Bob' });
-            };
-
-            server.method('user', method);
-
-            server.route({
-                method: 'GET',
-                path: '/user',
-                config: {
-                    pre: [
-                        'user()'
-                    ],
-                    handler: function (request, reply) {
-
-                        return reply(request.pre.user);
-                    }
-                }
-            });
-
-            server.inject('/user', (res) => {
-
-                expect(res.result).to.equal({ name: 'Bob' });
-                done();
-            });
-        });
-
-        it('returns a user record using server method with no args', (done) => {
-
-            const server = new Hapi.Server();
-
-            const method = function (request, next) {
-
-                return next(null, { id: request.params.id, name: 'Bob' });
-            };
-
-            server.method('user', method);
-
-            server.route({
-                method: 'GET',
-                path: '/user/{id}',
-                config: {
-                    pre: [
-                        'user'
-                    ],
-                    handler: function (request, reply) {
-
-                        return reply(request.pre.user);
-                    }
-                }
-            });
-
-            server.inject('/user/5', (res) => {
-
-                expect(res.result).to.equal({ id: '5', name: 'Bob' });
-                done();
-            });
-        });
-
-        it('returns a user record using server method with nested name', (done) => {
-
-            const server = new Hapi.Server();
-
-            const method = function (next) {
-
-                return next(null, { name: 'Bob' });
-            };
-
-            server.method('user.get', method);
-
-            server.route({
-                method: 'GET',
-                path: '/user',
-                config: {
-                    pre: [
-                        'user.get()'
-                    ],
-                    handler: function (request, reply) {
-
-                        return reply(request.pre['user.get']);
-                    }
-                }
-            });
-
-            server.inject('/user', (res) => {
-
-                expect(res.result).to.equal({ name: 'Bob' });
-                done();
-            });
-        });
-
-        it('fails on bad method name', (done) => {
-
-            const server = new Hapi.Server();
-            const test = function () {
-
-                server.route({
-                    method: 'GET',
-                    path: '/x/{id}',
-                    config: {
-                        pre: [
-                            'xuser(params.id)'
-                        ],
-                        handler: function (request, reply) {
-
-                            return reply(request.pre.user);
-                        }
-                    }
-                });
-            };
-
-            expect(test).to.throw('Unknown server method in string notation: xuser(params.id)');
-            done();
-        });
-
-        it('fails on bad method syntax name', (done) => {
-
-            const server = new Hapi.Server();
-            const test = function () {
-
-                server.route({
-                    method: 'GET',
-                    path: '/x/{id}',
-                    config: {
-                        pre: [
-                            'userparams.id)'
-                        ],
-                        handler: function (request, reply) {
-
-                            return reply(request.pre.user);
-                        }
-                    }
-                });
-            };
-
-            expect(test).to.throw('Invalid server method string notation: userparams.id)');
-            done();
         });
 
         it('sets pre failAction to error', (done) => {
@@ -1228,96 +868,6 @@ describe('handler', () => {
                 expect(res.statusCode).to.equal(403);
             });
         });
-
-        it('logs server method using string notation when cache enabled', async () => {
-
-            const server = new Hapi.Server({ routes: { log: true } });
-
-            const method = function (id, next) {
-
-                return next(null, { id, name: 'Bob' });
-            };
-
-            server.method('user', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
-
-            server.route({
-                method: 'GET',
-                path: '/user/{id}',
-                config: {
-                    pre: [
-                        'user(params.id)'
-                    ],
-                    handler: function (request, reply) {
-
-                        return reply(request.getLog('method'));
-                    }
-                }
-            });
-
-            await server.initialize();
-            const res = await server.inject('/user/5');
-            expect(res.result[0].tags).to.equal(['pre', 'method', 'user']);
-            expect(res.result[0].internal).to.equal(true);
-            expect(res.result[0].data.msec).to.exist();
-        });
-
-        it('uses server method with cache via string notation', async () => {
-
-            const server = new Hapi.Server();
-
-            let gen = 0;
-            const method = function (id, next) {
-
-                return next(null, { id, name: 'Bob', gen: gen++ });
-            };
-
-            server.method('user', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
-
-            server.route({
-                method: 'GET',
-                path: '/user/{id}',
-                config: {
-                    pre: [
-                        'user(params.id)'
-                    ],
-                    handler: function (request, reply) {
-
-                        return reply(request.pre.user.gen);
-                    }
-                }
-            });
-
-            await server.initialize();
-
-            const res1 = await server.inject('/user/5');
-            expect(res1.result).to.equal(0);
-
-            const res2 = await server.inject('/user/5');
-            expect(res2.result).to.equal(0);
-        });
-    });
-
-    describe('fromString()', () => {
-
-        it('uses string handler', (done) => {
-
-            const server = new Hapi.Server();
-
-            const method = function (request, reply) {
-
-                return reply(null, request.params.x + request.params.y).code(299);
-            };
-
-            server.method('handler.get', method);
-
-            server.route({ method: 'GET', path: '/{x}/{y}', handler: 'handler.get' });
-            server.inject('/a/b', (res) => {
-
-                expect(res.statusCode).to.equal(299);
-                expect(res.result).to.equal('ab');
-                done();
-            });
-        });
     });
 
     describe('defaults()', () => {
@@ -1448,3 +998,9 @@ describe('handler', () => {
         });
     });
 });
+
+
+internals.wait = function (timeout) {
+
+    return new Promise((resolve, reject) => setTimeout(resolve, timeout));
+};

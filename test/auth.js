@@ -174,7 +174,7 @@ describe('authentication', () => {
             });
         });
 
-        it('uses views', (done) => {
+        it('uses views', async () => {
 
             const implementation = function (server, options) {
 
@@ -199,7 +199,7 @@ describe('authentication', () => {
             };
 
             const server = new Hapi.Server();
-            server.register(Vision, Hoek.ignore);
+            await server.register(Vision);
 
             server.views({
                 engines: { 'html': Handlebars },
@@ -209,26 +209,14 @@ describe('authentication', () => {
             server.auth.scheme('custom', implementation);
             server.auth.strategy('default', 'custom', true);
 
-            server.route({
-                method: 'GET',
-                path: '/',
-                handler: function (request, reply) {
+            server.route({ method: 'GET', path: '/', handler: () => null });
 
-                    return reply();
-                }
-            });
+            const res1 = await server.inject('/view');
+            expect(res1.result).to.equal('<h1>steve</h1>');
 
-            server.inject('/view', (res1) => {
-
-                expect(res1.result).to.equal('<h1>steve</h1>');
-
-                server.inject('/', (res2) => {
-
-                    expect(res2.statusCode).to.equal(200);
-                    expect(res2.result).to.equal('<h1>xyz</h1>');
-                    done();
-                });
-            });
+            const res2 = await server.inject('/');
+            expect(res2.statusCode).to.equal(200);
+            expect(res2.result).to.equal('<h1>xyz</h1>');
         });
 
         it('exposes an api', (done) => {

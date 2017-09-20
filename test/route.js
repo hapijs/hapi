@@ -3,9 +3,9 @@
 // Load modules
 
 const Path = require('path');
+
 const Code = require('code');
 const Hapi = require('..');
-const Hoek = require('hoek');
 const Inert = require('inert');
 const Joi = require('joi');
 const Lab = require('lab');
@@ -446,10 +446,10 @@ describe('Route', () => {
         });
     });
 
-    it('overrides server relativeTo', (done) => {
+    it('overrides server relativeTo', async () => {
 
         const server = new Hapi.Server();
-        server.register(Inert, Hoek.ignore);
+        await server.register(Inert);
         const handler = function (request, reply) {
 
             return reply.file('./package.json');
@@ -457,11 +457,8 @@ describe('Route', () => {
 
         server.route({ method: 'GET', path: '/file', handler, config: { files: { relativeTo: Path.join(__dirname, '../') } } });
 
-        server.inject('/file', (res) => {
-
-            expect(res.payload).to.contain('hapi');
-            done();
-        });
+        const res = await server.inject('/file');
+        expect(res.payload).to.contain('hapi');
     });
 
     it('throws when server timeout is more then socket timeout', (done) => {

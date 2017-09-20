@@ -1059,10 +1059,10 @@ describe('Connection', () => {
             });
         });
 
-        it('uses server views for ext added via server', (done) => {
+        it('uses server views for ext added via server', async () => {
 
             const server = new Hapi.Server();
-            server.register(Vision, Hoek.ignore);
+            await server.register(Vision);
 
             server.views({
                 engines: { html: Handlebars },
@@ -1076,7 +1076,7 @@ describe('Connection', () => {
 
             server.ext('onPreHandler', preHandler);
 
-            const test = function (plugin, options, next) {
+            const test = function (plugin, options) {
 
                 plugin.views({
                     engines: { html: Handlebars },
@@ -1084,22 +1084,15 @@ describe('Connection', () => {
                 });
 
                 plugin.route({ path: '/view', method: 'GET', handler: function (request, reply) { } });
-                return next();
             };
 
             test.attributes = {
                 name: 'test'
             };
 
-            server.register(test, (err) => {
-
-                expect(err).to.not.exist();
-                server.inject('/view', (res) => {
-
-                    expect(res.statusCode).to.equal(200);
-                    done();
-                });
-            });
+            await server.register(test);
+            const res = await server.inject('/view');
+            expect(res.statusCode).to.equal(200);
         });
 
         it('supports reply decorators on empty result', (done) => {
@@ -1273,13 +1266,7 @@ describe('Connection', () => {
 
                 server.ext('onRequest', onRequest);
 
-
-                const handler = function (request, reply) {
-
-                    return reply('ok');
-                };
-
-                server.route({ method: 'GET', path: '/', handler });
+                server.route({ method: 'GET', path: '/', handler: () => 'ok' });
 
                 server.inject('/', (res) => {
 
@@ -1288,10 +1275,10 @@ describe('Connection', () => {
                 });
             });
 
-            it('replies with a view', (done) => {
+            it('replies with a view', async () => {
 
                 const server = new Hapi.Server();
-                server.register(Vision, Hoek.ignore);
+                await server.register(Vision);
 
                 server.views({
                     engines: { 'html': Handlebars },
@@ -1305,18 +1292,10 @@ describe('Connection', () => {
 
                 server.ext('onRequest', onRequest);
 
-                const handler = function (request, reply) {
+                server.route({ method: 'GET', path: '/', handler: () => 'ok' });
 
-                    return reply('ok');
-                };
-
-                server.route({ method: 'GET', path: '/', handler });
-
-                server.inject('/', (res) => {
-
-                    expect(res.result).to.match(/<div>\r?\n    <h1>hola!<\/h1>\r?\n<\/div>\r?\n/);
-                    done();
-                });
+                const res = await server.inject('/');
+                expect(res.result).to.match(/<div>\r?\n    <h1>hola!<\/h1>\r?\n<\/div>\r?\n/);
             });
         });
 
@@ -1385,10 +1364,10 @@ describe('Connection', () => {
                 });
             });
 
-            it('intercepts 404 when using directory handler and file is missing', (done) => {
+            it('intercepts 404 when using directory handler and file is missing', async () => {
 
                 const server = new Hapi.Server();
-                server.register(Inert, Hoek.ignore);
+                await server.register(Inert);
 
                 const preResponse = function (request, reply) {
 
@@ -1400,18 +1379,15 @@ describe('Connection', () => {
 
                 server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './somewhere', listing: false, index: true } } });
 
-                server.inject('/missing', (res) => {
-
-                    expect(res.statusCode).to.equal(200);
-                    expect(res.result.isBoom).to.equal(true);
-                    done();
-                });
+                const res = await server.inject('/missing');
+                expect(res.statusCode).to.equal(200);
+                expect(res.result.isBoom).to.equal(true);
             });
 
-            it('intercepts 404 when using file handler and file is missing', (done) => {
+            it('intercepts 404 when using file handler and file is missing', async () => {
 
                 const server = new Hapi.Server();
-                server.register(Inert, Hoek.ignore);
+                await server.register(Inert);
 
                 const preResponse = function (request, reply) {
 
@@ -1423,18 +1399,15 @@ describe('Connection', () => {
 
                 server.route({ method: 'GET', path: '/{path*}', handler: { file: './somewhere/something.txt' } });
 
-                server.inject('/missing', (res) => {
-
-                    expect(res.statusCode).to.equal(200);
-                    expect(res.result.isBoom).to.equal(true);
-                    done();
-                });
+                const res = await server.inject('/missing');
+                expect(res.statusCode).to.equal(200);
+                expect(res.result.isBoom).to.equal(true);
             });
 
-            it('cleans unused file stream when response is overridden', { skip: process.platform === 'win32' }, (done) => {
+            it('cleans unused file stream when response is overridden', { skip: process.platform === 'win32' }, async () => {
 
                 const server = new Hapi.Server();
-                server.register(Inert, Hoek.ignore);
+                await server.register(Inert);
 
                 const preResponse = function (request, reply) {
 
@@ -1445,10 +1418,11 @@ describe('Connection', () => {
 
                 server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './' } } });
 
-                server.inject('/package.json', (res) => {
+                const res = await server.inject('/package.json');
+                expect(res.statusCode).to.equal(200);
+                expect(res.result.something).to.equal('else');
 
-                    expect(res.statusCode).to.equal(200);
-                    expect(res.result.something).to.equal('else');
+                await new Promise((resolve) => {
 
                     const cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
                     let lsof = '';
@@ -1466,7 +1440,7 @@ describe('Connection', () => {
                         }
 
                         expect(count).to.equal(0);
-                        done();
+                        resolve();
                     });
 
                     cmd.stdin.end();

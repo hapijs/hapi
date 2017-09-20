@@ -806,10 +806,10 @@ describe('Response', () => {
 
     describe('type()', () => {
 
-        it('returns a file in the response with the correct headers using custom mime type', (done) => {
+        it('returns a file in the response with the correct headers using custom mime type', async () => {
 
             const server = new Hapi.Server({ routes: { files: { relativeTo: Path.join(__dirname, '../') } } });
-            server.register(Inert, Hoek.ignore);
+            await server.register(Inert);
             const handler = function (request, reply) {
 
                 return reply.file('./LICENSE').type('application/example');
@@ -817,11 +817,8 @@ describe('Response', () => {
 
             server.route({ method: 'GET', path: '/file', handler });
 
-            server.inject('/file', (res) => {
-
-                expect(res.headers['content-type']).to.equal('application/example');
-                done();
-            });
+            const res = await server.inject('/file');
+            expect(res.headers['content-type']).to.equal('application/example');
         });
     });
 
@@ -1195,31 +1192,27 @@ describe('Response', () => {
 
     describe('_marshal()', () => {
 
-        it('emits request-error when view file for handler not found', (done) => {
+        it('emits request-error when view file for handler not found', async () => {
 
             const server = new Hapi.Server({ debug: false });
-            server.register(Vision, Hoek.ignore);
+            await server.register(Vision);
 
             server.views({
                 engines: { 'html': Handlebars },
                 path: __dirname
             });
 
-            server.events.once('request-error', (request, err) => {
-
-                expect(err).to.exist();
-                expect(err.message).to.contain('The partial x could not be found: The partial x could not be found');
-                done();
-            });
+            const log = server.events.once('request-error');
 
             server.route({ method: 'GET', path: '/{param}', handler: { view: 'templates/invalid' } });
 
-            server.inject('/hello', (res) => {
+            const res = await server.inject('/hello');
+            expect(res.statusCode).to.equal(500);
+            expect(res.result).to.exist();
+            expect(res.result.message).to.equal('An internal server error occurred');
 
-                expect(res.statusCode).to.equal(500);
-                expect(res.result).to.exist();
-                expect(res.result.message).to.equal('An internal server error occurred');
-            });
+            const [, err] = await log;
+            expect(err.message).to.contain('The partial x could not be found: The partial x could not be found');
         });
     });
 
