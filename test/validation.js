@@ -652,7 +652,7 @@ describe('validation', () => {
         });
     });
 
-    it('replaces error with message on invalid input', (done) => {
+    it('replaces error with message on invalid input', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -675,12 +675,9 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=1', (res) => {
-
-            expect(res.statusCode).to.equal(400);
-            expect(res.result).to.equal('Got error in query where a is bad');
-            done();
-        });
+        const res = await server.inject('/?a=1');
+        expect(res.statusCode).to.equal(400);
+        expect(res.result).to.equal('Got error in query where a is bad');
     });
 
     it.skip('catches error thrown in failAction', (done) => {
