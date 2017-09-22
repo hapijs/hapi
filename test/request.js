@@ -245,7 +245,7 @@ describe('Request', () => {
 
             const ext = function (request, reply) {
 
-                return reply(Boom.badRequest());
+                throw Boom.badRequest();
             };
 
             server.ext('onPostHandler', ext);
@@ -295,7 +295,7 @@ describe('Request', () => {
                     ++disconnected;
                 });
 
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onRequest', onRequest);
@@ -350,7 +350,7 @@ describe('Request', () => {
             const onRequest = function (request, reply) {
 
                 request.once('disconnect', () => server.stop().then(done));
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onRequest', onRequest);
@@ -358,7 +358,7 @@ describe('Request', () => {
             const onPreHandler = function (request, reply) {
 
                 client.destroy();
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPreHandler', onPreHandler);
@@ -396,7 +396,7 @@ describe('Request', () => {
             const server = new Hapi.Server();
             const preResponse = function (request, reply) {
 
-                return reply(request.params);
+                return request.params;
             };
 
             server.ext('onPreResponse', preResponse);
@@ -447,17 +447,17 @@ describe('Request', () => {
             server.route({ method: 'GET', path: '/', handler: Hoek.ignore });
 
             let clientRequest;
-            const preHandler = function (request, reply) {
+            const preHandler = async function (request, reply) {
 
                 clientRequest.abort();
+                await internals.wait(10);
+
                 setTimeout(() => {
 
-                    reply.continue();
-                    setTimeout(() => {
-
-                        server.stop().then(done);
-                    }, 10);
+                    server.stop().then(done);
                 }, 10);
+
+                return reply.continue;
             };
 
             server.ext('onPreHandler', preHandler);
@@ -491,7 +491,7 @@ describe('Request', () => {
 
             const preResponse = function (request, reply) {
 
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPreResponse', preResponse);
@@ -665,7 +665,7 @@ describe('Request', () => {
 
             const preResponse = function (request, reply) {
 
-                return reply(new Error('boom2'));
+                throw new Error('boom2');
             };
 
             server.ext('onPreResponse', preResponse);
@@ -776,7 +776,7 @@ describe('Request', () => {
             const onRequest = function (request, reply) {
 
                 request.setMethod('POST');
-                return reply(request.method);
+                return reply(request.method).takeover();
             };
 
             server.ext('onRequest', onRequest);
@@ -838,7 +838,7 @@ describe('Request', () => {
             const onRequest = function (request, reply) {
 
                 request.setUrl(url);
-                return reply([request.url.href, request.path, request.query.param1].join('|'));
+                return reply([request.url.href, request.path, request.query.param1].join('|')).takeover();
             };
 
             server.ext('onRequest', onRequest);
@@ -861,7 +861,7 @@ describe('Request', () => {
                 const initialHost = request.info.host;
 
                 request.setUrl(url);
-                return reply([request.url.href, request.path, initialHost, request.info.host, request.info.hostname].join('|'));
+                return reply([request.url.href, request.path, initialHost, request.info.host, request.info.hostname].join('|')).takeover();
             };
 
             server.ext('onRequest', onRequest);
@@ -884,7 +884,7 @@ describe('Request', () => {
                 const initialHost = request.info.host;
 
                 request.setUrl(url);
-                return reply([request.url.href, request.path, initialHost, request.info.host, request.info.hostname].join('|'));
+                return reply([request.url.href, request.path, initialHost, request.info.host, request.info.hostname].join('|')).takeover();
             };
 
             server.ext('onRequest', onRequest);
@@ -911,7 +911,7 @@ describe('Request', () => {
                 const parsed = Url.parse(uri, true);
                 parsed.query.a = 2;
                 request.setUrl(parsed);
-                return reply([request.url.href, request.path, request.query.a].join('|'));
+                return reply([request.url.href, request.path, request.query.a].join('|')).takeover();
             };
 
             server.ext('onRequest', onRequest);
@@ -937,7 +937,7 @@ describe('Request', () => {
             const onRequest = function (request, reply) {
 
                 request.setUrl(url);
-                return reply([request.url.href, request.path, request.query.param1].join('|'));
+                return reply([request.url.href, request.path, request.query.param1].join('|')).takeover();
             };
 
             server.ext('onRequest', onRequest);
@@ -955,7 +955,7 @@ describe('Request', () => {
             const onRequest = function (request, reply) {
 
                 request.setUrl('');
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onRequest', onRequest);
@@ -1030,7 +1030,7 @@ describe('Request', () => {
                 request.setUrl(passedUrl);
                 requestUrl = request.url;
 
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onRequest', onRequest);
@@ -1058,7 +1058,7 @@ describe('Request', () => {
             const onRequest = function (request, reply) {
 
                 request.setUrl('http://one/');
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onRequest', onRequest);
@@ -1499,7 +1499,7 @@ describe('Request', () => {
 
             const postHandler = function (request, reply) {
 
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPostHandler', postHandler);
@@ -1512,12 +1512,10 @@ describe('Request', () => {
 
             const server = new Hapi.Server({ routes: { timeout: { server: 2 } } });
             server.route({ method: 'GET', path: '/', config: { handler: function () { } } });
-            const onRequest = function (request, reply) {
+            const onRequest = async function (request, reply) {
 
-                setTimeout(() => {
-
-                    return reply.continue();
-                }, 10);
+                await internals.wait(10);
+                return reply.continue;
             };
 
             server.ext('onRequest', onRequest);
@@ -1541,7 +1539,7 @@ describe('Request', () => {
             server.route({ method: 'GET', path: '/', config: { handler } });
             const preResponse = function (request, reply) {
 
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPreResponse', preResponse);

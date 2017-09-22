@@ -200,7 +200,7 @@ describe('payload', () => {
                 data = Buffer.concat(chunks);
             });
 
-            return reply.continue();
+            return reply.continue;
         };
 
         const handler = function (request, reply) {
@@ -360,17 +360,12 @@ describe('payload', () => {
         });
     });
 
-    it('errors saving a file without parse', (done) => {
-
-        const handler = function (request, reply) { };
+    it('errors saving a file without parse', async () => {
 
         const server = new Hapi.Server();
-        server.route({ method: 'POST', path: '/file', config: { handler, payload: { output: 'file', parse: false, uploads: '/a/b/c/d/not' } } });
-        server.inject({ method: 'POST', url: '/file', payload: 'abcde' }, (res) => {
-
-            expect(res.statusCode).to.equal(500);
-            done();
-        });
+        server.route({ method: 'POST', path: '/file', config: { handler: internals.block, payload: { output: 'file', parse: false, uploads: '/a/b/c/d/not' } } });
+        const res = await server.inject({ method: 'POST', url: '/file', payload: 'abcde' });
+        expect(res.statusCode).to.equal(500);
     });
 
     it('sets parse mode when route method is * and request is POST', (done) => {
@@ -766,3 +761,9 @@ describe('payload', () => {
         });
     });
 });
+
+
+internals.block = function () {
+
+    return new Promise(() => { });
+};

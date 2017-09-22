@@ -496,7 +496,7 @@ describe('Route', () => {
             const onRequest = function (request, reply) {
 
                 request.app.x = '1';
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onRequest', onRequest);
@@ -504,7 +504,7 @@ describe('Route', () => {
             const preAuth = function (request, reply) {
 
                 request.app.x += '2';
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPreAuth', preAuth);
@@ -512,7 +512,7 @@ describe('Route', () => {
             const postAuth = function (request, reply) {
 
                 request.app.x += '3';
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPostAuth', postAuth);
@@ -520,7 +520,7 @@ describe('Route', () => {
             const preHandler = function (request, reply) {
 
                 request.app.x += '4';
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPreHandler', preHandler);
@@ -528,7 +528,7 @@ describe('Route', () => {
             const postHandler = function (request, reply) {
 
                 request.response.source += '5';
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPostHandler', postHandler);
@@ -536,7 +536,7 @@ describe('Route', () => {
             const preResponse = function (request, reply) {
 
                 request.response.source += '6';
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPreResponse', preResponse);
@@ -573,7 +573,7 @@ describe('Route', () => {
             const onRequest = function (request, reply) {
 
                 request.app.x = '1';
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onRequest', onRequest);
@@ -581,7 +581,7 @@ describe('Route', () => {
             const preAuth = function (request, reply) {
 
                 request.app.x += '2';
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPreAuth', preAuth);
@@ -589,7 +589,7 @@ describe('Route', () => {
             const postAuth = function (request, reply) {
 
                 request.app.x += '3';
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPostAuth', postAuth);
@@ -597,7 +597,7 @@ describe('Route', () => {
             const preHandler = function (request, reply) {
 
                 request.app.x += '4';
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPreHandler', preHandler);
@@ -605,7 +605,7 @@ describe('Route', () => {
             const postHandler = function (request, reply) {
 
                 request.response.source += '5';
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPostHandler', postHandler);
@@ -613,7 +613,7 @@ describe('Route', () => {
             const preResponse = function (request, reply) {
 
                 request.response.source += '6';
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPreResponse', preResponse);
@@ -632,7 +632,7 @@ describe('Route', () => {
             const onRequest = function (request, reply) {
 
                 request.app.x = '1';
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onRequest', onRequest);
@@ -640,7 +640,7 @@ describe('Route', () => {
             const preAuth = function (request, reply) {
 
                 request.app.x += '2';
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPreAuth', preAuth);
@@ -648,7 +648,7 @@ describe('Route', () => {
             const postAuth = function (request, reply) {
 
                 request.app.x += '3';
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPostAuth', postAuth);
@@ -665,7 +665,7 @@ describe('Route', () => {
             const preHandler = function (request, reply) {
 
                 request.app.x += '4';
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPreHandler', preHandler);
@@ -673,7 +673,7 @@ describe('Route', () => {
             const postHandler = function (request, reply) {
 
                 request.response.source += '5';
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPostHandler', postHandler);
@@ -681,7 +681,7 @@ describe('Route', () => {
             const preResponse = function (request, reply) {
 
                 request.response.source += '6';
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPreResponse', preResponse);
@@ -700,7 +700,7 @@ describe('Route', () => {
             const preAuth1 = function (request, reply) {
 
                 request.app.x = '1';
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPreAuth', preAuth1);
@@ -714,7 +714,7 @@ describe('Route', () => {
                             method: function (request, reply) {
 
                                 request.app.x += '2';
-                                return reply.continue();
+                                return reply.continue;
                             }
                         }
                     },
@@ -728,7 +728,7 @@ describe('Route', () => {
             const preAuth3 = function (request, reply) {
 
                 request.app.x += '3';
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPreAuth', preAuth3);
@@ -765,7 +765,7 @@ describe('Route', () => {
             const onRequest = function (request, reply) {
 
                 state += 1;
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onRequest', onRequest);
@@ -781,7 +781,7 @@ describe('Route', () => {
             const preResponse = function (request, reply) {
 
                 state += 3;
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPreResponse', preResponse);

@@ -49,22 +49,6 @@ describe('Reply', () => {
         });
     });
 
-    it('throws when reply called twice', (done) => {
-
-        const handler = function (request, reply) {
-
-            reply('ok'); return reply('not ok');
-        };
-
-        const server = new Hapi.Server({ debug: false });
-        server.route({ method: 'GET', path: '/', handler });
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(500);
-            done();
-        });
-    });
-
     it('redirects from handler', (done) => {
 
         const handler = function (request, reply) {
@@ -106,58 +90,6 @@ describe('Reply', () => {
             expect(res.statusCode).to.equal(302);
             expect(res.headers.location).to.equal('/elsewhere');
             done();
-        });
-    });
-
-    describe('interface()', () => {
-
-        it('uses reply(null, result) for result', (done) => {
-
-            const handler = function (request, reply) {
-
-                return reply(null, 'steve');
-            };
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.result).to.equal('steve');
-                done();
-            });
-        });
-
-        it('uses reply(null, err) for err', (done) => {
-
-            const handler = function (request, reply) {
-
-                return reply(null, Boom.badRequest());
-            };
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(400);
-                done();
-            });
-        });
-
-        it('ignores result when err provided in reply(err, result)', (done) => {
-
-            const handler = function (request, reply) {
-
-                return reply(Boom.badRequest(), 'steve');
-            };
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(400);
-                done();
-            });
         });
     });
 
@@ -572,7 +504,7 @@ describe('Reply', () => {
             const handler = function (request, reply) {
 
                 request.raw.res.end();
-                return reply.close({ end: false });
+                return reply.abandon;
             };
 
             const server = new Hapi.Server();
@@ -589,7 +521,7 @@ describe('Reply', () => {
 
             const handler = function (request, reply) {
 
-                return reply.close();
+                return reply.close;
             };
 
             const server = new Hapi.Server();
@@ -609,7 +541,7 @@ describe('Reply', () => {
 
             const handler = function (request, reply) {
 
-                return reply.continue();
+                return reply.continue;
             };
 
             const server = new Hapi.Server();
@@ -624,29 +556,24 @@ describe('Reply', () => {
             });
         });
 
-        it('sets empty reply on continue in prerequisite', async () => {
+        it('ignores continue in prerequisite', async () => {
 
             const pre1 = function (request, reply) {
 
-                return reply.continue();
+                return reply.continue;
             };
 
             const pre2 = function (request, reply) {
 
-                return reply.continue();
+                return reply.continue;
             };
 
             const pre3 = function (request, reply) {
 
-                return reply({
+                return {
                     m1: request.pre.m1,
                     m2: request.pre.m2
-                });
-            };
-
-            const handler = function (request, reply) {
-
-                return reply(request.pre.m3);
+                };
             };
 
             const server = new Hapi.Server();
@@ -659,7 +586,7 @@ describe('Reply', () => {
                         { method: pre2, assign: 'm2' },
                         { method: pre3, assign: 'm3' }
                     ],
-                    handler
+                    handler: (request) => request.pre.m3
                 }
             });
 
@@ -679,16 +606,16 @@ describe('Reply', () => {
             server.ext('onPreResponse', (request, reply) => {
 
                 if (request.response.isBoom) {
-                    return reply.continue('2');
+                    return reply('2');
                 }
 
-                return reply.continue();
+                return reply.continue;
             });
 
             server.ext('onPreResponse', (request, reply) => {
 
                 request.response.source += 'x';
-                return reply.continue();
+                return reply.continue;
             });
 
             server.route({

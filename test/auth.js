@@ -971,7 +971,7 @@ describe('authentication', () => {
             server.ext('onPreResponse', (request, reply) => {
 
                 expect(request.response.data).to.contain(['got', 'need']);
-                return reply.continue();
+                return reply.continue;
             });
 
             server.inject({ url: '/test', headers: { authorization: 'Custom steve' } }, (res) => {
@@ -1371,10 +1371,7 @@ describe('authentication', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) {
-
-                        return reply(request.auth.credentials.user);
-                    },
+                    handler: () => null,
                     auth: {
                         entity: 'any'
                     }
@@ -1397,10 +1394,7 @@ describe('authentication', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) {
-
-                        return reply(request.auth.credentials.user);
-                    },
+                    handler: () => null,
                     auth: {
                         entity: 'user'
                     }
@@ -1423,10 +1417,7 @@ describe('authentication', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) {
-
-                        return reply(request.auth.credentials.user);
-                    },
+                    handler: () => null,
                     auth: {
                         entity: 'user'
                     }
@@ -1441,7 +1432,7 @@ describe('authentication', () => {
             });
         });
 
-        it('matches app entity', (done) => {
+        it('matches app entity', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -1450,21 +1441,15 @@ describe('authentication', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) {
-
-                        return reply(request.auth.credentials.user);
-                    },
+                    handler: () => null,
                     auth: {
                         entity: 'app'
                     }
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom client' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom client' } });
+            expect(res.statusCode).to.equal(200);
         });
 
         it('errors on missing app entity', (done) => {
@@ -1476,10 +1461,7 @@ describe('authentication', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) {
-
-                        return reply(request.auth.credentials.user);
-                    },
+                    handler: () => null,
                     auth: {
                         entity: 'app'
                     }
@@ -2003,14 +1985,7 @@ internals.implementation = function (server, options) {
     if (settings &&
         settings.route) {
 
-        server.route({
-            method: 'GET',
-            path: '/',
-            handler: function (request, reply) {
-
-                return reply(request.auth.credentials.user);
-            }
-        });
+        server.route({ method: 'GET', path: '/', handler: (request) => (request.auth.credentials.user || null) });
     }
 
     const scheme = {

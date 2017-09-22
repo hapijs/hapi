@@ -484,7 +484,7 @@ describe('transmission', () => {
             const preResponse = function (request, reply) {
 
                 validState = request.state && typeof request.state === 'object';
-                reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPreResponse', preResponse);
@@ -1245,7 +1245,7 @@ describe('transmission', () => {
                     throw new Error('not called');
                 };
 
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPreResponse', preResponse);
@@ -1272,7 +1272,7 @@ describe('transmission', () => {
                 response = request.response;
                 response.registerEvent('special');
                 log = response.once('special');
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPreResponse', preResponse);
@@ -1703,7 +1703,7 @@ describe('transmission', () => {
                     return orig.call(res);
                 };
 
-                reply.continue();
+                return reply.continue;
             };
 
             server.ext('onRequest', onRequest);

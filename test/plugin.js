@@ -1592,7 +1592,7 @@ describe('Plugin', () => {
                 const onRequest = function (request, reply) {
 
                     request.setUrl('/b');
-                    return reply.continue();
+                    return reply.continue;
                 };
 
                 srv.ext('onRequest', onRequest);
@@ -1622,7 +1622,7 @@ describe('Plugin', () => {
 
                         request.app.complexDeps = request.app.complexDeps || '|';
                         request.app.complexDeps += num + '|';
-                        return reply.continue();
+                        return reply.continue;
                     };
 
                     server.ext('onRequest', onRequest, deps);
@@ -1795,7 +1795,7 @@ describe('Plugin', () => {
             const preAuth = function (request, reply) {
 
                 request.app.x = '1';
-                return reply.continue();
+                return reply.continue;
             };
 
             server.ext('onPreAuth', preAuth);
@@ -1811,7 +1811,7 @@ describe('Plugin', () => {
                                 method: function (request, reply) {
 
                                     request.app.x += '2';
-                                    return reply.continue();
+                                    return reply.continue;
                                 }
                             }
                         },
@@ -1825,7 +1825,7 @@ describe('Plugin', () => {
                 const preAuthSandbox = function (request, reply) {
 
                     request.app.x += '3';
-                    return reply.continue();
+                    return reply.continue;
                 };
 
                 srv.ext('onPreAuth', preAuthSandbox, { sandbox: 'plugin' });
@@ -2744,10 +2744,10 @@ describe('Plugin', () => {
                 const onRequest = function (request, reply) {
 
                     if (request.path === '/ext') {
-                        return reply.view('test', { message: 'grabbed' });
+                        return reply.view('test', { message: 'grabbed' }).takeover();
                     }
 
-                    return reply.continue();
+                    return reply.continue;
                 };
 
                 srv.ext('onRequest', onRequest);
@@ -2883,7 +2883,7 @@ internals.plugins = {
 
             request.app.deps = request.app.deps || '|';
             request.app.deps += '1|';
-            return reply.continue();
+            return reply.continue;
         };
 
         server.ext('onRequest', onRequest, { after: 'deps3' });
@@ -2894,7 +2894,7 @@ internals.plugins = {
 
             request.app.deps = request.app.deps || '|';
             request.app.deps += '2|';
-            return reply.continue();
+            return reply.continue;
         };
 
         server.ext('onRequest', onRequest, { after: 'deps3', before: 'deps1' });
@@ -2906,7 +2906,7 @@ internals.plugins = {
 
             request.app.deps = request.app.deps || '|';
             request.app.deps += '3|';
-            return reply.continue();
+            return reply.continue;
         };
 
         server.ext('onRequest', onRequest);

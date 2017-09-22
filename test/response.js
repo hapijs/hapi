@@ -61,7 +61,7 @@ describe('Response', () => {
 
             reply.state('test', '123');
             reply.unstate('empty', { path: '/path' });
-            return reply.continue();
+            return reply.continue;
         };
 
         server.ext('onPostHandler', postHandler);
@@ -852,7 +852,7 @@ describe('Response', () => {
             const onPreResponse = function (request, reply) {
 
                 request.response.charset('abc');
-                return reply.continue();
+                return reply.continue;
             };
 
             const server = new Hapi.Server();
@@ -887,7 +887,7 @@ describe('Response', () => {
             const onPreResponse = function (request, reply) {
 
                 request.response.charset('abc');
-                return reply.continue();
+                return reply.continue;
             };
 
             const server = new Hapi.Server();
