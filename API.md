@@ -531,7 +531,7 @@ const server = new Hapi.Server();
 ### `server.auth.api`
 
 An object where each key is a strategy name and the value is the exposed strategy API. Available
-on when the authentication scheme exposes an API by returning an `api` key in the object returned
+only when the authentication scheme exposes an API by returning an `api` key in the object returned
 from its implementation function.
 
 When the server contains more than one connection, each [`server.connections`](#serverconnections)

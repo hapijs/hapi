@@ -131,7 +131,7 @@ describe('validation', () => {
             return {
                 authenticate: function (request, reply) {
 
-                    return reply.continue({ credentials: { name: 'john' } });
+                    return reply.authenticated({ credentials: { name: 'john' } });
                 }
             };
         };

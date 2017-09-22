@@ -688,31 +688,6 @@ describe('authentication', () => {
             });
         });
 
-        it.skip('handles errors thrown inside authenticate', (done) => {
-
-            const server = new Hapi.Server({ debug: false });
-            server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: 'throw' } });
-
-            server.events.once('request-error', (request, err) => {
-
-                expect(err.message).to.equal('Uncaught error: Boom');
-            });
-
-            const handler = function (request, reply) {
-
-                return reply('ok');
-            };
-
-            server.route({ method: 'GET', path: '/', handler });
-
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                done();
-            });
-        });
-
         it('passes non Error error response when set to try ', (done) => {
 
             const handler = function (request, reply) {
@@ -1999,29 +1974,25 @@ internals.implementation = function (server, options) {
 
             const parts = authorization.split(/\s+/);
             if (parts.length !== 2) {
-                return reply.continue();        // Error without error or credentials
+                return reply.continue;          // Error without error or credentials
             }
 
             const username = parts[1];
             const credentials = settings.users[username];
 
             if (!credentials) {
-                return reply(Boom.unauthorized('Missing credentials', 'Custom'));
+                throw Boom.unauthorized('Missing credentials', 'Custom');
             }
 
             if (credentials === 'skip') {
-                return reply(Boom.unauthorized(null, 'Custom'));
-            }
-
-            if (credentials === 'throw') {
-                throw new Error('Boom');
+                return reply.unauthenticated(Boom.unauthorized(null, 'Custom'));
             }
 
             if (typeof credentials === 'string') {
-                return reply(credentials);
+                return credentials;
             }
 
-            return reply.continue({ credentials });
+            return reply.authenticated({ credentials });
         },
         response: function (request, reply) {
 
@@ -2029,7 +2000,7 @@ internals.implementation = function (server, options) {
                 return reply(request.auth.credentials.response);
             }
 
-            return reply.continue();
+            return reply.continue;
         }
     };
 
@@ -2042,7 +2013,7 @@ internals.implementation = function (server, options) {
                 return reply(request.auth.credentials.payload);
             }
 
-            return reply.continue();
+            return reply.continue;
         };
     }
 

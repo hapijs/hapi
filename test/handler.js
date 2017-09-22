@@ -835,7 +835,7 @@ describe('handler', () => {
             });
         });
 
-        it('logs boom error instance as data if handler returns boom error', (done) => {
+        it('logs boom error instance as data if handler returns boom error', async () => {
 
             const server = new Hapi.Server();
             server.route({
@@ -849,24 +849,26 @@ describe('handler', () => {
                 }
             });
 
-            server.events.on('request-internal', (request, event, tags) => {
+            const log = new Promise((resolve) => {
 
-                if (event.internal &&
-                    tags.handler &&
-                    tags.error) {
+                server.events.on('request-internal', (request, event, tags) => {
 
-                    const log = event.data;
-                    expect(log.data.isBoom).to.equal(true);
-                    expect(log.data.output.statusCode).to.equal(403);
-                    expect(log.data.message).to.equal('Forbidden');
-                    done();
-                }
+                    if (event.internal &&
+                        tags.handler &&
+                        tags.error) {
+
+                        resolve({ event, tags });
+                    }
+                });
             });
 
-            server.inject('/', (res) => {
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(403);
 
-                expect(res.statusCode).to.equal(403);
-            });
+            const { event } = await log;
+            expect(event.data.data.isBoom).to.equal(true);
+            expect(event.data.data.output.statusCode).to.equal(403);
+            expect(event.data.data.message).to.equal('Forbidden');
         });
     });
 

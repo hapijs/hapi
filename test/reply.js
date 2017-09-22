@@ -4,7 +4,6 @@
 
 const Http = require('http');
 const Stream = require('stream');
-const Boom = require('boom');
 const Code = require('code');
 const Hapi = require('..');
 const Hoek = require('hoek');

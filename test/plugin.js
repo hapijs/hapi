@@ -2829,27 +2829,25 @@ internals.plugins = {
                     const username = credentialsParts[0];
                     const password = credentialsParts[1];
 
-                    settings.validateFunc(username, password, (ignoreErr, isValid, credentials) => {
+                    const { isValid, credentials } = settings.validateFunc(username, password);
+                    if (!isValid) {
+                        return reply(Boom.unauthorized('Bad username or password', 'Basic'), { credentials });
+                    }
 
-                        if (!isValid) {
-                            return reply(Boom.unauthorized('Bad username or password', 'Basic'), { credentials });
-                        }
-
-                        return reply.continue({ credentials });
-                    });
+                    return reply.authenticated({ credentials });
                 }
             };
         };
 
         server.auth.scheme('basic', scheme);
 
-        const loadUser = function (username, password, callback) {
+        const loadUser = function (username, password) {
 
             if (username === 'john') {
-                return callback(null, password === '12345', { user: 'john' });
+                return { isValid: password === '12345', credentials: { user: 'john' } };
             }
 
-            return callback(null, false);
+            return { isValid: false };
         };
 
         server.auth.strategy('basic', 'basic', 'required', { validateFunc: loadUser });
