@@ -282,13 +282,21 @@ describe('validation', () => {
             path: '/',
             handler: function (request, reply) {
 
-                return reply('ok');
+                return request.query.a;
             },
             config: {
                 validate: {
-                    query: function (value, options, next) {
+                    query: function (value, options) {
 
-                        return next(value.a === '123' ? null : new Error('Bad query'));
+                        if (value.a === 'skip') {
+                            return;
+                        }
+
+                        if (value.a !== '123') {
+                            throw Boom.badRequest('Bad query');
+                        }
+
+                        return { a: 'ok' };
                     }
                 }
             }
@@ -296,13 +304,18 @@ describe('validation', () => {
 
         const res1 = await server.inject('/?a=123');
         expect(res1.statusCode).to.equal(200);
+        expect(res1.result).to.equal('ok');
 
         const res2 = await server.inject('/?a=456');
         expect(res2.statusCode).to.equal(400);
         expect(res2.result.message).to.equal('Bad query');
+
+        const res3 = await server.inject('/?a=123');
+        expect(res3.statusCode).to.equal(200);
+        expect(res3.result).to.equal('ok');
     });
 
-    it.skip('catches error thrown in custom validation', async () => {
+    it('catches error thrown in custom validation', async () => {
 
         const server = new Hapi.Server({ debug: false });
         server.route({
@@ -314,7 +327,7 @@ describe('validation', () => {
             },
             config: {
                 validate: {
-                    query: function (value, options, next) {
+                    query: function (value, options) {
 
                         throw new Error('Bad query');
                     }
@@ -421,7 +434,7 @@ describe('validation', () => {
 
         const res = await server.inject('/?a=123');
         expect(res.statusCode).to.equal(200);
-        expect(res.result).to.equal('a');
+        expect(res.result).to.equal(['a']);
     });
 
     it('validates valid input (Object root)', async () => {
@@ -833,7 +846,7 @@ describe('validation', () => {
         expect(res.statusCode).to.equal(400);
         expect(res.result.validation).to.equal({
             source: 'payload',
-            keys: ['value']
+            keys: ['']
         });
     });
 
@@ -1149,9 +1162,14 @@ describe('validation', () => {
     it('validates response using custom validation function', async () => {
 
         let i = 0;
-        const handler = function (request, reply) {
+        const handler = function () {
 
-            return reply({ some: i++ ? null : 'value' });
+            ++i;
+            switch (i) {
+                case 1: return { some: 'unchanged' };
+                case 2: return { some: 'null' };
+                default: return { some: 'throw' };
+            }
         };
 
         const server = new Hapi.Server({ debug: false });
@@ -1162,7 +1180,15 @@ describe('validation', () => {
                 response: {
                     schema: function (value, options, next) {
 
-                        return next(value.some === 'value' ? null : new Error('Bad response'));
+                        if (value.some === 'unchanged') {
+                            return;
+                        }
+
+                        if (value.some === 'null') {
+                            return null;
+                        }
+
+                        throw new Error('Bad response');
                     }
                 }
             },
@@ -1171,10 +1197,63 @@ describe('validation', () => {
 
         const res1 = await server.inject('/');
         expect(res1.statusCode).to.equal(200);
-        expect(res1.payload).to.equal('{"some":"value"}');
+        expect(res1.result).to.equal({ some: 'unchanged' });
 
         const res2 = await server.inject('/');
-        expect(res2.statusCode).to.equal(500);
+        expect(res2.statusCode).to.equal(200);
+        expect(res2.result).to.equal({ some: 'null' });
+
+        const res3 = await server.inject('/');
+        expect(res3.statusCode).to.equal(500);
+    });
+
+    it('validates response using custom validation function (modify)', async () => {
+
+        let i = 0;
+        const handler = function () {
+
+            ++i;
+            switch (i) {
+                case 1: return { some: 'unchanged' };
+                case 2: return { some: 'null' };
+                default: return { some: 'throw' };
+            }
+        };
+
+        const server = new Hapi.Server({ debug: false });
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                response: {
+                    modify: true,
+                    schema: function (value, options, next) {
+
+                        if (value.some === 'unchanged') {
+                            return;
+                        }
+
+                        if (value.some === 'null') {
+                            return null;
+                        }
+
+                        throw new Error('Bad response');
+                    }
+                }
+            },
+            handler
+        });
+
+        const res1 = await server.inject('/');
+        expect(res1.statusCode).to.equal(200);
+        expect(res1.result).to.equal({ some: 'unchanged' });
+
+        const res2 = await server.inject('/');
+        expect(res2.statusCode).to.equal(200);
+        expect(res2.result).to.equal(null);
+
+        const res3 = await server.inject('/');
+        expect(res3.statusCode).to.equal(500);
     });
 
     it.skip('catches error thrown by custom validation function', async () => {
@@ -1648,15 +1727,16 @@ describe('validation', () => {
             path: '/{val}',
             config: {
                 validate: {
-                    params: function (value, options, next) {
+                    params: function (value, options) {
 
-                        next(this.valid.indexOf(value) === -1, value);
+                        if (this.valid.indexOf(value) === -1) {
+                            throw Boom.badRequest();
+                        }
+
+                        return value;
                     }
                 },
-                handler: function (request, reply) {
-
-                    return reply('ok');
-                }
+                handler: () => null
             }
         });
 

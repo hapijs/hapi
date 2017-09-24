@@ -70,7 +70,8 @@
     },
     "joi": {
       "version": "11.1.0",
-      "resolved": "https://registry.npmjs.org/joi/-/joi-11.1.0.tgz"
+      "resolved": "https://registry.npmjs.org/joi/-/joi-11.1.0.tgz",
+      "integrity": "sha1-Orz+PuFANv6VVMPSa1RXB1w9wmc="
     },
     "mime-db": {
       "version": "1.29.0",
