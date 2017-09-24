@@ -500,7 +500,7 @@ describe('validation', () => {
         server.inject('/?a=123', (res) => {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal('a');
+            expect(res.result).to.equal(['a']);
             done();
         });
     });
@@ -1016,7 +1016,7 @@ describe('validation', () => {
             expect(res.statusCode).to.equal(400);
             expect(res.result.validation).to.equal({
                 source: 'payload',
-                keys: ['value']
+                keys: ['']
             });
 
             done();
