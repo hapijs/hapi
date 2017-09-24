@@ -17,15 +17,13 @@ const internals = {};
 
 // Test shortcuts
 
-const lab = exports.lab = Lab.script();
-const describe = lab.describe;
-const it = lab.it;
+const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
 
 
 describe('validation', () => {
 
-    it('validates valid input', (done) => {
+    it('validates valid input', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -44,14 +42,11 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=123', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            done();
-        });
+        const res = await server.inject('/?a=123');
+        expect(res.statusCode).to.equal(200);
     });
 
-    it('validates both params and query', (done) => {
+    it('validates both params and query', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -73,15 +68,12 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/b/456?a=123', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal(579);
-            done();
-        });
+        const res = await server.inject('/b/456?a=123');
+        expect(res.statusCode).to.equal(200);
+        expect(res.result).to.equal(579);
     });
 
-    it('validates valid input using context', (done) => {
+    it('validates valid input using context', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -100,29 +92,20 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?verbose=true', (res1) => {
+        const res1 = await server.inject('/?verbose=true');
+        expect(res1.statusCode).to.equal(400);
 
-            expect(res1.statusCode).to.equal(400);
+        const res2 = await server.inject('/');
+        expect(res2.statusCode).to.equal(200);
 
-            server.inject('/', (res2) => {
+        const res3 = await server.inject('/steve?verbose=true');
+        expect(res3.statusCode).to.equal(200);
 
-                expect(res2.statusCode).to.equal(200);
-
-                server.inject('/steve?verbose=true', (res3) => {
-
-                    expect(res3.statusCode).to.equal(200);
-
-                    server.inject('/steve?verbose=x', (res4) => {
-
-                        expect(res4.statusCode).to.equal(400);
-                        done();
-                    });
-                });
-            });
-        });
+        const res4 = await server.inject('/steve?verbose=x');
+        expect(res4.statusCode).to.equal(400);
     });
 
-    it('validates valid input using auth context', (done) => {
+    it('validates valid input using auth context', async () => {
 
         const server = new Hapi.Server();
 
@@ -156,34 +139,23 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?me=true', (res1) => {
+        const res1 = await server.inject('/?me=true');
+        expect(res1.statusCode).to.equal(400);
 
-            expect(res1.statusCode).to.equal(400);
+        const res2 = await server.inject('/');
+        expect(res2.statusCode).to.equal(200);
 
-            server.inject('/', (res2) => {
+        const res3 = await server.inject('/steve?me=true');
+        expect(res3.statusCode).to.equal(400);
 
-                expect(res2.statusCode).to.equal(200);
+        const res4 = await server.inject('/john?me=true');
+        expect(res4.statusCode).to.equal(200);
 
-                server.inject('/steve?me=true', (res3) => {
-
-                    expect(res3.statusCode).to.equal(400);
-
-                    server.inject('/john?me=true', (res4) => {
-
-                        expect(res4.statusCode).to.equal(200);
-
-                        server.inject('/john?me=x', (res5) => {
-
-                            expect(res5.statusCode).to.equal(400);
-                            done();
-                        });
-                    });
-                });
-            });
-        });
+        const res5 = await server.inject('/john?me=x');
+        expect(res5.statusCode).to.equal(400);
     });
 
-    it('validates valid input using app context', (done) => {
+    it('validates valid input using app context', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -205,19 +177,14 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?x=a', (res1) => {
+        const res1 = await server.inject('/?x=a');
+        expect(res1.statusCode).to.equal(400);
 
-            expect(res1.statusCode).to.equal(400);
-
-            server.inject('/?x=b', (res2) => {
-
-                expect(res2.statusCode).to.equal(200);
-                done();
-            });
-        });
+        const res2 = await server.inject('/?x=b');
+        expect(res2.statusCode).to.equal(200);
     });
 
-    it('fails valid input', (done) => {
+    it('fails valid input', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -236,14 +203,11 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=abc', (res) => {
-
-            expect(res.statusCode).to.equal(400);
-            done();
-        });
+        const res = await server.inject('/?a=abc');
+        expect(res.statusCode).to.equal(400);
     });
 
-    it('retains custom validation error', (done) => {
+    it('retains custom validation error', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -262,14 +226,11 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=abc', (res) => {
-
-            expect(res.statusCode).to.equal(403);
-            done();
-        });
+        const res = await server.inject('/?a=abc');
+        expect(res.statusCode).to.equal(403);
     });
 
-    it('validates valid input with validation options', (done) => {
+    it('validates valid input with validation options', async () => {
 
         const server = new Hapi.Server({ routes: { validate: { options: { convert: false } } } });
         server.route({
@@ -288,14 +249,11 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=123', (res) => {
-
-            expect(res.statusCode).to.equal(400);
-            done();
-        });
+        const res = await server.inject('/?a=123');
+        expect(res.statusCode).to.equal(400);
     });
 
-    it('allows any input when set to null', (done) => {
+    it('allows any input when set to null', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -312,14 +270,11 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=123', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            done();
-        });
+        const res = await server.inject('/?a=123');
+        expect(res.statusCode).to.equal(200);
     });
 
-    it('validates using custom validation', (done) => {
+    it('validates using custom validation', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -339,20 +294,15 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=123', (res1) => {
+        const res1 = await server.inject('/?a=123');
+        expect(res1.statusCode).to.equal(200);
 
-            expect(res1.statusCode).to.equal(200);
-
-            server.inject('/?a=456', (res2) => {
-
-                expect(res2.statusCode).to.equal(400);
-                expect(res2.result.message).to.equal('Bad query');
-                done();
-            });
-        });
+        const res2 = await server.inject('/?a=456');
+        expect(res2.statusCode).to.equal(400);
+        expect(res2.result.message).to.equal('Bad query');
     });
 
-    it.skip('catches error thrown in custom validation', (done) => {
+    it.skip('catches error thrown in custom validation', async () => {
 
         const server = new Hapi.Server({ debug: false });
         server.route({
@@ -372,14 +322,11 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=456', (res) => {
-
-            expect(res.statusCode).to.equal(500);
-            done();
-        });
+        const res = await server.inject('/?a=456');
+        expect(res.statusCode).to.equal(500);
     });
 
-    it('casts input to desired type', (done) => {
+    it('casts input to desired type', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -398,15 +345,12 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/10', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal(11);
-            done();
-        });
+        const res = await server.inject('/10');
+        expect(res.statusCode).to.equal(200);
+        expect(res.result).to.equal(11);
     });
 
-    it('uses original value before schema conversion', (done) => {
+    it('uses original value before schema conversion', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -425,15 +369,12 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/10', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal('101');
-            done();
-        });
+        const res = await server.inject('/10');
+        expect(res.statusCode).to.equal(200);
+        expect(res.result).to.equal('101');
     });
 
-    it('invalidates forbidden input', (done) => {
+    it('invalidates forbidden input', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -450,14 +391,11 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=123', (res) => {
-
-            expect(res.statusCode).to.equal(400);
-            done();
-        });
+        const res = await server.inject('/?a=123');
+        expect(res.statusCode).to.equal(400);
     });
 
-    it('retains the validation error', (done) => {
+    it('retains the validation error', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -481,15 +419,12 @@ describe('validation', () => {
 
         server.ext('onPreResponse', preResponse);
 
-        server.inject('/?a=123', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal('a');
-            done();
-        });
+        const res = await server.inject('/?a=123');
+        expect(res.statusCode).to.equal(200);
+        expect(res.result).to.equal('a');
     });
 
-    it('validates valid input (Object root)', (done) => {
+    it('validates valid input (Object root)', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -508,14 +443,11 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=123', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            done();
-        });
+        const res = await server.inject('/?a=123');
+        expect(res.statusCode).to.equal(200);
     });
 
-    it('validates non-object payload', (done) => {
+    it('validates non-object payload', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -532,14 +464,11 @@ describe('validation', () => {
             }
         });
 
-        server.inject({ method: 'POST', url: '/', payload: '123', headers: { 'content-type': 'application/json' } }, (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            done();
-        });
+        const res = await server.inject({ method: 'POST', url: '/', payload: '123', headers: { 'content-type': 'application/json' } });
+        expect(res.statusCode).to.equal(200);
     });
 
-    it('validates boolean payload', (done) => {
+    it('validates boolean payload', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -556,14 +485,11 @@ describe('validation', () => {
             }
         });
 
-        server.inject({ method: 'POST', url: '/', payload: 'false', headers: { 'content-type': 'application/json' } }, (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            done();
-        });
+        const res = await server.inject({ method: 'POST', url: '/', payload: 'false', headers: { 'content-type': 'application/json' } });
+        expect(res.statusCode).to.equal(200);
     });
 
-    it('fails on invalid input', (done) => {
+    it('fails on invalid input', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -582,19 +508,15 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=1', (res) => {
-
-            expect(res.statusCode).to.equal(400);
-            expect(res.result.validation).to.equal({
-                source: 'query',
-                keys: ['a']
-            });
-
-            done();
+        const res = await server.inject('/?a=1');
+        expect(res.statusCode).to.equal(400);
+        expect(res.result.validation).to.equal({
+            source: 'query',
+            keys: ['a']
         });
     });
 
-    it('ignores invalid input', (done) => {
+    it('ignores invalid input', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -614,14 +536,11 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=1', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            done();
-        });
+        const res = await server.inject('/?a=1');
+        expect(res.statusCode).to.equal(200);
     });
 
-    it('logs invalid input', (done) => {
+    it('logs invalid input', async () => {
 
         const handler = function (request, reply) {
 
@@ -644,12 +563,9 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=1', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.result.data.output.payload.message).to.equal('child "a" fails because ["a" length must be at least 2 characters long]');
-            done();
-        });
+        const res = await server.inject('/?a=1');
+        expect(res.statusCode).to.equal(200);
+        expect(res.result.data.output.payload.message).to.equal('child "a" fails because ["a" length must be at least 2 characters long]');
     });
 
     it('replaces error with message on invalid input', async () => {
@@ -680,7 +596,7 @@ describe('validation', () => {
         expect(res.result).to.equal('Got error in query where a is bad');
     });
 
-    it.skip('catches error thrown in failAction', (done) => {
+    it.skip('catches error thrown in failAction', async () => {
 
         const server = new Hapi.Server({ debug: false });
         server.route({
@@ -703,14 +619,11 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=1', (res) => {
-
-            expect(res.statusCode).to.equal(500);
-            done();
-        });
+        const res = await server.inject('/?a=1');
+        expect(res.statusCode).to.equal(500);
     });
 
-    it('customizes error on invalid input', (done) => {
+    it('customizes error on invalid input', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -732,25 +645,21 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?a=1', (res) => {
-
-            expect(res.statusCode).to.equal(400);
-            expect(res.result).to.equal({
-                statusCode: 400,
-                error: 'Bad Request',
-                message: 'child "a" fails because ["a" length must be at least 2 characters long]',
-                validation: {
-                    source: 'query',
-                    keys: ['a']
-                },
-                walt: 'jr'
-            });
-
-            done();
+        const res = await server.inject('/?a=1');
+        expect(res.statusCode).to.equal(400);
+        expect(res.result).to.equal({
+            statusCode: 400,
+            error: 'Bad Request',
+            message: 'child "a" fails because ["a" length must be at least 2 characters long]',
+            validation: {
+                source: 'query',
+                keys: ['a']
+            },
+            walt: 'jr'
         });
     });
 
-    it('overrides connection level settings', (done) => {
+    it('overrides connection level settings', async () => {
 
         const server = new Hapi.Server({
             routes: {
@@ -789,31 +698,22 @@ describe('validation', () => {
             }
         });
 
-        server.inject({ url: '/', method: 'GET' }, (res1) => {
+        const res1 = await server.inject({ url: '/', method: 'GET' });
+        expect(res1.statusCode).to.equal(400);
+        expect(res1.result.message).to.equal('child "a" fails because ["a" is required]');
 
-            expect(res1.statusCode).to.equal(400);
-            expect(res1.result.message).to.equal('child "a" fails because ["a" is required]');
+        const res2 = await server.inject({ url: '/?a=1', method: 'GET' });
+        expect(res2.statusCode).to.equal(200);
 
-            server.inject({ url: '/?a=1', method: 'GET' }, (res2) => {
+        const res3 = await server.inject({ url: '/other', method: 'GET' });
+        expect(res3.statusCode).to.equal(400);
+        expect(res3.result.message).to.equal('child "b" fails because ["b" is required]');
 
-                expect(res2.statusCode).to.equal(200);
-
-                server.inject({ url: '/other', method: 'GET' }, (res3) => {
-
-                    expect(res3.statusCode).to.equal(400);
-                    expect(res3.result.message).to.equal('child "b" fails because ["b" is required]');
-
-                    server.inject({ url: '/other?b=1', method: 'GET' }, (res4) => {
-
-                        expect(res4.statusCode).to.equal(200);
-                        done();
-                    });
-                });
-            });
-        });
+        const res4 = await server.inject({ url: '/other?b=1', method: 'GET' });
+        expect(res4.statusCode).to.equal(200);
     });
 
-    it('fails on invalid payload', (done) => {
+    it('fails on invalid payload', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -832,19 +732,15 @@ describe('validation', () => {
             }
         });
 
-        server.inject({ method: 'POST', url: '/', payload: '{"a":"abc"}', headers: { 'content-type': 'application/json' } }, (res) => {
-
-            expect(res.statusCode).to.equal(400);
-            expect(res.result.validation).to.equal({
-                source: 'payload',
-                keys: ['a']
-            });
-
-            done();
+        const res = await server.inject({ method: 'POST', url: '/', payload: '{"a":"abc"}', headers: { 'content-type': 'application/json' } });
+        expect(res.statusCode).to.equal(400);
+        expect(res.result.validation).to.equal({
+            source: 'payload',
+            keys: ['a']
         });
     });
 
-    it('converts string input to number', (done) => {
+    it('converts string input to number', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -861,15 +757,12 @@ describe('validation', () => {
             }
         });
 
-        server.inject({ method: 'POST', url: '/?a=1', payload: '123', headers: { 'content-type': 'text/plain' } }, (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal(123);
-            done();
-        });
+        const res = await server.inject({ method: 'POST', url: '/?a=1', payload: '123', headers: { 'content-type': 'text/plain' } });
+        expect(res.statusCode).to.equal(200);
+        expect(res.result).to.equal(123);
     });
 
-    it('fails on text input', (done) => {
+    it('fails on text input', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -888,15 +781,12 @@ describe('validation', () => {
             }
         });
 
-        server.inject({ method: 'POST', url: '/?a=1', payload: 'some text', headers: { 'content-type': 'text/plain' } }, (res) => {
-
-            expect(res.statusCode).to.equal(400);
-            expect(res.result.message).to.equal('"value" must be an object');
-            done();
-        });
+        const res = await server.inject({ method: 'POST', url: '/?a=1', payload: 'some text', headers: { 'content-type': 'text/plain' } });
+        expect(res.statusCode).to.equal(400);
+        expect(res.result.message).to.equal('"value" must be an object');
     });
 
-    it('fails on null input', (done) => {
+    it('fails on null input', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -915,15 +805,12 @@ describe('validation', () => {
             }
         });
 
-        server.inject({ method: 'POST', url: '/', payload: 'null', headers: { 'content-type': 'application/json' } }, (res) => {
-
-            expect(res.statusCode).to.equal(400);
-            expect(res.result.validation.source).to.equal('payload');
-            done();
-        });
+        const res = await server.inject({ method: 'POST', url: '/', payload: 'null', headers: { 'content-type': 'application/json' } });
+        expect(res.statusCode).to.equal(400);
+        expect(res.result.validation.source).to.equal('payload');
     });
 
-    it('fails on no payload', (done) => {
+    it('fails on no payload', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -942,19 +829,15 @@ describe('validation', () => {
             }
         });
 
-        server.inject({ method: 'POST', url: '/' }, (res) => {
-
-            expect(res.statusCode).to.equal(400);
-            expect(res.result.validation).to.equal({
-                source: 'payload',
-                keys: ['value']
-            });
-
-            done();
+        const res = await server.inject({ method: 'POST', url: '/' });
+        expect(res.statusCode).to.equal(400);
+        expect(res.result.validation).to.equal({
+            source: 'payload',
+            keys: ['value']
         });
     });
 
-    it('samples responses', (done) => {
+    it('samples responses', async () => {
 
         const server = new Hapi.Server({ debug: false });
         server.route({
@@ -975,24 +858,20 @@ describe('validation', () => {
         });
 
         let count = 0;
-        const action = function (next) {
+        const action = async function () {
 
-            server.inject('/', (res) => {
-
-                count += (res.statusCode === 500 ? 1 : 0);
-                return next(null, res.statusCode);
-            });
+            const res = await server.inject('/');
+            count += (res.statusCode === 500 ? 1 : 0);
         };
 
-        internals.times(500, action, (err, codes) => {
+        for (let i = 0; i < 500; ++i) {
+            await action();
+        }
 
-            expect(err).to.not.exist();
-            expect(count).to.be.within(200, 300);
-            done();
-        });
+        expect(count).to.be.within(200, 300);
     });
 
-    it('validates response', (done) => {
+    it('validates response', async () => {
 
         let i = 0;
         const handler = function (request, reply) {
@@ -1014,20 +893,15 @@ describe('validation', () => {
             handler
         });
 
-        server.inject('/', (res1) => {
+        const res1 = await server.inject('/');
+        expect(res1.statusCode).to.equal(200);
+        expect(res1.payload).to.equal('{"some":"value"}');
 
-            expect(res1.statusCode).to.equal(200);
-            expect(res1.payload).to.equal('{"some":"value"}');
-
-            server.inject('/', (res2) => {
-
-                expect(res2.statusCode).to.equal(500);
-                done();
-            });
-        });
+        const res2 = await server.inject('/');
+        expect(res2.statusCode).to.equal(500);
     });
 
-    it('validates response with context', (done) => {
+    it('validates response with context', async () => {
 
         const handler = function (request, reply) {
 
@@ -1049,20 +923,15 @@ describe('validation', () => {
             handler
         });
 
-        server.inject('/?user=admin', (res1) => {
+        const res1 = await server.inject('/?user=admin');
+        expect(res1.statusCode).to.equal(200);
+        expect(res1.payload).to.equal('{"some":"thing","more":"stuff"}');
 
-            expect(res1.statusCode).to.equal(200);
-            expect(res1.payload).to.equal('{"some":"thing","more":"stuff"}');
-
-            server.inject('/?user=test', (res2) => {
-
-                expect(res2.statusCode).to.equal(500);
-                done();
-            });
-        });
+        const res2 = await server.inject('/?user=test');
+        expect(res2.statusCode).to.equal(500);
     });
 
-    it('validates response using app context', (done) => {
+    it('validates response using app context', async () => {
 
         const server = new Hapi.Server({ debug: false });
         server.route({
@@ -1082,19 +951,14 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/?x=a', (res1) => {
+        const res1 = await server.inject('/?x=a');
+        expect(res1.statusCode).to.equal(500);
 
-            expect(res1.statusCode).to.equal(500);
-
-            server.inject('/?x=b', (res2) => {
-
-                expect(res2.statusCode).to.equal(200);
-                done();
-            });
-        });
+        const res2 = await server.inject('/?x=b');
+        expect(res2.statusCode).to.equal(200);
     });
 
-    it('validates error response', (done) => {
+    it('validates error response', async () => {
 
         let i = 0;
         const handler = function (request, reply) {
@@ -1123,18 +987,14 @@ describe('validation', () => {
             handler
         });
 
-        server.inject('/', (res1) => {
+        const res1 = await server.inject('/');
+        expect(res1.statusCode).to.equal(400);
 
-            expect(res1.statusCode).to.equal(400);
-            server.inject('/', (res2) => {
-
-                expect(res2.statusCode).to.equal(500);
-                done();
-            });
-        });
+        const res2 = await server.inject('/');
+        expect(res2.statusCode).to.equal(500);
     });
 
-    it('validates error response and ignore 200', (done) => {
+    it('validates error response and ignore 200', async () => {
 
         let i = 0;
         const handler = function (request, reply) {
@@ -1169,22 +1029,18 @@ describe('validation', () => {
             handler
         });
 
-        server.inject('/', (res1) => {
+        const res1 = await server.inject('/');
+        expect(res1.statusCode).to.equal(200);
 
-            expect(res1.statusCode).to.equal(200);
-            server.inject('/', (res2) => {
+        const res2 = await server.inject('/');
+        expect(res2.statusCode).to.equal(400);
 
-                expect(res2.statusCode).to.equal(400);
-                server.inject('/', (res3) => {
+        const res3 = await server.inject('/');
 
-                    expect(res3.statusCode).to.equal(500);
-                    done();
-                });
-            });
-        });
+        expect(res3.statusCode).to.equal(500);
     });
 
-    it('validates and modifies response', (done) => {
+    it('validates and modifies response', async () => {
 
         const handler = function (request, reply) {
 
@@ -1206,15 +1062,12 @@ describe('validation', () => {
             handler
         });
 
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal({ a: 1 });
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(200);
+        expect(res.result).to.equal({ a: 1 });
     });
 
-    it('validates and modifies error response', (done) => {
+    it('validates and modifies error response', async () => {
 
         const handler = function (request, reply) {
 
@@ -1243,15 +1096,12 @@ describe('validation', () => {
             handler
         });
 
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(400);
-            expect(res.result.custom).to.equal(123);
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(400);
+        expect(res.result.custom).to.equal(123);
     });
 
-    it('validates empty response', (done) => {
+    it('validates empty response', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -1270,14 +1120,11 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(204);
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(204);
     });
 
-    it('throws on sample with response modify', (done) => {
+    it('throws on sample with response modify', async () => {
 
         const server = new Hapi.Server({ debug: false });
         expect(() => {
@@ -1297,10 +1144,9 @@ describe('validation', () => {
                 handler: () => ({ a: 1, b: 2 })
             });
         }).to.throw(/"modify" conflict with forbidden peer "sample"/);
-        done();
     });
 
-    it('validates response using custom validation function', (done) => {
+    it('validates response using custom validation function', async () => {
 
         let i = 0;
         const handler = function (request, reply) {
@@ -1323,20 +1169,15 @@ describe('validation', () => {
             handler
         });
 
-        server.inject('/', (res1) => {
+        const res1 = await server.inject('/');
+        expect(res1.statusCode).to.equal(200);
+        expect(res1.payload).to.equal('{"some":"value"}');
 
-            expect(res1.statusCode).to.equal(200);
-            expect(res1.payload).to.equal('{"some":"value"}');
-
-            server.inject('/', (res2) => {
-
-                expect(res2.statusCode).to.equal(500);
-                done();
-            });
-        });
+        const res2 = await server.inject('/');
+        expect(res2.statusCode).to.equal(500);
     });
 
-    it.skip('catches error thrown by custom validation function', (done) => {
+    it.skip('catches error thrown by custom validation function', async () => {
 
         let i = 0;
         const handler = function (request, reply) {
@@ -1359,14 +1200,11 @@ describe('validation', () => {
             handler
         });
 
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(500);
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(500);
     });
 
-    it('skips response validation when sample is zero', (done) => {
+    it('skips response validation when sample is zero', async () => {
 
         const server = new Hapi.Server({ debug: false });
         server.route({
@@ -1387,24 +1225,20 @@ describe('validation', () => {
         });
 
         let count = 0;
-        const action = function (next) {
+        const action = async function () {
 
-            server.inject('/', (res) => {
-
-                count += (res.statusCode === 500 ? 1 : 0);
-                return next(null, res.statusCode);
-            });
+            const res = await server.inject('/');
+            count += (res.statusCode === 500 ? 1 : 0);
         };
 
-        internals.times(500, action, (err, codes) => {
+        for (let i = 0; i < 500; ++i) {
+            await action();
+        }
 
-            expect(err).to.not.exist();
-            expect(count).to.equal(0);
-            done();
-        });
+        expect(count).to.equal(0);
     });
 
-    it('does not delete the response object from the route when sample is 0', (done) => {
+    it('does not delete the response object from the route when sample is 0', async () => {
 
         const server = new Hapi.Server({ debug: false });
         server.route({
@@ -1424,16 +1258,13 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/', (res) => {
-
-            expect(res.request.route.settings.response).to.exist();
-            expect(res.request.route.settings.response.sample).to.equal(0);
-            expect(res.request.route.settings.response.schema).to.exist();
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.request.route.settings.response).to.exist();
+        expect(res.request.route.settings.response.sample).to.equal(0);
+        expect(res.request.route.settings.response.schema).to.exist();
     });
 
-    it('fails response validation with options', (done) => {
+    it('fails response validation with options', async () => {
 
         const server = new Hapi.Server({ debug: false, routes: { response: { options: { convert: false } } } });
         server.route({
@@ -1452,14 +1283,11 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(500);
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(500);
     });
 
-    it('skips response validation when schema is true', (done) => {
+    it('skips response validation when schema is true', async () => {
 
         const server = new Hapi.Server({ debug: false });
         server.route({
@@ -1476,14 +1304,11 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(200);
     });
 
-    it('skips response validation when status is empty', (done) => {
+    it('skips response validation when status is empty', async () => {
 
         const server = new Hapi.Server({ debug: false });
         server.route({
@@ -1500,14 +1325,11 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(200);
     });
 
-    it('forbids response when schema is false', (done) => {
+    it('forbids response when schema is false', async () => {
 
         const server = new Hapi.Server({ debug: false });
         server.route({
@@ -1524,14 +1346,11 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(500);
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(500);
     });
 
-    it('ignores error responses', (done) => {
+    it('ignores error responses', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -1550,11 +1369,8 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(400);
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(400);
     });
 
     it('errors on non-plain-object responses', async () => {
@@ -1581,7 +1397,7 @@ describe('validation', () => {
         expect(res.statusCode).to.equal(500);
     });
 
-    it('logs invalid responses', (done) => {
+    it('logs invalid responses', async () => {
 
         const server = new Hapi.Server({ debug: false });
         server.route({
@@ -1608,14 +1424,11 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(200);
     });
 
-    it('replaces error with message on invalid response', (done) => {
+    it('replaces error with message on invalid response', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -1638,17 +1451,14 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(400);
-            expect(res.payload).to.equal('Validation Error Occurred');
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(400);
+        expect(res.payload).to.equal('Validation Error Occurred');
     });
 
 
 
-    it('validates string response', (done) => {
+    it('validates string response', async () => {
 
         let value = 'abcd';
         const handler = function (request, reply) {
@@ -1668,21 +1478,16 @@ describe('validation', () => {
             handler
         });
 
-        server.inject('/', (res1) => {
+        const res1 = await server.inject('/');
+        expect(res1.statusCode).to.equal(500);
+        value += 'e';
 
-            expect(res1.statusCode).to.equal(500);
-            value += 'e';
-
-            server.inject('/', (res2) => {
-
-                expect(res2.statusCode).to.equal(200);
-                expect(res2.payload).to.equal('abcde');
-                done();
-            });
-        });
+        const res2 = await server.inject('/');
+        expect(res2.statusCode).to.equal(200);
+        expect(res2.payload).to.equal('abcde');
     });
 
-    it('validates boolean response', (done) => {
+    it('validates boolean response', async () => {
 
         let value = 'abcd';
         const handler = function (request, reply) {
@@ -1703,21 +1508,16 @@ describe('validation', () => {
             handler
         });
 
-        server.inject('/', (res1) => {
+        const res1 = await server.inject('/');
+        expect(res1.statusCode).to.equal(500);
+        value = 'on';
 
-            expect(res1.statusCode).to.equal(500);
-            value = 'on';
-
-            server.inject('/', (res2) => {
-
-                expect(res2.statusCode).to.equal(200);
-                expect(res2.payload).to.equal('true');
-                done();
-            });
-        });
+        const res2 = await server.inject('/');
+        expect(res2.statusCode).to.equal(200);
+        expect(res2.payload).to.equal('true');
     });
 
-    it('validates valid header', (done) => {
+    it('validates valid header', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -1746,14 +1546,11 @@ describe('validation', () => {
             }
         };
 
-        server.inject(settings, (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            done();
-        });
+        const res = await server.inject(settings);
+        expect(res.statusCode).to.equal(200);
     });
 
-    it('rejects invalid header', (done) => {
+    it('rejects invalid header', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -1781,14 +1578,11 @@ describe('validation', () => {
             }
         };
 
-        server.inject(settings, (res) => {
-
-            expect(res.statusCode).to.equal(400);
-            done();
-        });
+        const res = await server.inject(settings);
+        expect(res.statusCode).to.equal(400);
     });
 
-    it('throws on options.stripUnknown without modify', (done) => {
+    it('throws on options.stripUnknown without modify', async () => {
 
         const server = new Hapi.Server();
 
@@ -1811,11 +1605,9 @@ describe('validation', () => {
                 }
             });
         }).to.throw(/"options.stripUnknown" failed to meet requirement of having peer modify set to true/);
-
-        done();
     });
 
-    it('allows options.stripUnknown to be an object', (done) => {
+    it('allows options.stripUnknown to be an object', async () => {
 
         const server = new Hapi.Server();
 
@@ -1842,11 +1634,9 @@ describe('validation', () => {
                 }
             });
         }).to.not.throw();
-
-        done();
     });
 
-    it('binds route validate function to a context', (done) => {
+    it('binds route validate function to a context', async () => {
 
         const server = new Hapi.Server();
 
@@ -1870,38 +1660,7 @@ describe('validation', () => {
             }
         });
 
-        server.inject('/baz', (res) => {
-
-            expect(res.statusCode).to.equal(400);
-            done();
-        });
+        const res = await server.inject('/baz');
+        expect(res.statusCode).to.equal(400);
     });
 });
-
-
-internals.times = function (count, method, callback) {
-
-    let counter = 0;
-
-    const results = [];
-    const done = function (err, result) {
-
-        if (callback) {
-            results.push(result);
-            if (err) {
-                callback(err);
-                callback = null;
-            }
-            else {
-                counter += 1;
-                if (counter === count) {
-                    callback(null, results);
-                }
-            }
-        }
-    };
-
-    for (let i = 0; i < count; ++i) {
-        method(done);
-    }
-};

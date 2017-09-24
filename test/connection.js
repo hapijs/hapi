@@ -29,9 +29,7 @@ const internals = {};
 
 // Test shortcuts
 
-const lab = exports.lab = Lab.script();
-const describe = lab.describe;
-const it = lab.it;
+const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
 
 
@@ -703,7 +701,7 @@ describe('Connection', () => {
             expect(options.credentials).to.exist();
         });
 
-        it('sets credentials (with host header)', (done) => {
+        it('sets credentials (with host header)', async () => {
 
             const handler = function (request, reply) {
 
@@ -721,15 +719,12 @@ describe('Connection', () => {
                 }
             };
 
-            server.inject(options, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(options.credentials).to.exist();
-                done();
-            });
+            const res = await server.inject(options);
+            expect(res.statusCode).to.equal(200);
+            expect(options.credentials).to.exist();
         });
 
-        it('sets credentials (with authority)', (done) => {
+        it('sets credentials (with authority)', async () => {
 
             const handler = function (request, reply) {
 
@@ -745,16 +740,13 @@ describe('Connection', () => {
                 authority: 'something'
             };
 
-            server.inject(options, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.result).to.equal('something');
-                expect(options.credentials).to.exist();
-                done();
-            });
+            const res = await server.inject(options);
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('something');
+            expect(options.credentials).to.exist();
         });
 
-        it('sets authority', (done) => {
+        it('sets authority', async () => {
 
             const handler = function (request, reply) {
 
@@ -769,15 +761,12 @@ describe('Connection', () => {
                 authority: 'something'
             };
 
-            server.inject(options, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.result).to.equal('something');
-                done();
-            });
+            const res = await server.inject(options);
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('something');
         });
 
-        it('passes the options.artifacts object', (done) => {
+        it('passes the options.artifacts object', async () => {
 
             const handler = function (request, reply) {
 
@@ -793,16 +782,13 @@ describe('Connection', () => {
                 artifacts: { bar: 'baz' }
             };
 
-            server.inject(options, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.result.bar).to.equal('baz');
-                expect(options.artifacts).to.exist();
-                done();
-            });
+            const res = await server.inject(options);
+            expect(res.statusCode).to.equal(200);
+            expect(res.result.bar).to.equal('baz');
+            expect(options.artifacts).to.exist();
         });
 
-        it('sets app settings', (done) => {
+        it('sets app settings', async () => {
 
             const handler = function (request, reply) {
 
@@ -820,15 +806,12 @@ describe('Connection', () => {
                 }
             };
 
-            server.inject(options, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.result).to.equal(123);
-                done();
-            });
+            const res = await server.inject(options);
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal(123);
         });
 
-        it('sets plugins settings', (done) => {
+        it('sets plugins settings', async () => {
 
             const handler = function (request, reply) {
 
@@ -848,15 +831,12 @@ describe('Connection', () => {
                 }
             };
 
-            server.inject(options, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.result).to.equal(123);
-                done();
-            });
+            const res = await server.inject(options);
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal(123);
         });
 
-        it('returns the request object', (done) => {
+        it('returns the request object', async () => {
 
             const handler = function (request, reply) {
 
@@ -867,15 +847,12 @@ describe('Connection', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.request.app.key).to.equal('value');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.request.app.key).to.equal('value');
         });
 
-        it('can set a client remoteAddress', (done) => {
+        it('can set a client remoteAddress', async () => {
 
             const handler = function (request, reply) {
 
@@ -885,15 +862,12 @@ describe('Connection', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject({ url: '/', remoteAddress: '1.2.3.4' }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.payload).to.equal('1.2.3.4');
-                done();
-            });
+            const res = await server.inject({ url: '/', remoteAddress: '1.2.3.4' });
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('1.2.3.4');
         });
 
-        it('sets a default remoteAddress of 127.0.0.1', (done) => {
+        it('sets a default remoteAddress of 127.0.0.1', async () => {
 
             const handler = function (request, reply) {
 
@@ -903,12 +877,9 @@ describe('Connection', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.payload).to.equal('127.0.0.1');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('127.0.0.1');
         });
 
         it('sets correct host header', async () => {
@@ -927,7 +898,7 @@ describe('Connection', () => {
 
     describe('table()', () => {
 
-        it('returns an array of the current routes', (done) => {
+        it('returns an array of the current routes', async () => {
 
             const server = new Hapi.Server();
 
@@ -935,13 +906,11 @@ describe('Connection', () => {
             server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
 
             const routes = server.table()[0].table;
-
             expect(routes.length).to.equal(2);
             expect(routes[0].path).to.equal('/test/');
-            done();
         });
 
-        it('combines global and vhost routes', (done) => {
+        it('combines global and vhost routes', async () => {
 
             const server = new Hapi.Server();
 
@@ -951,12 +920,10 @@ describe('Connection', () => {
             server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
 
             const routes = server.table()[0].table;
-
             expect(routes.length).to.equal(4);
-            done();
         });
 
-        it('combines global and vhost routes and filters based on host', (done) => {
+        it('combines global and vhost routes and filters based on host', async () => {
 
             const server = new Hapi.Server();
 
@@ -966,12 +933,10 @@ describe('Connection', () => {
             server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
 
             const routes = server.table('one.example.com')[0].table;
-
             expect(routes.length).to.equal(3);
-            done();
         });
 
-        it('accepts a list of hosts', (done) => {
+        it('accepts a list of hosts', async () => {
 
             const server = new Hapi.Server();
 
@@ -981,12 +946,10 @@ describe('Connection', () => {
             server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
 
             const routes = server.table(['one.example.com', 'two.example.com'])[0].table;
-
             expect(routes.length).to.equal(4);
-            done();
         });
 
-        it('ignores unknown host', (done) => {
+        it('ignores unknown host', async () => {
 
             const server = new Hapi.Server();
 
@@ -996,9 +959,7 @@ describe('Connection', () => {
             server.route({ path: '/test/{p}/end', method: 'get', handler: function () { } });
 
             const routes = server.table('three.example.com')[0].table;
-
             expect(routes.length).to.equal(2);
-            done();
         });
     });
 
@@ -1026,7 +987,7 @@ describe('Connection', () => {
             expect(res.result).to.equal('12');
         });
 
-        it('sets bind via options', (done) => {
+        it('sets bind via options', async () => {
 
             const server = new Hapi.Server();
             const preHandler = function (request, reply) {
@@ -1044,11 +1005,8 @@ describe('Connection', () => {
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal(42);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal(42);
         });
 
         it('uses server views for ext added via server', async () => {
@@ -1087,7 +1045,7 @@ describe('Connection', () => {
             expect(res.statusCode).to.equal(200);
         });
 
-        it('supports reply decorators on empty result', (done) => {
+        it('supports reply decorators on empty result', async () => {
 
             const server = new Hapi.Server();
             const onRequest = function (request, reply) {
@@ -1097,15 +1055,12 @@ describe('Connection', () => {
 
             server.ext('onRequest', onRequest);
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(302);
-                expect(res.headers.location).to.equal('/elsewhere');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(302);
+            expect(res.headers.location).to.equal('/elsewhere');
         });
 
-        it('supports direct reply decorators', (done) => {
+        it('supports direct reply decorators', async () => {
 
             const server = new Hapi.Server();
             const onRequest = function (request, reply) {
@@ -1115,12 +1070,9 @@ describe('Connection', () => {
 
             server.ext('onRequest', onRequest);
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(302);
-                expect(res.headers.location).to.equal('/elsewhere');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(302);
+            expect(res.headers.location).to.equal('/elsewhere');
         });
 
         it('skips extensions once takeover is called', async () => {
@@ -1150,7 +1102,7 @@ describe('Connection', () => {
             expect(called).to.be.false();
         });
 
-        it('executes all extensions with return values', (done) => {
+        it('executes all extensions with return values', async () => {
 
             const server = new Hapi.Server();
 
@@ -1177,17 +1129,14 @@ describe('Connection', () => {
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ method: 'GET', url: '/' }, (res) => {
-
-                expect(res.result).to.equal(2);
-                expect(called).to.be.true();
-                done();
-            });
+            const res = await server.inject({ method: 'GET', url: '/' });
+            expect(res.result).to.equal(2);
+            expect(called).to.be.true();
         });
 
-        describe('onRequest', (done) => {
+        describe('onRequest', async () => {
 
-            it('replies with custom response', (done) => {
+            it('replies with custom response', async () => {
 
                 const server = new Hapi.Server();
                 const onRequest = function (request, reply) {
@@ -1197,12 +1146,9 @@ describe('Connection', () => {
 
                 server.ext('onRequest', onRequest);
 
-                server.inject('/', (res) => {
-
-                    expect(res.statusCode).to.equal(400);
-                    expect(res.result.message).to.equal('boom');
-                    done();
-                });
+                const res = await server.inject('/');
+                expect(res.statusCode).to.equal(400);
+                expect(res.result.message).to.equal('boom');
             });
 
             it('replies with a view', async () => {
@@ -1229,9 +1175,9 @@ describe('Connection', () => {
             });
         });
 
-        describe('onPreResponse', (done) => {
+        describe('onPreResponse', async () => {
 
-            it('replies with custom response', (done) => {
+            it('replies with custom response', async () => {
 
                 const server = new Hapi.Server();
 
@@ -1264,18 +1210,14 @@ describe('Connection', () => {
                     }
                 });
 
-                server.inject({ method: 'GET', url: '/text' }, (res1) => {
+                const res1 = await server.inject({ method: 'GET', url: '/text' });
+                expect(res1.result.message).to.equal('boom');
 
-                    expect(res1.result.message).to.equal('boom');
-                    server.inject({ method: 'GET', url: '/obj' }, (res2) => {
-
-                        expect(res2.result.status).to.equal('ok');
-                        done();
-                    });
-                });
+                const res2 = await server.inject({ method: 'GET', url: '/obj' });
+                expect(res2.result.status).to.equal('ok');
             });
 
-            it('intercepts 404 responses', (done) => {
+            it('intercepts 404 responses', async () => {
 
                 const server = new Hapi.Server();
 
@@ -1286,12 +1228,9 @@ describe('Connection', () => {
 
                 server.ext('onPreResponse', preResponse);
 
-                server.inject({ method: 'GET', url: '/missing' }, (res) => {
-
-                    expect(res.statusCode).to.equal(200);
-                    expect(res.result).to.equal(404);
-                    done();
-                });
+                const res = await server.inject({ method: 'GET', url: '/missing' });
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal(404);
             });
 
             it('intercepts 404 when using directory handler and file is missing', async () => {
@@ -1377,7 +1316,7 @@ describe('Connection', () => {
                 });
             });
 
-            it('executes multiple extensions', (done) => {
+            it('executes multiple extensions', async () => {
 
                 const server = new Hapi.Server();
 
@@ -1404,26 +1343,18 @@ describe('Connection', () => {
 
                 server.route({ method: 'GET', path: '/', handler });
 
-                server.inject({ method: 'GET', url: '/' }, (res) => {
-
-                    expect(res.result).to.equal('012');
-                    done();
-                });
+                const res = await server.inject({ method: 'GET', url: '/' });
+                expect(res.result).to.equal('012');
             });
         });
     });
 
     describe('route()', () => {
 
-        it('emits route event', (done) => {
+        it('emits route event', async () => {
 
             const server = new Hapi.Server();
-            server.events.on('route', (route, srv) => {
-
-                expect(route.path).to.equal('/');
-                expect(srv).to.shallow.equal(server);
-                done();
-            });
+            const log = server.events.once('route');
 
             server.route({
                 method: 'GET',
@@ -1433,9 +1364,13 @@ describe('Connection', () => {
                     return reply();
                 }
             });
+
+            const [route, srv] = await log;
+            expect(route.path).to.equal('/');
+            expect(srv).to.shallow.equal(server);
         });
 
-        it('overrides the default notFound handler', (done) => {
+        it('overrides the default notFound handler', async () => {
 
             const handler = function (request, reply) {
 
@@ -1444,15 +1379,12 @@ describe('Connection', () => {
 
             const server = new Hapi.Server();
             server.route({ method: '*', path: '/{p*}', handler });
-            server.inject({ method: 'GET', url: '/page' }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.result).to.equal('found');
-                done();
-            });
+            const res = await server.inject({ method: 'GET', url: '/page' });
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('found');
         });
 
-        it('responds to HEAD requests for a GET route', (done) => {
+        it('responds to HEAD requests for a GET route', async () => {
 
             const handler = function (request, reply) {
 
@@ -1461,26 +1393,23 @@ describe('Connection', () => {
 
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
-            server.inject({ method: 'GET', url: '/' }, (res1) => {
+            const res1 = await server.inject({ method: 'GET', url: '/' });
 
-                expect(res1.statusCode).to.equal(205);
-                expect(res1.headers['content-type']).to.equal('text/html; charset=utf-8');
-                expect(res1.headers['content-length']).to.equal(2);
-                expect(res1.headers.etag).to.equal('"test"');
-                expect(res1.result).to.equal('ok');
-                server.inject({ method: 'HEAD', url: '/' }, (res2) => {
+            expect(res1.statusCode).to.equal(205);
+            expect(res1.headers['content-type']).to.equal('text/html; charset=utf-8');
+            expect(res1.headers['content-length']).to.equal(2);
+            expect(res1.headers.etag).to.equal('"test"');
+            expect(res1.result).to.equal('ok');
 
-                    expect(res2.statusCode).to.equal(res1.statusCode);
-                    expect(res2.headers['content-type']).to.equal(res1.headers['content-type']);
-                    expect(res2.headers['content-length']).to.equal(res1.headers['content-length']);
-                    expect(res2.headers.etag).to.equal(res1.headers.etag);
-                    expect(res2.result).to.not.exist();
-                    done();
-                });
-            });
+            const res2 = await server.inject({ method: 'HEAD', url: '/' });
+            expect(res2.statusCode).to.equal(res1.statusCode);
+            expect(res2.headers['content-type']).to.equal(res1.headers['content-type']);
+            expect(res2.headers['content-length']).to.equal(res1.headers['content-length']);
+            expect(res2.headers.etag).to.equal(res1.headers.etag);
+            expect(res2.result).to.not.exist();
         });
 
-        it('returns 404 on HEAD requests for non-GET routes', (done) => {
+        it('returns 404 on HEAD requests for non-GET routes', async () => {
 
             const handler = function (request, reply) {
 
@@ -1489,21 +1418,18 @@ describe('Connection', () => {
 
             const server = new Hapi.Server();
             server.route({ method: 'POST', path: '/', handler });
-            server.inject({ method: 'HEAD', url: '/' }, (res1) => {
 
-                expect(res1.statusCode).to.equal(404);
-                expect(res1.result).to.not.exist();
+            const res1 = await server.inject({ method: 'HEAD', url: '/' });
+            expect(res1.statusCode).to.equal(404);
+            expect(res1.result).to.not.exist();
 
-                server.inject({ method: 'HEAD', url: '/not-there' }, (res2) => {
+            const res2 = await server.inject({ method: 'HEAD', url: '/not-there' });
 
-                    expect(res2.statusCode).to.equal(404);
-                    expect(res2.result).to.not.exist();
-                    done();
-                });
-            });
+            expect(res2.statusCode).to.equal(404);
+            expect(res2.result).to.not.exist();
         });
 
-        it('returns 500 on HEAD requests for failed responses', (done) => {
+        it('returns 500 on HEAD requests for failed responses', async () => {
 
             const handler = function (request, reply) {
 
@@ -1523,19 +1449,16 @@ describe('Connection', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
             server.ext('onPreResponse', preResponse);
-            server.inject({ method: 'GET', url: '/' }, (res1) => {
 
-                expect(res1.statusCode).to.equal(500);
-                expect(res1.result).to.exist();
-                server.inject({ method: 'HEAD', url: '/' }, (res2) => {
+            const res1 = await server.inject({ method: 'GET', url: '/' });
+            expect(res1.statusCode).to.equal(500);
+            expect(res1.result).to.exist();
 
-                    expect(res2.statusCode).to.equal(res1.statusCode);
-                    expect(res2.headers['content-type']).to.equal(res1.headers['content-type']);
-                    expect(res2.headers['content-length']).to.equal(res1.headers['content-length']);
-                    expect(res2.result).to.not.exist();
-                    done();
-                });
-            });
+            const res2 = await server.inject({ method: 'HEAD', url: '/' });
+            expect(res2.statusCode).to.equal(res1.statusCode);
+            expect(res2.headers['content-type']).to.equal(res1.headers['content-type']);
+            expect(res2.headers['content-length']).to.equal(res1.headers['content-length']);
+            expect(res2.result).to.not.exist();
         });
 
         it('allows methods array', async () => {
@@ -1571,7 +1494,7 @@ describe('Connection', () => {
             expect(res5.payload).to.equal('delete');
         });
 
-        it('adds routes using single and array methods', (done) => {
+        it('adds routes using single and array methods', async () => {
 
             const handler = function (request, reply) {
 
@@ -1626,10 +1549,9 @@ describe('Connection', () => {
                 { method: 'patch', path: '/api/products/{id}' },
                 { method: 'delete', path: '/api/products/{id}' }
             ]);
-            done();
         });
 
-        it('throws on methods array with id', (done) => {
+        it('throws on methods array with id', async () => {
 
             const server = new Hapi.Server();
 
@@ -1647,23 +1569,19 @@ describe('Connection', () => {
                     }
                 });
             }).to.throw('Route id abc for path / conflicts with existing path /');
-            done();
         });
     });
 
     describe('_defaultRoutes()', () => {
 
-        it('returns 404 when making a request to a route that does not exist', (done) => {
+        it('returns 404 when making a request to a route that does not exist', async () => {
 
             const server = new Hapi.Server();
-            server.inject({ method: 'GET', url: '/nope' }, (res) => {
-
-                expect(res.statusCode).to.equal(404);
-                done();
-            });
+            const res = await server.inject({ method: 'GET', url: '/nope' });
+            expect(res.statusCode).to.equal(404);
         });
 
-        it('returns 400 on bad request', (done) => {
+        it('returns 400 on bad request', async () => {
 
             const handler = function (request, reply) {
 
@@ -1672,11 +1590,8 @@ describe('Connection', () => {
 
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/a/{p}', handler });
-            server.inject('/a/%', (res) => {
-
-                expect(res.statusCode).to.equal(400);
-                done();
-            });
+            const res = await server.inject('/a/%');
+            expect(res.statusCode).to.equal(400);
         });
     });
 });

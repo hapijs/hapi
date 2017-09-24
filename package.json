@@ -32,7 +32,7 @@
     "joi": "^10.6.0",
     "mimos": "^3.0.3",
     "podium": "2.0.0",
-    "shot": "^3.4.2",
+    "shot": "4.0.0",
     "statehood": "^5.0.3",
     "subtext": "^5.0.0",
     "topo": "^2.0.2"
@@ -40,8 +40,9 @@
   "devDependencies": {
     "code": "5.x.x",
     "handlebars": "4.x.x",
-    "inert": "5.x.x",
+    "inert": "4.x.x",
     "lab": "14.x.x",
+    "teamwork": "2.x.x",
     "vision": "4.x.x",
     "wreck": "13.x.x"
   },

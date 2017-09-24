@@ -3,6 +3,7 @@
 // Load modules
 
 const Path = require('path');
+
 const Boom = require('boom');
 const Code = require('code');
 const Handlebars = require('handlebars');
@@ -19,9 +20,7 @@ const internals = {};
 
 // Test shortcuts
 
-const lab = exports.lab = Lab.script();
-const describe = lab.describe;
-const it = lab.it;
+const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
 
 
@@ -58,7 +57,7 @@ describe('authentication', () => {
         expect(res2.result).to.be.false();
     });
 
-    it('defaults cache to private if request authenticated', (done) => {
+    it('defaults cache to private if request authenticated', async () => {
 
         const handler = function (request, reply) {
 
@@ -70,15 +69,12 @@ describe('authentication', () => {
         server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
         server.route({ method: 'GET', path: '/', handler });
 
-        server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate, private');
-            done();
-        });
+        const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+        expect(res.statusCode).to.equal(200);
+        expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate, private');
     });
 
-    it('authenticates a request against another route', (done) => {
+    it('authenticates a request against another route', async () => {
 
         const server = new Hapi.Server();
         server.auth.scheme('custom', internals.implementation);
@@ -115,63 +111,50 @@ describe('authentication', () => {
         server.route({ method: 'GET', path: '/three', config: { id: 'three', handler: Hoek.ignore, auth: { scope: 'one' } } });
         server.route({ method: 'GET', path: '/four', config: { id: 'four', handler: Hoek.ignore, auth: false } });
 
-        server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal({
-                two: false,
-                three1: true,
-                three2: false,
-                four1: true,
-                four2: true
-            });
-
-            done();
+        const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+        expect(res.statusCode).to.equal(200);
+        expect(res.result).to.equal({
+            two: false,
+            three1: true,
+            three2: false,
+            four1: true,
+            four2: true
         });
     });
 
     describe('strategy()', () => {
 
-        it.skip('errors when strategy authenticate function throws', (done) => {
+        it.skip('errors when strategy authenticate function throws', async () => {
 
             const server = new Hapi.Server({ debug: false });
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true);
             server.route({ method: 'GET', path: '/', handler: (request) => request.auth.credentials.user });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(500);
         });
 
-        it('throws when strategy missing scheme', (done) => {
+        it('throws when strategy missing scheme', async () => {
 
             const server = new Hapi.Server();
             expect(() => {
 
                 server.auth.strategy('none');
             }).to.throw('Authentication strategy none missing scheme');
-            done();
         });
 
-        it('adds a route to server', (done) => {
+        it('adds a route to server', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true, { users: { steve: {} }, route: true });
 
-            server.inject('/', (res1) => {
+            const res1 = await server.inject('/');
+            expect(res1.statusCode).to.equal(401);
 
-                expect(res1.statusCode).to.equal(401);
-
-                server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res2) => {
-
-                    expect(res2.statusCode).to.equal(200);
-                    done();
-                });
-            });
+            const res2 = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res2.statusCode).to.equal(200);
         });
 
         it('uses views', async () => {
@@ -219,7 +202,7 @@ describe('authentication', () => {
             expect(res2.result).to.equal('<h1>xyz</h1>');
         });
 
-        it('exposes an api', (done) => {
+        it('exposes an api', async () => {
 
             const implementation = function (server, options) {
 
@@ -239,13 +222,12 @@ describe('authentication', () => {
             server.auth.strategy('xyz', 'custom', true);
 
             expect(server.auth.api.xyz.x).to.equal(5);
-            done();
         });
     });
 
     describe('default()', () => {
 
-        it('sets default', (done) => {
+        it('sets default', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -261,19 +243,14 @@ describe('authentication', () => {
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res1) => {
+            const res1 = await server.inject('/');
+            expect(res1.statusCode).to.equal(401);
 
-                expect(res1.statusCode).to.equal(401);
-
-                server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res2) => {
-
-                    expect(res2.statusCode).to.equal(200);
-                    done();
-                });
-            });
+            const res2 = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res2.statusCode).to.equal(200);
         });
 
-        it('sets default with object', (done) => {
+        it('sets default with object', async () => {
 
             const handler = function (request, reply) {
 
@@ -286,19 +263,14 @@ describe('authentication', () => {
             server.auth.default({ strategy: 'default' });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res1) => {
+            const res1 = await server.inject('/');
+            expect(res1.statusCode).to.equal(401);
 
-                expect(res1.statusCode).to.equal(401);
-
-                server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res2) => {
-
-                    expect(res2.statusCode).to.equal(200);
-                    done();
-                });
-            });
+            const res2 = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res2.statusCode).to.equal(200);
         });
 
-        it('throws when setting default twice', (done) => {
+        it('throws when setting default twice', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -308,10 +280,9 @@ describe('authentication', () => {
                 server.auth.default('default');
                 server.auth.default('default');
             }).to.throw('Cannot set default strategy more than once');
-            done();
         });
 
-        it('throws when setting default without strategy', (done) => {
+        it('throws when setting default without strategy', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -320,10 +291,9 @@ describe('authentication', () => {
 
                 server.auth.default({ mode: 'required' });
             }).to.throw('Missing authentication strategy: default strategy');
-            done();
         });
 
-        it('matches dynamic scope', (done) => {
+        it('matches dynamic scope', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -340,17 +310,14 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/test/admin', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ url: '/test/admin', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(200);
         });
     });
 
     describe('_setupRoute()', () => {
 
-        it('throws when route refers to nonexistent strategy', (done) => {
+        it('throws when route refers to nonexistent strategy', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -373,14 +340,12 @@ describe('authentication', () => {
                     }
                 });
             }).to.throw('Unknown authentication strategy c in /');
-
-            done();
         });
     });
 
     describe('lookup', () => {
 
-        it('returns the route auth config', (done) => {
+        it('returns the route auth config', async () => {
 
             const handler = function (request, reply) {
 
@@ -392,22 +357,18 @@ describe('authentication', () => {
             server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.result).to.equal({
-                    strategies: ['default'],
-                    mode: 'required'
-                });
-
-                done();
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal({
+                strategies: ['default'],
+                mode: 'required'
             });
         });
     });
 
     describe('authenticate()', () => {
 
-        it('setups route with optional authentication', (done) => {
+        it('setups route with optional authentication', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -419,21 +380,16 @@ describe('authentication', () => {
             };
             server.route({ method: 'GET', path: '/', config: { handler, auth: { mode: 'optional' } } });
 
-            server.inject('/', (res1) => {
+            const res1 = await server.inject('/');
+            expect(res1.statusCode).to.equal(200);
+            expect(res1.payload).to.equal('false');
 
-                expect(res1.statusCode).to.equal(200);
-                expect(res1.payload).to.equal('false');
-
-                server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res2) => {
-
-                    expect(res2.statusCode).to.equal(200);
-                    expect(res2.payload).to.equal('true');
-                    done();
-                });
-            });
+            const res2 = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res2.statusCode).to.equal(200);
+            expect(res2.payload).to.equal('true');
         });
 
-        it('exposes mode', (done) => {
+        it('exposes mode', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -447,15 +403,12 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.result).to.equal('required');
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('required');
         });
 
-        it('authenticates using multiple strategies', (done) => {
+        it('authenticates using multiple strategies', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -475,12 +428,9 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.result).to.equal('second');
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('second');
         });
 
         it('authenticates using credentials object', async () => {
@@ -535,7 +485,7 @@ describe('authentication', () => {
             expect(res.result).to.equal('steve!');
         });
 
-        it('authenticates a request with custom auth settings', (done) => {
+        it('authenticates a request with custom auth settings', async () => {
 
             const handler = function (request, reply) {
 
@@ -556,14 +506,11 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('authenticates a request with auth strategy name config', (done) => {
+        it('authenticates a request with auth strategy name config', async () => {
 
             const handler = function (request, reply) {
 
@@ -582,14 +529,11 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('tries to authenticate a request', (done) => {
+        it('tries to authenticate a request', async () => {
 
             const handler = function (request, reply) {
 
@@ -601,30 +545,23 @@ describe('authentication', () => {
             server.auth.strategy('default', 'custom', 'try', { users: { steve: {} } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res1) => {
+            const res1 = await server.inject('/');
+            expect(res1.statusCode).to.equal(200);
+            expect(res1.result.status).to.equal(false);
+            expect(res1.result.error.message).to.equal('Missing authentication');
 
-                expect(res1.statusCode).to.equal(200);
-                expect(res1.result.status).to.equal(false);
-                expect(res1.result.error.message).to.equal('Missing authentication');
+            const res2 = await server.inject({ url: '/', headers: { authorization: 'Custom john' } });
+            expect(res2.statusCode).to.equal(200);
+            expect(res2.result.status).to.equal(false);
+            expect(res2.result.error.message).to.equal('Missing credentials');
 
-                server.inject({ url: '/', headers: { authorization: 'Custom john' } }, (res2) => {
-
-                    expect(res2.statusCode).to.equal(200);
-                    expect(res2.result.status).to.equal(false);
-                    expect(res2.result.error.message).to.equal('Missing credentials');
-
-                    server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res3) => {
-
-                        expect(res3.statusCode).to.equal(200);
-                        expect(res3.result.status).to.equal(true);
-                        expect(res3.result.error).to.not.exist();
-                        done();
-                    });
-                });
-            });
+            const res3 = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res3.statusCode).to.equal(200);
+            expect(res3.result.status).to.equal(true);
+            expect(res3.result.error).to.not.exist();
         });
 
-        it('errors on invalid authenticate callback missing both error and credentials', (done) => {
+        it('errors on invalid authenticate callback missing both error and credentials', async () => {
 
             const handler = function (request, reply) {
 
@@ -636,14 +573,11 @@ describe('authentication', () => {
             server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom' } }, (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom' } });
+            expect(res.statusCode).to.equal(500);
         });
 
-        it('logs error', (done) => {
+        it('logs error', async () => {
 
             const handler = function (request, reply) {
 
@@ -655,20 +589,20 @@ describe('authentication', () => {
             server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
             server.route({ method: 'GET', path: '/', handler });
 
+            let logged = false;
             server.events.on('request-internal', (request, event, tags) => {
 
                 if (tags.auth) {
-                    done();
+                    logged = true;
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom john' } }, (res) => {
-
-                expect(res.statusCode).to.equal(401);
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom john' } });
+            expect(res.statusCode).to.equal(401);
+            expect(logged).to.be.true();
         });
 
-        it('returns a non Error error response', (done) => {
+        it('returns a non Error error response', async () => {
 
             const handler = function (request, reply) {
 
@@ -680,15 +614,12 @@ describe('authentication', () => {
             server.auth.strategy('default', 'custom', true, { users: { message: 'in a bottle' } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom message' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.result).to.equal('in a bottle');
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom message' } });
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('in a bottle');
         });
 
-        it('passes non Error error response when set to try ', (done) => {
+        it('passes non Error error response when set to try ', async () => {
 
             const handler = function (request, reply) {
 
@@ -700,15 +631,12 @@ describe('authentication', () => {
             server.auth.strategy('default', 'custom', 'try', { users: { message: 'in a bottle' } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom message' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.result).to.equal('in a bottle');
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom message' } });
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('in a bottle');
         });
 
-        it('matches scope (array to single)', (done) => {
+        it('matches scope (array to single)', async () => {
 
             const handler = function (request, reply) {
 
@@ -729,14 +657,11 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('matches scope (array to array)', (done) => {
+        it('matches scope (array to array)', async () => {
 
             const handler = function (request, reply) {
 
@@ -757,14 +682,11 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('matches scope (single to array)', (done) => {
+        it('matches scope (single to array)', async () => {
 
             const handler = function (request, reply) {
 
@@ -785,14 +707,11 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('matches scope (single to single)', (done) => {
+        it('matches scope (single to single)', async () => {
 
             const handler = function (request, reply) {
 
@@ -813,14 +732,11 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('matches dynamic scope (single to single)', (done) => {
+        it('matches dynamic scope (single to single)', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -839,14 +755,11 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/test', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ url: '/test', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('matches multiple required dynamic scopes', (done) => {
+        it('matches multiple required dynamic scopes', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -865,14 +778,11 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/test', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ url: '/test', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('matches multiple required dynamic scopes (mixed types)', (done) => {
+        it('matches multiple required dynamic scopes (mixed types)', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -891,14 +801,11 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/test', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ url: '/test', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('matches dynamic scope with multiple parts (single to single)', (done) => {
+        it('matches dynamic scope with multiple parts (single to single)', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -917,14 +824,11 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/test/admin', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ url: '/test/admin', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('does not match broken dynamic scope (single to single)', (done) => {
+        it('does not match broken dynamic scope (single to single)', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -949,15 +853,12 @@ describe('authentication', () => {
                 return reply.continue;
             });
 
-            server.inject({ url: '/test', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(403);
-                expect(res.result.message).to.equal('Insufficient scope');
-                done();
-            });
+            const res = await server.inject({ url: '/test', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(403);
+            expect(res.result.message).to.equal('Insufficient scope');
         });
 
-        it('does not match scope (single to single)', (done) => {
+        it('does not match scope (single to single)', async () => {
 
             const handler = function (request, reply) {
 
@@ -978,15 +879,12 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(403);
-                expect(res.result.message).to.equal('Insufficient scope');
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(403);
+            expect(res.result.message).to.equal('Insufficient scope');
         });
 
-        it('errors on missing scope', (done) => {
+        it('errors on missing scope', async () => {
 
             const handler = function (request, reply) {
 
@@ -1007,15 +905,12 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(403);
-                expect(res.result.message).to.equal('Insufficient scope');
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(403);
+            expect(res.result.message).to.equal('Insufficient scope');
         });
 
-        it('errors on missing scope property', (done) => {
+        it('errors on missing scope property', async () => {
 
             const handler = function (request, reply) {
 
@@ -1036,15 +931,12 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(403);
-                expect(res.result.message).to.equal('Insufficient scope');
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(403);
+            expect(res.result.message).to.equal('Insufficient scope');
         });
 
-        it('validates required scope', (done) => {
+        it('validates required scope', async () => {
 
             const handler = function (request, reply) {
 
@@ -1071,20 +963,15 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res1) => {
+            const res1 = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res1.statusCode).to.equal(403);
+            expect(res1.result.message).to.equal('Insufficient scope');
 
-                expect(res1.statusCode).to.equal(403);
-                expect(res1.result.message).to.equal('Insufficient scope');
-
-                server.inject({ url: '/', headers: { authorization: 'Custom john' } }, (res2) => {
-
-                    expect(res2.statusCode).to.equal(200);
-                    done();
-                });
-            });
+            const res2 = await server.inject({ url: '/', headers: { authorization: 'Custom john' } });
+            expect(res2.statusCode).to.equal(200);
         });
 
-        it('validates forbidden scope', (done) => {
+        it('validates forbidden scope', async () => {
 
             const handler = function (request, reply) {
 
@@ -1111,20 +998,15 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res1) => {
+            const res1 = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res1.statusCode).to.equal(403);
+            expect(res1.result.message).to.equal('Insufficient scope');
 
-                expect(res1.statusCode).to.equal(403);
-                expect(res1.result.message).to.equal('Insufficient scope');
-
-                server.inject({ url: '/', headers: { authorization: 'Custom john' } }, (res2) => {
-
-                    expect(res2.statusCode).to.equal(200);
-                    done();
-                });
-            });
+            const res2 = await server.inject({ url: '/', headers: { authorization: 'Custom john' } });
+            expect(res2.statusCode).to.equal(200);
         });
 
-        it('validates complex scope', (done) => {
+        it('validates complex scope', async () => {
 
             const handler = function (request, reply) {
 
@@ -1154,35 +1036,26 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res1) => {
+            const res1 = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res1.statusCode).to.equal(403);
+            expect(res1.result.message).to.equal('Insufficient scope');
 
-                expect(res1.statusCode).to.equal(403);
-                expect(res1.result.message).to.equal('Insufficient scope');
+            const res2 = await server.inject({ url: '/', headers: { authorization: 'Custom john' } });
+            expect(res2.statusCode).to.equal(200);
 
-                server.inject({ url: '/', headers: { authorization: 'Custom john' } }, (res2) => {
+            const res3 = await server.inject({ url: '/', headers: { authorization: 'Custom mary' } });
+            expect(res3.statusCode).to.equal(200);
 
-                    expect(res2.statusCode).to.equal(200);
-                    server.inject({ url: '/', headers: { authorization: 'Custom mary' } }, (res3) => {
+            const res4 = await server.inject({ url: '/', headers: { authorization: 'Custom lucy' } });
+            expect(res4.statusCode).to.equal(403);
+            expect(res4.result.message).to.equal('Insufficient scope');
 
-                        expect(res3.statusCode).to.equal(200);
-                        server.inject({ url: '/', headers: { authorization: 'Custom lucy' } }, (res4) => {
-
-                            expect(res4.statusCode).to.equal(403);
-                            expect(res4.result.message).to.equal('Insufficient scope');
-
-                            server.inject({ url: '/', headers: { authorization: 'Custom larry' } }, (res5) => {
-
-                                expect(res5.statusCode).to.equal(403);
-                                expect(res5.result.message).to.equal('Insufficient scope');
-                                done();
-                            });
-                        });
-                    });
-                });
-            });
+            const res5 = await server.inject({ url: '/', headers: { authorization: 'Custom larry' } });
+            expect(res5.statusCode).to.equal(403);
+            expect(res5.result.message).to.equal('Insufficient scope');
         });
 
-        it('errors on missing scope using arrays', (done) => {
+        it('errors on missing scope using arrays', async () => {
 
             const handler = function (request, reply) {
 
@@ -1203,15 +1076,12 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(403);
-                expect(res.result.message).to.equal('Insufficient scope');
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(403);
+            expect(res.result.message).to.equal('Insufficient scope');
         });
 
-        it('ignores default scope when override set to null', (done) => {
+        it('ignores default scope when override set to null', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -1235,14 +1105,11 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('matches scope (access single)', (done) => {
+        it('matches scope (access single)', async () => {
 
             const handler = function (request, reply) {
 
@@ -1265,14 +1132,11 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('matches scope (access array)', (done) => {
+        it('matches scope (access array)', async () => {
 
             const handler = function (request, reply) {
 
@@ -1296,14 +1160,11 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('errors on matching scope (access array)', (done) => {
+        it('errors on matching scope (access array)', async () => {
 
             const handler = function (request, reply) {
 
@@ -1329,15 +1190,12 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(403);
-                expect(res.result.message).to.equal('Insufficient scope');
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(403);
+            expect(res.result.message).to.equal('Insufficient scope');
         });
 
-        it('matches any entity', (done) => {
+        it('matches any entity', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -1353,14 +1211,11 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('matches user entity', (done) => {
+        it('matches user entity', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -1376,14 +1231,11 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('errors on missing user entity', (done) => {
+        it('errors on missing user entity', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -1399,12 +1251,9 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom client' } }, (res) => {
-
-                expect(res.statusCode).to.equal(403);
-                expect(res.result.message).to.equal('Application credentials cannot be used on a user endpoint');
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom client' } });
+            expect(res.statusCode).to.equal(403);
+            expect(res.result.message).to.equal('Application credentials cannot be used on a user endpoint');
         });
 
         it('matches app entity', async () => {
@@ -1427,7 +1276,7 @@ describe('authentication', () => {
             expect(res.statusCode).to.equal(200);
         });
 
-        it('errors on missing app entity', (done) => {
+        it('errors on missing app entity', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -1443,15 +1292,12 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(403);
-                expect(res.result.message).to.equal('User credentials cannot be used on an application endpoint');
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(403);
+            expect(res.result.message).to.equal('User credentials cannot be used on an application endpoint');
         });
 
-        it('logs error code when authenticate returns a non-error error', (done) => {
+        it('logs error code when authenticate returns a non-error error', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('test', (srv, options) => {
@@ -1475,18 +1321,19 @@ describe('authentication', () => {
                 }
             });
 
+            let logged = null;
             server.events.on('request-internal', (request, event, tags) => {
 
                 if (tags.unauthenticated) {
-                    expect(event.data).to.equal(302);
-                    done();
+                    logged = event;
                 }
             });
 
-            server.inject('/', (res) => { });
+            await server.inject('/');
+            expect(logged.data).to.equal(302);
         });
 
-        it('passes the options.artifacts object, even with an auth filter', (done) => {
+        it('passes the options.artifacts object, even with an auth filter', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -1510,22 +1357,15 @@ describe('authentication', () => {
                 artifacts: { bar: 'baz' }
             };
 
-            server.inject(options, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.result.bar).to.equal('baz');
-                done();
-            });
-
-
-
+            const res = await server.inject(options);
+            expect(res.statusCode).to.equal(200);
+            expect(res.result.bar).to.equal('baz');
         });
-
     });
 
     describe('payload()', () => {
 
-        it('authenticates request payload', (done) => {
+        it('authenticates request payload', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -1544,14 +1384,11 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom validPayload' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom validPayload' } });
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('skips when scheme does not support it', (done) => {
+        it('skips when scheme does not support it', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -1567,14 +1404,11 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom validPayload' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom validPayload' } });
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('authenticates request payload (required scheme)', (done) => {
+        it('authenticates request payload (required scheme)', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -1591,14 +1425,11 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom validPayload' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom validPayload' } });
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('authenticates request payload (required scheme and required route)', (done) => {
+        it('authenticates request payload (required scheme and required route)', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -1617,14 +1448,11 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom validPayload' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom validPayload' } });
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('throws when scheme requires payload authentication and route conflicts', (done) => {
+        it('throws when scheme requires payload authentication and route conflicts', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -1645,10 +1473,9 @@ describe('authentication', () => {
                     }
                 });
             }).to.throw('Cannot set authentication payload to optional when a strategy requires payload validation in /');
-            done();
         });
 
-        it('throws when strategy does not support payload authentication', (done) => {
+        it('throws when strategy does not support payload authentication', async () => {
 
             const server = new Hapi.Server();
             const implementation = function () {
@@ -1674,10 +1501,9 @@ describe('authentication', () => {
                     }
                 });
             }).to.throw('Payload validation can only be required when all strategies support it in /');
-            done();
         });
 
-        it('throws when no strategy supports optional payload authentication', (done) => {
+        it('throws when no strategy supports optional payload authentication', async () => {
 
             const server = new Hapi.Server();
             const implementation = function () {
@@ -1703,10 +1529,9 @@ describe('authentication', () => {
                     }
                 });
             }).to.throw('Payload authentication requires at least one strategy with payload support in /');
-            done();
         });
 
-        it('allows one strategy to supports optional payload authentication while another does not', (done) => {
+        it('allows one strategy to supports optional payload authentication while another does not', async () => {
 
             const server = new Hapi.Server();
             const implementation = function () {
@@ -1735,10 +1560,9 @@ describe('authentication', () => {
                     }
                 });
             }).to.not.throw();
-            done();
         });
 
-        it('skips request payload by default', (done) => {
+        it('skips request payload by default', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -1754,14 +1578,11 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom skip' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom skip' } });
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('skips request payload when unauthenticated', (done) => {
+        it('skips request payload when unauthenticated', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -1781,14 +1602,11 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ method: 'POST', url: '/' }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ method: 'POST', url: '/' });
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('skips optional payload', (done) => {
+        it('skips optional payload', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -1807,14 +1625,11 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom optionalPayload' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom optionalPayload' } });
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('errors on missing payload when required', (done) => {
+        it('errors on missing payload when required', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -1833,14 +1648,11 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom optionalPayload' } }, (res) => {
-
-                expect(res.statusCode).to.equal(401);
-                done();
-            });
+            const res = await server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom optionalPayload' } });
+            expect(res.statusCode).to.equal(401);
         });
 
-        it('errors on invalid payload auth when required', (done) => {
+        it('errors on invalid payload auth when required', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -1859,14 +1671,11 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom optionalPayload' } }, (res) => {
-
-                expect(res.statusCode).to.equal(401);
-                done();
-            });
+            const res = await server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom optionalPayload' } });
+            expect(res.statusCode).to.equal(401);
         });
 
-        it('errors on invalid request payload (non error)', (done) => {
+        it('errors on invalid request payload (non error)', async () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
@@ -1885,18 +1694,15 @@ describe('authentication', () => {
                 }
             });
 
-            server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom invalidPayload' } }, (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.result).to.equal('Payload is invalid');
-                done();
-            });
+            const res = await server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom invalidPayload' } });
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('Payload is invalid');
         });
     });
 
     describe('response()', () => {
 
-        it('fails on response error', (done) => {
+        it('fails on response error', async () => {
 
             const handler = function (request, reply) {
 
@@ -1908,11 +1714,8 @@ describe('authentication', () => {
             server.auth.strategy('default', 'custom', true, { users: { steve: { response: Boom.internal() } } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject({ url: '/', headers: { authorization: 'Custom steve' } }, (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(500);
         });
     });
 

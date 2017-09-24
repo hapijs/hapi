@@ -14,22 +14,19 @@ const internals = {};
 
 // Test shortcuts
 
-const lab = exports.lab = Lab.script();
-const describe = lab.describe;
-const it = lab.it;
+const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
 
 
 describe('Server', () => {
 
-    it('sets connections defaults', (done) => {
+    it('sets connections defaults', async () => {
 
         const server = new Hapi.Server({ app: { message: 'test defaults' } });
         expect(server.settings.app.message).to.equal('test defaults');
-        done();
     });
 
-    it('overrides mime settings', (done) => {
+    it('overrides mime settings', async () => {
 
         const options = {
             mime: {
@@ -47,7 +44,6 @@ describe('Server', () => {
         const server = new Hapi.Server(options);
         expect(server.mime.path('file.npm').type).to.equal('node/module');
         expect(server.mime.path('file.npm').source).to.equal('steve');
-        done();
     });
 
     describe('start()', () => {
@@ -189,44 +185,17 @@ describe('Server', () => {
 
     describe('stop()', () => {
 
-        it('stops the cache', (done) => {
+        it('stops the cache', async () => {
 
             const server = new Hapi.Server();
             const cache = server.cache({ segment: 'test', expiresIn: 1000 });
-            server.initialize().then(() => {
+            await server.initialize();
 
-                cache.set('a', 'going in', 0, (err) => {
-
-                    expect(err).to.not.exist();
-                    cache.get('a', (err, value1, cached1, report1) => {
-
-                        expect(err).to.not.exist();
-                        expect(value1).to.equal('going in');
-
-                        server.stop().then(() => {
-
-                            cache.get('a', (err, value2, cached2, report2) => {
-
-                                expect(err).to.exist();
-                                expect(value2).to.equal(null);
-                                done();
-                            });
-                        });
-                    });
-                });
-            });
-        });
-
-        it('stops the cache (promise)', (done) => {
-
-            const server = new Hapi.Server();
-            server.start().then(() => {
-
-                server.stop({}).then(() => {
-
-                    done();
-                });
-            });
+            await cache.set('a', 'going in', 0);
+            const { value: value1 } = await cache.get('a');
+            expect(value1).to.equal('going in');
+            await server.stop();
+            await expect(cache.get('a')).to.reject();
         });
 
         it('returns an extension error (onPreStop)', async () => {
@@ -270,29 +239,26 @@ describe('Server', () => {
 
     describe('connection()', () => {
 
-        it('throws on invalid config', (done) => {
+        it('throws on invalid config', async () => {
 
             expect(() => {
 
                 new Hapi.Server({ something: false });
             }).to.throw(/Invalid server options/);
-            done();
         });
 
-        it('combines configuration from server and defaults (cors)', (done) => {
+        it('combines configuration from server and defaults (cors)', async () => {
 
             const server = new Hapi.Server({ routes: { cors: { origin: ['example.com'] } } });
             expect(server.settings.routes.cors.origin).to.equal(['example.com']);
-            done();
         });
 
-        it('combines configuration from server and defaults (security)', (done) => {
+        it('combines configuration from server and defaults (security)', async () => {
 
             const server = new Hapi.Server({ routes: { security: { hsts: 2, xss: false } } });
             expect(server.settings.routes.security.hsts).to.equal(2);
             expect(server.settings.routes.security.xss).to.be.false();
             expect(server.settings.routes.security.xframe).to.equal('deny');
-            done();
         });
     });
 

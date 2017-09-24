@@ -8,6 +8,7 @@ const Http = require('http');
 const Path = require('path');
 const Stream = require('stream');
 const Zlib = require('zlib');
+
 const Boom = require('boom');
 const CatboxMemory = require('catbox-memory');
 const Code = require('code');
@@ -15,6 +16,7 @@ const Hapi = require('..');
 const Hoek = require('hoek');
 const Inert = require('inert');
 const Lab = require('lab');
+const Teamwork = require('teamwork');
 const Wreck = require('wreck');
 
 
@@ -25,9 +27,7 @@ const internals = {};
 
 // Test shortcuts
 
-const lab = exports.lab = Lab.script();
-const describe = lab.describe;
-const it = lab.it;
+const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
 
 
@@ -1404,11 +1404,12 @@ describe('transmission', () => {
             await server.stop();
         });
 
-        it('does not leak stream data when request aborts before stream drains', (done) => {
+        it('does not leak stream data when request aborts before stream drains', async () => {
 
             const server = new Hapi.Server();
 
             let destroyed = false;
+            const team = new Teamwork.Team({ meetings: 1 });
             const handler = function (request, reply) {
 
                 const stream = new Stream.Readable();
@@ -1432,106 +1433,97 @@ describe('transmission', () => {
                     }
                 };
 
-                stream.once('end', () => {
-
-                    server.stop().then(done);
-                });
-
+                stream.once('end', () => team.attend());
                 return reply(stream);
             };
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.start().then(() => {
+            await server.start();
 
-                Wreck.request('GET', 'http://localhost:' + server.info.port).then((res) => {
+            const res = await Wreck.request('GET', 'http://localhost:' + server.info.port);
+            res.on('data', (chunk) => {
 
-                    res.on('data', (chunk) => {
-
-                        if (!destroyed) {
-                            destroyed = true;
-                            res.destroy();
-                        }
-                    });
-                });
+                if (!destroyed) {
+                    destroyed = true;
+                    res.destroy();
+                }
             });
+
+            await team.work;
         });
 
         it('does not leak classic stream data when passed to request and aborted', async () => {
 
             const server = new Hapi.Server({ debug: false });
 
-            await new Promise((resolve) => {
+            let destroyed = false;
+            const team = new Teamwork.Team({ meetings: 1 });
+            const handler = function (request, reply) {
 
-                let destroyed = false;
-                const handler = function (request, reply) {
+                const stream = new Stream();
+                stream.readable = true;
 
-                    const stream = new Stream();
-                    stream.readable = true;
+                let paused = true;
+                const _read = function () {
 
-                    let paused = true;
-                    const _read = function () {
-
-                        setImmediate(() => {
-
-                            if (paused) {
-                                return;
-                            }
-
-                            const chunk = new Array(1024).join('x');
-
-                            if (destroyed) {
-                                stream.emit('data', chunk);
-                                stream.readable = false;
-                                stream.emit('end');
-                            }
-                            else {
-                                stream.emit('data', chunk);
-                                _read();
-                            }
-                        });
-                    };
-
-                    stream.resume = function () {
+                    setImmediate(() => {
 
                         if (paused) {
-                            paused = false;
+                            return;
+                        }
+
+                        const chunk = new Array(1024).join('x');
+
+                        if (destroyed) {
+                            stream.emit('data', chunk);
+                            stream.readable = false;
+                            stream.emit('end');
+                        }
+                        else {
+                            stream.emit('data', chunk);
                             _read();
                         }
-                    };
-                    stream.pause = function () {
-
-                        paused = true;
-                    };
-
-                    stream.resume();
-                    stream.once('end', resolve);
-                    return stream;
+                    });
                 };
 
-                server.route({ method: 'GET', path: '/', handler });
+                stream.resume = function () {
 
-                server.start().then(() => {
+                    if (paused) {
+                        paused = false;
+                        _read();
+                    }
+                };
+                stream.pause = function () {
 
-                    Wreck.request('GET', 'http://localhost:' + server.info.port).then((res) => {
+                    paused = true;
+                };
 
-                        res.on('data', (chunk) => {
+                stream.resume();
+                stream.once('end', team.attend());
+                return stream;
+            };
 
-                            if (!destroyed) {
-                                destroyed = true;
-                                res.destroy();
-                            }
-                        });
-                    });
-                });
+            server.route({ method: 'GET', path: '/', handler });
+
+            await server.start();
+
+            const res = await Wreck.request('GET', 'http://localhost:' + server.info.port);
+            res.on('data', (chunk) => {
+
+                if (!destroyed) {
+                    destroyed = true;
+                    res.destroy();
+                }
             });
 
             await server.stop();
         });
 
-        it('does not leak stream data when request timeouts before stream drains', (done) => {
+        it('does not leak stream data when request timeouts before stream drains', async () => {
 
             const server = new Hapi.Server({ routes: { timeout: { server: 20, socket: 40 }, payload: { timeout: false } } });
+            const team = new Teamwork.Team({ meetings: 1 });
 
             const handler = function (request, reply) {
 
@@ -1550,30 +1542,25 @@ describe('transmission', () => {
                     }, 10 * (count++));       // Must have back off here to hit the socket timeout
                 };
 
-                stream.once('end', () => {
-
-                    server.stop().then(done);
-                });
+                stream.once('end', () => team.attend());
 
                 return reply(stream);
             };
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.start().then(() => {
+            await server.start();
 
-                Wreck.request('GET', 'http://localhost:' + server.info.port).then((res) => {
-
-                    res.on('data', (chunk) => { });
-                });
-            });
+            const res = await Wreck.request('GET', 'http://localhost:' + server.info.port);
+            res.on('data', (chunk) => { });
+            await server.stop();
         });
 
-        it('does not leak stream data when request aborts before stream is returned', (done) => {
+        it('does not leak stream data when request aborts before stream is returned', async () => {
 
             const server = new Hapi.Server();
+            const team = new Teamwork.Team({ meetings: 1 });
 
-            let clientRequest;
             const handler = async function (request, reply) {
 
                 clientRequest.abort();
@@ -1603,7 +1590,7 @@ describe('transmission', () => {
                 stream.once('end', () => {
 
                     expect(responded).to.be.true();
-                    server.stop().then(done);
+                    team.attend();
                 });
 
                 await internals.wait(100);
@@ -1612,16 +1599,18 @@ describe('transmission', () => {
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.start().then(() => {
+            await server.start();
 
-                clientRequest = Http.request({
-                    hostname: 'localhost',
-                    port: server.info.port,
-                    method: 'GET'
-                });
-                clientRequest.on('error', () => { /* NOP */ });
-                clientRequest.end();
+            const clientRequest = Http.request({
+                hostname: 'localhost',
+                port: server.info.port,
+                method: 'GET'
             });
+            clientRequest.on('error', () => { /* NOP */ });
+            clientRequest.end();
+
+            await team.work;
+            await server.stop();
         });
 
         it('changes etag when content-encoding set manually', async () => {
@@ -2062,19 +2051,19 @@ describe('transmission', () => {
 
             const server = new Hapi.Server();
 
-            const method = function (id, next) {
+            const method = function (id) {
 
-                return next(null, {
+                return {
                     'id': 'fa0dbda9b1b',
                     'name': 'John Doe'
-                });
+                };
             };
 
             server.method('profile', method, { cache: { expiresIn: 120000, generateTimeout: 10 } });
 
             const profileHandler = function (request, reply) {
 
-                return new Promise((resolve) => server.methods.profile(0, (ignoreErr, data, ttl) => resolve(data)));
+                return server.methods.profile(0);
             };
 
             server.route({ method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { expiresIn: 120000, privacy: 'private' } } });
@@ -2165,31 +2154,13 @@ describe('transmission', () => {
 
             await server.start();
 
-            await new Promise((resolve) => {
+            await defaults.set('b', 1);
+            await primary.set('b', 2);
+            const { value: value1 } = await defaults.get('b');
+            expect(value1).to.equal(1);
 
-                defaults.set('b', 1, null, (err) => {
-
-                    expect(err).to.not.exist();
-
-                    primary.set('b', 2, null, (err) => {
-
-                        expect(err).to.not.exist();
-
-                        defaults.get('b', (err, value1, cached1, report1) => {
-
-                            expect(err).to.not.exist();
-                            expect(value1).to.equal(1);
-
-                            primary.get('b', (err, value2, cached2, report2) => {
-
-                                expect(err).to.not.exist();
-                                expect(cached2.item).to.equal(2);
-                                resolve();
-                            });
-                        });
-                    });
-                });
-            });
+            const { cached: cached2 } = await primary.get('b');
+            expect(cached2.item).to.equal(2);
 
             await server.stop();
         });

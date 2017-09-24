@@ -98,9 +98,8 @@
       "resolved": "https://registry.npmjs.org/podium/-/podium-2.0.2.tgz"
     },
     "shot": {
-      "version": "3.4.2",
-      "resolved": "https://registry.npmjs.org/shot/-/shot-3.4.2.tgz",
-      "integrity": "sha1-Hlw/bysmZJrcQvfrNQIUpaApHWc="
+      "version": "4.0.0",
+      "resolved": "https://registry.npmjs.org/shot/-/shot-4.0.0.tgz"
     },
     "statehood": {
       "version": "5.0.3",

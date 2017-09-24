@@ -5,6 +5,7 @@
 const Events = require('events');
 const Path = require('path');
 const Stream = require('stream');
+
 const Boom = require('boom');
 const Code = require('code');
 const Handlebars = require('handlebars');
@@ -13,6 +14,7 @@ const Hoek = require('hoek');
 const Inert = require('inert');
 const Lab = require('lab');
 const Vision = require('vision');
+
 const Response = require('../lib/response');
 
 
@@ -23,15 +25,13 @@ const internals = {};
 
 // Test shortcuts
 
-const lab = exports.lab = Lab.script();
-const describe = lab.describe;
-const it = lab.it;
+const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
 
 
 describe('Response', () => {
 
-    it('returns a reply', (done) => {
+    it('returns a reply', async () => {
 
         const handler = function (request, reply) {
 
@@ -66,22 +66,19 @@ describe('Response', () => {
 
         server.ext('onPostHandler', postHandler);
 
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.result).to.exist();
-            expect(res.result).to.equal('text');
-            expect(res.statusMessage).to.equal('Super');
-            expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate, private');
-            expect(res.headers['content-type']).to.equal('text/plain; something=something; charset=ISO-8859-1');
-            expect(res.headers['set-cookie']).to.equal(['abc=123', 'sid=YWJjZGVmZzEyMzQ1Ng==; Secure; HttpOnly; SameSite=Strict', 'other=something; Secure; HttpOnly; SameSite=Strict', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; HttpOnly; SameSite=Strict', 'test=123; Secure; HttpOnly; SameSite=Strict', 'empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; HttpOnly; SameSite=Strict; Path=/path', 'always=present; Secure; HttpOnly; SameSite=Strict']);
-            expect(res.headers.vary).to.equal('x-control,accept-encoding');
-            expect(res.headers.combo).to.equal('o-k');
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(200);
+        expect(res.result).to.exist();
+        expect(res.result).to.equal('text');
+        expect(res.statusMessage).to.equal('Super');
+        expect(res.headers['cache-control']).to.equal('max-age=1, must-revalidate, private');
+        expect(res.headers['content-type']).to.equal('text/plain; something=something; charset=ISO-8859-1');
+        expect(res.headers['set-cookie']).to.equal(['abc=123', 'sid=YWJjZGVmZzEyMzQ1Ng==; Secure; HttpOnly; SameSite=Strict', 'other=something; Secure; HttpOnly; SameSite=Strict', 'x=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; HttpOnly; SameSite=Strict', 'test=123; Secure; HttpOnly; SameSite=Strict', 'empty=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; HttpOnly; SameSite=Strict; Path=/path', 'always=present; Secure; HttpOnly; SameSite=Strict']);
+        expect(res.headers.vary).to.equal('x-control,accept-encoding');
+        expect(res.headers.combo).to.equal('o-k');
     });
 
-    it('sets content-type charset (trailing semi column)', (done) => {
+    it('sets content-type charset (trailing semi column)', async () => {
 
         const handler = function (request, reply) {
 
@@ -91,17 +88,14 @@ describe('Response', () => {
         const server = new Hapi.Server();
         server.route({ method: 'GET', path: '/', handler });
 
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.headers['content-type']).to.equal('text/plain; something=something; charset=utf-8');
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(200);
+        expect(res.headers['content-type']).to.equal('text/plain; something=something; charset=utf-8');
     });
 
     describe('_setSource()', () => {
 
-        it('returns an empty string reply', (done) => {
+        it('returns an empty string reply', async () => {
 
             const server = new Hapi.Server();
             server.route({
@@ -113,18 +107,15 @@ describe('Response', () => {
                 }
             });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers['content-length']).to.equal(0);
-                expect(res.headers['content-type']).to.not.exist();
-                expect(res.result).to.equal(null);
-                expect(res.payload).to.equal('');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['content-length']).to.equal(0);
+            expect(res.headers['content-type']).to.not.exist();
+            expect(res.result).to.equal(null);
+            expect(res.payload).to.equal('');
         });
 
-        it('returns a null reply', (done) => {
+        it('returns a null reply', async () => {
 
             const server = new Hapi.Server();
             server.route({
@@ -136,17 +127,14 @@ describe('Response', () => {
                 }
             });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers['content-length']).to.equal(0);
-                expect(res.result).to.equal(null);
-                expect(res.payload).to.equal('');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['content-length']).to.equal(0);
+            expect(res.result).to.equal(null);
+            expect(res.payload).to.equal('');
         });
 
-        it('returns an undefined reply', (done) => {
+        it('returns an undefined reply', async () => {
 
             const server = new Hapi.Server();
             server.route({
@@ -158,20 +146,17 @@ describe('Response', () => {
                 }
             });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers['content-length']).to.equal(0);
-                expect(res.result).to.equal(null);
-                expect(res.payload).to.equal('');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['content-length']).to.equal(0);
+            expect(res.result).to.equal(null);
+            expect(res.payload).to.equal('');
         });
     });
 
     describe('header()', () => {
 
-        it('appends to set-cookie header', (done) => {
+        it('appends to set-cookie header', async () => {
 
             const handler = function (request, reply) {
 
@@ -180,15 +165,12 @@ describe('Response', () => {
 
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers['set-cookie']).to.equal(['A', 'B']);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['set-cookie']).to.equal(['A', 'B']);
         });
 
-        it('sets null header', (done) => {
+        it('sets null header', async () => {
 
             const handler = function (request, reply) {
 
@@ -197,15 +179,12 @@ describe('Response', () => {
 
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers['set-cookie']).to.not.exist();
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['set-cookie']).to.not.exist();
         });
 
-        it('throws error on non-ascii value', (done) => {
+        it('throws error on non-ascii value', async () => {
 
             const handler = function (request, reply) {
 
@@ -214,14 +193,11 @@ describe('Response', () => {
 
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
         });
 
-        it('throws error on non-ascii value (header name)', (done) => {
+        it('throws error on non-ascii value (header name)', async () => {
 
             const handler = function (request, reply) {
 
@@ -231,14 +207,11 @@ describe('Response', () => {
 
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
         });
 
-        it('throws error on non-ascii value (buffer)', (done) => {
+        it('throws error on non-ascii value (buffer)', async () => {
 
             const handler = function (request, reply) {
 
@@ -247,17 +220,14 @@ describe('Response', () => {
 
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
         });
     });
 
     describe('created()', () => {
 
-        it('returns a stream reply (created)', (done) => {
+        it('returns a stream reply (created)', async () => {
 
             const handler = function (request, reply) {
 
@@ -267,17 +237,14 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'POST', path: '/', handler });
 
-            server.inject({ method: 'POST', url: '/' }, (res) => {
-
-                expect(res.result).to.equal({ a: 1 });
-                expect(res.statusCode).to.equal(201);
-                expect(res.headers.location).to.equal('/special');
-                expect(res.headers['cache-control']).to.equal('no-cache');
-                done();
-            });
+            const res = await server.inject({ method: 'POST', url: '/' });
+            expect(res.result).to.equal({ a: 1 });
+            expect(res.statusCode).to.equal(201);
+            expect(res.headers.location).to.equal('/special');
+            expect(res.headers['cache-control']).to.equal('no-cache');
         });
 
-        it.skip('returns error on created with GET', (done) => {
+        it.skip('returns error on created with GET', async () => {
 
             const handler = function (request, reply) {
 
@@ -287,17 +254,14 @@ describe('Response', () => {
             const server = new Hapi.Server({ debug: false });
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
         });
     });
 
     describe('state()', () => {
 
-        it('returns an error on bad cookie', (done) => {
+        it('returns an error on bad cookie', async () => {
 
             const handler = function (request, reply) {
 
@@ -307,20 +271,17 @@ describe('Response', () => {
             const server = new Hapi.Server({ debug: false });
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.exist();
-                expect(res.statusCode).to.equal(500);
-                expect(res.result.message).to.equal('An internal server error occurred');
-                expect(res.headers['set-cookie']).to.not.exist();
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.exist();
+            expect(res.statusCode).to.equal(500);
+            expect(res.result.message).to.equal('An internal server error occurred');
+            expect(res.headers['set-cookie']).to.not.exist();
         });
     });
 
     describe('unstate()', () => {
 
-        it('allows options', (done) => {
+        it('allows options', async () => {
 
             const handler = function (request, reply) {
 
@@ -330,18 +291,15 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers['set-cookie']).to.equal(['session=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; HttpOnly; SameSite=Strict; Path=/unset']);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['set-cookie']).to.equal(['session=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; HttpOnly; SameSite=Strict; Path=/unset']);
         });
     });
 
     describe('vary()', () => {
 
-        it('sets Vary header with single value', (done) => {
+        it('sets Vary header with single value', async () => {
 
             const handler = function (request, reply) {
 
@@ -351,16 +309,13 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal('ok');
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers.vary).to.equal('x,accept-encoding');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('ok');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers.vary).to.equal('x,accept-encoding');
         });
 
-        it('sets Vary header with multiple values', (done) => {
+        it('sets Vary header with multiple values', async () => {
 
             const handler = function (request, reply) {
 
@@ -370,16 +325,13 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal('ok');
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers.vary).to.equal('x,y,accept-encoding');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('ok');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers.vary).to.equal('x,y,accept-encoding');
         });
 
-        it('sets Vary header with *', (done) => {
+        it('sets Vary header with *', async () => {
 
             const handler = function (request, reply) {
 
@@ -389,16 +341,13 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal('ok');
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers.vary).to.equal('*');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('ok');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers.vary).to.equal('*');
         });
 
-        it('leaves Vary header with * on additional values', (done) => {
+        it('leaves Vary header with * on additional values', async () => {
 
             const handler = function (request, reply) {
 
@@ -408,16 +357,13 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal('ok');
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers.vary).to.equal('*');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('ok');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers.vary).to.equal('*');
         });
 
-        it('drops other Vary header values when set to *', (done) => {
+        it('drops other Vary header values when set to *', async () => {
 
             const handler = function (request, reply) {
 
@@ -427,16 +373,13 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal('ok');
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers.vary).to.equal('*');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('ok');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers.vary).to.equal('*');
         });
 
-        it('sets Vary header with multiple similar and identical values', (done) => {
+        it('sets Vary header with multiple similar and identical values', async () => {
 
             const handler = function (request, reply) {
 
@@ -446,19 +389,16 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal('ok');
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers.vary).to.equal('x,xyz,xy,accept-encoding');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('ok');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers.vary).to.equal('x,xyz,xy,accept-encoding');
         });
     });
 
     describe('etag()', () => {
 
-        it('sets etag', (done) => {
+        it('sets etag', async () => {
 
             const handler = function (request, reply) {
 
@@ -467,15 +407,12 @@ describe('Response', () => {
 
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers.etag).to.equal('"abc"');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers.etag).to.equal('"abc"');
         });
 
-        it('sets weak etag', (done) => {
+        it('sets weak etag', async () => {
 
             const handler = function (request, reply) {
 
@@ -484,15 +421,12 @@ describe('Response', () => {
 
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers.etag).to.equal('W/"abc"');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers.etag).to.equal('W/"abc"');
         });
 
-        it('ignores varyEtag when etag header is removed', (done) => {
+        it('ignores varyEtag when etag header is removed', async () => {
 
             const handler = function (request, reply) {
 
@@ -503,15 +437,12 @@ describe('Response', () => {
 
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers.etag).to.not.exist();
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers.etag).to.not.exist();
         });
 
-        it('leaves etag header when varyEtag is false', (done) => {
+        it('leaves etag header when varyEtag is false', async () => {
 
             const handler = function (request, reply) {
 
@@ -520,21 +451,16 @@ describe('Response', () => {
 
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res1) => {
+            const res1 = await server.inject('/');
+            expect(res1.statusCode).to.equal(200);
+            expect(res1.headers.etag).to.equal('"abc"');
 
-                expect(res1.statusCode).to.equal(200);
-                expect(res1.headers.etag).to.equal('"abc"');
-
-                server.inject({ url: '/', headers: { 'if-none-match': '"abc-gzip"', 'accept-encoding': 'gzip' } }, (res2) => {
-
-                    expect(res2.statusCode).to.equal(200);
-                    expect(res2.headers.etag).to.equal('"abc"');
-                    done();
-                });
-            });
+            const res2 = await server.inject({ url: '/', headers: { 'if-none-match': '"abc-gzip"', 'accept-encoding': 'gzip' } });
+            expect(res2.statusCode).to.equal(200);
+            expect(res2.headers.etag).to.equal('"abc"');
         });
 
-        it('applies varyEtag when returning 304 due to if-modified-since match', (done) => {
+        it('applies varyEtag when returning 304 due to if-modified-since match', async () => {
 
             const mdate = new Date().toUTCString();
 
@@ -545,18 +471,15 @@ describe('Response', () => {
 
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
-            server.inject({ url: '/', headers: { 'if-modified-since': mdate, 'accept-encoding': 'gzip' } }, (res) => {
-
-                expect(res.statusCode).to.equal(304);
-                expect(res.headers.etag).to.equal('"abc-gzip"');
-                done();
-            });
+            const res = await server.inject({ url: '/', headers: { 'if-modified-since': mdate, 'accept-encoding': 'gzip' } });
+            expect(res.statusCode).to.equal(304);
+            expect(res.headers.etag).to.equal('"abc-gzip"');
         });
     });
 
     describe('passThrough()', () => {
 
-        it('passes stream headers and code through', (done) => {
+        it('passes stream headers and code through', async () => {
 
             const TestStream = function () {
 
@@ -586,16 +509,13 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal('x');
-                expect(res.statusCode).to.equal(299);
-                expect(res.headers.xcustom).to.equal('some value');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('x');
+            expect(res.statusCode).to.equal(299);
+            expect(res.headers.xcustom).to.equal('some value');
         });
 
-        it('excludes stream headers and code when passThrough is false', (done) => {
+        it('excludes stream headers and code when passThrough is false', async () => {
 
             const TestStream = function () {
 
@@ -625,16 +545,13 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal('x');
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers.xcustom).to.not.exist();
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('x');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers.xcustom).to.not.exist();
         });
 
-        it('ignores stream headers when empty', (done) => {
+        it('ignores stream headers when empty', async () => {
 
             const TestStream = function () {
 
@@ -664,16 +581,13 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal('x');
-                expect(res.statusCode).to.equal(299);
-                expect(res.headers.xcustom).to.not.exist();
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('x');
+            expect(res.statusCode).to.equal(299);
+            expect(res.headers.xcustom).to.not.exist();
         });
 
-        it('retains local headers with stream headers pass-through', (done) => {
+        it('retains local headers with stream headers pass-through', async () => {
 
             const TestStream = function () {
 
@@ -702,19 +616,16 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal('x');
-                expect(res.headers.xcustom).to.equal('other value');
-                expect(res.headers['set-cookie']).to.equal(['a=1', 'b=2; Secure; HttpOnly; SameSite=Strict']);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('x');
+            expect(res.headers.xcustom).to.equal('other value');
+            expect(res.headers['set-cookie']).to.equal(['a=1', 'b=2; Secure; HttpOnly; SameSite=Strict']);
         });
     });
 
     describe('replacer()', () => {
 
-        it('errors when called on wrong type', (done) => {
+        it('errors when called on wrong type', async () => {
 
             const handler = function (request, reply) {
 
@@ -723,17 +634,14 @@ describe('Response', () => {
 
             const server = new Hapi.Server({ debug: false });
             server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
         });
     });
 
     describe('spaces()', () => {
 
-        it('errors when called on wrong type', (done) => {
+        it('errors when called on wrong type', async () => {
 
             const handler = function (request, reply) {
 
@@ -742,17 +650,14 @@ describe('Response', () => {
 
             const server = new Hapi.Server({ debug: false });
             server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
         });
     });
 
     describe('suffix()', () => {
 
-        it('errors when called on wrong type', (done) => {
+        it('errors when called on wrong type', async () => {
 
             const handler = function (request, reply) {
 
@@ -761,17 +666,14 @@ describe('Response', () => {
 
             const server = new Hapi.Server({ debug: false });
             server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
         });
     });
 
     describe('escape()', () => {
 
-        it('returns 200 when called with true', (done) => {
+        it('returns 200 when called with true', async () => {
 
             const handler = function (request, reply) {
 
@@ -780,14 +682,11 @@ describe('Response', () => {
 
             const server = new Hapi.Server({ debug: false });
             server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('errors when called on wrong type', (done) => {
+        it('errors when called on wrong type', async () => {
 
             const handler = function (request, reply) {
 
@@ -796,11 +695,8 @@ describe('Response', () => {
 
             const server = new Hapi.Server({ debug: false });
             server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
         });
     });
 
@@ -824,7 +720,7 @@ describe('Response', () => {
 
     describe('charset()', () => {
 
-        it('sets charset with default type', (done) => {
+        it('sets charset with default type', async () => {
 
             const handler = function (request, reply) {
 
@@ -834,15 +730,12 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers['content-type']).to.equal('text/html; charset=abc');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['content-type']).to.equal('text/html; charset=abc');
         });
 
-        it('sets charset with default type in onPreResponse', (done) => {
+        it('sets charset with default type in onPreResponse', async () => {
 
             const handler = function (request, reply) {
 
@@ -860,15 +753,12 @@ describe('Response', () => {
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers['content-type']).to.equal('text/html; charset=abc');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['content-type']).to.equal('text/html; charset=abc');
         });
 
-        it('sets type inside marshal', (done) => {
+        it('sets type inside marshal', async () => {
 
             const handler = function (request, reply) {
 
@@ -895,18 +785,15 @@ describe('Response', () => {
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.headers['content-type']).to.equal('text/html; charset=abc');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['content-type']).to.equal('text/html; charset=abc');
         });
     });
 
     describe('redirect()', () => {
 
-        it('returns a redirection reply', (done) => {
+        it('returns a redirection reply', async () => {
 
             const handler = function (request, reply) {
 
@@ -916,16 +803,13 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('http://example.org/', (res) => {
-
-                expect(res.result).to.exist();
-                expect(res.headers.location).to.equal('/example');
-                expect(res.statusCode).to.equal(302);
-                done();
-            });
+            const res = await server.inject('http://example.org/');
+            expect(res.result).to.exist();
+            expect(res.headers.location).to.equal('/example');
+            expect(res.statusCode).to.equal(302);
         });
 
-        it('returns a redirection reply using verbose call', (done) => {
+        it('returns a redirection reply using verbose call', async () => {
 
             const handler = function (request, reply) {
 
@@ -935,17 +819,14 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.exist();
-                expect(res.result).to.equal('We moved!');
-                expect(res.headers.location).to.equal('/examplex');
-                expect(res.statusCode).to.equal(302);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('We moved!');
+            expect(res.headers.location).to.equal('/examplex');
+            expect(res.statusCode).to.equal(302);
         });
 
-        it('returns a 301 redirection reply', (done) => {
+        it('returns a 301 redirection reply', async () => {
 
             const handler = function (request, reply) {
 
@@ -955,14 +836,11 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(301);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(301);
         });
 
-        it('returns a 302 redirection reply', (done) => {
+        it('returns a 302 redirection reply', async () => {
 
             const handler = function (request, reply) {
 
@@ -972,14 +850,11 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(302);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(302);
         });
 
-        it('returns a 307 redirection reply', (done) => {
+        it('returns a 307 redirection reply', async () => {
 
             const handler = function (request, reply) {
 
@@ -989,14 +864,11 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(307);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(307);
         });
 
-        it('returns a 308 redirection reply', (done) => {
+        it('returns a 308 redirection reply', async () => {
 
             const handler = function (request, reply) {
 
@@ -1006,14 +878,11 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(308);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(308);
         });
 
-        it('returns a 301 redirection reply (reveresed methods)', (done) => {
+        it('returns a 301 redirection reply (reveresed methods)', async () => {
 
             const handler = function (request, reply) {
 
@@ -1023,14 +892,11 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(301);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(301);
         });
 
-        it('returns a 302 redirection reply (reveresed methods)', (done) => {
+        it('returns a 302 redirection reply (reveresed methods)', async () => {
 
             const handler = function (request, reply) {
 
@@ -1040,14 +906,11 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(302);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(302);
         });
 
-        it('returns a 307 redirection reply (reveresed methods)', (done) => {
+        it('returns a 307 redirection reply (reveresed methods)', async () => {
 
             const handler = function (request, reply) {
 
@@ -1057,14 +920,11 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(307);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(307);
         });
 
-        it('returns a 308 redirection reply (reveresed methods)', (done) => {
+        it('returns a 308 redirection reply (reveresed methods)', async () => {
 
             const handler = function (request, reply) {
 
@@ -1074,14 +934,11 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(308);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(308);
         });
 
-        it('returns a 302 redirection reply (flip flop)', (done) => {
+        it('returns a 302 redirection reply (flip flop)', async () => {
 
             const handler = function (request, reply) {
 
@@ -1091,17 +948,14 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(302);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(302);
         });
     });
 
     describe('_prepare()', () => {
 
-        it('handles promises that resolve', (done) => {
+        it('handles promises that resolve', async () => {
 
             const handler = function (request, reply) {
 
@@ -1114,15 +968,12 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal('promised response');
-                expect(res.statusCode).to.equal(201);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('promised response');
+            expect(res.statusCode).to.equal(201);
         });
 
-        it('handles promises that resolve (object)', (done) => {
+        it('handles promises that resolve (object)', async () => {
 
             const handler = function (request, reply) {
 
@@ -1135,15 +986,12 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.result.status).to.equal('ok');
-                expect(res.statusCode).to.equal(201);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result.status).to.equal('ok');
+            expect(res.statusCode).to.equal(201);
         });
 
-        it('handles promises that resolve (response object)', (done) => {
+        it('handles promises that resolve (response object)', async () => {
 
             const handler = function (request, reply) {
 
@@ -1156,15 +1004,12 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.result.status).to.equal('ok');
-                expect(res.statusCode).to.equal(201);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result.status).to.equal('ok');
+            expect(res.statusCode).to.equal(201);
         });
 
-        it('handles promises that reject', (done) => {
+        it('handles promises that reject', async () => {
 
             const handler = function (request, reply) {
 
@@ -1181,12 +1026,9 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.result.message).to.equal('this is not allowed!');
-                expect(res.statusCode).to.equal(403);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result.message).to.equal('this is not allowed!');
+            expect(res.statusCode).to.equal(403);
         });
     });
 
@@ -1218,7 +1060,7 @@ describe('Response', () => {
 
     describe('_streamify()', () => {
 
-        it('returns a formatted response', (done) => {
+        it('returns a formatted response', async () => {
 
             const handler = function (request, reply) {
 
@@ -1228,14 +1070,11 @@ describe('Response', () => {
             const server = new Hapi.Server({ routes: { json: { replacer: ['a', '<'], space: 4, suffix: '\n', escape: true } } });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.payload).to.equal('{\n    \"a\": 1,\n    \"\\u003c\": \"\\u0026\"\n}\n');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.payload).to.equal('{\n    \"a\": 1,\n    \"\\u003c\": \"\\u0026\"\n}\n');
         });
 
-        it('returns a response with options', (done) => {
+        it('returns a response with options', async () => {
 
             const handler = function (request, reply) {
 
@@ -1245,15 +1084,12 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.payload).to.equal('{\n  \"a\": 1\n}\n');
-                expect(res.headers['content-type']).to.equal('application/x-test');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.payload).to.equal('{\n  \"a\": 1\n}\n');
+            expect(res.headers['content-type']).to.equal('application/x-test');
         });
 
-        it('returns a response with options (different order)', (done) => {
+        it('returns a response with options (different order)', async () => {
 
             const handler = function (request, reply) {
 
@@ -1263,15 +1099,12 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.payload).to.equal('{\n  \"a\": 1\n}\n');
-                expect(res.headers['content-type']).to.equal('application/x-test');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.payload).to.equal('{\n  \"a\": 1\n}\n');
+            expect(res.headers['content-type']).to.equal('application/x-test');
         });
 
-        it('captures object which cannot be stringify', (done) => {
+        it('captures object which cannot be stringify', async () => {
 
             const handler = function (request, reply) {
 
@@ -1283,17 +1116,14 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
         });
     });
 
     describe('_tap()', () => {
 
-        it('peeks into the response stream', (done) => {
+        it('peeks into the response stream', async () => {
 
             const server = new Hapi.Server();
 
@@ -1319,17 +1149,14 @@ describe('Response', () => {
                 }
             });
 
-            server.inject('/', (res) => {
-
-                expect(output).to.equal('1234567890!');
-                done();
-            });
+            await server.inject('/');
+            expect(output).to.equal('1234567890!');
         });
     });
 
     describe('_close()', () => {
 
-        it('calls custom close processor', (done) => {
+        it('calls custom close processor', async () => {
 
             let closed = false;
             const close = function (response) {
@@ -1345,17 +1172,14 @@ describe('Response', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('/', (res) => {
-
-                expect(closed).to.be.true();
-                done();
-            });
+            await server.inject('/');
+            expect(closed).to.be.true();
         });
     });
 
     describe('Peek', () => {
 
-        it('taps into pass-through stream', (done) => {
+        it('taps into pass-through stream', async () => {
 
             // Source
 
@@ -1412,14 +1236,18 @@ describe('Response', () => {
                 seen.push(chunk.toString());
             });
 
-            emitter.once('finish', () => {
+            const finish = new Promise((resolve) => {
 
-                expect(seen).to.equal(chunks);
-                expect(target.data).to.equal(chunks);
-                done();
+                emitter.once('finish', () => {
+
+                    expect(seen).to.equal(chunks);
+                    expect(target.data).to.equal(chunks);
+                    resolve();
+                });
             });
 
             source.pipe(peek).pipe(target);
+            await finish;
         });
     });
 });

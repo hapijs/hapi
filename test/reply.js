@@ -4,6 +4,7 @@
 
 const Http = require('http');
 const Stream = require('stream');
+
 const Code = require('code');
 const Hapi = require('..');
 const Hoek = require('hoek');
@@ -17,15 +18,13 @@ const internals = {};
 
 // Test shortcuts
 
-const lab = exports.lab = Lab.script();
-const describe = lab.describe;
-const it = lab.it;
+const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
 
 
 describe('Reply', () => {
 
-    it('decorates reply with non function', (done) => {
+    it('decorates reply with non function', async () => {
 
         const server = new Hapi.Server();
 
@@ -40,15 +39,12 @@ describe('Reply', () => {
             }
         });
 
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal(123);
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(200);
+        expect(res.result).to.equal(123);
     });
 
-    it('redirects from handler', (done) => {
+    it('redirects from handler', async () => {
 
         const handler = function (request, reply) {
 
@@ -57,15 +53,12 @@ describe('Reply', () => {
 
         const server = new Hapi.Server();
         server.route({ method: 'GET', path: '/', handler });
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(302);
-            expect(res.headers.location).to.equal('/elsewhere');
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(302);
+        expect(res.headers.location).to.equal('/elsewhere');
     });
 
-    it('redirects from pre', (done) => {
+    it('redirects from pre', async () => {
 
         const server = new Hapi.Server();
         server.route({
@@ -84,17 +77,15 @@ describe('Reply', () => {
                 }
             }
         });
-        server.inject('/', (res) => {
 
-            expect(res.statusCode).to.equal(302);
-            expect(res.headers.location).to.equal('/elsewhere');
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(302);
+        expect(res.headers.location).to.equal('/elsewhere');
     });
 
     describe('response()', () => {
 
-        it('returns null', (done) => {
+        it('returns null', async () => {
 
             const handler = function (request, reply) {
 
@@ -103,17 +94,14 @@ describe('Reply', () => {
 
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.result).to.equal(null);
-                expect(res.payload).to.equal('');
-                expect(res.headers['content-type']).to.not.exist();
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal(null);
+            expect(res.payload).to.equal('');
+            expect(res.headers['content-type']).to.not.exist();
         });
 
-        it('returns a buffer reply', (done) => {
+        it('returns a buffer reply', async () => {
 
             const handler = function (request, reply) {
 
@@ -123,16 +111,13 @@ describe('Reply', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(299);
-                expect(res.result).to.equal('Tada1');
-                expect(res.headers['content-type']).to.equal('application/octet-stream');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(299);
+            expect(res.result).to.equal('Tada1');
+            expect(res.headers['content-type']).to.equal('application/octet-stream');
         });
 
-        it('returns an object response', (done) => {
+        it('returns an object response', async () => {
 
             const handler = function (request, reply) {
 
@@ -142,15 +127,12 @@ describe('Reply', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.payload).to.equal('{\"a\":1,\"b\":2}');
-                expect(res.headers['content-length']).to.equal(13);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.payload).to.equal('{\"a\":1,\"b\":2}');
+            expect(res.headers['content-length']).to.equal(13);
         });
 
-        it('returns false', (done) => {
+        it('returns false', async () => {
 
             const handler = function (request, reply) {
 
@@ -160,14 +142,11 @@ describe('Reply', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.payload).to.equal('false');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.payload).to.equal('false');
         });
 
-        it('returns an error reply', (done) => {
+        it('returns an error reply', async () => {
 
             const handler = function (request, reply) {
 
@@ -177,15 +156,12 @@ describe('Reply', () => {
             const server = new Hapi.Server({ debug: false });
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                expect(res.result).to.exist();
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+            expect(res.result).to.exist();
         });
 
-        it('returns an empty reply', (done) => {
+        it('returns an empty reply', async () => {
 
             const handler = function (request, reply) {
 
@@ -195,16 +171,13 @@ describe('Reply', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(299);
-                expect(res.headers['content-length']).to.equal(0);
-                expect(res.result).to.equal(null);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(299);
+            expect(res.headers['content-length']).to.equal(0);
+            expect(res.result).to.equal(null);
         });
 
-        it('returns a stream reply', (done) => {
+        it('returns a stream reply', async () => {
 
             const TestStream = function () {
 
@@ -233,88 +206,121 @@ describe('Reply', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/stream', config: { handler, cache: { expiresIn: 9999 } } });
 
-            server.inject('/stream', (res1) => {
-
-                expect(res1.result).to.equal('xy');
-                expect(res1.statusCode).to.equal(200);
-                expect(res1.headers['cache-control']).to.equal('max-age=2, must-revalidate');
-
-                server.inject({ method: 'HEAD', url: '/stream' }, (res2) => {
-
-                    expect(res2.result).to.equal('');
-                    expect(res2.statusCode).to.equal(200);
-                    expect(res2.headers['cache-control']).to.equal('max-age=2, must-revalidate');
-                    done();
-                });
-            });
-        });
-
-        it('errors on non-readable stream reply', async () => {
-
-            const streamHandler = function (request, reply) {
-
-                const stream = new Stream();
-                stream.writable = true;
-
-                return reply(stream);
-            };
-
-            const writableHandler = function (request, reply) {
-
-                const writable = new Stream.Writable();
-                writable._write = function () { };
-
-                return reply(writable);
-            };
-
-            const server = new Hapi.Server({ debug: false });
-            server.route({ method: 'GET', path: '/stream', handler: streamHandler });
-            server.route({ method: 'GET', path: '/writable', handler: writableHandler });
-
-            let updates = 0;
-            server.events.on('request-error', (request, err) => {
-
-                expect(err).to.be.an.error('Stream must have a streams2 readable interface');
-                ++updates;
-            });
-
-            await server.initialize();
             const res1 = await server.inject('/stream');
+            expect(res1.result).to.equal('xy');
+            expect(res1.statusCode).to.equal(200);
+            expect(res1.headers['cache-control']).to.equal('max-age=2, must-revalidate');
 
-            expect(res1.statusCode).to.equal(500);
-            const res2 = await server.inject('/writable');
+            const res2 = await server.inject({ method: 'HEAD', url: '/stream' });
+            expect(res2.result).to.equal('');
+            expect(res2.statusCode).to.equal(200);
+            expect(res2.headers['cache-control']).to.equal('max-age=2, must-revalidate');
+        });
+    });
 
-            expect(res2.statusCode).to.equal(500);
-            await internals.wait(10);
-            expect(updates).to.equal(2);
+    it('errors on non-readable stream reply', async () => {
+
+        const streamHandler = function (request, reply) {
+
+            const stream = new Stream();
+            stream.writable = true;
+
+            return reply(stream);
+        };
+
+        const writableHandler = function (request, reply) {
+
+            const writable = new Stream.Writable();
+            writable._write = function () { };
+
+            return reply(writable);
+        };
+
+        const server = new Hapi.Server({ debug: false });
+        server.route({ method: 'GET', path: '/stream', handler: streamHandler });
+        server.route({ method: 'GET', path: '/writable', handler: writableHandler });
+
+        let updates = 0;
+        server.events.on('request-error', (request, err) => {
+
+            expect(err).to.be.an.error('Stream must have a streams2 readable interface');
+            ++updates;
         });
 
-        it('errors on an http client stream reply', async () => {
+        await server.initialize();
+        const res1 = await server.inject('/stream');
 
-            const handler = function (request, reply) {
+        expect(res1.statusCode).to.equal(500);
+        const res2 = await server.inject('/writable');
 
-                return reply('just a string');
-            };
+        expect(res2.statusCode).to.equal(500);
+        await internals.wait(10);
+        expect(updates).to.equal(2);
+    });
 
-            const streamHandler = function (request, reply) {
+    it('errors on an http client stream reply', async () => {
 
-                return reply(Http.get(request.server.info + '/'));
-            };
+        const handler = function (request, reply) {
 
-            const server = new Hapi.Server({ debug: false });
-            server.route({ method: 'GET', path: '/', handler });
-            server.route({ method: 'GET', path: '/stream', handler: streamHandler });
+            return reply('just a string');
+        };
 
-            await server.initialize();
-            const res = await server.inject('/stream');
-            expect(res.statusCode).to.equal(500);
-        });
+        const streamHandler = function (request, reply) {
 
-        it('errors on objectMode stream reply', (done) => {
+            return reply(Http.get(request.server.info + '/'));
+        };
+
+        const server = new Hapi.Server({ debug: false });
+        server.route({ method: 'GET', path: '/', handler });
+        server.route({ method: 'GET', path: '/stream', handler: streamHandler });
+
+        await server.initialize();
+        const res = await server.inject('/stream');
+        expect(res.statusCode).to.equal(500);
+    });
+
+    it('errors on objectMode stream reply', async () => {
+
+        const TestStream = function () {
+
+            Stream.Readable.call(this, { objectMode: true });
+        };
+
+        Hoek.inherits(TestStream, Stream.Readable);
+
+        TestStream.prototype._read = function (size) {
+
+            if (this.isDone) {
+                return;
+            }
+            this.isDone = true;
+
+            this.push({ x: 1 });
+            this.push({ y: 1 });
+            this.push(null);
+        };
+
+        const handler = function (request, reply) {
+
+            return reply(new TestStream());
+        };
+
+        const server = new Hapi.Server({ debug: false });
+        server.route({ method: 'GET', path: '/', handler });
+
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(500);
+    });
+
+    describe('promises', () => {
+
+        it('returns a stream', async () => {
 
             const TestStream = function () {
 
-                Stream.Readable.call(this, { objectMode: true });
+                Stream.Readable.call(this);
+
+                this.statusCode = 200;
             };
 
             Hoek.inherits(TestStream, Stream.Readable);
@@ -326,179 +332,120 @@ describe('Reply', () => {
                 }
                 this.isDone = true;
 
-                this.push({ x: 1 });
-                this.push({ y: 1 });
+                this.push('x');
+                this.push('y');
                 this.push(null);
             };
 
             const handler = function (request, reply) {
 
-                return reply(new TestStream());
+                return reply(new Promise((resolve, reject) => {
+
+                    return resolve(new TestStream());
+                })).ttl(2000).code(299);
             };
 
+
             const server = new Hapi.Server({ debug: false });
-            server.route({ method: 'GET', path: '/', handler });
+            server.route({ method: 'GET', path: '/stream', config: { handler, cache: { expiresIn: 9999 } } });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                done();
-            });
+            const res = await server.inject('/stream');
+            expect(res.result).to.equal('xy');
+            expect(res.statusCode).to.equal(299);
         });
 
-        describe('promises', () => {
+        it('returns a buffer', async () => {
 
-            it('returns a stream', (done) => {
+            const handler = function (request, reply) {
 
-                const TestStream = function () {
+                return reply(new Promise((resolve, reject) => {
 
-                    Stream.Readable.call(this);
+                    return resolve(new Buffer('buffer content'));
+                })).code(299).type('something/special');
+            };
 
-                    this.statusCode = 200;
-                };
+            const server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler });
 
-                Hoek.inherits(TestStream, Stream.Readable);
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(299);
+            expect(res.result.toString()).to.equal('buffer content');
+            expect(res.headers['content-type']).to.equal('something/special');
+        });
 
-                TestStream.prototype._read = function (size) {
+        it('returns an error when rejecting with an error object', async () => {
 
-                    if (this.isDone) {
-                        return;
-                    }
-                    this.isDone = true;
+            const handler = function (request, reply) {
 
-                    this.push('x');
-                    this.push('y');
-                    this.push(null);
-                };
+                return reply(Promise.reject(new Error('rejected')));
+            };
 
-                const handler = function (request, reply) {
+            const server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler });
 
-                    return reply(new Promise((resolve, reject) => {
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+            expect(res.result).to.exist();
+            expect(res.result.message).to.equal('An internal server error occurred');
+        });
 
-                        return resolve(new TestStream());
-                    })).ttl(2000).code(299);
-                };
+        it('returns an error when resolving with an error object', async () => {
 
+            const handler = function (request, reply) {
 
-                const server = new Hapi.Server({ debug: false });
-                server.route({ method: 'GET', path: '/stream', config: { handler, cache: { expiresIn: 9999 } } });
+                return reply(Promise.resolve(new Error('rejected')));
+            };
 
-                server.inject('/stream', (res) => {
+            const server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler });
 
-                    expect(res.result).to.equal('xy');
-                    expect(res.statusCode).to.equal(299);
-                    done();
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+            expect(res.result).to.exist();
+            expect(res.result.message).to.equal('An internal server error occurred');
+        });
+
+        it('returns an error when rejecting with a non-error object', async () => {
+
+            const handler = function (request, reply) {
+
+                return reply(Promise.reject({ error: 'rejected' }));
+            };
+
+            const server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+            expect(res.result).to.exist();
+            expect(res.result.message).to.equal('An internal server error occurred');
+        });
+
+        it('returns an error when throwing in a promise constructor', async () => {
+
+            const handler = function (request, reply) {
+
+                const p = new Promise(() => {
+
+                    throw new Error('thrown');
                 });
-            });
 
-            it('returns a buffer', (done) => {
+                return reply(p);
+            };
 
-                const handler = function (request, reply) {
+            const server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler });
 
-                    return reply(new Promise((resolve, reject) => {
-
-                        return resolve(new Buffer('buffer content'));
-                    })).code(299).type('something/special');
-                };
-
-                const server = new Hapi.Server();
-                server.route({ method: 'GET', path: '/', handler });
-
-                server.inject('/', (res) => {
-
-                    expect(res.statusCode).to.equal(299);
-                    expect(res.result.toString()).to.equal('buffer content');
-                    expect(res.headers['content-type']).to.equal('something/special');
-                    done();
-                });
-            });
-
-            it('returns an error when rejecting with an error object', (done) => {
-
-                const handler = function (request, reply) {
-
-                    return reply(Promise.reject(new Error('rejected')));
-                };
-
-                const server = new Hapi.Server();
-                server.route({ method: 'GET', path: '/', handler });
-
-                server.inject('/', (res) => {
-
-                    expect(res.statusCode).to.equal(500);
-                    expect(res.result).to.exist();
-                    expect(res.result.message).to.equal('An internal server error occurred');
-                    done();
-                });
-            });
-
-            it('returns an error when resolving with an error object', (done) => {
-
-                const handler = function (request, reply) {
-
-                    return reply(Promise.resolve(new Error('rejected')));
-                };
-
-                const server = new Hapi.Server();
-                server.route({ method: 'GET', path: '/', handler });
-
-                server.inject('/', (res) => {
-
-                    expect(res.statusCode).to.equal(500);
-                    expect(res.result).to.exist();
-                    expect(res.result.message).to.equal('An internal server error occurred');
-                    done();
-                });
-            });
-
-            it('returns an error when rejecting with a non-error object', (done) => {
-
-                const handler = function (request, reply) {
-
-                    return reply(Promise.reject({ error: 'rejected' }));
-                };
-
-                const server = new Hapi.Server();
-                server.route({ method: 'GET', path: '/', handler });
-
-                server.inject('/', (res) => {
-
-                    expect(res.statusCode).to.equal(500);
-                    expect(res.result).to.exist();
-                    expect(res.result.message).to.equal('An internal server error occurred');
-                    done();
-                });
-            });
-
-            it('returns an error when throwing in a promise constructor', (done) => {
-
-                const handler = function (request, reply) {
-
-                    const p = new Promise(() => {
-
-                        throw new Error('thrown');
-                    });
-
-                    return reply(p);
-                };
-
-                const server = new Hapi.Server();
-                server.route({ method: 'GET', path: '/', handler });
-
-                server.inject('/', (res) => {
-
-                    expect(res.statusCode).to.equal(500);
-                    expect(res.result).to.exist();
-                    expect(res.result.message).to.equal('An internal server error occurred');
-                    done();
-                });
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+            expect(res.result).to.exist();
+            expect(res.result.message).to.equal('An internal server error occurred');
         });
     });
 
     describe('close()', () => {
 
-        it('returns a reply with manual end', (done) => {
+        it('returns a reply with manual end', async () => {
 
             const handler = function (request, reply) {
 
@@ -509,14 +456,11 @@ describe('Reply', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal('');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('');
         });
 
-        it('returns a reply with auto end', (done) => {
+        it('returns a reply with auto end', async () => {
 
             const handler = function (request, reply) {
 
@@ -526,17 +470,14 @@ describe('Reply', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal('');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('');
         });
     });
 
     describe('continue()', () => {
 
-        it.skip('sets empty reply on continue in handler', (done) => {
+        it.skip('sets empty reply on continue in handler', async () => {
 
             const handler = function (request, reply) {
 
@@ -546,13 +487,10 @@ describe('Reply', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                expect(res.result).to.equal(null);
-                expect(res.payload).to.equal('');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal(null);
+            expect(res.payload).to.equal('');
         });
 
         it('ignores continue in prerequisite', async () => {
@@ -598,7 +536,7 @@ describe('Reply', () => {
             expect(res.payload).to.equal('{"m1":null,"m2":null}');
         });
 
-        it('overrides response in post handler extension', (done) => {
+        it('overrides response in post handler extension', async () => {
 
             const server = new Hapi.Server();
 
@@ -626,21 +564,16 @@ describe('Reply', () => {
                 }
             });
 
-            server.inject('/', (res1) => {
+            const res1 = await server.inject('/');
+            expect(res1.statusCode).to.equal(200);
+            expect(res1.result).to.equal('1x');
 
-                expect(res1.statusCode).to.equal(200);
-                expect(res1.result).to.equal('1x');
-
-                server.inject('/?x=1', (res2) => {
-
-                    expect(res2.statusCode).to.equal(200);
-                    expect(res2.result).to.equal('2x');
-                    done();
-                });
-            });
+            const res2 = await server.inject('/?x=1');
+            expect(res2.statusCode).to.equal(200);
+            expect(res2.result).to.equal('2x');
         });
 
-        it.skip('errors on non auth argument', (done) => {
+        it.skip('errors on non auth argument', async () => {
 
             const handler = function (request, reply) {
 
@@ -650,17 +583,14 @@ describe('Reply', () => {
             const server = new Hapi.Server({ debug: false });
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
         });
     });
 
     describe('entity()', () => {
 
-        it('returns a 304 when the request has if-modified-since', (done) => {
+        it('returns a 304 when the request has if-modified-since', async () => {
 
             const server = new Hapi.Server();
 
@@ -679,23 +609,18 @@ describe('Reply', () => {
                 }
             });
 
-            server.inject('/', (res1) => {
+            const res1 = await server.inject('/');
+            expect(res1.statusCode).to.equal(200);
+            expect(res1.result).to.equal('ok');
+            expect(res1.headers['last-modified']).to.equal(1200);
 
-                expect(res1.statusCode).to.equal(200);
-                expect(res1.result).to.equal('ok');
-                expect(res1.headers['last-modified']).to.equal(1200);
-
-                server.inject({ url: '/', headers: { 'if-modified-since': '1200' } }, (res2) => {
-
-                    expect(res2.statusCode).to.equal(304);
-                    expect(res2.headers['last-modified']).to.equal(1200);
-                    expect(count).to.equal(1);
-                    done();
-                });
-            });
+            const res2 = await server.inject({ url: '/', headers: { 'if-modified-since': '1200' } });
+            expect(res2.statusCode).to.equal(304);
+            expect(res2.headers['last-modified']).to.equal(1200);
+            expect(count).to.equal(1);
         });
 
-        it('returns a 304 when the request has if-none-match', (done) => {
+        it('returns a 304 when the request has if-none-match', async () => {
 
             const server = new Hapi.Server();
 
@@ -719,25 +644,20 @@ describe('Reply', () => {
                 }
             });
 
-            server.inject('/', (res1) => {
+            const res1 = await server.inject('/');
+            expect(res1.statusCode).to.equal(200);
+            expect(res1.result).to.equal('ok');
+            expect(res1.headers.etag).to.equal('"abc"');
+            expect(res1.headers['cache-control']).to.equal('max-age=5, must-revalidate');
 
-                expect(res1.statusCode).to.equal(200);
-                expect(res1.result).to.equal('ok');
-                expect(res1.headers.etag).to.equal('"abc"');
-                expect(res1.headers['cache-control']).to.equal('max-age=5, must-revalidate');
-
-                server.inject({ url: '/', headers: { 'if-none-match': '"abc"' } }, (res2) => {
-
-                    expect(res2.statusCode).to.equal(304);
-                    expect(res2.headers.etag).to.equal('"abc"');
-                    expect(res2.headers['cache-control']).to.equal('max-age=5, must-revalidate');
-                    expect(count).to.equal(1);
-                    done();
-                });
-            });
+            const res2 = await server.inject({ url: '/', headers: { 'if-none-match': '"abc"' } });
+            expect(res2.statusCode).to.equal(304);
+            expect(res2.headers.etag).to.equal('"abc"');
+            expect(res2.headers['cache-control']).to.equal('max-age=5, must-revalidate');
+            expect(count).to.equal(1);
         });
 
-        it('leaves etag header when vary is false', (done) => {
+        it('leaves etag header when vary is false', async () => {
 
             const server = new Hapi.Server();
 
@@ -752,21 +672,16 @@ describe('Reply', () => {
                 }
             });
 
-            server.inject('/', (res1) => {
+            const res1 = await server.inject('/');
+            expect(res1.statusCode).to.equal(200);
+            expect(res1.headers.etag).to.equal('"abc"');
 
-                expect(res1.statusCode).to.equal(200);
-                expect(res1.headers.etag).to.equal('"abc"');
-
-                server.inject({ url: '/', headers: { 'if-none-match': '"abc-gzip"', 'accept-encoding': 'gzip' } }, (res2) => {
-
-                    expect(res2.statusCode).to.equal(200);
-                    expect(res2.headers.etag).to.equal('"abc"');
-                    done();
-                });
-            });
+            const res2 = await server.inject({ url: '/', headers: { 'if-none-match': '"abc-gzip"', 'accept-encoding': 'gzip' } });
+            expect(res2.statusCode).to.equal(200);
+            expect(res2.headers.etag).to.equal('"abc"');
         });
 
-        it('uses last etag set', (done) => {
+        it('uses last etag set', async () => {
 
             const server = new Hapi.Server();
 
@@ -781,12 +696,9 @@ describe('Reply', () => {
                 }
             });
 
-            server.inject('/', (res1) => {
-
-                expect(res1.statusCode).to.equal(200);
-                expect(res1.headers.etag).to.equal('"def"');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers.etag).to.equal('"def"');
         });
     });
 });

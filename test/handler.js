@@ -20,9 +20,7 @@ const internals = {};
 
 // Test shortcuts
 
-const lab = exports.lab = Lab.script();
-const describe = lab.describe;
-const it = lab.it;
+const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
 
 
@@ -30,7 +28,7 @@ describe('handler', () => {
 
     describe('execute()', () => {
 
-        it('returns 500 on handler exception (same tick)', (done) => {
+        it('returns 500 on handler exception (same tick)', async () => {
 
             const server = new Hapi.Server({ debug: false });
 
@@ -42,14 +40,11 @@ describe('handler', () => {
 
             server.route({ method: 'GET', path: '/domain', handler });
 
-            server.inject('/domain', (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                done();
-            });
+            const res = await server.inject('/domain');
+            expect(res.statusCode).to.equal(500);
         });
 
-        it.skip('returns 500 on handler exception (promise inners)', { parallel: false }, (done) => {
+        it.skip('returns 500 on handler exception (promise inners)', { parallel: false }, async () => {
 
             const handler = function (request) {
 
@@ -65,11 +60,7 @@ describe('handler', () => {
 
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
-            server.events.on('request-error', (request, err) => {
-
-                expect(err.message).to.equal('Uncaught error: Cannot read property \'here\' of null');
-                done();
-            });
+            const log = server.events.once('request-error');
 
             const orig = console.error;
             console.error = function () {
@@ -79,10 +70,11 @@ describe('handler', () => {
                 expect(arguments[1]).to.equal('internal, implementation, error');
             };
 
-            server.inject('/', (res) => {
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
 
-                expect(res.statusCode).to.equal(500);
-            });
+            const [, err] = await log;
+            expect(err.message).to.equal('Uncaught error: Cannot read property \'here\' of null');
         });
 
         it.skip('returns 500 on handler exception (next tick)', { parallel: false }, async () => {
@@ -148,7 +140,7 @@ describe('handler', () => {
 
     describe('handler()', () => {
 
-        it('binds handler to route bind object', (done) => {
+        it('binds handler to route bind object', async () => {
 
             const item = { x: 123 };
 
@@ -165,14 +157,11 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal(item.x);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal(item.x);
         });
 
-        it('invokes handler with right arguments', (done) => {
+        it('invokes handler with right arguments', async () => {
 
             const server = new Hapi.Server();
 
@@ -184,14 +173,11 @@ describe('handler', () => {
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal('ok');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('ok');
         });
 
-        it.skip('catches asynchronous exceptions in promise constructors via the standard \'protect\' mechanism', (done) => {
+        it.skip('catches asynchronous exceptions in promise constructors via the standard \'protect\' mechanism', async () => {
 
             const server = new Hapi.Server({ debug: false });
 
@@ -214,15 +200,12 @@ describe('handler', () => {
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                expect(res.result.error).to.equal('Internal Server Error');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+            expect(res.result.error).to.equal('Internal Server Error');
         });
 
-        it('catches synchronous exceptions which lead to unhandled promise rejections when then promise is returned', (done) => {
+        it('catches synchronous exceptions which lead to unhandled promise rejections when then promise is returned', async () => {
 
             const server = new Hapi.Server();
 
@@ -242,15 +225,12 @@ describe('handler', () => {
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                expect(res.result.error).to.equal('Internal Server Error');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+            expect(res.result.error).to.equal('Internal Server Error');
         });
 
-        it('catches unhandled promise rejections when a promise is returned', (done) => {
+        it('catches unhandled promise rejections when a promise is returned', async () => {
 
             const server = new Hapi.Server();
 
@@ -261,15 +241,12 @@ describe('handler', () => {
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                expect(res.result.error).to.equal('Internal Server Error');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+            expect(res.result.error).to.equal('Internal Server Error');
         });
 
-        it('wraps unhandled promise rejections in an error if needed', (done) => {
+        it('wraps unhandled promise rejections in an error if needed', async () => {
 
             const server = new Hapi.Server({ debug: false });
 
@@ -280,12 +257,9 @@ describe('handler', () => {
 
             server.route({ method: 'GET', path: '/', handler });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                expect(res.result.error).to.equal('Internal Server Error');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+            expect(res.result.error).to.equal('Internal Server Error');
         });
     });
 
@@ -389,7 +363,7 @@ describe('handler', () => {
             expect(res.result).to.equal('Hello World!');
         });
 
-        it('allows a single prerequisite', (done) => {
+        it('allows a single prerequisite', async () => {
 
             const pre = function (request, reply) {
 
@@ -414,14 +388,11 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal('Hello');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('Hello');
         });
 
-        it('allows an empty prerequisite array', (done) => {
+        it('allows an empty prerequisite array', async () => {
 
             const handler = function (request, reply) {
 
@@ -439,14 +410,11 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal('Hello');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('Hello');
         });
 
-        it('takes over response', (done) => {
+        it('takes over response', async () => {
 
             const pre1 = function (request, reply) {
 
@@ -497,14 +465,11 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal(' ');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal(' ');
         });
 
-        it('returns error if prerequisite returns error', (done) => {
+        it('returns error if prerequisite returns error', async () => {
 
             const pre1 = function (request, reply) {
 
@@ -534,14 +499,11 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', (res) => {
-
-                expect(res.result.statusCode).to.equal(500);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result.statusCode).to.equal(500);
         });
 
-        it('returns error if prerequisite returns promise, and handler throws an error', (done) => {
+        it('returns error if prerequisite returns promise, and handler throws an error', async () => {
 
             const pre1 = function (request, reply) {
 
@@ -580,14 +542,11 @@ describe('handler', () => {
                 expect(arguments[1]).to.equal('internal, implementation, error');
             };
 
-            server.inject('/', (res) => {
-
-                expect(res.result.statusCode).to.equal(500);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result.statusCode).to.equal(500);
         });
 
-        it('passes wrapped object', (done) => {
+        it('passes wrapped object', async () => {
 
             const pre = function (request, reply) {
 
@@ -611,14 +570,11 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(444);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(444);
         });
 
-        it('returns 500 if prerequisite throws', (done) => {
+        it('returns 500 if prerequisite throws', async () => {
 
             const pre1 = function (request, reply) {
 
@@ -650,14 +606,11 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', (res) => {
-
-                expect(res.result.statusCode).to.equal(500);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result.statusCode).to.equal(500);
         });
 
-        it('returns 500 if prerequisite loses domain binding', (done) => {
+        it('returns 500 if prerequisite loses domain binding', async () => {
 
             const pre1 = function (request, reply) {
 
@@ -691,14 +644,11 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', (res) => {
-
-                expect(res.result.statusCode).to.equal(500);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result.statusCode).to.equal(500);
         });
 
-        it('sets pre failAction to error', (done) => {
+        it('sets pre failAction to error', async () => {
 
             const server = new Hapi.Server();
             server.route({
@@ -721,14 +671,11 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(403);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(403);
         });
 
-        it('sets pre failAction to ignore', (done) => {
+        it('sets pre failAction to ignore', async () => {
 
             const server = new Hapi.Server();
             server.route({
@@ -751,14 +698,11 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
         });
 
-        it('sets pre failAction to log', (done) => {
+        it('sets pre failAction to log', async () => {
 
             const server = new Hapi.Server();
             server.route({
@@ -788,24 +732,23 @@ describe('handler', () => {
                 }
             });
 
+            let logged;
             server.events.on('request-internal', (request, event, tags) => {
 
                 if (event.internal &&
                     tags.pre &&
                     tags.error) {
 
-                    expect(event.data.assign).to.equal('before');
-                    done();
+                    logged = event;
                 }
             });
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(200);
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(logged.data.assign).to.equal('before');
         });
 
-        it('binds pre to route bind object', (done) => {
+        it('binds pre to route bind object', async () => {
 
             const item = { x: 123 };
 
@@ -828,11 +771,8 @@ describe('handler', () => {
                 }
             });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal(item.x);
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal(item.x);
         });
 
         it('logs boom error instance as data if handler returns boom error', async () => {
@@ -874,7 +814,7 @@ describe('handler', () => {
 
     describe('defaults()', () => {
 
-        it('returns handler without defaults', (done) => {
+        it('returns handler without defaults', async () => {
 
             const handler = function (route, options) {
 
@@ -887,14 +827,11 @@ describe('handler', () => {
             const server = new Hapi.Server();
             server.handler('test', handler);
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal({});
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal({});
         });
 
-        it('returns handler with object defaults', (done) => {
+        it('returns handler with object defaults', async () => {
 
             const handler = function (route, options) {
 
@@ -913,14 +850,11 @@ describe('handler', () => {
             const server = new Hapi.Server();
             server.handler('test', handler);
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal({ x: 1 });
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal({ x: 1 });
         });
 
-        it('returns handler with function defaults', (done) => {
+        it('returns handler with function defaults', async () => {
 
             const handler = function (route, options) {
 
@@ -942,14 +876,11 @@ describe('handler', () => {
             const server = new Hapi.Server();
             server.handler('test', handler);
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal({ x: 'get' });
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal({ x: 'get' });
         });
 
-        it('throws on handler with invalid defaults', (done) => {
+        it('throws on handler with invalid defaults', async () => {
 
             const handler = function (route, options) {
 
@@ -966,14 +897,12 @@ describe('handler', () => {
 
                 server.handler('test', handler);
             }).to.throw('Handler defaults property must be an object or function');
-
-            done();
         });
     });
 
     describe('invoke()', () => {
 
-        it.skip('returns 500 on ext method exception (same tick)', (done) => {
+        it.skip('returns 500 on ext method exception (same tick)', async () => {
 
             const server = new Hapi.Server({ debug: false });
 
@@ -992,11 +921,8 @@ describe('handler', () => {
 
             server.route({ method: 'GET', path: '/domain', handler });
 
-            server.inject('/domain', (res) => {
-
-                expect(res.statusCode).to.equal(500);
-                done();
-            });
+            const res = await server.inject('/domain');
+            expect(res.statusCode).to.equal(500);
         });
     });
 });
