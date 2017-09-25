@@ -714,9 +714,11 @@ describe('Plugin', () => {
 
             const b = function (srv, options) {
 
-                const after = function (srv2, next2) {
+                const after = function (srv2) {
 
-                    return next2(typeof srv2.a === 'function' ? null : new Error('Missing decoration'));
+                    if (typeof srv2.a !== 'function') {
+                        throw new Error('Missing decoration');
+                    }
                 };
 
                 srv.dependency('a', after);
@@ -746,10 +748,12 @@ describe('Plugin', () => {
             const b = function (srv, options) {
 
                 srv.realm.x = 1;
-                const after = function (srv2, next) {
+                const after = function (srv2) {
 
                     expect(srv2.realm.x).to.equal(1);
-                    return next(typeof srv2.a === 'function' ? null : new Error('Missing decoration'));
+                    if (typeof srv2.a !== 'function') {
+                        throw new Error('Missing decoration');
+                    }
                 };
 
                 srv.dependency('a', after);
@@ -1564,10 +1568,9 @@ describe('Plugin', () => {
                 state: false
             };
 
-            const preStart = function (srv, next) {
+            const preStart = function (srv) {
 
                 this.state = true;
-                return next();
             };
 
             server.ext('onPreStart', preStart, { bind });
@@ -1585,10 +1588,9 @@ describe('Plugin', () => {
             };
 
             server.bind(bind);
-            const preStart = function (srv, next) {
+            const preStart = function (srv) {
 
                 this.state = true;
-                return next();
             };
 
             server.ext('onPreStart', preStart);
@@ -1602,34 +1604,30 @@ describe('Plugin', () => {
             const server = new Hapi.Server();
 
             let result = '';
-            const preStart = function (srv, next) {
+            const preStart = function (srv) {
 
                 result += '1';
-                return next();
             };
 
             server.ext('onPreStart', preStart);
 
-            const postStart = function (srv, next) {
+            const postStart = function (srv) {
 
                 result += '2';
-                return next();
             };
 
             server.ext('onPostStart', postStart);
 
-            const preStop = function (srv, next) {
+            const preStop = function (srv) {
 
                 result += '3';
-                return next();
             };
 
             server.ext('onPreStop', preStop);
 
-            const postStop = function (srv, next) {
+            const postStop = function (srv) {
 
                 result += '4';
-                return next();
             };
 
             server.ext('onPostStop', postStop);
@@ -1649,34 +1647,30 @@ describe('Plugin', () => {
             server.ext([
                 {
                     type: 'onPreStart',
-                    method: function (srv, next) {
+                    method: function (srv) {
 
                         result += '1';
-                        return next();
                     }
                 },
                 {
                     type: 'onPostStart',
-                    method: function (srv, next) {
+                    method: function (srv) {
 
                         result += '2';
-                        return next();
                     }
                 },
                 {
                     type: 'onPreStop',
-                    method: function (srv, next) {
+                    method: function (srv) {
 
                         result += '3';
-                        return next();
                     }
                 },
                 {
                     type: 'onPreStop',
-                    method: function (srv, next) {
+                    method: function (srv) {
 
                         result += '4';
-                        return next();
                     }
                 }
             ]);
@@ -1771,11 +1765,10 @@ describe('Plugin', () => {
             expect(server.plugins.x).to.not.exist();
 
             let called = false;
-            const preStart = function (srv, next) {
+            const preStart = function (srv) {
 
                 expect(srv.plugins.x.a).to.equal('b');
                 called = true;
-                return next();
             };
 
             server.ext('onPreStart', preStart, { after: 'x' });
@@ -1790,10 +1783,9 @@ describe('Plugin', () => {
             const server = new Hapi.Server();
 
             let called = false;
-            const preStart = function (srv, next) {
+            const preStart = function (srv) {
 
                 called = true;
-                return next();
             };
 
             server.ext('onPreStart', preStart);
@@ -1807,10 +1799,9 @@ describe('Plugin', () => {
             const server = new Hapi.Server();
 
             let called = false;
-            const preStart = function (srv, next) {
+            const preStart = function (srv) {
 
                 called = true;
-                return next();
             };
 
             server.ext('onPreStart', preStart, { after: 'x' });
@@ -1823,16 +1814,13 @@ describe('Plugin', () => {
 
             const test = function (srv, options) {
 
-                const preStart1 = function (inner, finish) {
-
-                    return finish();
-                };
+                const preStart1 = function (inner) { };
 
                 srv.ext('onPreStart', preStart1);
 
-                const preStart2 = function (inner, finish) {
+                const preStart2 = function (inner) {
 
-                    return finish(new Error('Not in the mood'));
+                    throw new Error('Not in the mood');
                 };
 
                 srv.ext('onPreStart', preStart2);
@@ -2741,10 +2729,9 @@ internals.plugins = {
     },
     deps1: function (server, options) {
 
-        const after = function (srv, nxt) {
+        const after = function (srv) {
 
             srv.expose('breaking', srv.plugins.deps2.breaking);
-            return nxt();
         };
 
         server.dependency('deps2', after);

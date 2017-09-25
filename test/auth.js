@@ -1723,19 +1723,15 @@ describe('authentication', () => {
 
         it('tests a request', async () => {
 
-            const handler = function (request, reply) {
+            const handler = async function (request, reply) {
 
-                return new Promise((resolve) => {
-
-                    request.server.auth.test('default', request, (err, credentials) => {
-
-                        if (err) {
-                            return resolve({ status: false });
-                        }
-
-                        return resolve({ status: true, user: credentials.name });
-                    });
-                });
+                try {
+                    const credentials = await request.server.auth.test('default', request);
+                    return { status: true, user: credentials.name };
+                }
+                catch (err) {
+                    return { status: false };
+                }
             };
 
             const server = new Hapi.Server();
@@ -1745,11 +1741,11 @@ describe('authentication', () => {
 
             const res1 = await server.inject('/');
             expect(res1.statusCode).to.equal(200);
-            expect(res1.result.status).to.equal(false);
+            expect(res1.result.status).to.be.false();
 
             const res2 = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
             expect(res2.statusCode).to.equal(200);
-            expect(res2.result.status).to.equal(true);
+            expect(res2.result.status).to.be.true();
             expect(res2.result.user).to.equal('steve');
         });
     });

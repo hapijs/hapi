@@ -906,7 +906,7 @@ describe('handler', () => {
 
             const server = new Hapi.Server({ debug: false });
 
-            const onRequest = function (request, next) {
+            const onRequest = function (request) {
 
                 const a = null;
                 a.b.c;

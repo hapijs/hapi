@@ -492,7 +492,7 @@ describe('Connection', () => {
 
             const timer = new Hoek.Bench();
             await server.stop({ timeout: 20 });
-            expect(timer.elapsed()).to.be.at.least(20);
+            expect(timer.elapsed()).to.be.at.least(19);
         });
 
         it('waits to destroy connections if they close by themselves', async () => {

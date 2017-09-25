@@ -124,9 +124,9 @@ describe('Server', () => {
 
             const server = new Hapi.Server();
 
-            const postStart = function (srv, next) {
+            const postStart = function (srv) {
 
-                return next(new Error('boom'));
+                throw new Error('boom');
             };
 
             server.ext('onPostStart', postStart);
@@ -201,9 +201,9 @@ describe('Server', () => {
         it('returns an extension error (onPreStop)', async () => {
 
             const server = new Hapi.Server();
-            const preStop = function (srv, next) {
+            const preStop = function (srv) {
 
-                return next(new Error('failed cleanup'));
+                throw new Error('failed cleanup');
             };
 
             server.ext('onPreStop', preStop);
@@ -216,9 +216,9 @@ describe('Server', () => {
 
             const server = new Hapi.Server();
 
-            const postStop = function (srv, next) {
+            const postStop = function (srv) {
 
-                return next(new Error('failed cleanup'));
+                throw new Error('failed cleanup');
             };
 
             server.ext('onPostStop', postStop);
