@@ -6,7 +6,6 @@ const Events = require('events');
 const Path = require('path');
 const Stream = require('stream');
 
-const Boom = require('boom');
 const Code = require('code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
@@ -762,13 +761,13 @@ describe('Response', () => {
 
             const handler = function (request, reply) {
 
-                const marshal = (response, callback) => {
+                const marshal = (response) => {
 
                     if (!response.headers['content-type']) {
                         response.type('text/html');
                     }
 
-                    return callback(null, response.source.value);
+                    return response.source.value;
                 };
 
                 return reply(request.generateResponse({ value: 'text' }, { variety: 'test', marshal }));
@@ -950,85 +949,6 @@ describe('Response', () => {
 
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(302);
-        });
-    });
-
-    describe('_prepare()', () => {
-
-        it('handles promises that resolve', async () => {
-
-            const handler = function (request, reply) {
-
-                return reply(new Promise((resolve, reject) => {
-
-                    return resolve('promised response');
-                })).code(201);
-            };
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler });
-
-            const res = await server.inject('/');
-            expect(res.result).to.equal('promised response');
-            expect(res.statusCode).to.equal(201);
-        });
-
-        it('handles promises that resolve (object)', async () => {
-
-            const handler = function (request, reply) {
-
-                return reply(new Promise((resolve, reject) => {
-
-                    return resolve({ status: 'ok' });
-                })).code(201);
-            };
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler });
-
-            const res = await server.inject('/');
-            expect(res.result.status).to.equal('ok');
-            expect(res.statusCode).to.equal(201);
-        });
-
-        it('handles promises that resolve (response object)', async () => {
-
-            const handler = function (request, reply) {
-
-                return reply(new Promise((resolve, reject) => {
-
-                    return resolve(request.generateResponse({ status: 'ok' }).code(201));
-                }));
-            };
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler });
-
-            const res = await server.inject('/');
-            expect(res.result.status).to.equal('ok');
-            expect(res.statusCode).to.equal(201);
-        });
-
-        it('handles promises that reject', async () => {
-
-            const handler = function (request, reply) {
-
-                const promise = new Promise((resolve, reject) => {
-
-                    return reject(Boom.forbidden('this is not allowed!'));
-                });
-
-                promise.catch(Hoek.ignore);
-
-                return reply(promise).code(299);            // Code ignored
-            };
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler });
-
-            const res = await server.inject('/');
-            expect(res.result.message).to.equal('this is not allowed!');
-            expect(res.statusCode).to.equal(403);
         });
     });
 
