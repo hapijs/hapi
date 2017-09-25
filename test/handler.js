@@ -32,7 +32,7 @@ describe('handler', () => {
 
             const server = new Hapi.Server({ debug: false });
 
-            const handler = function (request) {
+            const handler = (request) => {
 
                 const a = null;
                 a.b.c;
@@ -46,7 +46,7 @@ describe('handler', () => {
 
         it.skip('returns 500 on handler exception (promise inners)', { parallel: false }, async () => {
 
-            const handler = function (request) {
+            const handler = (request) => {
 
                 return new Promise(() => {
 
@@ -79,7 +79,7 @@ describe('handler', () => {
 
         it.skip('returns 500 on handler exception (next tick)', { parallel: false }, async () => {
 
-            const handler = function (request) {
+            const handler = (request) => {
 
                 setImmediate(() => {
 
@@ -111,7 +111,7 @@ describe('handler', () => {
 
         it('returns 500 on handler exception (next tick await)', { parallel: false }, async () => {
 
-            const handler = async function (request) {
+            const handler = async (request) => {
 
                 await new Promise((resolve) => setImmediate(resolve));
                 const not = null;
@@ -149,9 +149,9 @@ describe('handler', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) {
+                    handler: function (request) {
 
-                        return reply(this.x);
+                        return this.x;
                     },
                     bind: item
                 }
@@ -161,55 +161,11 @@ describe('handler', () => {
             expect(res.result).to.equal(item.x);
         });
 
-        it('invokes handler with right arguments', async () => {
-
-            const server = new Hapi.Server();
-
-            const handler = function (request, reply) {
-
-                expect(arguments.length).to.equal(2);
-                return reply('ok');
-            };
-
-            server.route({ method: 'GET', path: '/', handler });
-
-            const res = await server.inject('/');
-            expect(res.result).to.equal('ok');
-        });
-
-        it.skip('catches asynchronous exceptions in promise constructors via the standard \'protect\' mechanism', async () => {
-
-            const server = new Hapi.Server({ debug: false });
-
-            const asyncOperation = function () {
-
-                return new Promise((resolve, reject) => {
-
-                    setTimeout(() => {
-
-                        throw new Error('This should be caught...');
-                    }, 100);
-                });
-            };
-
-            const handler = function (request, reply) {
-
-                return asyncOperation()
-                    .then(reply);
-            };
-
-            server.route({ method: 'GET', path: '/', handler });
-
-            const res = await server.inject('/');
-            expect(res.statusCode).to.equal(500);
-            expect(res.result.error).to.equal('Internal Server Error');
-        });
-
         it('wraps unhandled promise rejections in an error if needed', async () => {
 
             const server = new Hapi.Server({ debug: false });
 
-            const handler = function (request, reply) {
+            const handler = (request) => {
 
                 return Promise.reject('this should be wrapped in an error');
             };
@@ -228,7 +184,7 @@ describe('handler', () => {
 
             const server = new Hapi.Server({ routes: { files: { relativeTo: Path.join(__dirname, '../') } } });
             await server.register(Inert);
-            const handler = function (request, reply) {
+            const handler = (request, reply) => {
 
                 return reply.file('./package.json').code(499);
             };
@@ -253,7 +209,7 @@ describe('handler', () => {
                 relativeTo: Path.join(__dirname, '/templates/plugin')
             });
 
-            const handler = function (request, reply) {
+            const handler = (request, reply) => {
 
                 return reply.view('test', { message: 'steve' });
             };
@@ -269,35 +225,27 @@ describe('handler', () => {
 
         it('shows the complete prerequisite pipeline in the response', async () => {
 
-            const pre1 = function (request, reply) {
+            const pre1 = (request, reply) => {
 
                 return reply('Hello').code(444);
             };
 
-            const pre2 = function (request, reply) {
+            const pre2 = (request) => {
 
-                return reply(request.pre.m1 + request.pre.m3 + request.pre.m4);
+                return request.pre.m1 + request.pre.m3 + request.pre.m4;
             };
 
-            const pre3 = async function (request, reply) {
+            const pre3 = async (request) => {
 
                 await internals.wait(0);
-                return reply(' ');
+                return ' ';
             };
 
-            const pre4 = function (request, reply) {
+            const pre4 = () => 'World';
 
-                return reply('World');
-            };
+            const pre5 = (request) => {
 
-            const pre5 = function (request, reply) {
-
-                return reply(request.pre.m2 + '!');
-            };
-
-            const handler = function (request, reply) {
-
-                return reply(request.pre.m5);
+                return request.pre.m2 + '!';
             };
 
             const server = new Hapi.Server();
@@ -314,7 +262,7 @@ describe('handler', () => {
                         { method: pre2, assign: 'm2' },
                         { method: pre5, assign: 'm5' }
                     ],
-                    handler
+                    handler: (request) => request.pre.m5
                 }
             });
 
@@ -324,16 +272,6 @@ describe('handler', () => {
 
         it('allows a single prerequisite', async () => {
 
-            const pre = function (request, reply) {
-
-                return reply('Hello');
-            };
-
-            const handler = function (request, reply) {
-
-                return reply(request.pre.p);
-            };
-
             const server = new Hapi.Server();
 
             server.route({
@@ -341,9 +279,9 @@ describe('handler', () => {
                 path: '/',
                 config: {
                     pre: [
-                        { method: pre, assign: 'p' }
+                        { method: () => 'Hello', assign: 'p' }
                     ],
-                    handler
+                    handler: (request) => request.pre.p
                 }
             });
 
@@ -353,11 +291,6 @@ describe('handler', () => {
 
         it('allows an empty prerequisite array', async () => {
 
-            const handler = function (request, reply) {
-
-                return reply('Hello');
-            };
-
             const server = new Hapi.Server();
 
             server.route({
@@ -365,7 +298,7 @@ describe('handler', () => {
                 path: '/',
                 config: {
                     pre: [],
-                    handler
+                    handler: () => 'Hello'
                 }
             });
 
@@ -375,35 +308,24 @@ describe('handler', () => {
 
         it('takes over response', async () => {
 
-            const pre1 = function (request, reply) {
+            const pre1 = () => 'Hello';
 
-                return reply('Hello');
+            const pre2 = (request) => {
+
+                return request.pre.m1 + request.pre.m3 + request.pre.m4;
             };
 
-            const pre2 = function (request, reply) {
-
-                return reply(request.pre.m1 + request.pre.m3 + request.pre.m4);
-            };
-
-            const pre3 = async function (request, reply) {
+            const pre3 = async (request, reply) => {
 
                 await internals.wait(0);
                 return reply(' ').takeover();
             };
 
-            const pre4 = function (request, reply) {
+            const pre4 = () => 'World';
 
-                return reply('World');
-            };
+            const pre5 = (request) => {
 
-            const pre5 = function (request, reply) {
-
-                return reply(request.pre.m2 + '!');
-            };
-
-            const handler = function (request, reply) {
-
-                return reply(request.pre.m5);
+                return request.pre.m2 + '!';
             };
 
             const server = new Hapi.Server();
@@ -420,7 +342,7 @@ describe('handler', () => {
                         { method: pre2, assign: 'm2' },
                         { method: pre5, assign: 'm5' }
                     ],
-                    handler
+                    handler: (request) => request.pre.m5
                 }
             });
 
@@ -430,19 +352,11 @@ describe('handler', () => {
 
         it('returns error if prerequisite returns error', async () => {
 
-            const pre1 = function (request, reply) {
+            const pre1 = () => 'Hello';
 
-                return reply('Hello');
-            };
+            const pre2 = function () {
 
-            const pre2 = function (request, reply) {
-
-                return reply(Boom.internal('boom'));
-            };
-
-            const handler = function (request, reply) {
-
-                return reply(request.pre.m1);
+                throw Boom.internal('boom');
             };
 
             const server = new Hapi.Server();
@@ -454,52 +368,9 @@ describe('handler', () => {
                         [{ method: pre1, assign: 'm1' }],
                         { method: pre2, assign: 'm2' }
                     ],
-                    handler
+                    handler: (request) => request.pre.m1
                 }
             });
-
-            const res = await server.inject('/');
-            expect(res.result.statusCode).to.equal(500);
-        });
-
-        it('returns error if prerequisite returns promise, and handler throws an error', async () => {
-
-            const pre1 = function (request, reply) {
-
-                return reply('Hello');
-            };
-
-            const pre2 = function (request, reply) {
-
-                return reply(Promise.resolve('world'));
-            };
-
-            const handler = function (request, reply) {
-
-                throw new Error();
-            };
-
-
-            const server = new Hapi.Server();
-            server.route({
-                method: 'GET',
-                path: '/',
-                config: {
-                    pre: [
-                        [{ method: pre1, assign: 'm1' }],
-                        { method: pre2, assign: 'm2' }
-                    ],
-                    handler
-                }
-            });
-
-            const orig = console.error;
-            console.error = function () {
-
-                console.error = orig;
-                expect(arguments[0]).to.equal('Debug:');
-                expect(arguments[1]).to.equal('internal, implementation, error');
-            };
 
             const res = await server.inject('/');
             expect(res.result.statusCode).to.equal(500);
@@ -507,14 +378,9 @@ describe('handler', () => {
 
         it('passes wrapped object', async () => {
 
-            const pre = function (request, reply) {
+            const pre = (request, reply) => {
 
                 return reply('Hello').code(444);
-            };
-
-            const handler = function (request, reply) {
-
-                return reply(request.preResponses.p);
             };
 
             const server = new Hapi.Server();
@@ -525,7 +391,7 @@ describe('handler', () => {
                     pre: [
                         { method: pre, assign: 'p' }
                     ],
-                    handler
+                    handler: (request) => request.preResponses.p
                 }
             });
 
@@ -535,59 +401,11 @@ describe('handler', () => {
 
         it('returns 500 if prerequisite throws', async () => {
 
-            const pre1 = function (request, reply) {
-
-                return reply('Hello');
-            };
-
-            const pre2 = function (request, reply) {
+            const pre1 = () => 'Hello';
+            const pre2 = function () {
 
                 const a = null;
                 a.b.c = 0;
-            };
-
-            const handler = function (request, reply) {
-
-                return reply(request.pre.m1);
-            };
-
-
-            const server = new Hapi.Server({ debug: false });
-            server.route({
-                method: 'GET',
-                path: '/',
-                config: {
-                    pre: [
-                        [{ method: pre1, assign: 'm1' }],
-                        { method: pre2, assign: 'm2' }
-                    ],
-                    handler
-                }
-            });
-
-            const res = await server.inject('/');
-            expect(res.result.statusCode).to.equal(500);
-        });
-
-        it('returns 500 if prerequisite loses domain binding', async () => {
-
-            const pre1 = function (request, reply) {
-
-                return Promise.resolve().then(() => {
-
-                    reply('Hello');
-                });
-            };
-
-            const pre2 = function (request, reply) {
-
-                const a = null;
-                a.b.c = 0;
-            };
-
-            const handler = function (request, reply) {
-
-                return reply(request.pre.m1);
             };
 
             const server = new Hapi.Server({ debug: false });
@@ -599,7 +417,7 @@ describe('handler', () => {
                         [{ method: pre1, assign: 'm1' }],
                         { method: pre2, assign: 'm2' }
                     ],
-                    handler
+                    handler: (request) => request.pre.m1
                 }
             });
 
@@ -616,17 +434,14 @@ describe('handler', () => {
                 config: {
                     pre: [
                         {
-                            method: function (request, reply) {
+                            method: () => {
 
-                                return reply(Boom.forbidden());
+                                throw Boom.forbidden();
                             },
                             failAction: 'error'
                         }
                     ],
-                    handler: function (request, reply) {
-
-                        return reply('ok');
-                    }
+                    handler: () => 'ok'
                 }
             });
 
@@ -643,17 +458,14 @@ describe('handler', () => {
                 config: {
                     pre: [
                         {
-                            method: function (request, reply) {
+                            method: () => {
 
-                                return reply(Boom.forbidden());
+                                throw Boom.forbidden();
                             },
                             failAction: 'ignore'
                         }
                     ],
-                    handler: function (request, reply) {
-
-                        return reply('ok');
-                    }
+                    handler: () => 'ok'
                 }
             });
 
@@ -671,22 +483,22 @@ describe('handler', () => {
                     pre: [
                         {
                             assign: 'before',
-                            method: function (request, reply) {
+                            method: () => {
 
-                                return reply(Boom.forbidden());
+                                throw Boom.forbidden();
                             },
                             failAction: 'log'
                         }
                     ],
-                    handler: function (request, reply) {
+                    handler: (request) => {
 
                         if (request.pre.before === request.preResponses.before &&
                             request.pre.before instanceof Error) {
 
-                            return reply('ok');
+                            return 'ok';
                         }
 
-                        return reply(new Error());
+                        throw new Error();
                     }
                 }
             });
@@ -717,15 +529,13 @@ describe('handler', () => {
                 path: '/',
                 config: {
                     pre: [{
-                        method: function (request, reply) {
+                        method: function (request) {
 
-                            return reply(this.x);
-                        }, assign: 'x'
+                            return this.x;
+                        },
+                        assign: 'x'
                     }],
-                    handler: function (request, reply) {
-
-                        return reply(request.pre.x);
-                    },
+                    handler: (request) => request.pre.x,
                     bind: item
                 }
             });
@@ -741,9 +551,9 @@ describe('handler', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) {
+                    handler: function () {
 
-                        return reply(Boom.forbidden());
+                        throw Boom.forbidden();
                     }
                 }
             });
@@ -777,10 +587,7 @@ describe('handler', () => {
 
             const handler = function (route, options) {
 
-                return function (request, reply) {
-
-                    return reply(request.route.settings.app);
-                };
+                return (request) => request.route.settings.app;
             };
 
             const server = new Hapi.Server();
@@ -794,10 +601,7 @@ describe('handler', () => {
 
             const handler = function (route, options) {
 
-                return function (request, reply) {
-
-                    return reply(request.route.settings.app);
-                };
+                return (request) => request.route.settings.app;
             };
 
             handler.defaults = {
@@ -817,10 +621,7 @@ describe('handler', () => {
 
             const handler = function (route, options) {
 
-                return function (request, reply) {
-
-                    return reply(request.route.settings.app);
-                };
+                return (request) => request.route.settings.app;
             };
 
             handler.defaults = function (method) {
@@ -843,10 +644,7 @@ describe('handler', () => {
 
             const handler = function (route, options) {
 
-                return function (request, reply) {
-
-                    return reply(request.route.settings.app);
-                };
+                return (request) => request.route.settings.app;
             };
 
             handler.defaults = 'invalid';
@@ -865,7 +663,7 @@ describe('handler', () => {
 
             const server = new Hapi.Server({ debug: false });
 
-            const onRequest = function (request) {
+            const onRequest = function () {
 
                 const a = null;
                 a.b.c;
@@ -873,12 +671,7 @@ describe('handler', () => {
 
             server.ext('onRequest', onRequest);
 
-            const handler = function (request, reply) {
-
-                return reply('neven gonna happen');
-            };
-
-            server.route({ method: 'GET', path: '/domain', handler });
+            server.route({ method: 'GET', path: '/domain', handler: () => 'neven gonna happen' });
 
             const res = await server.inject('/domain');
             expect(res.statusCode).to.equal(500);

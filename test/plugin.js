@@ -115,10 +115,7 @@ describe('Plugin', () => {
                 srv.route({
                     method: 'GET',
                     path: '/',
-                    handler: function (request, reply) {
-
-                        return reply(srv.version);
-                    }
+                    handler: () => srv.version
                 });
             };
 
@@ -143,10 +140,7 @@ describe('Plugin', () => {
                 srv.route({
                     method: 'GET',
                     path: '/',
-                    handler: function (request, reply) {
-
-                        return reply(srv.version);
-                    }
+                    handler: () => srv.version
                 });
             };
 
@@ -178,10 +172,7 @@ describe('Plugin', () => {
                 srv.route({
                     method: 'GET',
                     path: '/a',
-                    handler: function (request, reply) {
-
-                        return reply('a');
-                    }
+                    handler: () => 'a'
                 });
             };
 
@@ -333,10 +324,7 @@ describe('Plugin', () => {
                 srv.route({
                     method: 'GET',
                     path: '/',
-                    handler: function (request, reply) {
-
-                        return reply('ok');
-                    }
+                    handler: () => 'ok'
                 });
             };
 
@@ -359,10 +347,7 @@ describe('Plugin', () => {
                 srv.route({
                     method: 'GET',
                     path: '/',
-                    handler: function (request, reply) {
-
-                        return reply('ok');
-                    }
+                    handler: () => 'ok'
                 });
             };
 
@@ -383,10 +368,7 @@ describe('Plugin', () => {
                     srv.route({
                         method: 'GET',
                         path: '/',
-                        handler: function (request, reply) {
-
-                            return reply('ok');
-                        }
+                        handler: () => 'ok'
                     });
                 },
                 other: {}
@@ -406,10 +388,7 @@ describe('Plugin', () => {
                     srv.route({
                         method: 'GET',
                         path: '/',
-                        handler: function (request, reply) {
-
-                            return reply('ok');
-                        }
+                        handler: () => 'ok'
                     });
                 },
                 other: {}
@@ -808,10 +787,7 @@ describe('Plugin', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: function (request, reply) {
-
-                    return reply('authenticated!');
-                }
+                handler: () => 'authenticated!'
             });
 
             await server.register(internals.plugins.auth);
@@ -841,15 +817,15 @@ describe('Plugin', () => {
                 srv.route({
                     method: 'GET',
                     path: '/',
-                    handler: function (request, reply) {
+                    handler: function () {
 
-                        return reply(this.value);
+                        return this.value;
                     }
                 });
 
                 const preResponse = function (request, reply) {
 
-                    return reply(request.response.source + this.suffix);
+                    return request.response.source + this.suffix;
                 };
 
                 srv.ext('onPreResponse', preResponse);
@@ -1032,10 +1008,7 @@ describe('Plugin', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: function (request, reply) {
-
-                    return reply(request.getId());
-                }
+                handler: (request) => request.getId()
             });
 
             const res = await server.inject('/');
@@ -1052,10 +1025,7 @@ describe('Plugin', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: function (request, reply) {
-
-                    return reply(request.uri);
-                }
+                handler: (request) => request.uri
             });
 
             const res = await server.inject('/');
@@ -1077,10 +1047,7 @@ describe('Plugin', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: function (request, reply) {
-
-                    return reply.success();
-                }
+                handler: (request, reply) => reply.success()
             });
 
             const res = await server.inject('/');
@@ -1122,10 +1089,7 @@ describe('Plugin', () => {
                 server.route({
                     method: 'GET',
                     path,
-                    handler: function (request, reply) {
-
-                        return reply('ok');
-                    }
+                    handler: () => 'ok'
                 });
             };
 
@@ -1147,10 +1111,7 @@ describe('Plugin', () => {
                 server.route({
                     method: 'GET',
                     path,
-                    handler: function (request, reply) {
-
-                        return reply('ok');
-                    }
+                    handler: () => 'ok'
                 });
             };
 
@@ -1407,13 +1368,7 @@ describe('Plugin', () => {
             };
 
             server.encoder('test', encoder);
-
-            const handler = function (request, reply) {
-
-                return reply(request.payload);
-            };
-
-            server.route({ method: 'POST', path: '/', handler });
+            server.route({ method: 'POST', path: '/', handler: (request) => request.payload });
             await server.start();
 
             const uri = 'http://localhost:' + server.info.port;
@@ -1487,13 +1442,10 @@ describe('Plugin', () => {
                 srv.route({
                     method: 'GET',
                     path: '/b',
-                    handler: function (request, reply) {
-
-                        return reply('b');
-                    }
+                    handler: () => 'b'
                 });
 
-                const onRequest = function (request, reply) {
+                const onRequest = (request, reply) => {
 
                     request.setUrl('/b');
                     return reply.continue;
@@ -1522,7 +1474,7 @@ describe('Plugin', () => {
 
                 const plugin = function (server, options) {
 
-                    const onRequest = function (request, reply) {
+                    const onRequest = (request, reply) => {
 
                         request.app.complexDeps = request.app.complexDeps || '|';
                         request.app.complexDeps += num + '|';
@@ -1539,14 +1491,8 @@ describe('Plugin', () => {
                 return plugin;
             };
 
-            const handler = function (request, reply) {
-
-                return reply(request.app.complexDeps);
-            };
-
             const server = new Hapi.Server();
-
-            server.route({ method: 'GET', path: '/', handler });
+            server.route({ method: 'GET', path: '/', handler: (request) => request.app.complexDeps });
 
             await server.register([
                 pluginCurrier(1, { after: 'deps2' }),
@@ -1686,7 +1632,7 @@ describe('Plugin', () => {
 
             const server = new Hapi.Server();
 
-            const preAuth = function (request, reply) {
+            const preAuth = (request, reply) => {
 
                 request.app.x = '1';
                 return reply.continue;
@@ -1702,21 +1648,18 @@ describe('Plugin', () => {
                     config: {
                         ext: {
                             onPreAuth: {
-                                method: function (request, reply) {
+                                method: (request, reply) => {
 
                                     request.app.x += '2';
                                     return reply.continue;
                                 }
                             }
                         },
-                        handler: function (request, reply) {
-
-                            return reply(request.app.x);
-                        }
+                        handler: (request) => request.app.x
                     }
                 });
 
-                const preAuthSandbox = function (request, reply) {
+                const preAuthSandbox = (request, reply) => {
 
                     request.app.x += '3';
                     return reply.continue;
@@ -1734,12 +1677,7 @@ describe('Plugin', () => {
             server.route({
                 method: 'GET',
                 path: '/a',
-                config: {
-                    handler: function (request, reply) {
-
-                        return reply(request.app.x);
-                    }
-                }
+                handler: (request) => request.app.x
             });
 
             const res1 = await server.inject('/');
@@ -1855,10 +1793,7 @@ describe('Plugin', () => {
 
                 const handler = function (route, options2) {
 
-                    return function (request, reply) {
-
-                        return reply('success');
-                    };
+                    return (request) => 'success';
                 };
 
                 srv.handler('bar', handler);
@@ -2149,7 +2084,7 @@ describe('Plugin', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: function (request, reply) {
+                handler: (request) => {
 
                     request.server.log('1');
                     throw new Error('2');
@@ -2224,10 +2159,7 @@ describe('Plugin', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) {
-
-                        return reply();
-                    },
+                    handler: () => null,
                     id: 'root',
                     app: { test: 123 }
                 }
@@ -2265,10 +2197,7 @@ describe('Plugin', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, reply) {
-
-                        return reply();
-                    },
+                    handler: () => null,
                     id: 'root'
                 }
             });
@@ -2277,10 +2206,7 @@ describe('Plugin', () => {
                 method: 'GET',
                 path: '/abc',
                 config: {
-                    handler: function (request, reply) {
-
-                        return reply();
-                    },
+                    handler: () => null,
                     id: 'abc'
                 }
             });
@@ -2289,10 +2215,7 @@ describe('Plugin', () => {
                 method: 'POST',
                 path: '/abc',
                 config: {
-                    handler: function (request, reply) {
-
-                        return reply();
-                    },
+                    handler: () => null,
                     id: 'post'
                 }
             });
@@ -2301,10 +2224,7 @@ describe('Plugin', () => {
                 method: 'GET',
                 path: '/{p}/{x}',
                 config: {
-                    handler: function (request, reply) {
-
-                        return reply();
-                    },
+                    handler: () => null,
                     id: 'params'
                 }
             });
@@ -2314,10 +2234,7 @@ describe('Plugin', () => {
                 path: '/abc',
                 vhost: 'example.com',
                 config: {
-                    handler: function (request, reply) {
-
-                        return reply();
-                    },
+                    handler: () => null,
                     id: 'vhost'
                 }
             });
@@ -2382,12 +2299,7 @@ describe('Plugin', () => {
             server.route({
                 method: 'GET',
                 path: '/{p}',
-                config: {
-                    handler: function (request, reply) {
-
-                        return reply();
-                    }
-                }
+                handler: () => null
             });
 
             expect(() => {
@@ -2589,10 +2501,7 @@ describe('Plugin', () => {
                     {
                         path: '/view',
                         method: 'GET',
-                        handler: function (request, reply) {
-
-                            return reply.view('test', { message: options.message });
-                        }
+                        handler: (request, reply) => reply.view('test', { message: options.message })
                     },
                     {
                         path: '/file',
@@ -2601,7 +2510,7 @@ describe('Plugin', () => {
                     }
                 ]);
 
-                const onRequest = function (request, reply) {
+                const onRequest = (request, reply) => {
 
                     if (request.path === '/ext') {
                         return reply.view('test', { message: 'grabbed' }).takeover();
@@ -2661,12 +2570,12 @@ internals.plugins = {
             const settings = Hoek.clone(authOptions);
 
             return {
-                authenticate: function (request, reply) {
+                authenticate: (request, reply) => {
 
                     const req = request.raw.req;
                     const authorization = req.headers.authorization;
                     if (!authorization) {
-                        return reply(Boom.unauthorized(null, 'Basic'));
+                        throw Boom.unauthorized(null, 'Basic');
                     }
 
                     const parts = authorization.split(/\s+/);
@@ -2674,16 +2583,16 @@ internals.plugins = {
                     if (parts[0] &&
                         parts[0].toLowerCase() !== 'basic') {
 
-                        return reply(Boom.unauthorized(null, 'Basic'));
+                        throw Boom.unauthorized(null, 'Basic');
                     }
 
                     if (parts.length !== 2) {
-                        return reply(Boom.badRequest('Bad HTTP authentication header format', 'Basic'));
+                        throw Boom.badRequest('Bad HTTP authentication header format', 'Basic');
                     }
 
                     const credentialsParts = new Buffer(parts[1], 'base64').toString().split(':');
                     if (credentialsParts.length !== 2) {
-                        return reply(Boom.badRequest('Bad header internal syntax', 'Basic'));
+                        throw Boom.badRequest('Bad header internal syntax', 'Basic');
                     }
 
                     const username = credentialsParts[0];
@@ -2691,7 +2600,7 @@ internals.plugins = {
 
                     const { isValid, credentials } = settings.validateFunc(username, password);
                     if (!isValid) {
-                        return reply(Boom.unauthorized('Bad username or password', 'Basic'), { credentials });
+                        return reply.unauthenticated(Boom.unauthorized('Bad username or password', 'Basic'), { credentials });
                     }
 
                     return reply.authenticated({ credentials });
@@ -2736,7 +2645,7 @@ internals.plugins = {
 
         server.dependency('deps2', after);
 
-        const onRequest = function (request, reply) {
+        const onRequest = (request, reply) => {
 
             request.app.deps = request.app.deps || '|';
             request.app.deps += '1|';
@@ -2747,7 +2656,7 @@ internals.plugins = {
     },
     deps2: function (server, options) {
 
-        const onRequest = function (request, reply) {
+        const onRequest = (request, reply) => {
 
             request.app.deps = request.app.deps || '|';
             request.app.deps += '2|';
@@ -2759,7 +2668,7 @@ internals.plugins = {
     },
     deps3: function (server, options) {
 
-        const onRequest = function (request, reply) {
+        const onRequest = (request, reply) => {
 
             request.app.deps = request.app.deps || '|';
             request.app.deps += '3|';
@@ -2770,9 +2679,9 @@ internals.plugins = {
     },
     test1: function (server, options) {
 
-        const handler = function (request, reply) {
+        const handler = (request) => {
 
-            return reply('testing123' + ((server.settings.app && server.settings.app.my) || ''));
+            return 'testing123' + ((server.settings.app && server.settings.app.my) || '');
         };
 
         server.route({ path: '/test1', method: 'GET', handler });
@@ -2797,10 +2706,7 @@ internals.plugins = {
         server.route({
             path: '/test2',
             method: 'GET',
-            handler: function (request, reply) {
-
-                return reply('testing123');
-            }
+            handler: () => 'testing123'
         });
 
         server.log('test', 'abc');

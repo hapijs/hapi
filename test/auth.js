@@ -59,15 +59,10 @@ describe('authentication', () => {
 
     it('defaults cache to private if request authenticated', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply('ok').ttl(1000);
-        };
-
         const server = new Hapi.Server();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
-        server.route({ method: 'GET', path: '/', handler });
+        server.route({ method: 'GET', path: '/', handler: (request, reply) => reply('ok').ttl(1000) });
 
         const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
         expect(res.statusCode).to.equal(200);
@@ -84,7 +79,7 @@ describe('authentication', () => {
             method: 'GET',
             path: '/',
             config: {
-                handler: function (request) {
+                handler: (request) => {
 
                     const credentials = request.auth.credentials;
 
@@ -166,18 +161,15 @@ describe('authentication', () => {
                     relativeTo: Path.join(__dirname, '/templates/plugin')
                 });
 
-                const handler = function (request, reply) {
-
-                    return reply.view('test', { message: 'steve' });
-                };
-
-                server.route({ method: 'GET', path: '/view', handler, config: { auth: false } });
+                server.route({
+                    method: 'GET',
+                    path: '/view',
+                    handler: (request, reply) => reply.view('test', { message: 'steve' }),
+                    config: { auth: false }
+                });
 
                 return {
-                    authenticate: function (request, reply) {
-
-                        return reply.view('test', { message: 'xyz' });
-                    }
+                    authenticate: (request, reply) =>  reply.view('test', { message: 'xyz' })
                 };
             };
 
@@ -210,10 +202,7 @@ describe('authentication', () => {
                     api: {
                         x: 5
                     },
-                    authenticate: function (request, reply) {
-
-                        return reply.continue(null, {});
-                    }
+                    authenticate: (request, reply) => reply.continue(null, {})
                 };
             };
 
@@ -414,7 +403,7 @@ describe('authentication', () => {
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true, { users: { steve: { user: 'steve' } } });
 
-            const doubleHandler = async function (request) {
+            const doubleHandler = async (request) => {
 
                 const options = { url: '/2', credentials: request.auth.credentials };
                 const res = await server.inject(options);
@@ -435,14 +424,14 @@ describe('authentication', () => {
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', true, { users: { steve: { user: 'steve' } } });
 
-            const doubleHandler = async function (request) {
+            const doubleHandler = async (request) => {
 
                 const options = { url: '/2', credentials: request.auth.credentials, artifacts: '!' };
                 const res = await server.inject(options);
                 return res.result;
             };
 
-            const handler = function (request) {
+            const handler = (request) => {
 
                 return request.auth.credentials.user + request.auth.artifacts;
             };
@@ -495,7 +484,7 @@ describe('authentication', () => {
 
         it('tries to authenticate a request', async () => {
 
-            const handler = function (request) {
+            const handler = (request) => {
 
                 return { status: request.auth.isAuthenticated, error: request.auth.error };
             };
@@ -1155,10 +1144,7 @@ describe('authentication', () => {
             server.auth.scheme('test', (srv, options) => {
 
                 return {
-                    authenticate: function (request, reply) {
-
-                        return reply('Redirecting ...').redirect('/test');
-                    }
+                    authenticate: (request, reply) => reply('Redirecting ...').redirect('/test')
                 };
             });
 
@@ -1522,7 +1508,7 @@ describe('authentication', () => {
 
         it('tests a request', async () => {
 
-            const handler = async function (request) {
+            const handler = async (request) => {
 
                 try {
                     const credentials = await request.server.auth.test('default', request);
@@ -1562,7 +1548,7 @@ internals.implementation = function (server, options) {
     }
 
     const scheme = {
-        authenticate: function (request, reply) {
+        authenticate: (request, reply) => {
 
             const req = request.raw.req;
             const authorization = req.headers.authorization;
@@ -1593,7 +1579,7 @@ internals.implementation = function (server, options) {
             credentials.user = credentials.user || null;
             return reply.authenticated({ credentials });
         },
-        response: function (request, reply) {
+        response: (request, reply) => {
 
             if (request.auth.credentials.response) {
                 throw request.auth.credentials.response;
@@ -1606,7 +1592,7 @@ internals.implementation = function (server, options) {
     if (!settings ||
         settings.payload !== false) {
 
-        scheme.payload = function (request, reply) {
+        scheme.payload = (request, reply) => {
 
             if (request.auth.credentials.payload) {
                 return request.auth.credentials.payload;

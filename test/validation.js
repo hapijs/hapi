@@ -29,10 +29,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     query: {
@@ -52,10 +49,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/b/{x}',
-            handler: function (request, reply) {
-
-                return reply(request.params.x + request.query.a);
-            },
+            handler: (request, reply) => reply(request.params.x + request.query.a),
             config: {
                 validate: {
                     query: {
@@ -79,10 +73,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/{user?}',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     query: {
@@ -112,7 +103,7 @@ describe('validation', () => {
         const scheme = function (authServer, options) {
 
             return {
-                authenticate: function (request, reply) {
+                authenticate: (request, reply) => {
 
                     return reply.authenticated({ credentials: { name: 'john' } });
                 }
@@ -126,10 +117,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/{user?}',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     query: {
@@ -161,10 +149,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     query: {
@@ -190,10 +175,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     query: {
@@ -213,10 +195,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     query: {
@@ -236,10 +215,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     query: {
@@ -259,10 +235,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     query: null
@@ -280,10 +253,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) {
-
-                return request.query.a;
-            },
+            handler: (request) => request.query.a,
             config: {
                 validate: {
                     query: function (value, options) {
@@ -321,10 +291,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     query: function (value, options) {
@@ -345,10 +312,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/{seq}',
-            handler: function (request, reply) {
-
-                return reply(request.params.seq + 1);
-            },
+            handler: (request) => (request.params.seq + 1),
             config: {
                 validate: {
                     params: {
@@ -369,10 +333,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/{seq}',
-            handler: function (request, reply) {
-
-                return reply(request.orig.params.seq + 1);
-            },
+            handler: (request) => (request.orig.params.seq + 1),
             config: {
                 validate: {
                     params: {
@@ -393,10 +354,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     query: false
@@ -414,10 +372,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     query: false
@@ -425,12 +380,7 @@ describe('validation', () => {
             }
         });
 
-        const preResponse = function (request, reply) {
-
-            return reply(request.response.data.details[0].path);
-        };
-
-        server.ext('onPreResponse', preResponse);
+        server.ext('onPreResponse', (request) => request.response.data.details[0].path);
 
         const res = await server.inject('/?a=123');
         expect(res.statusCode).to.equal(200);
@@ -443,10 +393,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     query: Joi.object({
@@ -466,10 +413,7 @@ describe('validation', () => {
         server.route({
             method: 'POST',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     payload: Joi.number()
@@ -487,10 +431,7 @@ describe('validation', () => {
         server.route({
             method: 'POST',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     payload: Joi.boolean()
@@ -508,10 +449,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     query: {
@@ -535,10 +473,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     query: {
@@ -555,17 +490,11 @@ describe('validation', () => {
 
     it('logs invalid input', async () => {
 
-        const handler = function (request, reply) {
-
-            const item = request.getLog('validation')[0];
-            return reply(item);
-        };
-
         const server = new Hapi.Server({ routes: { log: true } });
         server.route({
             method: 'GET',
             path: '/',
-            handler,
+            handler: (request) => request.getLog('validation')[0],
             config: {
                 validate: {
                     query: {
@@ -587,10 +516,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     query: {
@@ -615,10 +541,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     query: {
@@ -642,10 +565,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     query: {
@@ -687,21 +607,16 @@ describe('validation', () => {
             }
         });
 
-        const handler = function (request, reply) {
-
-            return reply('ok');
-        };
-
         server.route({
             method: 'GET',
             path: '/',
-            handler
+            handler: () => 'ok'
         });
 
         server.route({
             method: 'GET',
             path: '/other',
-            handler,
+            handler: () => 'ok',
             config: {
                 validate: {
                     query: Joi.object({
@@ -732,10 +647,7 @@ describe('validation', () => {
         server.route({
             method: 'POST',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     payload: {
@@ -759,10 +671,7 @@ describe('validation', () => {
         server.route({
             method: 'POST',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply(request.payload);
-            },
+            handler: (request) => request.payload,
             config: {
                 validate: {
                     payload: Joi.number()
@@ -781,10 +690,7 @@ describe('validation', () => {
         server.route({
             method: 'POST',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     payload: {
@@ -805,10 +711,7 @@ describe('validation', () => {
         server.route({
             method: 'POST',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     payload: {
@@ -829,10 +732,7 @@ describe('validation', () => {
         server.route({
             method: 'POST',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     payload: {
@@ -857,10 +757,7 @@ describe('validation', () => {
             method: 'GET',
             path: '/',
             config: {
-                handler: function (request, reply) {
-
-                    return reply({ a: 1 });
-                },
+                handler: () => ({ a: 1 }),
                 response: {
                     sample: 50,
                     schema: {
@@ -887,10 +784,6 @@ describe('validation', () => {
     it('validates response', async () => {
 
         let i = 0;
-        const handler = function (request, reply) {
-
-            return reply({ some: i++ ? null : 'value' });
-        };
 
         const server = new Hapi.Server({ debug: false });
         server.route({
@@ -903,7 +796,7 @@ describe('validation', () => {
                     }
                 }
             },
-            handler
+            handler: () => ({ some: i++ ? null : 'value' })
         });
 
         const res1 = await server.inject('/');
@@ -915,11 +808,6 @@ describe('validation', () => {
     });
 
     it('validates response with context', async () => {
-
-        const handler = function (request, reply) {
-
-            return reply({ some: 'thing', more: 'stuff' });
-        };
 
         const server = new Hapi.Server({ debug: false });
         server.route({
@@ -933,7 +821,7 @@ describe('validation', () => {
                     }).when('$query.user', { is: 'admin', otherwise: Joi.object({ more: Joi.forbidden() }) })
                 }
             },
-            handler
+            handler: () => ({ some: 'thing', more: 'stuff' })
         });
 
         const res1 = await server.inject('/?user=admin');
@@ -950,10 +838,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply(request.query.x);
-            },
+            handler: (request) => request.query.x,
             config: {
                 response: {
                     schema: Joi.valid(Joi.ref('$app.route.some'))
@@ -974,12 +859,6 @@ describe('validation', () => {
     it('validates error response', async () => {
 
         let i = 0;
-        const handler = function (request, reply) {
-
-            const error = Boom.badRequest('Kaboom');
-            error.output.payload.custom = i++;
-            return reply(error);
-        };
 
         const server = new Hapi.Server({ debug: false });
         server.route({
@@ -997,7 +876,12 @@ describe('validation', () => {
                     }
                 }
             },
-            handler
+            handler: () => {
+
+                const error = Boom.badRequest('Kaboom');
+                error.output.payload.custom = i++;
+                throw error;
+            }
         });
 
         const res1 = await server.inject('/');
@@ -1010,17 +894,6 @@ describe('validation', () => {
     it('validates error response and ignore 200', async () => {
 
         let i = 0;
-        const handler = function (request, reply) {
-
-            if (i === 0) {
-                ++i;
-                return reply({ a: 1, b: 2 });
-            }
-
-            const error = Boom.badRequest('Kaboom');
-            error.output.payload.custom = i++;
-            return reply(error);
-        };
 
         const server = new Hapi.Server({ debug: false });
         server.route({
@@ -1039,7 +912,17 @@ describe('validation', () => {
                     }
                 }
             },
-            handler
+            handler: () => {
+
+                if (i === 0) {
+                    ++i;
+                    return { a: 1, b: 2 };
+                }
+
+                const error = Boom.badRequest('Kaboom');
+                error.output.payload.custom = i++;
+                throw error;
+            }
         });
 
         const res1 = await server.inject('/');
@@ -1055,11 +938,6 @@ describe('validation', () => {
 
     it('validates and modifies response', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply({ a: 1, b: 2 });
-        };
-
         const server = new Hapi.Server({ debug: false });
         server.route({
             method: 'GET',
@@ -1072,7 +950,7 @@ describe('validation', () => {
                     modify: true
                 }
             },
-            handler
+            handler: () => ({ a: 1, b: 2 })
         });
 
         const res = await server.inject('/');
@@ -1081,13 +959,6 @@ describe('validation', () => {
     });
 
     it('validates and modifies error response', async () => {
-
-        const handler = function (request, reply) {
-
-            const error = Boom.badRequest('Kaboom');
-            error.output.payload.custom = '123';
-            return reply(error);
-        };
 
         const server = new Hapi.Server({ debug: false });
         server.route({
@@ -1106,7 +977,12 @@ describe('validation', () => {
                     modify: true
                 }
             },
-            handler
+            handler: () => {
+
+                const error = Boom.badRequest('Kaboom');
+                error.output.payload.custom = '123';
+                throw error;
+            }
         });
 
         const res = await server.inject('/');
@@ -1126,10 +1002,7 @@ describe('validation', () => {
                         204: false
                     }
                 },
-                handler: function (request, reply) {
-
-                    return reply().code(204);
-                }
+                handler: (request, reply) => reply().code(204)
             }
         });
 
@@ -1162,15 +1035,6 @@ describe('validation', () => {
     it('validates response using custom validation function', async () => {
 
         let i = 0;
-        const handler = function () {
-
-            ++i;
-            switch (i) {
-                case 1: return { some: 'unchanged' };
-                case 2: return { some: 'null' };
-                default: return { some: 'throw' };
-            }
-        };
 
         const server = new Hapi.Server({ debug: false });
         server.route({
@@ -1192,7 +1056,15 @@ describe('validation', () => {
                     }
                 }
             },
-            handler
+            handler: () => {
+
+                ++i;
+                switch (i) {
+                    case 1: return { some: 'unchanged' };
+                    case 2: return { some: 'null' };
+                    default: return { some: 'throw' };
+                }
+            }
         });
 
         const res1 = await server.inject('/');
@@ -1210,15 +1082,6 @@ describe('validation', () => {
     it('validates response using custom validation function (modify)', async () => {
 
         let i = 0;
-        const handler = function () {
-
-            ++i;
-            switch (i) {
-                case 1: return { some: 'unchanged' };
-                case 2: return { some: 'null' };
-                default: return { some: 'throw' };
-            }
-        };
 
         const server = new Hapi.Server({ debug: false });
         server.route({
@@ -1241,7 +1104,15 @@ describe('validation', () => {
                     }
                 }
             },
-            handler
+            handler: () => {
+
+                ++i;
+                switch (i) {
+                    case 1: return { some: 'unchanged' };
+                    case 2: return { some: 'null' };
+                    default: return { some: 'throw' };
+                }
+            }
         });
 
         const res1 = await server.inject('/');
@@ -1259,10 +1130,6 @@ describe('validation', () => {
     it.skip('catches error thrown by custom validation function', async () => {
 
         let i = 0;
-        const handler = function (request, reply) {
-
-            return reply({ some: i++ ? null : 'value' });
-        };
 
         const server = new Hapi.Server({ debug: false });
         server.route({
@@ -1276,7 +1143,7 @@ describe('validation', () => {
                     }
                 }
             },
-            handler
+            handler: () => ({ some: i++ ? null : 'value' })
         });
 
         const res = await server.inject('/');
@@ -1290,10 +1157,7 @@ describe('validation', () => {
             method: 'GET',
             path: '/',
             config: {
-                handler: function (request, reply) {
-
-                    return reply({ a: 1 });
-                },
+                handler: () => ({ a: 1 }),
                 response: {
                     sample: 0,
                     schema: {
@@ -1324,10 +1188,7 @@ describe('validation', () => {
             method: 'GET',
             path: '/',
             config: {
-                handler: function (request, reply) {
-
-                    return reply('ok');
-                },
+                handler: () => 'ok',
                 response: {
                     sample: 0,
                     schema: {
@@ -1350,10 +1211,7 @@ describe('validation', () => {
             method: 'GET',
             path: '/',
             config: {
-                handler: function (request, reply) {
-
-                    return reply({ a: '1' });
-                },
+                handler: () => ({ a: '1' }),
                 response: {
                     schema: {
                         a: Joi.number()
@@ -1373,10 +1231,7 @@ describe('validation', () => {
             method: 'GET',
             path: '/',
             config: {
-                handler: function (request, reply) {
-
-                    return reply({ a: 1 });
-                },
+                handler: () => ({ a: '1' }),
                 response: {
                     schema: true
                 }
@@ -1394,10 +1249,7 @@ describe('validation', () => {
             method: 'GET',
             path: '/',
             config: {
-                handler: function (request, reply) {
-
-                    return reply({ a: 1 });
-                },
+                handler: () => ({ a: '1' }),
                 response: {
                     status: {}
                 }
@@ -1415,10 +1267,7 @@ describe('validation', () => {
             method: 'GET',
             path: '/',
             config: {
-                handler: function (request, reply) {
-
-                    return reply({ a: 1 });
-                },
+                handler: () => ({ a: '1' }),
                 response: {
                     schema: false
                 }
@@ -1436,9 +1285,9 @@ describe('validation', () => {
             method: 'GET',
             path: '/',
             config: {
-                handler: function (request, reply) {
+                handler: () => {
 
-                    return reply(Boom.badRequest());
+                    throw Boom.badRequest();
                 },
                 response: {
                     schema: {
@@ -1460,10 +1309,7 @@ describe('validation', () => {
             method: 'GET',
             path: '/',
             config: {
-                handler: function (request, reply) {
-
-                    return reply.file('./package.json');
-                },
+                handler: (request, reply) => reply.file('./package.json'),
                 response: {
                     schema: {
                         b: Joi.string()
@@ -1483,10 +1329,7 @@ describe('validation', () => {
             method: 'GET',
             path: '/',
             config: {
-                handler: function (request, reply) {
-
-                    return reply({ a: 1 });
-                },
+                handler: () => ({ a: '1' }),
                 response: {
                     failAction: 'log',
                     schema: {
@@ -1514,10 +1357,7 @@ describe('validation', () => {
             method: 'GET',
             path: '/',
             config: {
-                handler: function (request, reply) {
-
-                    return reply({ a: 1 });
-                },
+                handler: () => ({ a: '1' }),
                 response: {
                     failAction: function (request, reply, error) {
 
@@ -1540,10 +1380,6 @@ describe('validation', () => {
     it('validates string response', async () => {
 
         let value = 'abcd';
-        const handler = function (request, reply) {
-
-            return reply(value);
-        };
 
         const server = new Hapi.Server({ debug: false });
         server.route({
@@ -1554,7 +1390,7 @@ describe('validation', () => {
                     schema: Joi.string().min(5)
                 }
             },
-            handler
+            handler: () => value
         });
 
         const res1 = await server.inject('/');
@@ -1569,10 +1405,6 @@ describe('validation', () => {
     it('validates boolean response', async () => {
 
         let value = 'abcd';
-        const handler = function (request, reply) {
-
-            return reply(value);
-        };
 
         const server = new Hapi.Server({ debug: false });
         server.route({
@@ -1584,7 +1416,7 @@ describe('validation', () => {
                     modify: true
                 }
             },
-            handler
+            handler: () => value
         });
 
         const res1 = await server.inject('/');
@@ -1602,10 +1434,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     headers: {
@@ -1635,10 +1464,7 @@ describe('validation', () => {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 validate: {
                     headers: {
@@ -1670,10 +1496,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: function (request, reply) {
-
-                    return reply('ok');
-                },
+                handler: () => 'ok',
                 config: {
                     response: {
                         schema: Joi.string(),
@@ -1695,10 +1518,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: function (request, reply) {
-
-                    return reply('ok');
-                },
+                handler: () => 'ok',
                 config: {
                     response: {
                         schema: Joi.string(),

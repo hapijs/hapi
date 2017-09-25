@@ -33,10 +33,7 @@ describe('Reply', () => {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply(reply.abc);
-            }
+            handler: (request, reply) => reply(reply.abc)
         });
 
         const res = await server.inject('/');
@@ -46,7 +43,7 @@ describe('Reply', () => {
 
     it('redirects from handler', async () => {
 
-        const handler = function (request, reply) {
+        const handler = (request, reply) => {
 
             return reply.redirect('/elsewhere');
         };
@@ -66,15 +63,12 @@ describe('Reply', () => {
             path: '/',
             config: {
                 pre: [
-                    function (request, reply) {
+                    (request, reply) => {
 
                         return reply.redirect('/elsewhere').takeover();
                     }
                 ],
-                handler: function (request, reply) {
-
-                    return reply('ok');
-                }
+                handler: () => 'ok'
             }
         });
 
@@ -87,13 +81,8 @@ describe('Reply', () => {
 
         it('returns null', async () => {
 
-            const handler = function (request, reply) {
-
-                return reply(null, null);
-            };
-
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler });
+            server.route({ method: 'GET', path: '/', handler: (request, reply) => reply() });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal(null);
@@ -103,13 +92,13 @@ describe('Reply', () => {
 
         it('returns a buffer reply', async () => {
 
-            const handler = function (request, reply) {
+            const handler = (request, reply) => {
 
                 return reply(new Buffer('Tada1')).code(299);
             };
 
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', config: { handler } });
+            server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(299);
@@ -119,7 +108,7 @@ describe('Reply', () => {
 
         it('returns an object response', async () => {
 
-            const handler = function (request, reply) {
+            const handler = (request, reply) => {
 
                 return reply({ a: 1, b: 2 });
             };
@@ -134,7 +123,7 @@ describe('Reply', () => {
 
         it('returns false', async () => {
 
-            const handler = function (request, reply) {
+            const handler = (request, reply) => {
 
                 return reply(false);
             };
@@ -148,7 +137,7 @@ describe('Reply', () => {
 
         it('returns an error reply', async () => {
 
-            const handler = function (request, reply) {
+            const handler = (request, reply) => {
 
                 return reply(new Error('boom'));
             };
@@ -163,7 +152,7 @@ describe('Reply', () => {
 
         it('returns an empty reply', async () => {
 
-            const handler = function (request, reply) {
+            const handler = (request, reply) => {
 
                 return reply().code(299);
             };
@@ -198,7 +187,7 @@ describe('Reply', () => {
                 this.push(null);
             };
 
-            const handler = function (request, reply) {
+            const handler = (request, reply) => {
 
                 return reply(new TestStream()).ttl(2000);
             };
@@ -220,7 +209,7 @@ describe('Reply', () => {
 
     it('errors on non-readable stream reply', async () => {
 
-        const streamHandler = function (request, reply) {
+        const streamHandler = (request, reply) => {
 
             const stream = new Stream();
             stream.writable = true;
@@ -228,7 +217,7 @@ describe('Reply', () => {
             return reply(stream);
         };
 
-        const writableHandler = function (request, reply) {
+        const writableHandler = (request, reply) => {
 
             const writable = new Stream.Writable();
             writable._write = function () { };
@@ -260,12 +249,12 @@ describe('Reply', () => {
 
     it('errors on an http client stream reply', async () => {
 
-        const handler = function (request, reply) {
+        const handler = (request, reply) => {
 
             return reply('just a string');
         };
 
-        const streamHandler = function (request, reply) {
+        const streamHandler = (request, reply) => {
 
             return reply(Http.get(request.server.info + '/'));
         };
@@ -300,7 +289,7 @@ describe('Reply', () => {
             this.push(null);
         };
 
-        const handler = function (request, reply) {
+        const handler = (request, reply) => {
 
             return reply(new TestStream());
         };
@@ -316,14 +305,14 @@ describe('Reply', () => {
 
         it('returns a reply with manual end', async () => {
 
-            const handler = function (request, reply) {
+            const handler = (request, reply) => {
 
                 request.raw.res.end();
                 return reply.abandon;
             };
 
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', config: { handler } });
+            server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
             expect(res.result).to.equal('');
@@ -331,13 +320,13 @@ describe('Reply', () => {
 
         it('returns a reply with auto end', async () => {
 
-            const handler = function (request, reply) {
+            const handler = (request, reply) => {
 
                 return reply.close;
             };
 
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', config: { handler } });
+            server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
             expect(res.result).to.equal('');
@@ -348,13 +337,13 @@ describe('Reply', () => {
 
         it.skip('sets empty reply on continue in handler', async () => {
 
-            const handler = function (request, reply) {
+            const handler = (request, reply) => {
 
                 return reply.continue;
             };
 
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', config: { handler } });
+            server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
@@ -364,17 +353,17 @@ describe('Reply', () => {
 
         it('ignores continue in prerequisite', async () => {
 
-            const pre1 = function (request, reply) {
+            const pre1 = (request, reply) => {
 
                 return reply.continue;
             };
 
-            const pre2 = function (request, reply) {
+            const pre2 = (request, reply) => {
 
                 return reply.continue;
             };
 
-            const pre3 = function (request, reply) {
+            const pre3 = (request, reply) => {
 
                 return {
                     m1: request.pre.m1,
@@ -427,7 +416,7 @@ describe('Reply', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: function (request, reply) {
+                handler: (request, reply) => {
 
                     return reply(request.query.x ? new Error() : '1');
                 }
@@ -444,13 +433,13 @@ describe('Reply', () => {
 
         it.skip('errors on non auth argument', async () => {
 
-            const handler = function (request, reply) {
+            const handler = (request, reply) => {
 
                 return reply.continue('ok');
             };
 
             const server = new Hapi.Server({ debug: false });
-            server.route({ method: 'GET', path: '/', config: { handler } });
+            server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
@@ -467,7 +456,7 @@ describe('Reply', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: function (request, reply) {
+                handler: (request, reply) => {
 
                     if (reply.entity({ modified: 1200 })) {
                         return;
@@ -499,7 +488,7 @@ describe('Reply', () => {
                 path: '/',
                 config: {
                     cache: { expiresIn: 5000 },
-                    handler: function (request, reply) {
+                    handler: (request, reply) => {
 
                         const response = reply.entity({ etag: 'abc' });
                         if (response) {
@@ -533,7 +522,7 @@ describe('Reply', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: function (request, reply) {
+                handler: (request, reply) => {
 
                     if (!reply.entity({ etag: 'abc', vary: false })) {
                         return reply('ok');
@@ -557,7 +546,7 @@ describe('Reply', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: function (request, reply) {
+                handler: (request, reply) => {
 
                     if (!reply.entity({ etag: 'abc' })) {
                         return reply('ok').etag('def');

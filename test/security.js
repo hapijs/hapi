@@ -24,13 +24,8 @@ describe('security', () => {
     it('blocks response splitting through the request.create method', async () => {
 
         const server = new Hapi.Server();
-
-        const createItemHandler = function (request, reply) {
-
-            return reply('Moved').created('/item/' + request.payload.name);
-        };
-
-        server.route({ method: 'POST', path: '/item', handler: createItemHandler });
+        const handler = (request, reply) => reply('Moved').created('/item/' + request.payload.name);
+        server.route({ method: 'POST', path: '/item', handler });
 
         const res = await server.inject({
             method: 'POST', url: '/item',
@@ -43,14 +38,12 @@ describe('security', () => {
 
     it('prevents xss with invalid content types', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply('Success');
-        };
-
         const server = new Hapi.Server();
         server.state('encoded', { encoding: 'iron' });
-        server.route({ method: 'POST', path: '/', handler });
+        server.route({
+            method: 'POST', path: '/',
+            handler: () => 'Success'
+        });
 
         const res = await server.inject({
             method: 'POST',
@@ -64,14 +57,12 @@ describe('security', () => {
 
     it('prevents xss with invalid cookie values in the request', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply('Success');
-        };
-
         const server = new Hapi.Server();
         server.state('encoded', { encoding: 'iron' });
-        server.route({ method: 'POST', path: '/', handler });
+        server.route({
+            method: 'POST', path: '/',
+            handler: () => 'Success'
+        });
 
         const res = await server.inject({
             method: 'POST',
@@ -85,14 +76,12 @@ describe('security', () => {
 
     it('prevents xss with invalid cookie name in the request', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply('Success');
-        };
-
         const server = new Hapi.Server();
         server.state('encoded', { encoding: 'iron' });
-        server.route({ method: 'POST', path: '/', handler });
+        server.route({
+            method: 'POST', path: '/',
+            handler: () => 'Success'
+        });
 
         const res = await server.inject({
             method: 'POST',
@@ -110,10 +99,8 @@ describe('security', () => {
         server.state('encoded', { encoding: 'iron' });
 
         server.route({
-            method: 'GET', path: '/fail/{name}', handler: function (request, reply) {
-
-                return reply('Success');
-            },
+            method: 'GET', path: '/fail/{name}',
+            handler: () => 'Success',
             config: {
                 validate: { params: { name: Joi.number() } }
             }
@@ -132,10 +119,8 @@ describe('security', () => {
 
         const server = new Hapi.Server();
         server.route({
-            method: 'POST', path: '/fail/payload', handler: function (request, reply) {
-
-                return reply('Success');
-            },
+            method: 'POST', path: '/fail/payload',
+            handler: () => 'Success',
             config: {
                 validate: { payload: { name: Joi.number() } }
             }
@@ -156,10 +141,8 @@ describe('security', () => {
 
         const server = new Hapi.Server();
         server.route({
-            method: 'GET', path: '/fail/query', handler: function (request, reply) {
-
-                return reply('Success');
-            },
+            method: 'GET', path: '/fail/query',
+            handler: () => 'Success',
             config: {
                 validate: { query: { name: Joi.string() } }
             }

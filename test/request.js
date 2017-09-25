@@ -39,9 +39,9 @@ describe('Request.Generator', () => {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) {
+            handler: (request) => {
 
-                return reply(request.x2() + request.abc());
+                return request.x2() + request.abc();
             }
         });
 
@@ -60,9 +60,9 @@ describe('Request.Generator', () => {
         server.route({
             method: 'GET',
             path: '/',
-            handler: function (request, reply) {
+            handler: (request) => {
 
-                return reply(request.x2 + request.abc);
+                return request.x2 + request.abc;
             }
         });
 
@@ -78,7 +78,7 @@ describe('Request', () => {
 
         const server = new Hapi.Server();
 
-        const handler = function (request, reply) {
+        const handler = (request) => {
 
             let expectedClientAddress = '127.0.0.1';
             if (Net.isIPv6(server.listener.address().address)) {
@@ -87,7 +87,7 @@ describe('Request', () => {
 
             expect(request.info.remoteAddress).to.equal(expectedClientAddress);
             expect(request.info.remoteAddress).to.equal(request.info.remoteAddress);
-            return reply('ok');
+            return 'ok';
         };
 
         server.route({ method: 'GET', path: '/', handler });
@@ -103,10 +103,10 @@ describe('Request', () => {
 
         const server = new Hapi.Server();
 
-        const handler = function (request, reply) {
+        const handler = (request) => {
 
             expect(request.info.referrer).to.equal('http://site.com');
-            return reply('ok');
+            return 'ok';
         };
 
         server.route({ method: 'GET', path: '/', handler });
@@ -119,10 +119,10 @@ describe('Request', () => {
 
         const server = new Hapi.Server();
 
-        const handler = function (request, reply) {
+        const handler = (request) => {
 
             expect(request.info.referrer).to.equal('http://site.com');
-            return reply('ok');
+            return 'ok';
         };
 
         server.route({ method: 'GET', path: '/', handler });
@@ -134,13 +134,7 @@ describe('Request', () => {
     it('sets acceptEncoding', async () => {
 
         const server = new Hapi.Server();
-
-        const handler = function (request, reply) {
-
-            return reply(request.info.acceptEncoding);
-        };
-
-        server.route({ method: 'GET', path: '/', handler });
+        server.route({ method: 'GET', path: '/', handler: (request) => request.info.acceptEncoding });
 
         const res = await server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } });
         expect(res.result).to.equal('gzip');
@@ -150,10 +144,10 @@ describe('Request', () => {
 
         const server = new Hapi.Server({ routes: { log: true } });
 
-        const handler = function (request, reply) {
+        const handler = (request) => {
 
             expect(request.getLog('accept-encoding')[0].data.header).to.equal('a;b');
-            return reply(request.info.acceptEncoding);
+            return request.info.acceptEncoding;
         };
 
         server.route({ method: 'GET', path: '/', handler });
@@ -164,13 +158,8 @@ describe('Request', () => {
 
     it('sets headers', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply(request.headers['user-agent']);
-        };
-
         const server = new Hapi.Server();
-        server.route({ method: 'GET', path: '/', handler });
+        server.route({ method: 'GET', path: '/', handler: (request) => request.headers['user-agent'] });
 
         const res = await server.inject('/');
         expect(res.payload).to.equal('shot');
@@ -178,14 +167,9 @@ describe('Request', () => {
 
     it('generates unique request id', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply(request.id);
-        };
-
         const server = new Hapi.Server();
         server._requestCounter = { value: 10, min: 10, max: 11 };
-        server.route({ method: 'GET', path: '/', handler });
+        server.route({ method: 'GET', path: '/', handler: (request) => request.id });
 
         const res1 = await server.inject('/');
         expect(res1.result).to.match(/10$/);
@@ -208,20 +192,15 @@ describe('Request', () => {
 
         it('returns error response on ext error', async () => {
 
-            const handler = function (request, reply) {
-
-                return reply('OK');
-            };
-
             const server = new Hapi.Server();
 
-            const ext = function (request, reply) {
+            const ext = (request) => {
 
                 throw Boom.badRequest();
             };
 
             server.ext('onPostHandler', ext);
-            server.route({ method: 'GET', path: '/', handler });
+            server.route({ method: 'GET', path: '/', handler: () => 'OK' });
 
             const res = await server.inject('/');
             expect(res.result.statusCode).to.equal(400);
@@ -229,7 +208,7 @@ describe('Request', () => {
 
         it('handles aborted requests (during response)', { parallel: false }, async () => {
 
-            const handler = function (request, reply) {
+            const handler = (request) => {
 
                 const TestStream = function () {
 
@@ -250,14 +229,14 @@ describe('Request', () => {
                 };
 
                 const stream = new TestStream();
-                return reply(stream);
+                return stream;
             };
 
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
             let disconnected = 0;
-            const onRequest = function (request, reply) {
+            const onRequest = (request, reply) => {
 
                 request.once('disconnect', () => {
 
@@ -317,7 +296,7 @@ describe('Request', () => {
             });
 
             const team = new Teamwork.Team({ meetings: 1 });
-            const onRequest = function (request, reply) {
+            const onRequest = (request, reply) => {
 
                 request.once('disconnect', () => team.attend());
                 return reply.continue;
@@ -325,7 +304,7 @@ describe('Request', () => {
 
             server.ext('onRequest', onRequest);
 
-            const onPreHandler = function (request, reply) {
+            const onPreHandler = (request, reply) => {
 
                 client.destroy();
                 return reply.continue;
@@ -348,13 +327,8 @@ describe('Request', () => {
 
         it('returns empty params array when none present', async () => {
 
-            const handler = function (request, reply) {
-
-                return reply(request.params);
-            };
-
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler });
+            server.route({ method: 'GET', path: '/', handler: (request) => request.params });
 
             const res = await server.inject('/');
             expect(res.result).to.equal({});
@@ -363,7 +337,7 @@ describe('Request', () => {
         it('returns empty params array when none present (not found)', async () => {
 
             const server = new Hapi.Server();
-            const preResponse = function (request, reply) {
+            const preResponse = (request) => {
 
                 return request.params;
             };
@@ -379,7 +353,7 @@ describe('Request', () => {
             const server = new Hapi.Server();
             const team = new Teamwork.Team({ meetings: 1 });
 
-            const handler = async function (request, reply) {
+            const handler = async (request) => {
 
                 clientRequest.abort();
                 await internals.wait(10);
@@ -409,9 +383,9 @@ describe('Request', () => {
             const server = new Hapi.Server();
             const team = new Teamwork.Team({ meetings: 1 });
 
-            server.route({ method: 'GET', path: '/', handler: Hoek.ignore });
+            server.route({ method: 'GET', path: '/', handler: () => null });
 
-            const preHandler = async function (request, reply) {
+            const preHandler = async (request, reply) => {
 
                 clientRequest.abort();
                 await internals.wait(10);
@@ -438,7 +412,7 @@ describe('Request', () => {
 
         it('does not fail on abort with ext', async () => {
 
-            const handler = async function (request, reply) {
+            const handler = async (request) => {
 
                 clientRequest.abort();
                 await internals.wait(10);
@@ -448,7 +422,7 @@ describe('Request', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            const preResponse = function (request, reply) {
+            const preResponse = (request, reply) => {
 
                 return reply.continue;
             };
@@ -480,10 +454,7 @@ describe('Request', () => {
                 path: '/some/route',
                 config: {
                     isInternal: true,
-                    handler: function (request, reply) {
-
-                        return reply('ok');
-                    }
+                    handler: () => 'ok'
                 }
             });
 
@@ -502,10 +473,7 @@ describe('Request', () => {
                 path: '/some/route',
                 config: {
                     isInternal: true,
-                    handler: function (request, reply) {
-
-                        return reply('ok');
-                    }
+                    handler: () => 'ok'
                 }
             });
 
@@ -521,10 +489,7 @@ describe('Request', () => {
                 path: '/some/route',
                 config: {
                     isInternal: true,
-                    handler: function (request, reply) {
-
-                        return reply('ok');
-                    }
+                    handler: () => 'ok'
                 }
             });
 
@@ -537,13 +502,8 @@ describe('Request', () => {
 
         it('generate response event', async () => {
 
-            const handler = function (request, reply) {
-
-                return reply('ok');
-            };
-
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', config: { handler } });
+            server.route({ method: 'GET', path: '/', handler: () => 'ok' });
 
             const log = server.events.once('response');
             await server.inject('/');
@@ -554,7 +514,7 @@ describe('Request', () => {
         it('closes response after server timeout', async () => {
 
             const team = new Teamwork.Team({ meetings: 1 });
-            const handler = async function (request, reply) {
+            const handler = async (request) => {
 
                 await internals.wait(100);
 
@@ -583,7 +543,7 @@ describe('Request', () => {
 
         it('does not attempt to close error response after server timeout', async () => {
 
-            const handler = async function (request, reply) {
+            const handler = async (request) => {
 
                 await internals.wait(10);
                 throw new Error('after');
@@ -610,16 +570,16 @@ describe('Request', () => {
                 req = request;
             });
 
-            const preResponse = function (request, reply) {
+            const preResponse = (request) => {
 
                 throw new Error('boom2');
             };
 
             server.ext('onPreResponse', preResponse);
 
-            const handler = function (request, reply) {
+            const handler = (request) => {
 
-                return reply(new Error('boom1'));
+                throw new Error('boom1');
             };
 
             server.route({ method: 'GET', path: '/', handler });
@@ -650,7 +610,7 @@ describe('Request', () => {
                 req = request;
             });
 
-            const handler = function (request, reply) {
+            const handler = (request) => {
 
                 throw new Error('boom');
             };
@@ -679,16 +639,11 @@ describe('Request', () => {
                 errs++;
             });
 
-            const preResponse = function (request, reply) {
+            server.ext('onPreResponse', () => 'ok');
 
-                return reply('ok');
-            };
+            const handler = (request) => {
 
-            server.ext('onPreResponse', preResponse);
-
-            const handler = function (request, reply) {
-
-                return reply(new Error('boom1'));
+                throw new Error('boom1');
             };
 
             server.route({ method: 'GET', path: '/', handler });
@@ -709,9 +664,9 @@ describe('Request', () => {
         it('changes method with a lowercase version of the value passed in', async () => {
 
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
+            server.route({ method: 'GET', path: '/', handler: () => null });
 
-            const onRequest = function (request, reply) {
+            const onRequest = (request, reply) => {
 
                 request.setMethod('POST');
                 return reply(request.method).takeover();
@@ -726,14 +681,8 @@ describe('Request', () => {
         it.skip('errors on missing method', async () => {
 
             const server = new Hapi.Server({ debug: false });
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
-
-            const onRequest = function (request, reply) {
-
-                request.setMethod();
-            };
-
-            server.ext('onRequest', onRequest);
+            server.route({ method: 'GET', path: '/', handler: () => null });
+            server.ext('onRequest', (request) => request.setMethod());
 
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
@@ -742,14 +691,8 @@ describe('Request', () => {
         it.skip('errors on invalid method type', async () => {
 
             const server = new Hapi.Server({ debug: false });
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
-
-            const onRequest = function (request, reply) {
-
-                request.setMethod(42);
-            };
-
-            server.ext('onRequest', onRequest);
+            server.route({ method: 'GET', path: '/', handler: () => null });
+            server.ext('onRequest', (request) => request.setMethod(42));
 
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
@@ -762,9 +705,9 @@ describe('Request', () => {
 
             const url = 'http://localhost/page?param1=something';
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
+            server.route({ method: 'GET', path: '/', handler: () => null });
 
-            const onRequest = function (request, reply) {
+            const onRequest = (request, reply) => {
 
                 request.setUrl(url);
                 return reply([request.url.href, request.path, request.query.param1].join('|')).takeover();
@@ -780,9 +723,9 @@ describe('Request', () => {
 
             const url = 'http://redirected:321/';
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
+            server.route({ method: 'GET', path: '/', handler: () => null });
 
-            const onRequest = function (request, reply) {
+            const onRequest = (request, reply) => {
 
                 const initialHost = request.info.host;
 
@@ -800,9 +743,9 @@ describe('Request', () => {
 
             const url = 'http://redirected/';
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
+            server.route({ method: 'GET', path: '/', handler: () => null });
 
-            const onRequest = function (request, reply) {
+            const onRequest = (request, reply) => {
 
                 const initialHost = request.info.host;
 
@@ -821,9 +764,9 @@ describe('Request', () => {
         it('overrides query string parsing', async () => {
 
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
+            server.route({ method: 'GET', path: '/', handler: () => null });
 
-            const onRequest = function (request, reply) {
+            const onRequest = (request, reply) => {
 
                 const uri = request.raw.req.url;
                 const parsed = Url.parse(uri, true);
@@ -847,9 +790,9 @@ describe('Request', () => {
             const normUrl = 'http://localhost' + normPath + '?param1=something';
 
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: function (request, reply) { } });
+            server.route({ method: 'GET', path: '/', handler: () => null });
 
-            const onRequest = function (request, reply) {
+            const onRequest = (request, reply) => {
 
                 request.setUrl(url);
                 return reply([request.url.href, request.path, request.query.param1].join('|')).takeover();
@@ -864,7 +807,7 @@ describe('Request', () => {
         it('allows missing path', async () => {
 
             const server = new Hapi.Server();
-            const onRequest = function (request, reply) {
+            const onRequest = (request, reply) => {
 
                 request.setUrl('');
                 return reply.continue;
@@ -878,39 +821,24 @@ describe('Request', () => {
 
         it('strips trailing slash', async () => {
 
-            const handler = function (request, reply) {
-
-                return reply();
-            };
-
             const server = new Hapi.Server({ router: { stripTrailingSlash: true } });
-            server.route({ method: 'GET', path: '/test', handler });
+            server.route({ method: 'GET', path: '/test', handler: () => null });
             const res = await server.inject('/test/');
             expect(res.statusCode).to.equal(200);
         });
 
         it('does not strip trailing slash on /', async () => {
 
-            const handler = function (request, reply) {
-
-                return reply();
-            };
-
             const server = new Hapi.Server({ router: { stripTrailingSlash: true } });
-            server.route({ method: 'GET', path: '/', handler });
+            server.route({ method: 'GET', path: '/', handler: () => null });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
         });
 
         it('strips trailing slash with query', async () => {
 
-            const handler = function (request, reply) {
-
-                return reply();
-            };
-
             const server = new Hapi.Server({ router: { stripTrailingSlash: true } });
-            server.route({ method: 'GET', path: '/test', handler });
+            server.route({ method: 'GET', path: '/test', handler: () => null });
             const res = await server.inject('/test/?a=b');
             expect(res.statusCode).to.equal(200);
         });
@@ -925,7 +853,7 @@ describe('Request', () => {
             let requestUrl;
 
             const server = new Hapi.Server();
-            const onRequest = function (request, reply) {
+            const onRequest = (request, reply) => {
 
                 request.setUrl(passedUrl);
                 requestUrl = request.url;
@@ -944,15 +872,10 @@ describe('Request', () => {
 
         it('handles vhost redirection', async () => {
 
-            const handler = function (request, reply) {
-
-                return reply('success');
-            };
-
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', vhost: 'one', handler });
+            server.route({ method: 'GET', path: '/', vhost: 'one', handler: () => 'success' });
 
-            const onRequest = function (request, reply) {
+            const onRequest = (request, reply) => {
 
                 request.setUrl('http://one/');
                 return reply.continue;
@@ -973,7 +896,7 @@ describe('Request', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: function (request, reply) {
+                handler: (request) => {
 
                     hostname = request.info.hostname;
                     return null;
@@ -993,10 +916,10 @@ describe('Request', () => {
 
         it('outputs log data to debug console', async () => {
 
-            const handler = function (request, reply) {
+            const handler = (request) => {
 
                 request.log(['implementation'], 'data');
-                return reply();
+                return null;
             };
 
             const server = new Hapi.Server();
@@ -1024,7 +947,7 @@ describe('Request', () => {
 
             const server = new Hapi.Server();
 
-            const handler = async function (request, reply) {
+            const handler = async (request) => {
 
                 const log = server.events.once('request');
                 request.log(['test'], 'data');
@@ -1046,7 +969,7 @@ describe('Request', () => {
 
             const server = new Hapi.Server({ routes: { log: true } });
 
-            const handler = async function (request, reply) {
+            const handler = async (request) => {
 
                 const log = server.events.once('request');
                 request.log(['test'], () => 'data');
@@ -1067,10 +990,10 @@ describe('Request', () => {
 
         it('outputs log to debug console without data', { parallel: false }, async () => {
 
-            const handler = function (request, reply) {
+            const handler = (request) => {
 
                 request.log(['implementation']);
-                return reply();
+                return null;
             };
 
             const server = new Hapi.Server();
@@ -1096,10 +1019,10 @@ describe('Request', () => {
 
         it('outputs log to debug console with error data', { parallel: false }, async () => {
 
-            const handler = function (request, reply) {
+            const handler = (request) => {
 
                 request.log(['implementation'], new Error('boom'));
-                return reply();
+                return null;
             };
 
             const server = new Hapi.Server();
@@ -1125,13 +1048,13 @@ describe('Request', () => {
 
         it('handles invalid log data object stringify', { parallel: false }, async () => {
 
-            const handler = function (request, reply) {
+            const handler = (request) => {
 
                 const obj = {};
                 obj.a = obj;
 
                 request.log(['implementation'], obj);
-                return reply();
+                return null;
             };
 
             const server = new Hapi.Server({ routes: { log: true } });
@@ -1157,7 +1080,7 @@ describe('Request', () => {
 
         it('adds a log event to the request', async () => {
 
-            const handler = function (request, reply) {
+            const handler = (request) => {
 
                 request.log('1', 'log event 1', Date.now());
                 request.log(['2'], 'log event 2', new Date(Date.now()));
@@ -1167,7 +1090,7 @@ describe('Request', () => {
                 request.log(['4']);
                 request.log('4');
 
-                return reply([request.getLog('1').length, request.getLog('4').length, request.getLog(['4']).length, request.getLog('0').length, request.getLog(['1', '2', '3', '4']).length, request.getLog().length >= 7].join('|'));
+                return [request.getLog('1').length, request.getLog('4').length, request.getLog(['4']).length, request.getLog('0').length, request.getLog(['1', '2', '3', '4']).length, request.getLog().length >= 7].join('|');
             };
 
             const server = new Hapi.Server({ routes: { log: true } });
@@ -1188,10 +1111,10 @@ describe('Request', () => {
                 ++i;
             };
 
-            const handler = function (request, reply) {
+            const handler = (request) => {
 
                 request.log(['implementation']);
-                return reply();
+                return null;
             };
 
             server.route({ method: 'GET', path: '/', handler });
@@ -1213,10 +1136,10 @@ describe('Request', () => {
                 ++i;
             };
 
-            const handler = function (request, reply) {
+            const handler = (request) => {
 
                 request.log(['implementation']);
-                return reply();
+                return null;
             };
 
             server.route({ method: 'GET', path: '/', handler });
@@ -1238,10 +1161,10 @@ describe('Request', () => {
                 ++i;
             };
 
-            const handler = function (request, reply) {
+            const handler = (request) => {
 
                 request.log(['xyz']);
-                return reply();
+                return null;
             };
 
             server.route({ method: 'GET', path: '/', handler });
@@ -1269,12 +1192,12 @@ describe('Request', () => {
 
         it('returns the selected logs', async () => {
 
-            const handler = function (request, reply) {
+            const handler = (request) => {
 
                 request._log('1');
                 request.log('1');
 
-                return reply([request.getLog('1').length, request.getLog('1', true).length, request.getLog('1', false).length, request.getLog(true).length, request.getLog(false).length, request.getLog().length].join('|'));
+                return [request.getLog('1').length, request.getLog('1', true).length, request.getLog('1', false).length, request.getLog(true).length, request.getLog(false).length, request.getLog().length].join('|');
             };
 
             const server = new Hapi.Server({ routes: { log: true } });
@@ -1290,14 +1213,14 @@ describe('Request', () => {
         it('leaves the response open when the same response is set again', async () => {
 
             const server = new Hapi.Server();
-            const postHandler = function (request, reply) {
+            const postHandler = (request) => {
 
-                return reply(request.response);
+                return request.response;
             };
 
             server.ext('onPostHandler', postHandler);
 
-            const handler = function (request, reply) {
+            const handler = (request) => {
 
                 const stream = new Stream.Readable();
                 stream._read = function (size) {
@@ -1306,7 +1229,7 @@ describe('Request', () => {
                     this.push(null);
                 };
 
-                return reply(stream);
+                return stream;
             };
 
             server.route({ method: 'GET', path: '/', handler });
@@ -1318,14 +1241,9 @@ describe('Request', () => {
         it('leaves the response open when the same response source is set again', async () => {
 
             const server = new Hapi.Server();
-            const postHandler = function (request, reply) {
+            server.ext('onPostHandler', (request) => request.response.source);
 
-                return reply(request.response.source);
-            };
-
-            server.ext('onPostHandler', postHandler);
-
-            const handler = function (request, reply) {
+            const handler = (request) => {
 
                 const stream = new Stream.Readable();
                 stream._read = function (size) {
@@ -1334,7 +1252,7 @@ describe('Request', () => {
                     this.push(null);
                 };
 
-                return reply(stream);
+                return stream;
             };
 
             server.route({ method: 'GET', path: '/', handler });
@@ -1348,7 +1266,7 @@ describe('Request', () => {
 
         it('returns server error message when server taking too long', async () => {
 
-            const handler = async function (request, reply) {
+            const handler = async (request) => {
 
                 await internals.wait(100);
                 return 'too slow';
@@ -1361,12 +1279,12 @@ describe('Request', () => {
 
             const res = await server.inject('/timeout');
             expect(res.statusCode).to.equal(503);
-            expect(timer.elapsed()).to.be.at.least(50);
+            expect(timer.elapsed()).to.be.at.least(49);
         });
 
         it('returns server error message when server timeout happens during request execution (and handler yields)', async () => {
 
-            const handler = async function (request, reply) {
+            const handler = async (request) => {
 
                 await internals.wait(20);
                 return null;
@@ -1375,7 +1293,7 @@ describe('Request', () => {
             const server = new Hapi.Server({ routes: { timeout: { server: 10 } } });
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            const postHandler = function (request, reply) {
+            const postHandler = (request, reply) => {
 
                 return reply.continue;
             };
@@ -1390,7 +1308,7 @@ describe('Request', () => {
 
             const server = new Hapi.Server({ routes: { timeout: { server: 2 } } });
             server.route({ method: 'GET', path: '/', config: { handler: function () { } } });
-            const onRequest = async function (request, reply) {
+            const onRequest = async (request, reply) => {
 
                 await internals.wait(10);
                 return reply.continue;
@@ -1404,7 +1322,7 @@ describe('Request', () => {
 
         it('handles server handler timeout with onPreResponse ext', async () => {
 
-            const handler = async function (request, reply) {
+            const handler = async (request) => {
 
                 await internals.wait(20);
                 return null;
@@ -1412,7 +1330,7 @@ describe('Request', () => {
 
             const server = new Hapi.Server({ routes: { timeout: { server: 10 } } });
             server.route({ method: 'GET', path: '/', config: { handler } });
-            const preResponse = function (request, reply) {
+            const preResponse = (request, reply) => {
 
                 return reply.continue;
             };
@@ -1425,7 +1343,7 @@ describe('Request', () => {
 
         it('does not return an error response when server is slow but faster than timeout', async () => {
 
-            const slowHandler = async function (request, reply) {
+            const slowHandler = async (request) => {
 
                 await internals.wait(30);
                 return 'slow';
@@ -1466,9 +1384,9 @@ describe('Request', () => {
                 }, 150);
             };
 
-            const handler = function (request, reply) {
+            const handler = (request) => {
 
-                return reply(new TestStream());
+                return new TestStream();
             };
 
             const timer = new Hoek.Bench();
@@ -1485,7 +1403,7 @@ describe('Request', () => {
 
         it('does not return an error response when server is slower than timeout but response has started', async () => {
 
-            const streamHandler = function (request, reply) {
+            const streamHandler = (request) => {
 
                 const TestStream = function () {
 
@@ -1512,7 +1430,7 @@ describe('Request', () => {
                     }, 60);
                 };
 
-                return reply(new TestStream());
+                return new TestStream();
             };
 
             const server = new Hapi.Server({ routes: { timeout: { server: 50 } } });
@@ -1526,13 +1444,8 @@ describe('Request', () => {
 
         it('does not return an error response when server takes less than timeout to respond', async () => {
 
-            const fastHandler = function (request, reply) {
-
-                return reply('Fast');
-            };
-
             const server = new Hapi.Server({ routes: { timeout: { server: 50 } } });
-            server.route({ method: 'GET', path: '/fast', config: { handler: fastHandler } });
+            server.route({ method: 'GET', path: '/fast', handler: () => 'Fast' });
 
             const res = await server.inject('/fast');
             expect(res.statusCode).to.equal(200);
@@ -1540,10 +1453,8 @@ describe('Request', () => {
 
         it('handles race condition between equal client and server timeouts', async () => {
 
-            const timeoutHandler = function (request, reply) { };
-
             const server = new Hapi.Server({ routes: { timeout: { server: 50 }, payload: { timeout: 50 } } });
-            server.route({ method: 'POST', path: '/timeout', config: { handler: timeoutHandler } });
+            server.route({ method: 'POST', path: '/timeout', config: { handler: internals.block } });
 
             await server.start();
 
@@ -1583,4 +1494,10 @@ describe('Request', () => {
 internals.wait = function (timeout) {
 
     return new Promise((resolve, reject) => setTimeout(resolve, timeout));
+};
+
+
+internals.block = function () {
+
+    return new Promise(() => { });
 };

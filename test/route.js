@@ -37,10 +37,7 @@ describe('Route', () => {
                 const a = this.a;
 
                 return {
-                    handler: function (request, reply) {
-
-                        return reply(a + srv.app.b);
-                    }
+                    handler: () => (a + srv.app.b)
                 };
             }
         });
@@ -55,7 +52,7 @@ describe('Route', () => {
         expect(() => {
 
             const server = new Hapi.Server();
-            server.route({ method: 'GET', handler: function () { } });
+            server.route({ method: 'GET', handler: () => null });
         }).to.throw('Route missing path');
     });
 
@@ -64,7 +61,7 @@ describe('Route', () => {
         expect(() => {
 
             const server = new Hapi.Server();
-            server.route({ path: '/', handler: function () { } });
+            server.route({ path: '/', handler: () => null });
         }).to.throw(/"method" is required/);
     });
 
@@ -73,7 +70,7 @@ describe('Route', () => {
         expect(() => {
 
             const server = new Hapi.Server();
-            server.route({ method: '"GET"', path: '/', handler: function () { } });
+            server.route({ method: '"GET"', path: '/', handler: () => null });
         }).to.throw(/Invalid route options/);
     });
 
@@ -82,7 +79,7 @@ describe('Route', () => {
         expect(() => {
 
             const server = new Hapi.Server();
-            server.route({ method: 'HEAD', path: '/', handler: function () { } });
+            server.route({ method: 'HEAD', path: '/', handler: () => null });
         }).to.throw(/Method name not allowed/);
     });
 
@@ -109,7 +106,7 @@ describe('Route', () => {
         const server = new Hapi.Server({ router: { stripTrailingSlash: true } });
         expect(() => {
 
-            server.route({ method: 'GET', path: '/test/', handler: function () { } });
+            server.route({ method: 'GET', path: '/test/', handler: () => null });
         }).to.throw('Path cannot end with a trailing slash when configured to strip: GET /test/');
     });
 
@@ -118,17 +115,13 @@ describe('Route', () => {
         const server = new Hapi.Server({ router: { stripTrailingSlash: true } });
         expect(() => {
 
-            server.route({ method: 'GET', path: '/', handler: function () { } });
+            server.route({ method: 'GET', path: '/', handler: () => null });
         }).to.not.throw();
     });
 
     it('sets route plugins and app settings', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply(request.route.settings.app.x + request.route.settings.plugins.x.y);
-        };
-
+        const handler = (request) => (request.route.settings.app.x + request.route.settings.plugins.x.y);
         const server = new Hapi.Server();
         server.route({ method: 'GET', path: '/', config: { handler, app: { x: 'o' }, plugins: { x: { y: 'k' } } } });
         const res = await server.inject('/');
@@ -140,7 +133,7 @@ describe('Route', () => {
         const server = new Hapi.Server();
         expect(() => {
 
-            server.route({ method: 'POST', path: '/', handler: function () { }, config: { validate: { payload: {} }, payload: { parse: false } } });
+            server.route({ method: 'POST', path: '/', handler: () => null, config: { validate: { payload: {} }, payload: { parse: false } } });
         }).to.throw('Route payload must be set to \'parse\' when payload validation enabled: POST /');
     });
 
@@ -150,10 +143,7 @@ describe('Route', () => {
         server.route({
             method: 'POST',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 payload: {
                     parse: true,
@@ -172,10 +162,7 @@ describe('Route', () => {
         server.route({
             method: 'POST',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 payload: {
                     parse: true,
@@ -205,10 +192,7 @@ describe('Route', () => {
         server.route({
             method: 'POST',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 payload: {
                     parse: true,
@@ -228,10 +212,7 @@ describe('Route', () => {
         server.route({
             method: 'POST',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 payload: {
                     parse: true,
@@ -253,7 +234,7 @@ describe('Route', () => {
         const server = new Hapi.Server();
         expect(() => {
 
-            server.route({ method: 'GET', path: '/', handler: function () { }, config: { validate: { payload: {} } } });
+            server.route({ method: 'GET', path: '/', handler: () => null, config: { validate: { payload: {} } } });
         }).to.throw('Cannot validate HEAD or GET requests: GET /');
     });
 
@@ -262,32 +243,22 @@ describe('Route', () => {
         const server = new Hapi.Server();
         expect(() => {
 
-            server.route({ method: 'GET', path: '/', handler: function () { }, config: { payload: { parse: true } } });
+            server.route({ method: 'GET', path: '/', handler: () => null, config: { payload: { parse: true } } });
         }).to.throw('Cannot set payload settings on HEAD or GET request: GET /');
     });
 
     it('ignores validation on * route when request is GET', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply();
-        };
-
         const server = new Hapi.Server();
-        server.route({ method: '*', path: '/', handler, config: { validate: { payload: { a: Joi.required() } } } });
+        server.route({ method: '*', path: '/', handler: () => null, config: { validate: { payload: { a: Joi.required() } } } });
         const res = await server.inject('/');
         expect(res.statusCode).to.equal(200);
     });
 
     it('ignores default validation on GET', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply();
-        };
-
         const server = new Hapi.Server({ routes: { validate: { payload: { a: Joi.required() } } } });
-        server.route({ method: 'GET', path: '/', handler });
+        server.route({ method: 'GET', path: '/', handler: () => null });
         const res = await server.inject('/');
         expect(res.statusCode).to.equal(200);
     });
@@ -307,9 +278,9 @@ describe('Route', () => {
             }
         });
 
-        const handler = function (request, reply) {
+        const handler = function (request) {
 
-            return reply(this.key + (this === context));
+            return this.key + (this === context);
         };
 
         server.route({ method: 'GET', path: '/', handler, config: { bind: context } });
@@ -333,9 +304,9 @@ describe('Route', () => {
             }
         });
 
-        const handler = function (request, reply) {
+        const handler = function (request) {
 
-            return reply(this.key + (this === context));
+            return this.key + (this === context);
         };
 
         server.bind(context);
@@ -360,9 +331,9 @@ describe('Route', () => {
             }
         });
 
-        const handler = function (request, reply) {
+        const handler = function (request) {
 
-            return reply(this.key + (this === context));
+            return this.key + (this === context);
         };
 
         server.route({ method: 'GET', path: '/', handler });
@@ -385,9 +356,9 @@ describe('Route', () => {
             }
         });
 
-        const handler = function (request, reply) {
+        const handler = function (request) {
 
-            return reply(this.key + (this === context));
+            return this.key + (this === context);
         };
 
         const server = new Hapi.Server({ routes: { bind: context } });
@@ -401,11 +372,7 @@ describe('Route', () => {
 
         const server = new Hapi.Server();
         await server.register(Inert);
-        const handler = function (request, reply) {
-
-            return reply.file('./package.json');
-        };
-
+        const handler = (request, reply) => reply.file('./package.json');
         server.route({ method: 'GET', path: '/file', handler, config: { files: { relativeTo: Path.join(__dirname, '../') } } });
 
         const res = await server.inject('/file');
@@ -441,7 +408,7 @@ describe('Route', () => {
         it('combine connection extensions (route last)', async () => {
 
             const server = new Hapi.Server();
-            const onRequest = function (request, reply) {
+            const onRequest = (request, reply) => {
 
                 request.app.x = '1';
                 return reply.continue;
@@ -449,7 +416,7 @@ describe('Route', () => {
 
             server.ext('onRequest', onRequest);
 
-            const preAuth = function (request, reply) {
+            const preAuth = (request, reply) => {
 
                 request.app.x += '2';
                 return reply.continue;
@@ -457,7 +424,7 @@ describe('Route', () => {
 
             server.ext('onPreAuth', preAuth);
 
-            const postAuth = function (request, reply) {
+            const postAuth = (request, reply) => {
 
                 request.app.x += '3';
                 return reply.continue;
@@ -465,7 +432,7 @@ describe('Route', () => {
 
             server.ext('onPostAuth', postAuth);
 
-            const preHandler = function (request, reply) {
+            const preHandler = (request, reply) => {
 
                 request.app.x += '4';
                 return reply.continue;
@@ -473,7 +440,7 @@ describe('Route', () => {
 
             server.ext('onPreHandler', preHandler);
 
-            const postHandler = function (request, reply) {
+            const postHandler = (request, reply) => {
 
                 request.response.source += '5';
                 return reply.continue;
@@ -481,7 +448,7 @@ describe('Route', () => {
 
             server.ext('onPostHandler', postHandler);
 
-            const preResponse = function (request, reply) {
+            const preResponse = (request, reply) => {
 
                 request.response.source += '6';
                 return reply.continue;
@@ -492,10 +459,7 @@ describe('Route', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: function (request, reply) {
-
-                    return reply(request.app.x);
-                }
+                handler: (request) => request.app.x
             });
 
             const res = await server.inject('/');
@@ -509,13 +473,10 @@ describe('Route', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: function (request, reply) {
-
-                    return reply(request.app.x);
-                }
+                handler: (request) => request.app.x
             });
 
-            const onRequest = function (request, reply) {
+            const onRequest = (request, reply) => {
 
                 request.app.x = '1';
                 return reply.continue;
@@ -523,7 +484,7 @@ describe('Route', () => {
 
             server.ext('onRequest', onRequest);
 
-            const preAuth = function (request, reply) {
+            const preAuth = (request, reply) => {
 
                 request.app.x += '2';
                 return reply.continue;
@@ -531,7 +492,7 @@ describe('Route', () => {
 
             server.ext('onPreAuth', preAuth);
 
-            const postAuth = function (request, reply) {
+            const postAuth = (request, reply) => {
 
                 request.app.x += '3';
                 return reply.continue;
@@ -539,7 +500,7 @@ describe('Route', () => {
 
             server.ext('onPostAuth', postAuth);
 
-            const preHandler = function (request, reply) {
+            const preHandler = (request, reply) => {
 
                 request.app.x += '4';
                 return reply.continue;
@@ -547,7 +508,7 @@ describe('Route', () => {
 
             server.ext('onPreHandler', preHandler);
 
-            const postHandler = function (request, reply) {
+            const postHandler = (request, reply) => {
 
                 request.response.source += '5';
                 return reply.continue;
@@ -555,7 +516,7 @@ describe('Route', () => {
 
             server.ext('onPostHandler', postHandler);
 
-            const preResponse = function (request, reply) {
+            const preResponse = (request, reply) => {
 
                 request.response.source += '6';
                 return reply.continue;
@@ -571,7 +532,7 @@ describe('Route', () => {
 
             const server = new Hapi.Server();
 
-            const onRequest = function (request, reply) {
+            const onRequest = (request, reply) => {
 
                 request.app.x = '1';
                 return reply.continue;
@@ -579,7 +540,7 @@ describe('Route', () => {
 
             server.ext('onRequest', onRequest);
 
-            const preAuth = function (request, reply) {
+            const preAuth = (request, reply) => {
 
                 request.app.x += '2';
                 return reply.continue;
@@ -587,7 +548,7 @@ describe('Route', () => {
 
             server.ext('onPreAuth', preAuth);
 
-            const postAuth = function (request, reply) {
+            const postAuth = (request, reply) => {
 
                 request.app.x += '3';
                 return reply.continue;
@@ -598,13 +559,10 @@ describe('Route', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: function (request, reply) {
-
-                    return reply(request.app.x);
-                }
+                handler: (request) => request.app.x
             });
 
-            const preHandler = function (request, reply) {
+            const preHandler = (request, reply) => {
 
                 request.app.x += '4';
                 return reply.continue;
@@ -612,7 +570,7 @@ describe('Route', () => {
 
             server.ext('onPreHandler', preHandler);
 
-            const postHandler = function (request, reply) {
+            const postHandler = (request, reply) => {
 
                 request.response.source += '5';
                 return reply.continue;
@@ -620,7 +578,7 @@ describe('Route', () => {
 
             server.ext('onPostHandler', postHandler);
 
-            const preResponse = function (request, reply) {
+            const preResponse = (request, reply) => {
 
                 request.response.source += '6';
                 return reply.continue;
@@ -636,7 +594,7 @@ describe('Route', () => {
 
             const server = new Hapi.Server();
 
-            const preAuth1 = function (request, reply) {
+            const preAuth1 = (request, reply) => {
 
                 request.app.x = '1';
                 return reply.continue;
@@ -650,21 +608,18 @@ describe('Route', () => {
                 config: {
                     ext: {
                         onPreAuth: {
-                            method: function (request, reply) {
+                            method: (request, reply) => {
 
                                 request.app.x += '2';
                                 return reply.continue;
                             }
                         }
                     },
-                    handler: function (request, reply) {
-
-                        return reply(request.app.x);
-                    }
+                    handler: (request) => request.app.x
                 }
             });
 
-            const preAuth3 = function (request, reply) {
+            const preAuth3 = (request, reply) => {
 
                 request.app.x += '3';
                 return reply.continue;
@@ -675,12 +630,7 @@ describe('Route', () => {
             server.route({
                 method: 'GET',
                 path: '/a',
-                config: {
-                    handler: function (request, reply) {
-
-                        return reply(request.app.x);
-                    }
-                }
+                handler: (request) => request.app.x
             });
 
             const res1 = await server.inject('/');
@@ -696,7 +646,7 @@ describe('Route', () => {
 
             let state = '';
 
-            const onRequest = function (request, reply) {
+            const onRequest = (request, reply) => {
 
                 state += 1;
                 return reply.continue;
@@ -704,15 +654,15 @@ describe('Route', () => {
 
             server.ext('onRequest', onRequest);
 
-            const preAuth = function (request, reply) {
+            const preAuth = (request) => {
 
                 state += 2;
-                return reply('ok');
+                return 'ok';
             };
 
             server.ext('onPreAuth', preAuth);
 
-            const preResponse = function (request, reply) {
+            const preResponse = (request, reply) => {
 
                 state += 3;
                 return reply.continue;

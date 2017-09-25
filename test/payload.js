@@ -31,12 +31,12 @@ describe('payload', () => {
 
         const payload = '{"x":"1","y":"2","z":"3"}';
 
-        const handler = function (request, reply) {
+        const handler = (request) => {
 
             expect(request.payload).to.exist();
             expect(request.payload.z).to.equal('3');
             expect(request.mime).to.equal('application/json');
-            return reply(request.payload);
+            return request.payload;
         };
 
         const server = new Hapi.Server();
@@ -81,13 +81,8 @@ describe('payload', () => {
 
     it('handles aborted request', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply('Success');
-        };
-
         const server = new Hapi.Server();
-        server.route({ method: 'POST', path: '/', config: { handler, payload: { parse: false } } });
+        server.route({ method: 'POST', path: '/', config: { handler: () => 'Success', payload: { parse: false } } });
 
         const log = server.events.once('log');
 
@@ -117,10 +112,10 @@ describe('payload', () => {
 
         const payload = '{"x":"1","y":"2","z":"3"}';
 
-        const handler = function (request, reply) {
+        const handler = (request) => {
 
             expect(request.payload.toString()).to.equal(payload);
-            return reply(request.payload);
+            return request.payload;
         };
 
         const server = new Hapi.Server();
@@ -136,13 +131,8 @@ describe('payload', () => {
 
         const payload = new Buffer(10 * 1024 * 1024).toString();
 
-        const handler = function (request, reply) {
-
-            return reply();
-        };
-
         const server = new Hapi.Server();
-        server.route({ method: 'POST', path: '/', config: { handler, payload: { maxBytes: 1024 * 1024 } } });
+        server.route({ method: 'POST', path: '/', config: { handler: () => null, payload: { maxBytes: 1024 * 1024 } } });
 
         await server.start();
 
@@ -156,13 +146,8 @@ describe('payload', () => {
 
     it('handles expect 100-continue', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply(request.payload);
-        };
-
         const server = new Hapi.Server();
-        server.route({ method: 'POST', path: '/', config: { handler } });
+        server.route({ method: 'POST', path: '/', handler: (request) => request.payload });
 
         await server.start();
 
@@ -177,7 +162,7 @@ describe('payload', () => {
     it('peeks at unparsed data', async () => {
 
         let data = null;
-        const ext = function (request, reply) {
+        const ext = (request, reply) => {
 
             const chunks = [];
             request.on('peek', (chunk, encoding) => {
@@ -193,14 +178,9 @@ describe('payload', () => {
             return reply.continue;
         };
 
-        const handler = function (request, reply) {
-
-            return reply(data);
-        };
-
         const server = new Hapi.Server();
         server.ext('onRequest', ext);
-        server.route({ method: 'POST', path: '/', config: { handler, payload: { parse: false } } });
+        server.route({ method: 'POST', path: '/', config: { handler: () => data, payload: { parse: false } } });
 
         const payload = '0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789';
         const res = await server.inject({ method: 'POST', url: '/', payload });
@@ -209,14 +189,9 @@ describe('payload', () => {
 
     it('handles gzipped payload', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply(request.payload);
-        };
-
         const message = { 'msg': 'This message is going to be gzipped.' };
         const server = new Hapi.Server();
-        server.route({ method: 'POST', path: '/', handler });
+        server.route({ method: 'POST', path: '/', handler: (request) => request.payload });
 
         const compressed = await new Promise((resolve) => Zlib.gzip(JSON.stringify(message), (ignore, result) => resolve(result)));
 
@@ -238,14 +213,9 @@ describe('payload', () => {
 
     it('handles deflated payload', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply(request.payload);
-        };
-
         const message = { 'msg': 'This message is going to be gzipped.' };
         const server = new Hapi.Server();
-        server.route({ method: 'POST', path: '/', handler });
+        server.route({ method: 'POST', path: '/', handler: (request) => request.payload });
 
         const compressed = await new Promise((resolve) => Zlib.deflate(JSON.stringify(message), (ignore, result) => resolve(result)));
 
@@ -267,11 +237,6 @@ describe('payload', () => {
 
     it('handles custom compression', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply(request.payload);
-        };
-
         const message = { 'msg': 'This message is going to be gzipped.' };
         const server = new Hapi.Server({ routes: { payload: { compression: { test: { some: 'options' } } } } });
 
@@ -282,7 +247,7 @@ describe('payload', () => {
         };
 
         server.decoder('test', decoder);
-        server.route({ method: 'POST', path: '/', handler });
+        server.route({ method: 'POST', path: '/', handler: (request) => request.payload });
 
         const compressed = await new Promise((resolve) => Zlib.gzip(JSON.stringify(message), (ignore, result) => resolve(result)));
 
@@ -308,12 +273,12 @@ describe('payload', () => {
         const sourceContents = Fs.readFileSync(path);
         const stats = Fs.statSync(path);
 
-        const handler = function (request, reply) {
+        const handler = (request) => {
 
             const receivedContents = Fs.readFileSync(request.payload.path);
             Fs.unlinkSync(request.payload.path);
             expect(receivedContents).to.equal(sourceContents);
-            return reply(request.payload.bytes);
+            return request.payload.bytes;
         };
 
         const compressed = await new Promise((resolve) => Zlib.gzip(sourceContents, (ignore, result) => resolve(result)));
@@ -333,13 +298,8 @@ describe('payload', () => {
 
     it('sets parse mode when route method is * and request is POST', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply(request.payload.key);
-        };
-
         const server = new Hapi.Server();
-        server.route({ method: '*', path: '/any', handler });
+        server.route({ method: '*', path: '/any', handler: (request) => request.payload.key });
 
         const res = await server.inject({ url: '/any', method: 'POST', payload: { key: '09876' } });
         expect(res.statusCode).to.equal(200);
@@ -348,13 +308,8 @@ describe('payload', () => {
 
     it('returns an error on unsupported mime type', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply(request.payload.key);
-        };
-
         const server = new Hapi.Server();
-        server.route({ method: 'POST', path: '/', config: { handler } });
+        server.route({ method: 'POST', path: '/', handler: (request) => request.payload.key });
         await server.start();
 
         const options = {
@@ -372,13 +327,8 @@ describe('payload', () => {
 
     it('ignores unsupported mime type', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply(request.payload);
-        };
-
         const server = new Hapi.Server();
-        server.route({ method: 'POST', path: '/', config: { handler, payload: { failAction: 'ignore' } } });
+        server.route({ method: 'POST', path: '/', config: { handler: (request) => request.payload, payload: { failAction: 'ignore' } } });
 
         const res = await server.inject({ method: 'POST', url: '/', payload: 'testing123', headers: { 'content-type': 'application/unknown' } });
         expect(res.statusCode).to.equal(200);
@@ -387,13 +337,8 @@ describe('payload', () => {
 
     it('returns 200 on octet mime type', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply('ok');
-        };
-
         const server = new Hapi.Server();
-        server.route({ method: 'POST', path: '/', handler });
+        server.route({ method: 'POST', path: '/', handler: () => 'ok' });
 
         const res = await server.inject({ method: 'POST', url: '/', payload: 'testing123', headers: { 'content-type': 'application/octet-stream' } });
         expect(res.statusCode).to.equal(200);
@@ -402,13 +347,13 @@ describe('payload', () => {
 
     it('returns 200 on text mime type', async () => {
 
-        const textHandler = function (request, reply) {
+        const handler = (request) => {
 
-            return reply(request.payload + '+456');
+            return request.payload + '+456';
         };
 
         const server = new Hapi.Server();
-        server.route({ method: 'POST', path: '/text', config: { handler: textHandler } });
+        server.route({ method: 'POST', path: '/text', handler });
 
         const res = await server.inject({ method: 'POST', url: '/text', payload: 'testing123', headers: { 'content-type': 'text/plain' } });
         expect(res.statusCode).to.equal(200);
@@ -417,13 +362,8 @@ describe('payload', () => {
 
     it('returns 200 on override mime type', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply(request.payload.key);
-        };
-
         const server = new Hapi.Server();
-        server.route({ method: 'POST', path: '/override', config: { handler, payload: { override: 'application/json' } } });
+        server.route({ method: 'POST', path: '/override', config: { handler: (request) => request.payload.key, payload: { override: 'application/json' } } });
 
         const res = await server.inject({ method: 'POST', url: '/override', payload: '{"key":"cool"}', headers: { 'content-type': 'text/plain' } });
         expect(res.statusCode).to.equal(200);
@@ -432,13 +372,13 @@ describe('payload', () => {
 
     it('returns 200 on text mime type when allowed', async () => {
 
-        const textHandler = function (request, reply) {
+        const handler = (request) => {
 
-            return reply(request.payload + '+456');
+            return request.payload + '+456';
         };
 
         const server = new Hapi.Server();
-        server.route({ method: 'POST', path: '/textOnly', config: { handler: textHandler, payload: { allow: 'text/plain' } } });
+        server.route({ method: 'POST', path: '/textOnly', config: { handler, payload: { allow: 'text/plain' } } });
 
         const res = await server.inject({ method: 'POST', url: '/textOnly', payload: 'testing123', headers: { 'content-type': 'text/plain' } });
         expect(res.statusCode).to.equal(200);
@@ -447,13 +387,13 @@ describe('payload', () => {
 
     it('returns 415 on non text mime type when disallowed', async () => {
 
-        const textHandler = function (request, reply) {
+        const handler = (request) => {
 
-            return reply(request.payload + '+456');
+            return request.payload + '+456';
         };
 
         const server = new Hapi.Server();
-        server.route({ method: 'POST', path: '/textOnly', config: { handler: textHandler, payload: { allow: 'text/plain' } } });
+        server.route({ method: 'POST', path: '/textOnly', config: { handler, payload: { allow: 'text/plain' } } });
 
         const res = await server.inject({ method: 'POST', url: '/textOnly', payload: 'testing123', headers: { 'content-type': 'application/octet-stream' } });
         expect(res.statusCode).to.equal(415);
@@ -461,13 +401,13 @@ describe('payload', () => {
 
     it('returns 200 on text mime type when allowed (array)', async () => {
 
-        const textHandler = function (request, reply) {
+        const handler = (request) => {
 
-            return reply(request.payload + '+456');
+            return request.payload + '+456';
         };
 
         const server = new Hapi.Server();
-        server.route({ method: 'POST', path: '/textOnlyArray', config: { handler: textHandler, payload: { allow: ['text/plain'] } } });
+        server.route({ method: 'POST', path: '/textOnlyArray', config: { handler, payload: { allow: ['text/plain'] } } });
 
         const res = await server.inject({ method: 'POST', url: '/textOnlyArray', payload: 'testing123', headers: { 'content-type': 'text/plain' } });
         expect(res.statusCode).to.equal(200);
@@ -476,13 +416,13 @@ describe('payload', () => {
 
     it('returns 415 on non text mime type when disallowed (array)', async () => {
 
-        const textHandler = function (request, reply) {
+        const handler = (request) => {
 
-            return reply(request.payload + '+456');
+            return request.payload + '+456';
         };
 
         const server = new Hapi.Server();
-        server.route({ method: 'POST', path: '/textOnlyArray', config: { handler: textHandler, payload: { allow: ['text/plain'] } } });
+        server.route({ method: 'POST', path: '/textOnlyArray', config: { handler, payload: { allow: ['text/plain'] } } });
 
         const res = await server.inject({ method: 'POST', url: '/textOnlyArray', payload: 'testing123', headers: { 'content-type': 'application/octet-stream' } });
         expect(res.statusCode).to.equal(415);
@@ -518,7 +458,7 @@ describe('payload', () => {
             '... contents of file1.txt ...\r\r\n' +
             '--AaB03x--\r\n';
 
-        const handler = function (request, reply) {
+        const handler = (request) => {
 
             const result = {};
             const keys = Object.keys(request.payload);
@@ -528,11 +468,11 @@ describe('payload', () => {
                 result[key] = value._readableState ? true : value;
             }
 
-            return reply(result);
+            return result;
         };
 
         const server = new Hapi.Server();
-        server.route({ method: 'POST', path: '/echo', config: { handler } });
+        server.route({ method: 'POST', path: '/echo', handler });
 
         const res = await server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } });
         expect(Object.keys(res.result).length).to.equal(3);
@@ -545,14 +485,8 @@ describe('payload', () => {
     it('signals connection close when payload is unconsumed', async () => {
 
         const payload = new Buffer(1024);
-
-        const handler = function (request, reply) {
-
-            return reply('ok');
-        };
-
         const server = new Hapi.Server();
-        server.route({ method: 'POST', path: '/', config: { handler, payload: { maxBytes: 1024, output: 'stream', parse: false } } });
+        server.route({ method: 'POST', path: '/', config: { handler: () => 'ok', payload: { maxBytes: 1024, output: 'stream', parse: false } } });
 
         const res = await server.inject({ method: 'POST', url: '/', payload, headers: { 'content-type': 'application/octet-stream' } });
         expect(res.statusCode).to.equal(200);
@@ -562,13 +496,8 @@ describe('payload', () => {
 
     it('times out when client request taking too long', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply();
-        };
-
         const server = new Hapi.Server({ routes: { payload: { timeout: 50 } } });
-        server.route({ method: 'POST', path: '/', config: { handler } });
+        server.route({ method: 'POST', path: '/', handler: () => null });
         await server.start();
 
         const request = () => {
@@ -597,13 +526,8 @@ describe('payload', () => {
 
     it('times out when client request taking too long (route override)', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply();
-        };
-
         const server = new Hapi.Server({ routes: { payload: { timeout: false } } });
-        server.route({ method: 'POST', path: '/', config: { payload: { timeout: 50 }, handler } });
+        server.route({ method: 'POST', path: '/', config: { payload: { timeout: 50 }, handler: () => null } });
         await server.start();
 
         const request = () => {
@@ -632,13 +556,8 @@ describe('payload', () => {
 
     it('returns payload when timeout is not triggered', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply('fast');
-        };
-
         const server = new Hapi.Server({ routes: { payload: { timeout: 50 } } });
-        server.route({ method: 'POST', path: '/', config: { handler } });
+        server.route({ method: 'POST', path: '/', handler: () => 'fast' });
         await server.start();
         const { res } = await Wreck.post(`http://localhost:${server.info.port}/`);
         expect(res.statusCode).to.equal(200);
@@ -675,13 +594,8 @@ describe('payload', () => {
             '... contents of file1.txt ...\r\r\n' +
             '--AaB03x--\r\n';
 
-        const handler = function (request, reply) {
-
-            return reply('result');
-        };
-
         const server = new Hapi.Server();
-        server.route({ method: 'POST', path: '/echo', config: { handler, payload: { output: 'data', parse: true, maxBytes: 5 } } });
+        server.route({ method: 'POST', path: '/echo', config: { handler: () => 'result', payload: { output: 'data', parse: true, maxBytes: 5 } } });
 
         const res = await server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, simulate: { split: true }, headers: { 'content-length': null, 'content-type': 'multipart/form-data; boundary=AaB03x' } });
         expect(res.statusCode).to.equal(400);
