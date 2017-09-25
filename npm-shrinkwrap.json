@@ -107,6 +107,10 @@
       "version": "6.0.0",
       "resolved": "https://registry.npmjs.org/subtext/-/subtext-6.0.0.tgz"
     },
+    "teamwork": {
+      "version": "2.1.0",
+      "resolved": "https://registry.npmjs.org/teamwork/-/teamwork-2.1.0.tgz"
+    },
     "topo": {
       "version": "2.0.2",
       "resolved": "https://registry.npmjs.org/topo/-/topo-2.0.2.tgz",
