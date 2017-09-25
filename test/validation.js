@@ -1178,7 +1178,7 @@ describe('validation', () => {
             path: '/',
             config: {
                 response: {
-                    schema: function (value, options, next) {
+                    schema: function (value, options) {
 
                         if (value.some === 'unchanged') {
                             return;
@@ -1227,7 +1227,7 @@ describe('validation', () => {
             config: {
                 response: {
                     modify: true,
-                    schema: function (value, options, next) {
+                    schema: function (value, options) {
 
                         if (value.some === 'unchanged') {
                             return;
@@ -1270,7 +1270,7 @@ describe('validation', () => {
             path: '/',
             config: {
                 response: {
-                    schema: function (value, options, next) {
+                    schema: function (value, options) {
 
                         throw new Error('Bad response');
                     }

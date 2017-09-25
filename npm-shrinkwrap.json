@@ -118,7 +118,7 @@
       "integrity": "sha1-awjo+0y3bjpQzW3Q7DczjoEaDTk="
     },
     "wreck": {
-      "version": "13.0.1"
+      "version": "13.0.2"
     }
   }
 }

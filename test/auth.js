@@ -1796,7 +1796,7 @@ internals.implementation = function (server, options) {
         response: function (request, reply) {
 
             if (request.auth.credentials.response) {
-                return reply(request.auth.credentials.response);
+                throw request.auth.credentials.response;
             }
 
             return reply.continue;
