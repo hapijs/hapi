@@ -44,9 +44,8 @@
       "integrity": "sha1-nC4wHprlFe1lpLh314qlZZuxuAk="
     },
     "cryptiles": {
-      "version": "3.1.2",
-      "resolved": "https://registry.npmjs.org/cryptiles/-/cryptiles-3.1.2.tgz",
-      "integrity": "sha1-qJ+7Ig9c4l7FboxKqKT9e1sNKf4="
+      "version": "4.0.0",
+      "resolved": "https://registry.npmjs.org/cryptiles/-/cryptiles-4.0.0.tgz"
     },
     "heavy": {
       "version": "5.0.0",
@@ -59,9 +58,8 @@
       "integrity": "sha1-ctnQdU9/4lyi0BrY+PmpRJqJUm0="
     },
     "iron": {
-      "version": "4.0.5",
-      "resolved": "https://registry.npmjs.org/iron/-/iron-4.0.5.tgz",
-      "integrity": "sha1-TwQszri5c480a1mqc0yDqJvDFCg="
+      "version": "5.0.0",
+      "resolved": "https://registry.npmjs.org/iron/-/iron-5.0.0.tgz"
     },
     "items": {
       "version": "2.1.1",
@@ -102,9 +100,8 @@
       "resolved": "https://registry.npmjs.org/shot/-/shot-4.0.0.tgz"
     },
     "statehood": {
-      "version": "5.0.3",
-      "resolved": "https://registry.npmjs.org/statehood/-/statehood-5.0.3.tgz",
-      "integrity": "sha1-wHp1Yg21N5tg0u3Uf1OAAqisfdY="
+      "version": "6.0.0",
+      "resolved": "https://registry.npmjs.org/statehood/-/statehood-6.0.0.tgz"
     },
     "subtext": {
       "version": "6.0.0",

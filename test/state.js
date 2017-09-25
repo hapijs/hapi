@@ -206,19 +206,9 @@ describe('state', () => {
 
     it('sets cookie value automatically using function', async () => {
 
-        const present = function (request, next) {
-
-            return next(null, request.params.x);
-        };
-
-        const handler = function (request, reply) {
-
-            return reply('ok');
-        };
-
         const server = new Hapi.Server();
-        server.route({ method: 'GET', path: '/{x}', handler });
-        server.state('always', { autoValue: present });
+        server.route({ method: 'GET', path: '/{x}', handler: () => 'ok' });
+        server.state('always', { autoValue: (request) => request.params.x });
 
         const res = await server.inject('/sweet');
         expect(res.statusCode).to.equal(200);
@@ -227,18 +217,13 @@ describe('state', () => {
 
     it('fails to set cookie value automatically using function', async () => {
 
-        const present = function (request, next) {
+        const present = function (request) {
 
-            return next(new Error());
-        };
-
-        const handler = function (request, reply) {
-
-            return reply('ok');
+            throw new Error();
         };
 
         const server = new Hapi.Server();
-        server.route({ method: 'GET', path: '/', handler });
+        server.route({ method: 'GET', path: '/', handler: () => 'ok' });
         server.state('always', { autoValue: present });
 
         const res = await server.inject('/');
