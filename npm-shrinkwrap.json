@@ -4,9 +4,8 @@
   "lockfileVersion": 1,
   "dependencies": {
     "accept": {
-      "version": "2.1.4",
-      "resolved": "https://registry.npmjs.org/accept/-/accept-2.1.4.tgz",
-      "integrity": "sha1-iHr1TO7lx/RDBGGXHsQAxh0JrLs="
+      "version": "3.0.0",
+      "resolved": "https://registry.npmjs.org/accept/-/accept-3.0.0.tgz"
     },
     "ammo": {
       "version": "2.0.4",
@@ -39,9 +38,8 @@
       "integrity": "sha1-Qz4lWQLK9UIz0ShkKcj03xToItU="
     },
     "content": {
-      "version": "3.0.6",
-      "resolved": "https://registry.npmjs.org/content/-/content-3.0.6.tgz",
-      "integrity": "sha1-nC4wHprlFe1lpLh314qlZZuxuAk="
+      "version": "4.0.0",
+      "resolved": "https://registry.npmjs.org/content/-/content-4.0.0.tgz"
     },
     "cryptiles": {
       "version": "4.0.0",
@@ -104,8 +102,8 @@
       "resolved": "https://registry.npmjs.org/statehood/-/statehood-6.0.0.tgz"
     },
     "subtext": {
-      "version": "6.0.0",
-      "resolved": "https://registry.npmjs.org/subtext/-/subtext-6.0.0.tgz"
+      "version": "6.0.1",
+      "resolved": "https://registry.npmjs.org/subtext/-/subtext-6.0.1.tgz"
     },
     "teamwork": {
       "version": "2.1.0",
