@@ -335,7 +335,7 @@ describe('Reply', () => {
 
     describe('continue()', () => {
 
-        it.skip('sets empty reply on continue in handler', async () => {
+        it('sets empty reply on continue in handler', async () => {
 
             const handler = (request, reply) => {
 
@@ -431,7 +431,7 @@ describe('Reply', () => {
             expect(res2.result).to.equal('2x');
         });
 
-        it.skip('errors on non auth argument', async () => {
+        it('errors on non auth argument', async () => {
 
             const handler = (request, reply) => {
 

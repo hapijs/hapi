@@ -535,7 +535,7 @@ describe('validation', () => {
         expect(res.result).to.equal('Got error in query where a is bad');
     });
 
-    it.skip('catches error thrown in failAction', async () => {
+    it('catches error thrown in failAction', async () => {
 
         const server = new Hapi.Server({ debug: false });
         server.route({
@@ -1127,7 +1127,7 @@ describe('validation', () => {
         expect(res3.statusCode).to.equal(500);
     });
 
-    it.skip('catches error thrown by custom validation function', async () => {
+    it('catches error thrown by custom validation function', async () => {
 
         let i = 0;
 

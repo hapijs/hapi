@@ -119,7 +119,7 @@ describe('authentication', () => {
 
     describe('strategy()', () => {
 
-        it.skip('errors when strategy authenticate function throws', async () => {
+        it('errors when strategy authenticate function throws', async () => {
 
             const server = new Hapi.Server({ debug: false });
             server.auth.scheme('custom', internals.implementation);

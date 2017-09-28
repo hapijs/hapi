@@ -678,7 +678,7 @@ describe('Request', () => {
             expect(res.payload).to.equal('post');
         });
 
-        it.skip('errors on missing method', async () => {
+        it('errors on missing method', async () => {
 
             const server = new Hapi.Server({ debug: false });
             server.route({ method: 'GET', path: '/', handler: () => null });
@@ -688,7 +688,7 @@ describe('Request', () => {
             expect(res.statusCode).to.equal(500);
         });
 
-        it.skip('errors on invalid method type', async () => {
+        it('errors on invalid method type', async () => {
 
             const server = new Hapi.Server({ debug: false });
             server.route({ method: 'GET', path: '/', handler: () => null });

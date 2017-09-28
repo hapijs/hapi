@@ -659,7 +659,7 @@ describe('handler', () => {
 
     describe('invoke()', () => {
 
-        it.skip('returns 500 on ext method exception (same tick)', async () => {
+        it('returns 500 on ext method exception (same tick)', async () => {
 
             const server = new Hapi.Server({ debug: false });
 

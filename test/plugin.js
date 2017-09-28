@@ -2065,7 +2065,7 @@ describe('Plugin', () => {
             expect(pc).to.equal(1);
         });
 
-        it.skip('emits log events after handler error when server is started', async () => {
+        it('emits log events after handler error when server is started', async () => {
 
             const server = new Hapi.Server({ debug: false });
 

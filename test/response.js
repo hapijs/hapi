@@ -218,7 +218,7 @@ describe('Response', () => {
             expect(res.headers['cache-control']).to.equal('no-cache');
         });
 
-        it.skip('returns error on created with GET', async () => {
+        it('returns error on created with GET', async () => {
 
             const handler = (request, reply) => {
 
