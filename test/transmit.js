@@ -1059,14 +1059,14 @@ describe('transmission', () => {
             const preResponse = (request, reply) => {
 
                 response = request.response;
-                response.registerEvent('special');
-                log = response.once('special');
+                response.events.registerEvent('special');
+                log = response.events.once('special');
                 return reply.continue;
             };
 
             server.ext('onPreResponse', preResponse);
             await server.inject('/');
-            response.emit('special');
+            response.events.emit('special');
             await log;
         });
 

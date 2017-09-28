@@ -1025,12 +1025,12 @@ describe('Response', () => {
 
                     const response = reply('1234567890');
 
-                    response.on('peek', (chunk, encoding) => {
+                    response.events.on('peek', (chunk, encoding) => {
 
                         output += chunk.toString();
                     });
 
-                    response.once('finish', () => {
+                    response.events.once('finish', () => {
 
                         output += '!';
                     });

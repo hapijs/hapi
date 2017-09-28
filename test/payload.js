@@ -165,12 +165,12 @@ describe('payload', () => {
         const ext = (request, reply) => {
 
             const chunks = [];
-            request.on('peek', (chunk, encoding) => {
+            request.events.on('peek', (chunk, encoding) => {
 
                 chunks.push(chunk);
             });
 
-            request.once('finish', () => {
+            request.events.once('finish', () => {
 
                 data = Buffer.concat(chunks);
             });

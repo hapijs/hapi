@@ -238,7 +238,7 @@ describe('Request', () => {
             let disconnected = 0;
             const onRequest = (request, reply) => {
 
-                request.once('disconnect', () => {
+                request.events.once('disconnect', () => {
 
                     ++disconnected;
                 });
@@ -298,7 +298,7 @@ describe('Request', () => {
             const team = new Teamwork.Team({ meetings: 1 });
             const onRequest = (request, reply) => {
 
-                request.once('disconnect', () => team.attend());
+                request.events.once('disconnect', () => team.attend());
                 return reply.continue;
             };
 
