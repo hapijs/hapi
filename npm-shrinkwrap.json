@@ -1,6 +1,6 @@
 {
   "name": "hapi",
-  "version": "17.0.0",
+  "version": "17.0.0-rc1",
   "lockfileVersion": 1,
   "dependencies": {
     "accept": {
@@ -51,10 +51,6 @@
       "version": "5.0.1",
       "resolved": "https://registry.npmjs.org/iron/-/iron-5.0.1.tgz"
     },
-    "items": {
-      "version": "2.1.1",
-      "resolved": "https://registry.npmjs.org/items/-/items-2.1.1.tgz"
-    },
     "joi": {
       "version": "11.1.1",
       "resolved": "https://registry.npmjs.org/joi/-/joi-11.1.1.tgz"
@@ -76,7 +72,7 @@
       "resolved": "https://registry.npmjs.org/pez/-/pez-3.0.1.tgz"
     },
     "podium": {
-      "version": "2.1.0",
+      "version": "3.0.0",
       "resolved": "https://registry.npmjs.org/podium/-/podium-2.1.0.tgz"
     },
     "shot": {

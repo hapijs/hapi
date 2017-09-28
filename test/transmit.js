@@ -1377,7 +1377,7 @@ describe('transmission', () => {
                     team.attend();
                 });
 
-                await internals.wait(100);
+                await Hoek.wait(100);
                 return stream;
             };
 
@@ -2257,10 +2257,4 @@ internals.TimerStream.prototype._read = function (size) {
 internals.compress = function (encoder, value) {
 
     return new Promise((resolve) => Zlib[encoder](value, (ignoreErr, compressed) => resolve(compressed)));
-};
-
-
-internals.wait = function (timeout) {
-
-    return new Promise((resolve, reject) => setTimeout(resolve, timeout));
 };

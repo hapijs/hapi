@@ -291,7 +291,7 @@ describe('payload', () => {
     it('errors saving a file without parse', async () => {
 
         const server = new Hapi.Server();
-        server.route({ method: 'POST', path: '/file', config: { handler: internals.block, payload: { output: 'file', parse: false, uploads: '/a/b/c/d/not' } } });
+        server.route({ method: 'POST', path: '/file', config: { handler: Hoek.block, payload: { output: 'file', parse: false, uploads: '/a/b/c/d/not' } } });
         const res = await server.inject({ method: 'POST', url: '/file', payload: 'abcde' });
         expect(res.statusCode).to.equal(500);
     });
@@ -602,9 +602,3 @@ describe('payload', () => {
         expect(res.payload.toString()).to.equal('{"statusCode":400,"error":"Bad Request","message":"Invalid multipart payload format"}');
     });
 });
-
-
-internals.block = function () {
-
-    return new Promise(() => { });
-};

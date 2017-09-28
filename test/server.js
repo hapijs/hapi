@@ -515,7 +515,7 @@ describe('Server', () => {
             await server.start();
             const promise = Wreck.request('GET', `http://localhost:${server.info.port}/`, { rejectUnauthorized: false });
 
-            await internals.wait(50);
+            await Hoek.wait(50);
             const count1 = await internals.countConnections(server);
             expect(count1).to.equal(1);
             expect(Object.keys(server._sockets).length).to.equal(1);
@@ -554,7 +554,7 @@ describe('Server', () => {
             await server.start();
             const promise = Wreck.request('GET', `https://localhost:${server.info.port}/`, { rejectUnauthorized: false });
 
-            await internals.wait(50);
+            await Hoek.wait(50);
             const count1 = await internals.countConnections(server);
             expect(count1).to.equal(1);
             expect(Object.keys(server._sockets).length).to.equal(1);
@@ -644,7 +644,7 @@ describe('Server', () => {
             socket2.end();
 
             await stop;
-            await internals.wait(10);
+            await Hoek.wait(10);
 
             const count2 = await internals.countConnections(server);
             expect(count2).to.equal(0);
@@ -673,7 +673,7 @@ describe('Server', () => {
             socket2.end();
 
             await stop;
-            await internals.wait(10);
+            await Hoek.wait(10);
 
             const count2 = await internals.countConnections(server);
             expect(count2).to.equal(0);
@@ -704,7 +704,7 @@ describe('Server', () => {
 
             const socket = await internals.socket(server);
             socket.write('GET / HTTP/1.0\nHost: test\n\n');
-            await internals.wait(10);
+            await Hoek.wait(10);
 
             const count1 = await internals.countConnections(server);
             expect(count1).to.equal(1);
@@ -722,7 +722,7 @@ describe('Server', () => {
 
             const socket = await internals.socket(server);
             socket.write('GET / HTTP/1.0\nHost: test\n\n');
-            await internals.wait(10);
+            await Hoek.wait(10);
 
             const count1 = await internals.countConnections(server);
             expect(count1).to.equal(1);
@@ -780,7 +780,7 @@ describe('Server', () => {
             const handler = async (request) => {
 
                 stop = server.stop({ timeout: 200 });
-                await internals.wait(0);
+                await Hoek.wait(0);
                 return 'ok';
             };
 
@@ -814,7 +814,7 @@ describe('Server', () => {
             const handler = async (request) => {
 
                 stop = server.stop({ timeout: 200 });
-                await internals.wait(150);
+                await Hoek.wait(150);
                 return 'ok';
             };
 
@@ -873,7 +873,7 @@ describe('Server', () => {
             const res1 = await server.inject('/');
             expect(res1.statusCode).to.equal(200);
 
-            await internals.wait(0);
+            await Hoek.wait(0);
             const res2 = await server.inject('/');
             expect(res2.statusCode).to.equal(503);
 
@@ -1710,12 +1710,12 @@ describe('Server', () => {
             await server.inject('/');
             expect(server.load.eventLoopDelay).to.be.below(6);
 
-            await internals.wait(0);
+            await Hoek.wait(0);
 
             await server.inject('/');
             expect(server.load.eventLoopDelay).to.be.above(0);
 
-            await internals.wait(0);
+            await Hoek.wait(0);
 
             await server.inject('/');
             expect(server.load.eventLoopDelay).to.be.above(0);
@@ -1736,12 +1736,6 @@ internals.countConnections = function (server) {
             return (err ? reject(err) : resolve(count));
         });
     });
-};
-
-
-internals.wait = function (timeout) {
-
-    return new Promise((resolve, reject) => setTimeout(resolve, timeout));
 };
 
 

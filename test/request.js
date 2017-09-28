@@ -356,7 +356,7 @@ describe('Request', () => {
             const handler = async (request) => {
 
                 clientRequest.abort();
-                await internals.wait(10);
+                await Hoek.wait(10);
                 team.attend();
                 throw new Error('fail');
             };
@@ -388,7 +388,7 @@ describe('Request', () => {
             const preHandler = async (request, reply) => {
 
                 clientRequest.abort();
-                await internals.wait(10);
+                await Hoek.wait(10);
                 team.attend();
                 return reply.continue;
             };
@@ -415,7 +415,7 @@ describe('Request', () => {
             const handler = async (request) => {
 
                 clientRequest.abort();
-                await internals.wait(10);
+                await Hoek.wait(10);
                 throw new Error('boom');
             };
 
@@ -516,7 +516,7 @@ describe('Request', () => {
             const team = new Teamwork.Team({ meetings: 1 });
             const handler = async (request) => {
 
-                await internals.wait(100);
+                await Hoek.wait(100);
 
                 const stream = new Stream.Readable();
                 stream._read = function (size) {
@@ -545,7 +545,7 @@ describe('Request', () => {
 
             const handler = async (request) => {
 
-                await internals.wait(10);
+                await Hoek.wait(10);
                 throw new Error('after');
             };
 
@@ -905,7 +905,7 @@ describe('Request', () => {
 
             await server.start();
             const socket = Net.createConnection(server.info.port, '127.0.0.1', () => socket.write('GET http://host.com\r\n\r\n'));
-            await internals.wait(10);
+            await Hoek.wait(10);
             socket.destroy();
             await server.stop();
             expect(hostname).to.equal('host.com');
@@ -1268,7 +1268,7 @@ describe('Request', () => {
 
             const handler = async (request) => {
 
-                await internals.wait(100);
+                await Hoek.wait(100);
                 return 'too slow';
             };
 
@@ -1286,7 +1286,7 @@ describe('Request', () => {
 
             const handler = async (request) => {
 
-                await internals.wait(20);
+                await Hoek.wait(20);
                 return null;
             };
 
@@ -1310,7 +1310,7 @@ describe('Request', () => {
             server.route({ method: 'GET', path: '/', config: { handler: function () { } } });
             const onRequest = async (request, reply) => {
 
-                await internals.wait(10);
+                await Hoek.wait(10);
                 return reply.continue;
             };
 
@@ -1324,7 +1324,7 @@ describe('Request', () => {
 
             const handler = async (request) => {
 
-                await internals.wait(20);
+                await Hoek.wait(20);
                 return null;
             };
 
@@ -1345,7 +1345,7 @@ describe('Request', () => {
 
             const slowHandler = async (request) => {
 
-                await internals.wait(30);
+                await Hoek.wait(30);
                 return 'slow';
             };
 
@@ -1454,7 +1454,7 @@ describe('Request', () => {
         it('handles race condition between equal client and server timeouts', async () => {
 
             const server = new Hapi.Server({ routes: { timeout: { server: 50 }, payload: { timeout: 50 } } });
-            server.route({ method: 'POST', path: '/timeout', config: { handler: internals.block } });
+            server.route({ method: 'POST', path: '/timeout', config: { handler: Hoek.block } });
 
             await server.start();
 
@@ -1481,7 +1481,7 @@ describe('Request', () => {
                 });
 
                 req.write('\n');
-                await internals.wait(100);
+                await Hoek.wait(100);
                 req.end();
             });
 
@@ -1489,15 +1489,3 @@ describe('Request', () => {
         });
     });
 });
-
-
-internals.wait = function (timeout) {
-
-    return new Promise((resolve, reject) => setTimeout(resolve, timeout));
-};
-
-
-internals.block = function () {
-
-    return new Promise(() => { });
-};

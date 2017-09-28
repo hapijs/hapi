@@ -944,7 +944,7 @@ describe('Plugin', () => {
             const { value: value1 } = await server.plugins.test.get('a');
             expect(value1).to.equal('1');
 
-            await internals.wait(11);
+            await Hoek.wait(11);
             const { value: value2 } = await server.plugins.test.get('a');
             expect(value2).to.equal(null);
         });
@@ -1888,7 +1888,7 @@ describe('Plugin', () => {
             });
 
             server.log(['2'], 'log event 2', new Date(Date.now()));
-            await internals.wait(10);
+            await Hoek.wait(10);
             expect(count).to.equal(3);
         });
 
@@ -2096,7 +2096,7 @@ describe('Plugin', () => {
 
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
-            await internals.wait(10);
+            await Hoek.wait(10);
             expect(updates).to.equal([['1'], 'request-error', 'response']);
             await server.stop();
         });
@@ -2750,10 +2750,4 @@ internals.plugins.test2.attributes = {
         name: 'test2',
         version: '1.0.0'
     }
-};
-
-
-internals.wait = function (timeout) {
-
-    return new Promise((resolve, reject) => setTimeout(resolve, timeout));
 };

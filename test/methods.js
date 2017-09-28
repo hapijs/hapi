@@ -205,7 +205,7 @@ describe('Methods', () => {
         let gen = 0;
         const method = async function (id) {
 
-            await internals.wait(1);
+            await Hoek.wait(1);
             return { id, gen: gen++ };
         };
 
@@ -489,7 +489,7 @@ describe('Methods', () => {
         let gen = 0;
         const method = async function (id) {
 
-            await internals.wait(5);
+            await Hoek.wait(5);
             return { id, gen: ++gen };
         };
 
@@ -501,7 +501,7 @@ describe('Methods', () => {
         const err = await expect(server.methods.user(id)).to.reject();
         expect(err.output.statusCode).to.equal(503);
 
-        await internals.wait(3);
+        await Hoek.wait(3);
 
         const { value: result2 } = await server.methods.user(id);
         expect(result2.id).to.equal(id);
@@ -692,9 +692,3 @@ describe('Methods', () => {
         }).to.throw();
     });
 });
-
-
-internals.wait = function (timeout) {
-
-    return new Promise((resolve, reject) => setTimeout(resolve, timeout));
-};

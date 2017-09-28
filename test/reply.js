@@ -243,7 +243,7 @@ describe('Reply', () => {
         const res2 = await server.inject('/writable');
 
         expect(res2.statusCode).to.equal(500);
-        await internals.wait(10);
+        await Hoek.wait(10);
         expect(updates).to.equal(2);
     });
 
@@ -560,9 +560,3 @@ describe('Reply', () => {
         });
     });
 });
-
-
-internals.wait = function (timeout) {
-
-    return new Promise((resolve, reject) => setTimeout(resolve, timeout));
-};

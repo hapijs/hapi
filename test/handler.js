@@ -8,6 +8,7 @@ const Boom = require('boom');
 const Code = require('code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
+const Hoek = require('hoek');
 const Inert = require('inert');
 const Lab = require('lab');
 const Vision = require('vision');
@@ -237,7 +238,7 @@ describe('handler', () => {
 
             const pre3 = async (request) => {
 
-                await internals.wait(0);
+                await Hoek.wait(0);
                 return ' ';
             };
 
@@ -317,7 +318,7 @@ describe('handler', () => {
 
             const pre3 = async (request, reply) => {
 
-                await internals.wait(0);
+                await Hoek.wait(0);
                 return reply(' ').takeover();
             };
 
@@ -678,9 +679,3 @@ describe('handler', () => {
         });
     });
 });
-
-
-internals.wait = function (timeout) {
-
-    return new Promise((resolve, reject) => setTimeout(resolve, timeout));
-};
