@@ -498,6 +498,20 @@ describe('Request', () => {
         });
     });
 
+    describe('_reply()', () => {
+
+        it('returns a reply with auto end in onPreResponse', async () => {
+
+            const server = new Hapi.Server();
+            server.ext('onPreResponse', (request, reply) => reply.close);
+            server.route({ method: 'GET', path: '/', handler: () => null });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('');
+        });
+    });
+
     describe('_finalize()', async () => {
 
         it('generate response event', async () => {
