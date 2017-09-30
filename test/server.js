@@ -505,10 +505,10 @@ describe('Server', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: (request, reply) => {
+                handler: (request, responder) => {
 
                     ++count;
-                    return reply.abandon;
+                    return responder.abandon;
                 }
             });
 
@@ -544,10 +544,10 @@ describe('Server', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: (request, reply) => {
+                handler: (request, responder) => {
 
                     ++count;
-                    return reply.abandon;
+                    return responder.abandon;
                 }
             });
 
@@ -699,7 +699,7 @@ describe('Server', () => {
         it('waits to destroy handled connections until after the timeout', async () => {
 
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: (request, reply) => reply.abandon });
+            server.route({ method: 'GET', path: '/', handler: (request, responder) => responder.abandon });
             await server.start();
 
             const socket = await internals.socket(server);
@@ -717,7 +717,7 @@ describe('Server', () => {
         it('waits to destroy connections if they close by themselves', async () => {
 
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: (request, reply) => reply.abandon });
+            server.route({ method: 'GET', path: '/', handler: (request, responder) => responder.abandon });
             await server.start();
 
             const socket = await internals.socket(server);
@@ -1131,15 +1131,15 @@ describe('Server', () => {
 
             const server = new Hapi.Server();
             server.ext('onPreHandler', [
-                (request, reply) => {
+                (request, responder) => {
 
                     request.app.x = '1';
-                    return reply.continue;
+                    return responder.continue;
                 },
-                (request, reply) => {
+                (request, responder) => {
 
                     request.app.x += '2';
-                    return reply.continue;
+                    return responder.continue;
                 }
             ]);
 
@@ -1152,10 +1152,10 @@ describe('Server', () => {
         it('sets bind via options', async () => {
 
             const server = new Hapi.Server();
-            const preHandler = function (request, reply) {
+            const preHandler = function (request, responder) {
 
                 request.app.x = this.y;
-                return reply.continue;
+                return responder.continue;
             };
 
             server.ext('onPreHandler', preHandler, { bind: { y: 42 } });
@@ -1176,9 +1176,9 @@ describe('Server', () => {
                 path: __dirname + '/templates'
             });
 
-            const preHandler = (request, reply) => {
+            const preHandler = (request, responder) => {
 
-                return reply.view('test').takeover();
+                return responder.view('test').takeover();
             };
 
             server.ext('onPreHandler', preHandler);
@@ -1202,12 +1202,12 @@ describe('Server', () => {
             expect(res.statusCode).to.equal(200);
         });
 
-        it('supports reply decorators on empty result', async () => {
+        it('supports responder decorators on empty result', async () => {
 
             const server = new Hapi.Server();
-            const onRequest = (request, reply) => {
+            const onRequest = (request, responder) => {
 
-                return reply().redirect('/elsewhere').takeover();
+                return responder.wrap().redirect('/elsewhere').takeover();
             };
 
             server.ext('onRequest', onRequest);
@@ -1217,12 +1217,12 @@ describe('Server', () => {
             expect(res.headers.location).to.equal('/elsewhere');
         });
 
-        it('supports direct reply decorators', async () => {
+        it('supports direct responder decorators', async () => {
 
             const server = new Hapi.Server();
-            const onRequest = (request, reply) => {
+            const onRequest = (request, responder) => {
 
-                return reply.redirect('/elsewhere').takeover();
+                return responder.redirect('/elsewhere').takeover();
             };
 
             server.ext('onRequest', onRequest);
@@ -1236,9 +1236,9 @@ describe('Server', () => {
 
             const server = new Hapi.Server();
 
-            const preResponse1 = (request, reply) => {
+            const preResponse1 = (request, responder) => {
 
-                return reply(1).takeover();
+                return responder.wrap(1).takeover();
             };
 
             server.ext('onPreResponse', preResponse1);
@@ -1306,9 +1306,9 @@ describe('Server', () => {
                     path: __dirname + '/templates'
                 });
 
-                const onRequest = (request, reply) => {
+                const onRequest = (request, responder) => {
 
-                    return reply.view('test', { message: 'hola!' }).takeover();
+                    return responder.view('test', { message: 'hola!' }).takeover();
                 };
 
                 server.ext('onRequest', onRequest);
@@ -1326,13 +1326,13 @@ describe('Server', () => {
 
                 const server = new Hapi.Server();
 
-                const preRequest = (request, reply) => {
+                const preRequest = (request, responder) => {
 
                     if (typeof request.response.source === 'string') {
                         throw Boom.badRequest('boom');
                     }
 
-                    return reply.continue;
+                    return responder.continue;
                 };
 
                 server.ext('onPreResponse', preRequest);
@@ -1360,9 +1360,9 @@ describe('Server', () => {
 
                 const server = new Hapi.Server();
 
-                const preResponse = (request, reply) => {
+                const preResponse = (request, responder) => {
 
-                    return reply(request.response.output.statusCode).takeover();
+                    return responder.wrap(request.response.output.statusCode).takeover();
                 };
 
                 server.ext('onPreResponse', preResponse);
@@ -1459,18 +1459,18 @@ describe('Server', () => {
 
                 const server = new Hapi.Server();
 
-                const preResponse1 = (request, reply) => {
+                const preResponse1 = (request, responder) => {
 
                     request.response.source = request.response.source + '1';
-                    return reply.continue;
+                    return responder.continue;
                 };
 
                 server.ext('onPreResponse', preResponse1);
 
-                const preResponse2 = (request, reply) => {
+                const preResponse2 = (request, responder) => {
 
                     request.response.source = request.response.source + '2';
-                    return reply.continue;
+                    return responder.continue;
                 };
 
                 server.ext('onPreResponse', preResponse2);
@@ -1511,9 +1511,9 @@ describe('Server', () => {
 
         it('responds to HEAD requests for a GET route', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('ok').etag('test').code(205);
+                return responder.wrap('ok').etag('test').code(205);
             };
 
             const server = new Hapi.Server();
@@ -1551,14 +1551,14 @@ describe('Server', () => {
 
         it('returns 500 on HEAD requests for failed responses', async () => {
 
-            const preResponse = (request, reply) => {
+            const preResponse = (request, responder) => {
 
                 request.response._processors.marshal = function (response, callback) {
 
                     process.nextTick(callback, new Error('boom!'));
                 };
 
-                return reply.continue;
+                return responder.continue;
             };
 
             const server = new Hapi.Server();

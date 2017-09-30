@@ -30,11 +30,11 @@ const expect = Code.expect;
 
 describe('Response', () => {
 
-    it('returns a reply', async () => {
+    it('returns a responder', async () => {
 
-        const handler = (request, reply) => {
+        const handler = (request, responder) => {
 
-            return reply('text')
+            return responder.wrap('text')
                 .type('text/plain')
                 .charset('ISO-8859-1')
                 .ttl(1000)
@@ -56,11 +56,11 @@ describe('Response', () => {
         server.state('sid', { encoding: 'base64' });
         server.state('always', { autoValue: 'present' });
 
-        const postHandler = (request, reply) => {
+        const postHandler = (request, responder) => {
 
-            reply.state('test', '123');
-            reply.unstate('empty', { path: '/path' });
-            return reply.continue;
+            responder.state('test', '123');
+            responder.unstate('empty', { path: '/path' });
+            return responder.continue;
         };
 
         server.ext('onPostHandler', postHandler);
@@ -79,9 +79,9 @@ describe('Response', () => {
 
     it('sets content-type charset (trailing semi column)', async () => {
 
-        const handler = (request, reply) => {
+        const handler = (request, responder) => {
 
-            return reply('text').header('Content-Type', 'text/plain; something=something;');
+            return responder.wrap('text').header('Content-Type', 'text/plain; something=something;');
         };
 
         const server = new Hapi.Server();
@@ -94,7 +94,7 @@ describe('Response', () => {
 
     describe('_setSource()', () => {
 
-        it('returns an empty string reply', async () => {
+        it('returns an empty string responder', async () => {
 
             const server = new Hapi.Server();
             server.route({
@@ -111,7 +111,7 @@ describe('Response', () => {
             expect(res.payload).to.equal('');
         });
 
-        it('returns a null reply', async () => {
+        it('returns a null responder', async () => {
 
             const server = new Hapi.Server();
             server.route({
@@ -132,9 +132,9 @@ describe('Response', () => {
 
         it('appends to set-cookie header', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('ok').header('set-cookie', 'A').header('set-cookie', 'B', { append: true });
+                return responder.wrap('ok').header('set-cookie', 'A').header('set-cookie', 'B', { append: true });
             };
 
             const server = new Hapi.Server();
@@ -146,9 +146,9 @@ describe('Response', () => {
 
         it('sets null header', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('ok').header('set-cookie', null);
+                return responder.wrap('ok').header('set-cookie', null);
             };
 
             const server = new Hapi.Server();
@@ -160,9 +160,9 @@ describe('Response', () => {
 
         it('throws error on non-ascii value', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('ok').header('set-cookie', decodeURIComponent('%E0%B4%8Aset-cookie:%20foo=bar'));
+                return responder.wrap('ok').header('set-cookie', decodeURIComponent('%E0%B4%8Aset-cookie:%20foo=bar'));
             };
 
             const server = new Hapi.Server();
@@ -173,10 +173,10 @@ describe('Response', () => {
 
         it('throws error on non-ascii value (header name)', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
                 const badName = decodeURIComponent('%E0%B4%8Aset-cookie:%20foo=bar');
-                return reply('ok').header(badName, 'value');
+                return responder.wrap('ok').header(badName, 'value');
             };
 
             const server = new Hapi.Server();
@@ -187,9 +187,9 @@ describe('Response', () => {
 
         it('throws error on non-ascii value (buffer)', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('ok').header('set-cookie', new Buffer(decodeURIComponent('%E0%B4%8Aset-cookie:%20foo=bar')));
+                return responder.wrap('ok').header('set-cookie', new Buffer(decodeURIComponent('%E0%B4%8Aset-cookie:%20foo=bar')));
             };
 
             const server = new Hapi.Server();
@@ -201,11 +201,11 @@ describe('Response', () => {
 
     describe('created()', () => {
 
-        it('returns a stream reply (created)', async () => {
+        it('returns a stream responder (created)', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply({ a: 1 }).created('/special');
+                return responder.wrap({ a: 1 }).created('/special');
             };
 
             const server = new Hapi.Server();
@@ -220,9 +220,9 @@ describe('Response', () => {
 
         it('returns error on created with GET', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply().created('/something');
+                return responder.wrap().created('/something');
             };
 
             const server = new Hapi.Server({ debug: false });
@@ -237,9 +237,9 @@ describe('Response', () => {
 
         it('returns an error on bad cookie', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('text').state(';sid', 'abcdefg123456');
+                return responder.wrap('text').state(';sid', 'abcdefg123456');
             };
 
             const server = new Hapi.Server({ debug: false });
@@ -257,9 +257,9 @@ describe('Response', () => {
 
         it('allows options', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply().unstate('session', { path: '/unset', isSecure: true });
+                return responder.wrap().unstate('session', { path: '/unset', isSecure: true });
             };
 
             const server = new Hapi.Server();
@@ -275,9 +275,9 @@ describe('Response', () => {
 
         it('sets Vary header with single value', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('ok').vary('x');
+                return responder.wrap('ok').vary('x');
             };
 
             const server = new Hapi.Server();
@@ -291,9 +291,9 @@ describe('Response', () => {
 
         it('sets Vary header with multiple values', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('ok').vary('x').vary('y');
+                return responder.wrap('ok').vary('x').vary('y');
             };
 
             const server = new Hapi.Server();
@@ -307,9 +307,9 @@ describe('Response', () => {
 
         it('sets Vary header with *', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('ok').vary('*');
+                return responder.wrap('ok').vary('*');
             };
 
             const server = new Hapi.Server();
@@ -323,9 +323,9 @@ describe('Response', () => {
 
         it('leaves Vary header with * on additional values', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('ok').vary('*').vary('x');
+                return responder.wrap('ok').vary('*').vary('x');
             };
 
             const server = new Hapi.Server();
@@ -339,9 +339,9 @@ describe('Response', () => {
 
         it('drops other Vary header values when set to *', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('ok').vary('x').vary('*');
+                return responder.wrap('ok').vary('x').vary('*');
             };
 
             const server = new Hapi.Server();
@@ -355,9 +355,9 @@ describe('Response', () => {
 
         it('sets Vary header with multiple similar and identical values', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('ok').vary('x').vary('xyz').vary('xy').vary('x');
+                return responder.wrap('ok').vary('x').vary('xyz').vary('xy').vary('x');
             };
 
             const server = new Hapi.Server();
@@ -374,9 +374,9 @@ describe('Response', () => {
 
         it('sets etag', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('ok').etag('abc');
+                return responder.wrap('ok').etag('abc');
             };
 
             const server = new Hapi.Server();
@@ -388,9 +388,9 @@ describe('Response', () => {
 
         it('sets weak etag', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('ok').etag('abc', { weak: true });
+                return responder.wrap('ok').etag('abc', { weak: true });
             };
 
             const server = new Hapi.Server();
@@ -402,9 +402,9 @@ describe('Response', () => {
 
         it('ignores varyEtag when etag header is removed', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                const response = reply('ok').etag('abc').vary('x');
+                const response = responder.wrap('ok').etag('abc').vary('x');
                 delete response.headers.etag;
                 return response;
             };
@@ -418,9 +418,9 @@ describe('Response', () => {
 
         it('leaves etag header when varyEtag is false', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('ok').etag('abc', { vary: false }).vary('x');
+                return responder.wrap('ok').etag('abc', { vary: false }).vary('x');
             };
 
             const server = new Hapi.Server();
@@ -438,9 +438,9 @@ describe('Response', () => {
 
             const mdate = new Date().toUTCString();
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('ok').etag('abc').header('last-modified', mdate);
+                return responder.wrap('ok').etag('abc').header('last-modified', mdate);
             };
 
             const server = new Hapi.Server();
@@ -511,9 +511,9 @@ describe('Response', () => {
                 this.push(null);
             };
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply(new TestStream()).passThrough(false);
+                return responder.wrap(new TestStream()).passThrough(false);
             };
 
             const server = new Hapi.Server();
@@ -582,9 +582,9 @@ describe('Response', () => {
                 this.push(null);
             };
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply(new TestStream()).header('xcustom', 'other value').state('b', '2');
+                return responder.wrap(new TestStream()).header('xcustom', 'other value').state('b', '2');
             };
 
             const server = new Hapi.Server();
@@ -601,9 +601,9 @@ describe('Response', () => {
 
         it('errors when called on wrong type', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('x').replacer(['x']);
+                return responder.wrap('x').replacer(['x']);
             };
 
             const server = new Hapi.Server({ debug: false });
@@ -617,9 +617,9 @@ describe('Response', () => {
 
         it('errors when called on wrong type', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('x').spaces(2);
+                return responder.wrap('x').spaces(2);
             };
 
             const server = new Hapi.Server({ debug: false });
@@ -633,9 +633,9 @@ describe('Response', () => {
 
         it('errors when called on wrong type', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('x').suffix('x');
+                return responder.wrap('x').suffix('x');
             };
 
             const server = new Hapi.Server({ debug: false });
@@ -649,9 +649,9 @@ describe('Response', () => {
 
         it('returns 200 when called with true', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply({ x: 'x' }).escape(true);
+                return responder.wrap({ x: 'x' }).escape(true);
             };
 
             const server = new Hapi.Server({ debug: false });
@@ -662,9 +662,9 @@ describe('Response', () => {
 
         it('errors when called on wrong type', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('x').escape('x');
+                return responder.wrap('x').escape('x');
             };
 
             const server = new Hapi.Server({ debug: false });
@@ -680,9 +680,9 @@ describe('Response', () => {
 
             const server = new Hapi.Server({ routes: { files: { relativeTo: Path.join(__dirname, '../') } } });
             await server.register(Inert);
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply.file('./LICENSE').type('application/example');
+                return responder.file('./LICENSE').type('application/example');
             };
 
             server.route({ method: 'GET', path: '/file', handler });
@@ -696,9 +696,9 @@ describe('Response', () => {
 
         it('sets charset with default type', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('text').charset('abc');
+                return responder.wrap('text').charset('abc');
             };
 
             const server = new Hapi.Server();
@@ -711,10 +711,10 @@ describe('Response', () => {
 
         it('sets charset with default type in onPreResponse', async () => {
 
-            const onPreResponse = (request, reply) => {
+            const onPreResponse = (request, responder) => {
 
                 request.response.charset('abc');
-                return reply.continue;
+                return responder.continue;
             };
 
             const server = new Hapi.Server();
@@ -743,10 +743,10 @@ describe('Response', () => {
                 return request.generateResponse({ value: 'text' }, { variety: 'test', marshal });
             };
 
-            const onPreResponse = (request, reply) => {
+            const onPreResponse = (request, responder) => {
 
                 request.response.charset('abc');
-                return reply.continue;
+                return responder.continue;
             };
 
             const server = new Hapi.Server();
@@ -762,11 +762,11 @@ describe('Response', () => {
 
     describe('redirect()', () => {
 
-        it('returns a redirection reply', async () => {
+        it('returns a redirection responder', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('Please wait while we send your elsewhere').redirect('/example');
+                return responder.wrap('Please wait while we send your elsewhere').redirect('/example');
             };
 
             const server = new Hapi.Server();
@@ -778,11 +778,11 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(302);
         });
 
-        it('returns a redirection reply using verbose call', async () => {
+        it('returns a redirection responder using verbose call', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('We moved!').redirect().location('/examplex');
+                return responder.wrap('We moved!').redirect().location('/examplex');
             };
 
             const server = new Hapi.Server();
@@ -795,11 +795,11 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(302);
         });
 
-        it('returns a 301 redirection reply', async () => {
+        it('returns a 301 redirection responder', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply().redirect('example').permanent().rewritable();
+                return responder.wrap().redirect('example').permanent().rewritable();
             };
 
             const server = new Hapi.Server();
@@ -809,11 +809,11 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(301);
         });
 
-        it('returns a 302 redirection reply', async () => {
+        it('returns a 302 redirection responder', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply().redirect('example').temporary().rewritable();
+                return responder.wrap().redirect('example').temporary().rewritable();
             };
 
             const server = new Hapi.Server();
@@ -823,11 +823,11 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(302);
         });
 
-        it('returns a 307 redirection reply', async () => {
+        it('returns a 307 redirection responder', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply().redirect('example').temporary().rewritable(false);
+                return responder.wrap().redirect('example').temporary().rewritable(false);
             };
 
             const server = new Hapi.Server();
@@ -837,11 +837,11 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(307);
         });
 
-        it('returns a 308 redirection reply', async () => {
+        it('returns a 308 redirection responder', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply().redirect('example').permanent().rewritable(false);
+                return responder.wrap().redirect('example').permanent().rewritable(false);
             };
 
             const server = new Hapi.Server();
@@ -851,11 +851,11 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(308);
         });
 
-        it('returns a 301 redirection reply (reveresed methods)', async () => {
+        it('returns a 301 redirection responder (reveresed methods)', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply().redirect('example').rewritable().permanent();
+                return responder.wrap().redirect('example').rewritable().permanent();
             };
 
             const server = new Hapi.Server();
@@ -865,11 +865,11 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(301);
         });
 
-        it('returns a 302 redirection reply (reveresed methods)', async () => {
+        it('returns a 302 redirection responder (reveresed methods)', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply().redirect('example').rewritable().temporary();
+                return responder.wrap().redirect('example').rewritable().temporary();
             };
 
             const server = new Hapi.Server();
@@ -879,11 +879,11 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(302);
         });
 
-        it('returns a 307 redirection reply (reveresed methods)', async () => {
+        it('returns a 307 redirection responder (reveresed methods)', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply().redirect('example').rewritable(false).temporary();
+                return responder.wrap().redirect('example').rewritable(false).temporary();
             };
 
             const server = new Hapi.Server();
@@ -893,11 +893,11 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(307);
         });
 
-        it('returns a 308 redirection reply (reveresed methods)', async () => {
+        it('returns a 308 redirection responder (reveresed methods)', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply().redirect('example').rewritable(false).permanent();
+                return responder.wrap().redirect('example').rewritable(false).permanent();
             };
 
             const server = new Hapi.Server();
@@ -907,11 +907,11 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(308);
         });
 
-        it('returns a 302 redirection reply (flip flop)', async () => {
+        it('returns a 302 redirection responder (flip flop)', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply().redirect('example').permanent().temporary();
+                return responder.wrap().redirect('example').permanent().temporary();
             };
 
             const server = new Hapi.Server();
@@ -966,9 +966,9 @@ describe('Response', () => {
 
         it('returns a response with options', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply({ a: 1, b: 2, '<': '&' }).type('application/x-test').spaces(2).replacer(['a']).suffix('\n').escape(false);
+                return responder.wrap({ a: 1, b: 2, '<': '&' }).type('application/x-test').spaces(2).replacer(['a']).suffix('\n').escape(false);
             };
 
             const server = new Hapi.Server();
@@ -981,9 +981,9 @@ describe('Response', () => {
 
         it('returns a response with options (different order)', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply({ a: 1, b: 2, '<': '&' }).type('application/x-test').escape(false).replacer(['a']).suffix('\n').spaces(2);
+                return responder.wrap({ a: 1, b: 2, '<': '&' }).type('application/x-test').escape(false).replacer(['a']).suffix('\n').spaces(2);
             };
 
             const server = new Hapi.Server();
@@ -1021,9 +1021,9 @@ describe('Response', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: (request, reply) => {
+                handler: (request, responder) => {
 
-                    const response = reply('1234567890');
+                    const response = responder.wrap('1234567890');
 
                     response.events.on('peek', (chunk, encoding) => {
 

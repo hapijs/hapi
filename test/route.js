@@ -216,9 +216,9 @@ describe('Route', () => {
             config: {
                 payload: {
                     parse: true,
-                    failAction: function (request, reply, error) {
+                    failAction: function (request, responder, error) {
 
-                        return reply('This is a custom error').code(418);
+                        return responder.wrap('This is a custom error').code(418);
                     }
                 }
             }
@@ -372,7 +372,7 @@ describe('Route', () => {
 
         const server = new Hapi.Server();
         await server.register(Inert);
-        const handler = (request, reply) => reply.file('./package.json');
+        const handler = (request, responder) => responder.file('./package.json');
         server.route({ method: 'GET', path: '/file', handler, config: { files: { relativeTo: Path.join(__dirname, '../') } } });
 
         const res = await server.inject('/file');
@@ -408,50 +408,50 @@ describe('Route', () => {
         it('combine connection extensions (route last)', async () => {
 
             const server = new Hapi.Server();
-            const onRequest = (request, reply) => {
+            const onRequest = (request, responder) => {
 
                 request.app.x = '1';
-                return reply.continue;
+                return responder.continue;
             };
 
             server.ext('onRequest', onRequest);
 
-            const preAuth = (request, reply) => {
+            const preAuth = (request, responder) => {
 
                 request.app.x += '2';
-                return reply.continue;
+                return responder.continue;
             };
 
             server.ext('onPreAuth', preAuth);
 
-            const postAuth = (request, reply) => {
+            const postAuth = (request, responder) => {
 
                 request.app.x += '3';
-                return reply.continue;
+                return responder.continue;
             };
 
             server.ext('onPostAuth', postAuth);
 
-            const preHandler = (request, reply) => {
+            const preHandler = (request, responder) => {
 
                 request.app.x += '4';
-                return reply.continue;
+                return responder.continue;
             };
 
             server.ext('onPreHandler', preHandler);
 
-            const postHandler = (request, reply) => {
+            const postHandler = (request, responder) => {
 
                 request.response.source += '5';
-                return reply.continue;
+                return responder.continue;
             };
 
             server.ext('onPostHandler', postHandler);
 
-            const preResponse = (request, reply) => {
+            const preResponse = (request, responder) => {
 
                 request.response.source += '6';
-                return reply.continue;
+                return responder.continue;
             };
 
             server.ext('onPreResponse', preResponse);
@@ -476,50 +476,50 @@ describe('Route', () => {
                 handler: (request) => request.app.x
             });
 
-            const onRequest = (request, reply) => {
+            const onRequest = (request, responder) => {
 
                 request.app.x = '1';
-                return reply.continue;
+                return responder.continue;
             };
 
             server.ext('onRequest', onRequest);
 
-            const preAuth = (request, reply) => {
+            const preAuth = (request, responder) => {
 
                 request.app.x += '2';
-                return reply.continue;
+                return responder.continue;
             };
 
             server.ext('onPreAuth', preAuth);
 
-            const postAuth = (request, reply) => {
+            const postAuth = (request, responder) => {
 
                 request.app.x += '3';
-                return reply.continue;
+                return responder.continue;
             };
 
             server.ext('onPostAuth', postAuth);
 
-            const preHandler = (request, reply) => {
+            const preHandler = (request, responder) => {
 
                 request.app.x += '4';
-                return reply.continue;
+                return responder.continue;
             };
 
             server.ext('onPreHandler', preHandler);
 
-            const postHandler = (request, reply) => {
+            const postHandler = (request, responder) => {
 
                 request.response.source += '5';
-                return reply.continue;
+                return responder.continue;
             };
 
             server.ext('onPostHandler', postHandler);
 
-            const preResponse = (request, reply) => {
+            const preResponse = (request, responder) => {
 
                 request.response.source += '6';
-                return reply.continue;
+                return responder.continue;
             };
 
             server.ext('onPreResponse', preResponse);
@@ -532,26 +532,26 @@ describe('Route', () => {
 
             const server = new Hapi.Server();
 
-            const onRequest = (request, reply) => {
+            const onRequest = (request, responder) => {
 
                 request.app.x = '1';
-                return reply.continue;
+                return responder.continue;
             };
 
             server.ext('onRequest', onRequest);
 
-            const preAuth = (request, reply) => {
+            const preAuth = (request, responder) => {
 
                 request.app.x += '2';
-                return reply.continue;
+                return responder.continue;
             };
 
             server.ext('onPreAuth', preAuth);
 
-            const postAuth = (request, reply) => {
+            const postAuth = (request, responder) => {
 
                 request.app.x += '3';
-                return reply.continue;
+                return responder.continue;
             };
 
             server.ext('onPostAuth', postAuth);
@@ -562,26 +562,26 @@ describe('Route', () => {
                 handler: (request) => request.app.x
             });
 
-            const preHandler = (request, reply) => {
+            const preHandler = (request, responder) => {
 
                 request.app.x += '4';
-                return reply.continue;
+                return responder.continue;
             };
 
             server.ext('onPreHandler', preHandler);
 
-            const postHandler = (request, reply) => {
+            const postHandler = (request, responder) => {
 
                 request.response.source += '5';
-                return reply.continue;
+                return responder.continue;
             };
 
             server.ext('onPostHandler', postHandler);
 
-            const preResponse = (request, reply) => {
+            const preResponse = (request, responder) => {
 
                 request.response.source += '6';
-                return reply.continue;
+                return responder.continue;
             };
 
             server.ext('onPreResponse', preResponse);
@@ -594,10 +594,10 @@ describe('Route', () => {
 
             const server = new Hapi.Server();
 
-            const preAuth1 = (request, reply) => {
+            const preAuth1 = (request, responder) => {
 
                 request.app.x = '1';
-                return reply.continue;
+                return responder.continue;
             };
 
             server.ext('onPreAuth', preAuth1);
@@ -608,10 +608,10 @@ describe('Route', () => {
                 config: {
                     ext: {
                         onPreAuth: {
-                            method: (request, reply) => {
+                            method: (request, responder) => {
 
                                 request.app.x += '2';
-                                return reply.continue;
+                                return responder.continue;
                             }
                         }
                     },
@@ -619,10 +619,10 @@ describe('Route', () => {
                 }
             });
 
-            const preAuth3 = (request, reply) => {
+            const preAuth3 = (request, responder) => {
 
                 request.app.x += '3';
-                return reply.continue;
+                return responder.continue;
             };
 
             server.ext('onPreAuth', preAuth3);
@@ -646,10 +646,10 @@ describe('Route', () => {
 
             let state = '';
 
-            const onRequest = (request, reply) => {
+            const onRequest = (request, responder) => {
 
                 state += 1;
-                return reply.continue;
+                return responder.continue;
             };
 
             server.ext('onRequest', onRequest);
@@ -662,10 +662,10 @@ describe('Route', () => {
 
             server.ext('onPreAuth', preAuth);
 
-            const preResponse = (request, reply) => {
+            const preResponse = (request, responder) => {
 
                 state += 3;
-                return reply.continue;
+                return responder.continue;
             };
 
             server.ext('onPreResponse', preResponse);

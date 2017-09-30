@@ -210,9 +210,9 @@ describe('CORS', () => {
 
         it('merges CORS access-control-expose-headers header', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('ok').header('access-control-expose-headers', 'something');
+                return responder.wrap('ok').header('access-control-expose-headers', 'something');
             };
 
             const server = new Hapi.Server({ routes: { cors: { additionalExposedHeaders: ['xyz'] } } });
@@ -239,9 +239,9 @@ describe('CORS', () => {
 
         it('returns matching CORS origin', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('Tada').header('vary', 'x-test');
+                return responder.wrap('Tada').header('vary', 'x-test');
             };
 
             const server = new Hapi.Server({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } } });
@@ -257,9 +257,9 @@ describe('CORS', () => {
 
         it('returns origin header when matching against *', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('Tada').header('vary', 'x-test');
+                return responder.wrap('Tada').header('vary', 'x-test');
             };
 
             const server = new Hapi.Server({ routes: { cors: { origin: ['*'] } } });
@@ -275,9 +275,9 @@ describe('CORS', () => {
 
         it('returns matching CORS origin wildcard', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('Tada').header('vary', 'x-test');
+                return responder.wrap('Tada').header('vary', 'x-test');
             };
 
             const server = new Hapi.Server({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } } });
@@ -293,9 +293,9 @@ describe('CORS', () => {
 
         it('returns matching CORS origin wildcard when more than one wildcard', async () => {
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply('Tada').header('vary', 'x-test', true);
+                return responder.wrap('Tada').header('vary', 'x-test', true);
             };
 
             const server = new Hapi.Server({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.b.com', 'http://*.a.com'] } } });

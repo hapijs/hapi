@@ -185,9 +185,9 @@ describe('handler', () => {
 
             const server = new Hapi.Server({ routes: { files: { relativeTo: Path.join(__dirname, '../') } } });
             await server.register(Inert);
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply.file('./package.json').code(499);
+                return responder.file('./package.json').code(499);
             };
 
             server.route({ method: 'GET', path: '/file', handler });
@@ -210,9 +210,9 @@ describe('handler', () => {
                 relativeTo: Path.join(__dirname, '/templates/plugin')
             });
 
-            const handler = (request, reply) => {
+            const handler = (request, responder) => {
 
-                return reply.view('test', { message: 'steve' });
+                return responder.view('test', { message: 'steve' });
             };
 
             server.route({ method: 'GET', path: '/', handler });
@@ -226,9 +226,9 @@ describe('handler', () => {
 
         it('shows the complete prerequisite pipeline in the response', async () => {
 
-            const pre1 = (request, reply) => {
+            const pre1 = (request, responder) => {
 
-                return reply('Hello').code(444);
+                return responder.wrap('Hello').code(444);
             };
 
             const pre2 = (request) => {
@@ -316,10 +316,10 @@ describe('handler', () => {
                 return request.pre.m1 + request.pre.m3 + request.pre.m4;
             };
 
-            const pre3 = async (request, reply) => {
+            const pre3 = async (request, responder) => {
 
                 await Hoek.wait(0);
-                return reply(' ').takeover();
+                return responder.wrap(' ').takeover();
             };
 
             const pre4 = () => 'World';
@@ -379,9 +379,9 @@ describe('handler', () => {
 
         it('passes wrapped object', async () => {
 
-            const pre = (request, reply) => {
+            const pre = (request, responder) => {
 
-                return reply('Hello').code(444);
+                return responder.wrap('Hello').code(444);
             };
 
             const server = new Hapi.Server();

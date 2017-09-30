@@ -62,7 +62,7 @@ describe('authentication', () => {
         const server = new Hapi.Server();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
-        server.route({ method: 'GET', path: '/', handler: (request, reply) => reply('ok').ttl(1000) });
+        server.route({ method: 'GET', path: '/', handler: (request, responder) => responder.wrap('ok').ttl(1000) });
 
         const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
         expect(res.statusCode).to.equal(200);
@@ -164,12 +164,12 @@ describe('authentication', () => {
                 server.route({
                     method: 'GET',
                     path: '/view',
-                    handler: (request, reply) => reply.view('test', { message: 'steve' }),
+                    handler: (request, responder) => responder.view('test', { message: 'steve' }),
                     config: { auth: false }
                 });
 
                 return {
-                    authenticate: (request, reply) =>  reply.view('test', { message: 'xyz' })
+                    authenticate: (request, responder) =>  responder.view('test', { message: 'xyz' })
                 };
             };
 
@@ -202,7 +202,7 @@ describe('authentication', () => {
                     api: {
                         x: 5
                     },
-                    authenticate: (request, reply) => reply.continue(null, {})
+                    authenticate: (request, responder) => responder.continue(null, {})
                 };
             };
 
@@ -741,10 +741,10 @@ describe('authentication', () => {
                 }
             });
 
-            server.ext('onPreResponse', (request, reply) => {
+            server.ext('onPreResponse', (request, responder) => {
 
                 expect(request.response.data).to.contain(['got', 'need']);
-                return reply.continue;
+                return responder.continue;
             });
 
             const res = await server.inject({ url: '/test', headers: { authorization: 'Custom steve' } });
@@ -1144,7 +1144,7 @@ describe('authentication', () => {
             server.auth.scheme('test', (srv, options) => {
 
                 return {
-                    authenticate: (request, reply) => reply('Redirecting ...').redirect('/test')
+                    authenticate: (request, responder) => responder.wrap('Redirecting ...').redirect('/test')
                 };
             });
 
@@ -1548,7 +1548,7 @@ internals.implementation = function (server, options) {
     }
 
     const scheme = {
-        authenticate: (request, reply) => {
+        authenticate: (request, responder) => {
 
             const req = request.raw.req;
             const authorization = req.headers.authorization;
@@ -1558,7 +1558,7 @@ internals.implementation = function (server, options) {
 
             const parts = authorization.split(/\s+/);
             if (parts.length !== 2) {
-                return reply.continue;          // Error without error or credentials
+                return responder.continue;          // Error without error or credentials
             }
 
             const username = parts[1];
@@ -1569,7 +1569,7 @@ internals.implementation = function (server, options) {
             }
 
             if (credentials === 'skip') {
-                return reply.unauthenticated(Boom.unauthorized(null, 'Custom'));
+                return responder.unauthenticated(Boom.unauthorized(null, 'Custom'));
             }
 
             if (typeof credentials === 'string') {
@@ -1577,28 +1577,28 @@ internals.implementation = function (server, options) {
             }
 
             credentials.user = credentials.user || null;
-            return reply.authenticated({ credentials });
+            return responder.authenticated({ credentials });
         },
-        response: (request, reply) => {
+        response: (request, responder) => {
 
             if (request.auth.credentials.response) {
                 throw request.auth.credentials.response;
             }
 
-            return reply.continue;
+            return responder.continue;
         }
     };
 
     if (!settings ||
         settings.payload !== false) {
 
-        scheme.payload = (request, reply) => {
+        scheme.payload = (request, responder) => {
 
             if (request.auth.credentials.payload) {
                 return request.auth.credentials.payload;
             }
 
-            return reply.continue;
+            return responder.continue;
         };
     }
 
