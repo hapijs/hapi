@@ -73,7 +73,7 @@
     },
     "podium": {
       "version": "3.0.0",
-      "resolved": "https://registry.npmjs.org/podium/-/podium-2.1.0.tgz"
+      "resolved": "https://registry.npmjs.org/podium/-/podium-3.0.0.tgz"
     },
     "shot": {
       "version": "4.0.1",
