@@ -142,7 +142,7 @@ describe('Request', () => {
 
     it('handles invalid accept encoding header', async () => {
 
-        const server = new Hapi.Server({ routes: { log: true } });
+        const server = new Hapi.Server({ routes: { log: { collect: true } } });
 
         const handler = (request) => {
 
@@ -572,7 +572,7 @@ describe('Request', () => {
 
         it('emits request-error once', async () => {
 
-            const server = new Hapi.Server({ debug: false, routes: { log: true } });
+            const server = new Hapi.Server({ debug: false, routes: { log: { collect: true } } });
 
             let errs = 0;
             let req = null;
@@ -612,7 +612,7 @@ describe('Request', () => {
 
         it.skip('emits request-error on implementation error', async () => {
 
-            const server = new Hapi.Server({ debug: false, routes: { log: true } });
+            const server = new Hapi.Server({ debug: false, routes: { log: { collect: true } } });
 
             let errs = 0;
             let req = null;
@@ -981,7 +981,7 @@ describe('Request', () => {
 
         it('emits a request event (function data)', async () => {
 
-            const server = new Hapi.Server({ routes: { log: true } });
+            const server = new Hapi.Server({ routes: { log: { collect: true } } });
 
             const handler = async (request) => {
 
@@ -1071,7 +1071,7 @@ describe('Request', () => {
                 return null;
             };
 
-            const server = new Hapi.Server({ routes: { log: true } });
+            const server = new Hapi.Server({ routes: { log: { collect: true } } });
             server.route({ method: 'GET', path: '/', handler });
 
             const log = new Promise((resolve) => {
@@ -1107,7 +1107,7 @@ describe('Request', () => {
                 return [request.getLog('1').length, request.getLog('4').length, request.getLog(['4']).length, request.getLog('0').length, request.getLog(['1', '2', '3', '4']).length, request.getLog().length >= 7].join('|');
             };
 
-            const server = new Hapi.Server({ routes: { log: true } });
+            const server = new Hapi.Server({ routes: { log: { collect: true } } });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -1194,7 +1194,7 @@ describe('Request', () => {
 
         it('emits a request-internal event', async () => {
 
-            const server = new Hapi.Server();
+            const server = new Hapi.Server({ routes: { log: { stats: true } } });
             const log = server.events.once('request-internal');
             await server.inject('/');
             const [, , tags] = await log;
@@ -1214,7 +1214,7 @@ describe('Request', () => {
                 return [request.getLog('1').length, request.getLog('1', true).length, request.getLog('1', false).length, request.getLog(true).length, request.getLog(false).length, request.getLog().length].join('|');
             };
 
-            const server = new Hapi.Server({ routes: { log: true } });
+            const server = new Hapi.Server({ routes: { log: { collect: true, stats: true } } });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');

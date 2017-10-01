@@ -492,7 +492,7 @@ describe('validation', () => {
 
         it('logs invalid input', async () => {
 
-            const server = new Hapi.Server({ routes: { log: true } });
+            const server = new Hapi.Server({ routes: { log: { collect: true } } });
             server.route({
                 method: 'GET',
                 path: '/',

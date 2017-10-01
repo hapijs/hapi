@@ -1903,7 +1903,7 @@ describe('Plugin', () => {
 
         it('emits a log event and print to console', { parallel: false }, async () => {
 
-            const server = new Hapi.Server();
+            const server = new Hapi.Server({ debug: { log: '*' } });
 
             server.events.once('log', (event, tags) => {
 
@@ -1929,7 +1929,7 @@ describe('Plugin', () => {
 
         it('outputs log data to debug console', async () => {
 
-            const server = new Hapi.Server();
+            const server = new Hapi.Server({ debug: { log: '*' } });
 
             const log = new Promise((resolve) => {
 
@@ -1951,7 +1951,7 @@ describe('Plugin', () => {
 
         it('outputs log error data to debug console', async () => {
 
-            const server = new Hapi.Server();
+            const server = new Hapi.Server({ debug: { log: '*' } });
 
             const log = new Promise((resolve) => {
 
@@ -1972,7 +1972,7 @@ describe('Plugin', () => {
 
         it('outputs log data to debug console without data', async () => {
 
-            const server = new Hapi.Server();
+            const server = new Hapi.Server({ debug: { log: '*' } });
 
             const log = new Promise((resolve) => {
 
@@ -2124,7 +2124,7 @@ describe('Plugin', () => {
 
         it('outputs logs for all request log events with a wildcard', async () => {
 
-            const server = new Hapi.Server({ debug: { request: '*' } });
+            const server = new Hapi.Server({ debug: { request: '*' }, routes: { log: { stats: true } } });
 
             const expectedLogs = [
                 ['Debug:', 'received'],
