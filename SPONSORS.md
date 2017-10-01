@@ -38,7 +38,7 @@
 - Max Fierro
 - Raquel Hernandez
 - David Roncancio
-- Trey Huffine
+- [gitconnected](https://gitconnected.com)
 - Alvin Lumowa
 - Eric Lanehart
 - Troy Whiteley
