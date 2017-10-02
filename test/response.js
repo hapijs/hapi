@@ -946,9 +946,6 @@ describe('Response', () => {
             const [, err] = await log;
             expect(err.message).to.contain('The partial x could not be found: The partial x could not be found');
         });
-    });
-
-    describe('_streamify()', () => {
 
         it('returns a formatted response', async () => {
 
