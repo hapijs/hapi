@@ -53,10 +53,10 @@ describe('state', () => {
     it('skips parsing cookies', async () => {
 
         const server = new Hapi.Server({ routes: { state: { parse: false } } });
-        server.route({ method: 'GET', path: '/', handler: (request) => request.state });
+        server.route({ method: 'GET', path: '/', handler: (request) => (request.state === null) });
         const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'v=a' } });
         expect(res.statusCode).to.equal(200);
-        expect(res.result).to.equal(null);
+        expect(res.result).to.equal(true);
     });
 
     it('does not clear invalid cookie if cannot parse', async () => {
