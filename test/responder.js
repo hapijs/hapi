@@ -517,7 +517,7 @@ describe('Reply', () => {
 
         it('leaves etag header when vary is false', async () => {
 
-            const server = new Hapi.Server();
+            const server = new Hapi.Server({ compression: { minBytes: 1 } });
 
             server.route({
                 method: 'GET',
@@ -525,7 +525,7 @@ describe('Reply', () => {
                 handler: (request, responder) => {
 
                     if (!responder.entity({ etag: 'abc', vary: false })) {
-                        return responder.wrap('ok');
+                        return 'ok';
                     }
                 }
             });

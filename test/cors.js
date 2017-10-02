@@ -244,7 +244,7 @@ describe('CORS', () => {
                 return responder.wrap('Tada').header('vary', 'x-test');
             };
 
-            const server = new Hapi.Server({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } } });
+            const server = new Hapi.Server({ compression: { minBytes: 1 }, routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } } });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject({ url: '/', headers: { origin: 'http://www.example.com' } });
@@ -262,7 +262,7 @@ describe('CORS', () => {
                 return responder.wrap('Tada').header('vary', 'x-test');
             };
 
-            const server = new Hapi.Server({ routes: { cors: { origin: ['*'] } } });
+            const server = new Hapi.Server({ compression: { minBytes: 1 }, routes: { cors: { origin: ['*'] } } });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject({ url: '/', headers: { origin: 'http://www.example.com' } });
@@ -280,7 +280,7 @@ describe('CORS', () => {
                 return responder.wrap('Tada').header('vary', 'x-test');
             };
 
-            const server = new Hapi.Server({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } } });
+            const server = new Hapi.Server({ compression: { minBytes: 1 }, routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } } });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject({ url: '/', headers: { origin: 'http://www.a.com' } });
@@ -298,7 +298,7 @@ describe('CORS', () => {
                 return responder.wrap('Tada').header('vary', 'x-test', true);
             };
 
-            const server = new Hapi.Server({ routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.b.com', 'http://*.a.com'] } } });
+            const server = new Hapi.Server({ compression: { minBytes: 1 }, routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.b.com', 'http://*.a.com'] } } });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject({ url: '/', headers: { origin: 'http://www.a.com' } });

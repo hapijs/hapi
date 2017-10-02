@@ -1359,7 +1359,7 @@ describe('Plugin', () => {
 
             const data = '{"test":"true"}';
 
-            const server = new Hapi.Server({ routes: { compression: { test: { some: 'option' } } } });
+            const server = new Hapi.Server({ compression: { minBytes: 1 }, routes: { compression: { test: { some: 'option' } } } });
 
             const encoder = (options) => {
 

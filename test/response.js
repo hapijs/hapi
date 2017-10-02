@@ -51,7 +51,7 @@ describe('Response', () => {
                 .message('Super');
         };
 
-        const server = new Hapi.Server();
+        const server = new Hapi.Server({ compression: { minBytes: 1 } });
         server.route({ method: 'GET', path: '/', config: { handler, cache: { expiresIn: 9999 } } });
         server.state('sid', { encoding: 'base64' });
         server.state('always', { autoValue: 'present' });
@@ -280,7 +280,7 @@ describe('Response', () => {
                 return responder.wrap('ok').vary('x');
             };
 
-            const server = new Hapi.Server();
+            const server = new Hapi.Server({ compression: { minBytes: 1 } });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -296,7 +296,7 @@ describe('Response', () => {
                 return responder.wrap('ok').vary('x').vary('y');
             };
 
-            const server = new Hapi.Server();
+            const server = new Hapi.Server({ compression: { minBytes: 1 } });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -360,7 +360,7 @@ describe('Response', () => {
                 return responder.wrap('ok').vary('x').vary('xyz').vary('xy').vary('x');
             };
 
-            const server = new Hapi.Server();
+            const server = new Hapi.Server({ compression: { minBytes: 1 } });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -423,7 +423,7 @@ describe('Response', () => {
                 return responder.wrap('ok').etag('abc', { vary: false }).vary('x');
             };
 
-            const server = new Hapi.Server();
+            const server = new Hapi.Server({ compression: { minBytes: 1 } });
             server.route({ method: 'GET', path: '/', handler });
             const res1 = await server.inject('/');
             expect(res1.statusCode).to.equal(200);
@@ -443,7 +443,7 @@ describe('Response', () => {
                 return responder.wrap('ok').etag('abc').header('last-modified', mdate);
             };
 
-            const server = new Hapi.Server();
+            const server = new Hapi.Server({ compression: { minBytes: 1 } });
             server.route({ method: 'GET', path: '/', handler });
             const res = await server.inject({ url: '/', headers: { 'if-modified-since': mdate, 'accept-encoding': 'gzip' } });
             expect(res.statusCode).to.equal(304);
