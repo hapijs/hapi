@@ -1000,7 +1000,7 @@ describe('Plugin', () => {
 
             const getId = function () {
 
-                return this.id;
+                return this.info.id;
             };
 
             server.decorate('request', 'getId', getId);

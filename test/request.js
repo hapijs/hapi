@@ -169,7 +169,7 @@ describe('Request', () => {
 
         const server = new Hapi.Server();
         server._requestCounter = { value: 10, min: 10, max: 11 };
-        server.route({ method: 'GET', path: '/', handler: (request) => request.id });
+        server.route({ method: 'GET', path: '/', handler: (request) => request.info.id });
 
         const res1 = await server.inject('/');
         expect(res1.result).to.match(/10$/);
