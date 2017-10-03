@@ -518,7 +518,7 @@ describe('Server', () => {
             await Hoek.wait(50);
             const count1 = await internals.countConnections(server);
             expect(count1).to.equal(1);
-            expect(Object.keys(server._sockets).length).to.equal(1);
+            expect(server._sockets.size).to.equal(1);
             expect(count).to.equal(1);
 
             promise.req.abort();
@@ -526,7 +526,7 @@ describe('Server', () => {
 
             const count2 = await internals.countConnections(server);
             expect(count2).to.equal(0);
-            expect(Object.keys(server._sockets).length).to.equal(0);
+            expect(server._sockets.size).to.equal(0);
             expect(count).to.equal(1);
             await server.stop();
         });
@@ -557,7 +557,7 @@ describe('Server', () => {
             await Hoek.wait(50);
             const count1 = await internals.countConnections(server);
             expect(count1).to.equal(1);
-            expect(Object.keys(server._sockets).length).to.equal(1);
+            expect(server._sockets.size).to.equal(1);
             expect(count).to.equal(1);
 
             promise.req.abort();
@@ -565,7 +565,7 @@ describe('Server', () => {
 
             const count2 = await internals.countConnections(server);
             expect(count2).to.equal(0);
-            expect(Object.keys(server._sockets).length).to.equal(0);
+            expect(server._sockets.size).to.equal(0);
             expect(count).to.equal(1);
             await server.stop();
         });
@@ -637,7 +637,7 @@ describe('Server', () => {
 
             const count1 = await internals.countConnections(server);
             expect(count1).to.equal(2);
-            expect(Object.keys(server._sockets).length).to.equal(2);
+            expect(server._sockets.size).to.equal(2);
 
             const stop = server.stop();
             socket1.end();
@@ -648,7 +648,7 @@ describe('Server', () => {
 
             const count2 = await internals.countConnections(server);
             expect(count2).to.equal(0);
-            expect(Object.keys(server._sockets).length).to.equal(0);
+            expect(server._sockets.size).to.equal(0);
         });
 
         it('waits to stop until all connections are closed (HTTPS)', async () => {
@@ -666,7 +666,7 @@ describe('Server', () => {
 
             const count1 = await internals.countConnections(server);
             expect(count1).to.equal(2);
-            expect(Object.keys(server._sockets).length).to.equal(2);
+            expect(server._sockets.size).to.equal(2);
 
             const stop = server.stop();
             socket1.end();
@@ -677,7 +677,7 @@ describe('Server', () => {
 
             const count2 = await internals.countConnections(server);
             expect(count2).to.equal(0);
-            expect(Object.keys(server._sockets).length).to.equal(0);
+            expect(server._sockets.size).to.equal(0);
         });
 
         it('immediately destroys unhandled connections', async () => {
