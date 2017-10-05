@@ -72,12 +72,12 @@
       "resolved": "https://registry.npmjs.org/pez/-/pez-3.0.1.tgz"
     },
     "podium": {
-      "version": "3.0.0",
-      "resolved": "https://registry.npmjs.org/podium/-/podium-3.0.0.tgz"
+      "version": "3.1.1",
+      "resolved": "https://registry.npmjs.org/podium/-/podium-3.1.1.tgz"
     },
     "shot": {
-      "version": "4.0.1",
-      "resolved": "https://registry.npmjs.org/shot/-/shot-4.0.1.tgz"
+      "version": "4.0.2",
+      "resolved": "https://registry.npmjs.org/shot/-/shot-4.0.2.tgz"
     },
     "statehood": {
       "version": "6.0.1",
