@@ -610,39 +610,6 @@ describe('Request', () => {
             expect(req.getLog('error')[1].tags).to.equal(['internal', 'error']);
         });
 
-        it.skip('emits request-error on implementation error', async () => {
-
-            const server = new Hapi.Server({ debug: false, routes: { log: { collect: true } } });
-
-            let errs = 0;
-            let req = null;
-            server.events.on('request-error', (request, err) => {
-
-                ++errs;
-                expect(err).to.exist();
-                expect(err.message).to.equal('Uncaught error: boom');
-                req = request;
-            });
-
-            const handler = (request) => {
-
-                throw new Error('boom');
-            };
-
-            server.route({ method: 'GET', path: '/', handler });
-
-            const log = server.events.once('response');
-
-            const res = await server.inject('/');
-            expect(res.statusCode).to.equal(500);
-            expect(res.result).to.exist();
-            expect(res.result.message).to.equal('An internal server error occurred');
-
-            await log;
-            expect(errs).to.equal(1);
-            expect(req.getLog('error')[0].tags).to.equal(['internal', 'implementation', 'error']);
-        });
-
         it('does not emit request-error when error is replaced with valid response', async () => {
 
             const server = new Hapi.Server({ debug: false });
