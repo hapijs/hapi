@@ -337,7 +337,7 @@ describe('CORS', () => {
                 handler: () => null
             });
 
-            expect(server._router.special.options).to.not.exist();
+            expect(server._core.router.special.options).to.not.exist();
         });
     });
 

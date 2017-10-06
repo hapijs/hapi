@@ -2,16 +2,11 @@
 
 // Load modules
 
-const ChildProcess = require('child_process');
-const Fs = require('fs');
-const Http = require('http');
-const Https = require('https');
-const Net = require('net');
-const Os = require('os');
 const Path = require('path');
-const TLS = require('tls');
+const Zlib = require('zlib');
 
 const Boom = require('boom');
+const CatboxMemory = require('catbox-memory');
 const Code = require('code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
@@ -35,1162 +30,2308 @@ const expect = Code.expect;
 
 describe('Server', () => {
 
-    it('sets connections defaults', async () => {
+    describe('register()', () => {
 
-        const server = new Hapi.Server({ app: { message: 'test defaults' } });
-        expect(server.settings.app.message).to.equal('test defaults');
-    });
+        it('registers plugin with options', async () => {
 
-    it('overrides mime settings', async () => {
+            const server = new Hapi.Server();
 
-        const options = {
-            mime: {
-                override: {
-                    'node/module': {
-                        source: 'steve',
-                        compressible: false,
-                        extensions: ['node', 'module', 'npm'],
-                        type: 'node/module'
+            const test = function (srv, options) {
+
+                expect(options.something).to.be.true();
+                expect(srv.realm.pluginOptions).to.equal(options);
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            await server.register({ register: test, options: { something: true } });
+        });
+
+        it('registers a required plugin', async () => {
+
+            const server = new Hapi.Server();
+
+            const test = {
+                register: function (srv, options) {
+
+                    expect(options.something).to.be.true();
+                }
+            };
+
+            test.register.attributes = {
+                name: 'test'
+            };
+
+            await server.register({ register: test, options: { something: true } });
+        });
+
+        it('throws on bad plugin (missing attributes)', async () => {
+
+            const server = new Hapi.Server();
+            await expect(server.register({ register: function (srv, options) { } })).to.reject();
+        });
+
+        it('throws on bad plugin (missing name)', async () => {
+
+            const register = function (srv, options) { };
+            register.attributes = {};
+
+            const server = new Hapi.Server();
+            await expect(server.register(register)).to.reject();
+        });
+
+        it('throws on bad plugin (empty pkg)', async () => {
+
+            const register = function (srv, options) { };
+            register.attributes = {
+                pkg: {}
+            };
+
+            const server = new Hapi.Server();
+            await expect(server.register(register)).to.reject();
+        });
+
+        it('returns plugin error', async () => {
+
+            const test = function (srv, options) {
+
+                throw new Error('from plugin');
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            const server = new Hapi.Server();
+            await expect(server.register(test)).to.reject('from plugin');
+        });
+
+        it('sets version to 0.0.0 if missing', async () => {
+
+            const test = function (srv, options) {
+
+                srv.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: () => srv.version
+                });
+            };
+
+            test.attributes = {
+                pkg: {
+                    name: 'steve'
+                }
+            };
+
+            const server = new Hapi.Server();
+            await server.register(test);
+            expect(server.registrations.steve.version).to.equal('0.0.0');
+
+            const res = await server.inject('/');
+            expect(res.result).to.equal(require('../package.json').version);
+        });
+
+        it('exposes plugin registration information', async () => {
+
+            const test = function (srv, options) {
+
+                srv.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: () => srv.version
+                });
+            };
+
+            test.attributes = {
+                multiple: true,
+                pkg: {
+                    name: 'bob',
+                    version: '1.2.3'
+                }
+            };
+
+            const server = new Hapi.Server();
+
+            await server.register({ register: test, options: { foo: 'bar' } });
+            const bob = server.registrations.bob;
+            expect(bob).to.exist();
+            expect(bob).to.be.an.object();
+            expect(bob.version).to.equal('1.2.3');
+            expect(bob.attributes.multiple).to.be.true();
+            expect(bob.options.foo).to.equal('bar');
+            const res = await server.inject('/');
+            expect(res.result).to.equal(require('../package.json').version);
+        });
+
+        it('prevents plugin from multiple registrations', async () => {
+
+            const test = function (srv, options) {
+
+                srv.route({
+                    method: 'GET',
+                    path: '/a',
+                    handler: () => 'a'
+                });
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            const server = new Hapi.Server({ host: 'example.com' });
+            await server.register(test);
+            await expect(server.register(test)).to.reject('Plugin test already registered');
+        });
+
+        it('allows plugin multiple registrations (attributes)', async () => {
+
+            const test = function (srv, options) {
+
+                srv.app.x = srv.app.x ? srv.app.x + 1 : 1;
+            };
+
+            test.attributes = {
+                name: 'test',
+                multiple: true
+            };
+
+            const server = new Hapi.Server();
+            await server.register(test);
+            await server.register(test);
+            expect(server.app.x).to.equal(2);
+        });
+
+        it('registers multiple plugins', async () => {
+
+            const server = new Hapi.Server();
+            let log = null;
+            server.events.once('log', (event, tags) => {
+
+                log = [event, tags];
+            });
+
+            await server.register([internals.plugins.test1, internals.plugins.test2]);
+            expect(internals.routesList(server)).to.equal(['/test1', '/test2']);
+            expect(log[1].test).to.equal(true);
+            expect(log[0].data).to.equal('abc');
+        });
+
+        it('registers multiple plugins (verbose)', async () => {
+
+            const server = new Hapi.Server();
+            let log = null;
+            server.events.once('log', (event, tags) => {
+
+                log = [event, tags];
+            });
+
+            await server.register([{ register: internals.plugins.test1 }, { register: internals.plugins.test2 }]);
+            expect(internals.routesList(server)).to.equal(['/test1', '/test2']);
+            expect(log[1].test).to.equal(true);
+            expect(log[0].data).to.equal('abc');
+        });
+
+        it('registers a child plugin', async () => {
+
+            const server = new Hapi.Server();
+            await server.register(internals.plugins.child);
+            const res = await server.inject('/test1');
+            expect(res.result).to.equal('testing123');
+        });
+
+        it('registers a plugin with routes path prefix', async () => {
+
+            const server = new Hapi.Server();
+            await server.register(internals.plugins.test1, { routes: { prefix: '/xyz' } });
+
+            expect(server.plugins.test1.prefix).to.equal('/xyz');
+            const res = await server.inject('/xyz/test1');
+            expect(res.result).to.equal('testing123');
+        });
+
+        it('registers a plugin with routes path prefix (plugin options)', async () => {
+
+            const server = new Hapi.Server();
+            await server.register({ register: internals.plugins.test1, routes: { prefix: '/abc' } }, { routes: { prefix: '/xyz' } });
+
+            expect(server.plugins.test1.prefix).to.equal('/abc');
+            const res = await server.inject('/abc/test1');
+            expect(res.result).to.equal('testing123');
+        });
+
+        it('registers plugins and adds options to realm that routes can access', async () => {
+
+            const server = new Hapi.Server();
+
+            const foo = function (srv, options) {
+
+                expect(options.something).to.be.true();
+                expect(srv.realm.pluginOptions).to.equal(options);
+
+                srv.route({
+                    method: 'GET', path: '/foo', handler: (request, responder) => {
+
+                        expect(request.route.realm.pluginOptions).to.equal(options);
+                        expect(responder.realm.pluginOptions).to.equal(options);
+                        return 'foo';
                     }
-                }
-            }
-        };
-
-        const server = new Hapi.Server(options);
-        expect(server.mime.path('file.npm').type).to.equal('node/module');
-        expect(server.mime.path('file.npm').source).to.equal('steve');
-    });
-
-    it('allows null port and host', async () => {
-
-        expect(() => {
-
-            new Hapi.Server({ host: null, port: null });
-        }).to.not.throw();
-    });
-
-    it('does not throw when given a default authentication strategy', async () => {
-
-        expect(() => {
-
-            new Hapi.Server({ routes: { auth: 'test' } });
-        }).not.to.throw();
-    });
-
-    it('throws when disabling autoListen and providing a port', async () => {
-
-        expect(() => {
-
-            new Hapi.Server({ port: 80, autoListen: false });
-        }).to.throw('Cannot specify port when autoListen is false');
-    });
-
-    it('throws when disabling autoListen and providing special host', async () => {
-
-        const port = Path.join(__dirname, 'hapi-server.socket');
-        expect(() => {
-
-            new Hapi.Server({ port, autoListen: false });
-        }).to.throw('Cannot specify port when autoListen is false');
-    });
-
-    it('defaults address to 0.0.0.0 or :: when no host is provided', async () => {
-
-        const server = new Hapi.Server();
-        await server.start();
-
-        let expectedBoundAddress = '0.0.0.0';
-        if (Net.isIPv6(server.listener.address().address)) {
-            expectedBoundAddress = '::';
-        }
-
-        expect(server.info.address).to.equal(expectedBoundAddress);
-        await server.stop();
-    });
-
-    it('uses address when present instead of host', async () => {
-
-        const server = new Hapi.Server({ host: 'no.such.domain.hapi', address: 'localhost' });
-        await server.start();
-        expect(server.info.host).to.equal('no.such.domain.hapi');
-        expect(server.info.address).to.equal('127.0.0.1');
-        await server.stop();
-    });
-
-    it('uses uri when present instead of host and port', async () => {
-
-        const server = new Hapi.Server({ host: 'no.such.domain.hapi', address: 'localhost', uri: 'http://uri.example.com:8080' });
-        expect(server.info.uri).to.equal('http://uri.example.com:8080');
-        await server.start();
-        expect(server.info.host).to.equal('no.such.domain.hapi');
-        expect(server.info.address).to.equal('127.0.0.1');
-        expect(server.info.uri).to.equal('http://uri.example.com:8080');
-        await server.stop();
-    });
-
-    it('throws on uri ending with /', async () => {
-
-        expect(() => {
-
-            new Hapi.Server({ uri: 'http://uri.example.com:8080/' });
-        }).to.throw(/Invalid server options/);
-    });
-
-    it('creates a server listening on a unix domain socket', { skip: process.platform === 'win32' }, async () => {
-
-        const port = Path.join(__dirname, 'hapi-server.socket');
-        const server = new Hapi.Server({ port });
-
-        expect(server.type).to.equal('socket');
-
-        await server.start();
-        const absSocketPath = Path.resolve(port);
-        expect(server.info.port).to.equal(absSocketPath);
-        await server.stop();
-
-        if (Fs.existsSync(port)) {
-            Fs.unlinkSync(port);
-        }
-    });
-
-    it('creates a server listening on a windows named pipe', async () => {
-
-        const port = '\\\\.\\pipe\\6653e55f-26ec-4268-a4f2-882f4089315c';
-        const server = new Hapi.Server({ port });
-
-        expect(server.type).to.equal('socket');
-
-        await server.start();
-        expect(server.info.port).to.equal(port);
-        await server.stop();
-    });
-
-    it('creates an https server when passed tls options', async () => {
-
-        const tlsOptions = {
-            key: '-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA0UqyXDCqWDKpoNQQK/fdr0OkG4gW6DUafxdufH9GmkX/zoKz\ng/SFLrPipzSGINKWtyMvo7mPjXqqVgE10LDI3VFV8IR6fnART+AF8CW5HMBPGt/s\nfQW4W4puvBHkBxWSW1EvbecgNEIS9hTGvHXkFzm4xJ2e9DHp2xoVAjREC73B7JbF\nhc5ZGGchKw+CFmAiNysU0DmBgQcac0eg2pWoT+YGmTeQj6sRXO67n2xy/hA1DuN6\nA4WBK3wM3O4BnTG0dNbWUEbe7yAbV5gEyq57GhJIeYxRvveVDaX90LoAqM4cUH06\n6rciON0UbDHV2LP/JaH5jzBjUyCnKLLo5snlbwIDAQABAoIBAQDJm7YC3pJJUcxb\nc8x8PlHbUkJUjxzZ5MW4Zb71yLkfRYzsxrTcyQA+g+QzA4KtPY8XrZpnkgm51M8e\n+B16AcIMiBxMC6HgCF503i16LyyJiKrrDYfGy2rTK6AOJQHO3TXWJ3eT3BAGpxuS\n12K2Cq6EvQLCy79iJm7Ks+5G6EggMZPfCVdEhffRm2Epl4T7LpIAqWiUDcDfS05n\nNNfAGxxvALPn+D+kzcSF6hpmCVrFVTf9ouhvnr+0DpIIVPwSK/REAF3Ux5SQvFuL\njPmh3bGwfRtcC5d21QNrHdoBVSN2UBLmbHUpBUcOBI8FyivAWJhRfKnhTvXMFG8L\nwaXB51IZAoGBAP/E3uz6zCyN7l2j09wmbyNOi1AKvr1WSmuBJveITouwblnRSdvc\nsYm4YYE0Vb94AG4n7JIfZLKtTN0xvnCo8tYjrdwMJyGfEfMGCQQ9MpOBXAkVVZvP\ne2k4zHNNsfvSc38UNSt7K0HkVuH5BkRBQeskcsyMeu0qK4wQwdtiCoBDAoGBANF7\nFMppYxSW4ir7Jvkh0P8bP/Z7AtaSmkX7iMmUYT+gMFB5EKqFTQjNQgSJxS/uHVDE\nSC5co8WGHnRk7YH2Pp+Ty1fHfXNWyoOOzNEWvg6CFeMHW2o+/qZd4Z5Fep6qCLaa\nFvzWWC2S5YslEaaP8DQ74aAX4o+/TECrxi0z2lllAoGAdRB6qCSyRsI/k4Rkd6Lv\nw00z3lLMsoRIU6QtXaZ5rN335Awyrfr5F3vYxPZbOOOH7uM/GDJeOJmxUJxv+cia\nPQDflpPJZU4VPRJKFjKcb38JzO6C3Gm+po5kpXGuQQA19LgfDeO2DNaiHZOJFrx3\nm1R3Zr/1k491lwokcHETNVkCgYBPLjrZl6Q/8BhlLrG4kbOx+dbfj/euq5NsyHsX\n1uI7bo1Una5TBjfsD8nYdUr3pwWltcui2pl83Ak+7bdo3G8nWnIOJ/WfVzsNJzj7\n/6CvUzR6sBk5u739nJbfgFutBZBtlSkDQPHrqA7j3Ysibl3ZIJlULjMRKrnj6Ans\npCDwkQKBgQCM7gu3p7veYwCZaxqDMz5/GGFUB1My7sK0hcT7/oH61yw3O8pOekee\nuctI1R3NOudn1cs5TAy/aypgLDYTUGQTiBRILeMiZnOrvQQB9cEf7TFgDoRNCcDs\nV/ZWiegVB/WY7H0BkCekuq5bHwjgtJTpvHGqQ9YD7RhE8RSYOhdQ/Q==\n-----END RSA PRIVATE KEY-----\n',
-            cert: '-----BEGIN CERTIFICATE-----\nMIIDBjCCAe4CCQDvLNml6smHlTANBgkqhkiG9w0BAQUFADBFMQswCQYDVQQGEwJV\nUzETMBEGA1UECAwKU29tZS1TdGF0ZTEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0\ncyBQdHkgTHRkMB4XDTE0MDEyNTIxMjIxOFoXDTE1MDEyNTIxMjIxOFowRTELMAkG\nA1UEBhMCVVMxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoMGEludGVybmV0\nIFdpZGdpdHMgUHR5IEx0ZDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB\nANFKslwwqlgyqaDUECv33a9DpBuIFug1Gn8Xbnx/RppF/86Cs4P0hS6z4qc0hiDS\nlrcjL6O5j416qlYBNdCwyN1RVfCEen5wEU/gBfAluRzATxrf7H0FuFuKbrwR5AcV\nkltRL23nIDRCEvYUxrx15Bc5uMSdnvQx6dsaFQI0RAu9weyWxYXOWRhnISsPghZg\nIjcrFNA5gYEHGnNHoNqVqE/mBpk3kI+rEVzuu59scv4QNQ7jegOFgSt8DNzuAZ0x\ntHTW1lBG3u8gG1eYBMquexoSSHmMUb73lQ2l/dC6AKjOHFB9Ouq3IjjdFGwx1diz\n/yWh+Y8wY1Mgpyiy6ObJ5W8CAwEAATANBgkqhkiG9w0BAQUFAAOCAQEAoSc6Skb4\ng1e0ZqPKXBV2qbx7hlqIyYpubCl1rDiEdVzqYYZEwmst36fJRRrVaFuAM/1DYAmT\nWMhU+yTfA+vCS4tql9b9zUhPw/IDHpBDWyR01spoZFBF/hE1MGNpCSXXsAbmCiVf\naxrIgR2DNketbDxkQx671KwF1+1JOMo9ffXp+OhuRo5NaGIxhTsZ+f/MA4y084Aj\nDI39av50sTRTWWShlN+J7PtdQVA5SZD97oYbeUeL7gI18kAJww9eUdmT0nEjcwKs\nxsQT1fyKbo7AlZBY4KSlUMuGnn0VnAsB9b+LxtXlDfnjyM8bVQx1uAfRo0DO8p/5\n3J5DTjAU55deBQ==\n-----END CERTIFICATE-----\n'
-        };
-
-        const server = new Hapi.Server({ tls: tlsOptions });
-        expect(server.listener instanceof Https.Server).to.equal(true);
-    });
-
-    it('uses a provided listener', async () => {
-
-        const listener = Http.createServer();
-        const server = new Hapi.Server({ listener });
-        server.route({ method: 'GET', path: '/', handler: () => 'ok' });
-
-        await server.start();
-        const { payload } = await Wreck.get('http://localhost:' + server.info.port + '/');
-        expect(payload.toString()).to.equal('ok');
-        await server.stop();
-    });
-
-    it('uses a provided listener (TLS)', async () => {
-
-        const listener = Http.createServer();
-        const server = new Hapi.Server({ listener, tls: true });
-        server.route({ method: 'GET', path: '/', handler: () => 'ok' });
-
-        await server.start();
-        expect(server.info.protocol).to.equal('https');
-        await server.stop();
-    });
-
-    it('uses a provided listener with manual listen', async () => {
-
-        const listener = Http.createServer();
-        const server = new Hapi.Server({ listener, autoListen: false });
-        server.route({ method: 'GET', path: '/', handler: () => 'ok' });
-
-        const listen = () => {
-
-            return new Promise((resolve) => listener.listen(0, 'localhost', resolve));
-        };
-
-        await listen();
-        await server.start();
-        const { payload } = await Wreck.get('http://localhost:' + server.info.port + '/');
-        expect(payload.toString()).to.equal('ok');
-        await server.stop();
-    });
-
-    it('sets info.uri with default localhost when no hostname', async () => {
-
-        const orig = Os.hostname;
-        Os.hostname = function () {
-
-            Os.hostname = orig;
-            return '';
-        };
-
-        const server = new Hapi.Server({ port: 80 });
-        expect(server.info.uri).to.equal('http://localhost:80');
-    });
-
-    it('sets info.uri without port when 0', async () => {
-
-        const server = new Hapi.Server({ host: 'example.com' });
-        expect(server.info.uri).to.equal('http://example.com');
-    });
-
-    it('closes connection on socket timeout', async () => {
-
-        const server = new Hapi.Server({ routes: { timeout: { socket: 50 }, payload: { timeout: 45 } } });
-        server.route({
-            method: 'GET', path: '/', config: {
-                handler: async (request) => {
-
-                    await internals.wai(70);
-                    return 'too late';
-                }
-            }
-        });
-
-        await server.start();
-        try {
-            await Wreck.request('GET', 'http://localhost:' + server.info.port + '/');
-        }
-        catch (err) {
-            expect(err.message).to.equal('Client request error: socket hang up');
-        }
-
-        await server.stop();
-    });
-
-    it('disables node socket timeout', { parallel: false }, async () => {
-
-        const server = new Hapi.Server({ routes: { timeout: { socket: false } } });
-        server.route({ method: 'GET', path: '/', handler: () => null });
-
-        await server.start();
-
-        let timeout;
-        const orig = Net.Socket.prototype.setTimeout;
-        Net.Socket.prototype.setTimeout = function () {
-
-            timeout = 'gotcha';
-            Net.Socket.prototype.setTimeout = orig;
-            return orig.apply(this, arguments);
-        };
-
-        const res = await Wreck.request('GET', 'http://localhost:' + server.info.port + '/');
-        await Wreck.read(res);
-        expect(timeout).to.equal('gotcha');
-        await server.stop();
-    });
-
-    it('throws on invalid config', async () => {
-
-        expect(() => {
-
-            new Hapi.Server({ something: false });
-        }).to.throw(/Invalid server options/);
-    });
-
-    it('combines configuration from server and defaults (cors)', async () => {
-
-        const server = new Hapi.Server({ routes: { cors: { origin: ['example.com'] } } });
-        expect(server.settings.routes.cors.origin).to.equal(['example.com']);
-    });
-
-    it('combines configuration from server and defaults (security)', async () => {
-
-        const server = new Hapi.Server({ routes: { security: { hsts: 2, xss: false } } });
-        expect(server.settings.routes.security.hsts).to.equal(2);
-        expect(server.settings.routes.security.xss).to.be.false();
-        expect(server.settings.routes.security.xframe).to.equal('deny');
-    });
-
-    describe('start()', () => {
-
-        it('starts and stops', async () => {
-
-            const server = new Hapi.Server();
-
-            let started = 0;
-            let stopped = 0;
-
-            server.events.on('start', () => {
-
-                ++started;
-            });
-
-            server.events.on('stop', () => {
-
-                ++stopped;
-            });
-
-            await server.start();
-            expect(server._started).to.equal(true);
-
-            await server.stop();
-            expect(server._started).to.equal(false);
-            expect(started).to.equal(1);
-            expect(stopped).to.equal(1);
-        });
-
-        it('initializes, starts, and stops', async () => {
-
-            const server = new Hapi.Server();
-
-            let started = 0;
-            let stopped = 0;
-
-            server.events.on('start', () => {
-
-                ++started;
-            });
-
-            server.events.on('stop', () => {
-
-                ++stopped;
-            });
-
-            await server.initialize();
-            await server.start();
-            expect(server._started).to.equal(true);
-
-            await server.stop();
-            expect(server._started).to.equal(false);
-            expect(started).to.equal(1);
-            expect(stopped).to.equal(1);
-        });
-
-        it('does not re-initialize the server', async () => {
-
-            const server = new Hapi.Server();
-            await server.initialize();
-            await server.initialize();
-        });
-
-        it('returns connection start error', async () => {
-
-            const server1 = new Hapi.Server();
-            await server1.start();
-            const port = server1.info.port;
-
-            const server2 = new Hapi.Server({ port });
-            await expect(server2.start()).to.reject(/EADDRINUSE/);
-
-            await server1.stop();
-        });
-
-        it('returns onPostStart error', async () => {
-
-            const server = new Hapi.Server();
-
-            const postStart = function (srv) {
-
-                throw new Error('boom');
+                });
             };
 
-            server.ext('onPostStart', postStart);
+            foo.attributes = {
+                name: 'foo'
+            };
 
-            await expect(server.start()).to.reject('boom');
+            const bar = function (srv, options) {
+
+                expect(options.something).to.be.false();
+                expect(srv.realm.pluginOptions).to.equal(options);
+
+                srv.route({
+                    method: 'GET', path: '/bar', handler: (request, responder) => {
+
+                        expect(request.route.realm.pluginOptions).to.equal(options);
+                        expect(responder.realm.pluginOptions).to.equal(options);
+                        return 'bar';
+                    }
+                });
+            };
+
+            bar.attributes = {
+                name: 'bar'
+            };
+
+            const plugins = [
+                { register: foo, options: { something: true } },
+                { register: bar, options: { something: false } }
+            ];
+
+            await server.register(plugins);
+
+            const res1 = await server.inject('/foo');
+            expect(res1.result).to.equal('foo');
+
+            const res2 = await server.inject('/bar');
+            expect(res2.result).to.equal('bar');
         });
 
-        it('errors on bad cache start', async () => {
+        it('registers a plugin with routes path prefix and plugin root route', async () => {
 
-            const cache = {
-                engine: {
-                    start: function (callback) {
+            const test = function (srv, options) {
 
-                        return callback(new Error('oops'));
-                    },
-                    stop: function () { }
+                srv.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: () => 'ok'
+                });
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            const server = new Hapi.Server();
+            await server.register(test, { routes: { prefix: '/xyz' } });
+
+            const res = await server.inject('/xyz');
+            expect(res.result).to.equal('ok');
+        });
+
+        it('ignores the type of the plugin value', async () => {
+
+            const a = function () { };
+            a.register = function (srv, options) {
+
+                srv.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: () => 'ok'
+                });
+            };
+
+            a.register.attributes = { name: 'a' };
+
+            const server = new Hapi.Server();
+            await server.register(a, { routes: { prefix: '/xyz' } });
+
+            const res = await server.inject('/xyz');
+            expect(res.result).to.equal('ok');
+        });
+
+        it('ignores unknown plugin properties', async () => {
+
+            const a = {
+                register: function (srv, options) {
+
+                    srv.route({
+                        method: 'GET',
+                        path: '/',
+                        handler: () => 'ok'
+                    });
+                },
+                other: {}
+            };
+
+            a.register.attributes = { name: 'a' };
+
+            const server = new Hapi.Server();
+            await server.register(a);
+        });
+
+        it('ignores unknown plugin properties (with options)', async () => {
+
+            const a = {
+                register: function (srv, options) {
+
+                    srv.route({
+                        method: 'GET',
+                        path: '/',
+                        handler: () => 'ok'
+                    });
+                },
+                other: {}
+            };
+
+            a.register.attributes = { name: 'a' };
+
+            const server = new Hapi.Server();
+            await server.register({ register: a });
+        });
+
+        it('registers a child plugin with parent routes path prefix', async () => {
+
+            const server = new Hapi.Server();
+            await server.register(internals.plugins.child, { routes: { prefix: '/xyz' } });
+
+            const res = await server.inject('/xyz/test1');
+            expect(res.result).to.equal('testing123');
+        });
+
+        it('registers a child plugin with parent routes vhost prefix', async () => {
+
+            const server = new Hapi.Server();
+            await server.register(internals.plugins.child, { routes: { vhost: 'example.com' } });
+
+            const res = await server.inject({ url: '/test1', headers: { host: 'example.com' } });
+            expect(res.result).to.equal('testing123');
+        });
+
+        it('registers a child plugin with parent routes path prefix and inner register prefix', async () => {
+
+            const server = new Hapi.Server();
+            await server.register({ register: internals.plugins.child, options: { routes: { prefix: '/inner' } } }, { routes: { prefix: '/xyz' } });
+
+            const res = await server.inject('/xyz/inner/test1');
+            expect(res.result).to.equal('testing123');
+        });
+
+        it('registers a child plugin with parent routes vhost prefix and inner register vhost', async () => {
+
+            const server = new Hapi.Server();
+            await server.register({ register: internals.plugins.child, options: { routes: { vhost: 'example.net' } } }, { routes: { vhost: 'example.com' } });
+
+            const res = await server.inject({ url: '/test1', headers: { host: 'example.com' } });
+            expect(res.result).to.equal('testing123');
+        });
+
+        it('registers a plugin with routes vhost', async () => {
+
+            const server = new Hapi.Server();
+            await server.register(internals.plugins.test1, { routes: { vhost: 'example.com' } });
+
+            const res1 = await server.inject('/test1');
+            expect(res1.statusCode).to.equal(404);
+
+            const res2 = await server.inject({ url: '/test1', headers: { host: 'example.com' } });
+            expect(res2.result).to.equal('testing123');
+        });
+
+        it('registers a plugin with routes vhost (plugin options)', async () => {
+
+            const server = new Hapi.Server();
+            await server.register({ register: internals.plugins.test1, routes: { vhost: 'example.org' } }, { routes: { vhost: 'example.com' } });
+
+            const res1 = await server.inject('/test1');
+            expect(res1.statusCode).to.equal(404);
+
+            const res2 = await server.inject({ url: '/test1', headers: { host: 'example.org' } });
+            expect(res2.result).to.equal('testing123');
+        });
+
+        it('sets multiple dependencies in one statement', async () => {
+
+            const a = function (srv, options) {
+
+                srv.dependency(['b', 'c']);
+            };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            const b = function (srv, options) { };
+
+            b.attributes = {
+                name: 'b'
+            };
+
+            const c = function (srv, options) { };
+
+            c.attributes = {
+                name: 'c'
+            };
+
+            const server = new Hapi.Server();
+            await server.register(b);
+            await server.register(c);
+            await server.register(a);
+            await server.initialize();
+        });
+
+        it('sets multiple dependencies in attributes', async () => {
+
+            const a = function (srv, options) { };
+
+            a.attributes = {
+                name: 'a',
+                dependencies: ['b', 'c']
+            };
+
+            const b = function (srv, options) { };
+
+            b.attributes = {
+                name: 'b'
+            };
+
+            const c = function (srv, options) { };
+
+            c.attributes = {
+                name: 'c'
+            };
+
+            const server = new Hapi.Server();
+            await server.register(b);
+            await server.register(c);
+            await server.register(a);
+            await server.initialize();
+        });
+
+        it('sets multiple dependencies in multiple statements', async () => {
+
+            const a = function (srv, options) {
+
+                srv.dependency('b');
+                srv.dependency('c');
+            };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            const b = function (srv, options) { };
+
+            b.attributes = {
+                name: 'b'
+            };
+
+            const c = function (srv, options) { };
+
+            c.attributes = {
+                name: 'c'
+            };
+
+            const server = new Hapi.Server();
+            await server.register(b);
+            await server.register(c);
+            await server.register(a);
+            await server.initialize();
+        });
+
+        it('sets multiple dependencies in multiple locations', async () => {
+
+            const a = function (srv, options) {
+
+                srv.dependency('b');
+            };
+
+            a.attributes = {
+                name: 'a',
+                dependencies: 'c'
+            };
+
+            const b = function (srv, options) { };
+
+            b.attributes = {
+                name: 'b'
+            };
+
+            const c = function (srv, options) { };
+
+            c.attributes = {
+                name: 'c'
+            };
+
+            const server = new Hapi.Server();
+            await server.register(b);
+            await server.register(c);
+            await server.register(a);
+            await server.initialize();
+        });
+
+        it('register a plugin once per connection (no selection left)', async () => {
+
+            let count = 0;
+            const b = function (srv, options) {
+
+                ++count;
+            };
+
+            b.attributes = {
+                name: 'b'
+            };
+
+            const a = function (srv, options) {
+
+                return srv.register(b, { once: true });
+            };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            const server = new Hapi.Server();
+            await server.register(b);
+            await server.register(a);
+            await server.initialize();
+            expect(count).to.equal(1);
+        });
+
+        it('throws when once used with plugin options', async () => {
+
+            const a = function (srv, options) { };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            const server = new Hapi.Server();
+            await expect(server.register({ register: a, options: {}, once: true })).to.reject();
+        });
+
+        it('throws when dependencies is an object', async () => {
+
+            const a = function (srv, options) { };
+            a.attributes = {
+                name: 'a',
+                dependencies: { b: true }
+            };
+
+            const server = new Hapi.Server();
+            await expect(server.register(a)).to.reject();
+        });
+
+        it('throws when dependencies contain something else than a string', async () => {
+
+            const a = function (srv, options) { };
+            a.attributes = {
+                name: 'a',
+                dependencies: [true]
+            };
+
+            const server = new Hapi.Server();
+            await expect(server.register(a)).to.reject();
+        });
+
+        it('exposes server decorations to next register', async () => {
+
+            const server = new Hapi.Server();
+
+            const b = function (srv, options) {
+
+                if (typeof srv.a !== 'function') {
+                    throw new Error('Missing decoration');
                 }
             };
 
-            const server = new Hapi.Server({ cache });
-            await expect(server.start()).to.reject('oops');
+            b.attributes = {
+                name: 'b'
+            };
+
+            const a = function (srv, options) {
+
+                srv.decorate('server', 'a', () => {
+
+                    return 'a';
+                });
+            };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            await server.register([a, b]);
+            await server.initialize();
         });
 
-        it('fails to start server when registration incomplete', async () => {
-
-            const plugin = function () { };
-            plugin.attributes = { name: 'plugin' };
+        it('exposes server decorations to dependency (dependency first)', async () => {
 
             const server = new Hapi.Server();
-            server.register(plugin);
-            await expect(server.start()).to.reject('Cannot start server before plugins finished registration');
+
+            const a = function (srv, options) {
+
+                srv.decorate('server', 'a', () => {
+
+                    return 'a';
+                });
+            };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            const b = function (srv, options) {
+
+                const after = function (srv2) {
+
+                    if (typeof srv2.a !== 'function') {
+                        throw new Error('Missing decoration');
+                    }
+                };
+
+                srv.dependency('a', after);
+            };
+
+            b.attributes = {
+                name: 'b'
+            };
+
+            await server.register([a, b]);
+            await server.initialize();
         });
 
-        it('fails to initialize server when not stopped', async () => {
-
-            const plugin = function () { };
-            plugin.attributes = { name: 'plugin' };
+        it('exposes server decorations to dependency (dependency second)', async () => {
 
             const server = new Hapi.Server();
-            await server.start();
-            await expect(server.initialize()).to.reject('Cannot initialize server while it is in started phase');
+
+            const a = function (srv, options) {
+
+                srv.decorate('server', 'a', () => 'a');
+            };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            const b = function (srv, options) {
+
+                srv.realm.x = 1;
+                const after = function (srv2) {
+
+                    expect(srv2.realm.x).to.equal(1);
+                    if (typeof srv2.a !== 'function') {
+                        throw new Error('Missing decoration');
+                    }
+                };
+
+                srv.dependency('a', after);
+            };
+
+            b.attributes = {
+                name: 'b'
+            };
+
+            await server.register([b, a]);
+            await server.initialize();
         });
 
-        it('fails to start server when starting', async () => {
-
-            const plugin = function () { };
-            plugin.attributes = { name: 'plugin' };
+        it('exposes server decorations to next register when nested', async () => {
 
             const server = new Hapi.Server();
-            const starting = server.start();
-            await expect(server.start()).to.reject('Cannot start server while it is in initializing phase');
-            await starting;
-            await server.stop();
+
+            const a = function (srv, options) {
+
+                srv.decorate('server', 'a', () => {
+
+                    return 'a';
+                });
+            };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            const b = async function (srv, options) {
+
+                await srv.register(a);
+                if (typeof srv.a !== 'function') {
+                    throw new Error('Missing decoration');
+                }
+            };
+
+            b.attributes = {
+                name: 'b'
+            };
+
+            await server.register([b]);
+            await server.initialize();
         });
     });
 
-    describe('stop()', () => {
+    describe('auth', () => {
 
-        it('stops the cache', async () => {
+        it('adds auth strategy via plugin', async () => {
+
+            const server = new Hapi.Server();
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: () => 'authenticated!'
+            });
+
+            await server.register(internals.plugins.auth);
+
+            const res1 = await server.inject('/');
+            expect(res1.statusCode).to.equal(401);
+
+            const res2 = await server.inject({ method: 'GET', url: '/', headers: { authorization: 'Basic ' + (new Buffer('john:12345', 'utf8')).toString('base64') } });
+            expect(res2.statusCode).to.equal(200);
+            expect(res2.result).to.equal('authenticated!');
+        });
+    });
+
+    describe('bind()', () => {
+
+        it('sets plugin context', async () => {
+
+            const test = function (srv, options) {
+
+                const bind = {
+                    value: 'in context',
+                    suffix: ' throughout'
+                };
+
+                srv.bind(bind);
+
+                srv.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: function () {
+
+                        return this.value;
+                    }
+                });
+
+                const preResponse = function (request, responder) {
+
+                    return request.response.source + this.suffix;
+                };
+
+                srv.ext('onPreResponse', preResponse);
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            const server = new Hapi.Server();
+            await server.register(test);
+
+            const res = await server.inject('/');
+            expect(res.result).to.equal('in context throughout');
+        });
+    });
+
+    describe('cache()', () => {
+
+        it('provisions a server cache', async () => {
 
             const server = new Hapi.Server();
             const cache = server.cache({ segment: 'test', expiresIn: 1000 });
             await server.initialize();
 
             await cache.set('a', 'going in', 0);
-            const { value: value1 } = await cache.get('a');
-            expect(value1).to.equal('going in');
-            await server.stop();
-            await expect(cache.get('a')).to.reject();
+            const { value } = await cache.get('a');
+            expect(value).to.equal('going in');
         });
 
-        it('returns an extension error (onPreStop)', async () => {
+        it('throws when missing segment', async () => {
 
             const server = new Hapi.Server();
-            const preStop = function (srv) {
+            expect(() => {
 
-                throw new Error('failed cleanup');
-            };
-
-            server.ext('onPreStop', preStop);
-
-            await server.start();
-            await expect(server.stop()).to.reject('failed cleanup');
+                server.cache({ expiresIn: 1000 });
+            }).to.throw('Missing cache segment name');
         });
 
-        it('returns an extension error (onPostStop)', async () => {
+        it('provisions a server cache with custom partition', async () => {
+
+            const server = new Hapi.Server({ cache: { engine: CatboxMemory, partition: 'hapi-test-other' } });
+            const cache = server.cache({ segment: 'test', expiresIn: 1000 });
+            await server.initialize();
+
+            await cache.set('a', 'going in', 0);
+            const { value } = await cache.get('a');
+            expect(value).to.equal('going in');
+            expect(cache._cache.connection.settings.partition).to.equal('hapi-test-other');
+        });
+
+        it('throws when allocating an invalid cache segment', async () => {
 
             const server = new Hapi.Server();
+            expect(() => {
 
-            const postStop = function (srv) {
-
-                throw new Error('failed cleanup');
-            };
-
-            server.ext('onPostStop', postStop);
-
-            await server.start();
-            await expect(server.stop()).to.reject('failed cleanup');
+                server.cache({ segment: 'a', expiresAt: '12:00', expiresIn: 1000 });
+            }).throws();
         });
 
-        it('errors when stopping a stopping server', async () => {
+        it('allows allocating a cache segment with empty options', async () => {
 
             const server = new Hapi.Server();
+            expect(() => {
 
-            const stopping = server.stop();
-            await expect(server.stop()).to.reject('Cannot stop server while in stopping phase');
-            await stopping;
+                server.cache({ segment: 'a' });
+            }).to.not.throw();
         });
-    });
 
-    describe('_init()', () => {
+        it('allows reusing the same cache segment (server)', async () => {
 
-        it('clears connections on close (HTTP)', async () => {
+            const server = new Hapi.Server({ cache: { engine: CatboxMemory, shared: true } });
+            expect(() => {
+
+                server.cache({ segment: 'a', expiresIn: 1000 });
+                server.cache({ segment: 'a', expiresIn: 1000 });
+            }).to.not.throw();
+        });
+
+        it('allows reusing the same cache segment (cache)', async () => {
 
             const server = new Hapi.Server();
+            expect(() => {
 
-            let count = 0;
-            server.route({
-                method: 'GET',
-                path: '/',
-                handler: (request, responder) => {
-
-                    ++count;
-                    return responder.abandon;
-                }
-            });
-
-            await server.start();
-            const promise = Wreck.request('GET', `http://localhost:${server.info.port}/`, { rejectUnauthorized: false });
-
-            await Hoek.wait(50);
-            const count1 = await internals.countConnections(server);
-            expect(count1).to.equal(1);
-            expect(server._sockets.size).to.equal(1);
-            expect(count).to.equal(1);
-
-            promise.req.abort();
-            await expect(promise).to.reject();
-
-            const count2 = await internals.countConnections(server);
-            expect(count2).to.equal(0);
-            expect(server._sockets.size).to.equal(0);
-            expect(count).to.equal(1);
-            await server.stop();
+                server.cache({ segment: 'a', expiresIn: 1000 });
+                server.cache({ segment: 'a', expiresIn: 1000, shared: true });
+            }).to.not.throw();
         });
 
-        it('clears connections on close (HTTPS)', async () => {
+        it('uses plugin cache interface', async () => {
 
-            const tlsOptions = {
-                key: '-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA0UqyXDCqWDKpoNQQK/fdr0OkG4gW6DUafxdufH9GmkX/zoKz\ng/SFLrPipzSGINKWtyMvo7mPjXqqVgE10LDI3VFV8IR6fnART+AF8CW5HMBPGt/s\nfQW4W4puvBHkBxWSW1EvbecgNEIS9hTGvHXkFzm4xJ2e9DHp2xoVAjREC73B7JbF\nhc5ZGGchKw+CFmAiNysU0DmBgQcac0eg2pWoT+YGmTeQj6sRXO67n2xy/hA1DuN6\nA4WBK3wM3O4BnTG0dNbWUEbe7yAbV5gEyq57GhJIeYxRvveVDaX90LoAqM4cUH06\n6rciON0UbDHV2LP/JaH5jzBjUyCnKLLo5snlbwIDAQABAoIBAQDJm7YC3pJJUcxb\nc8x8PlHbUkJUjxzZ5MW4Zb71yLkfRYzsxrTcyQA+g+QzA4KtPY8XrZpnkgm51M8e\n+B16AcIMiBxMC6HgCF503i16LyyJiKrrDYfGy2rTK6AOJQHO3TXWJ3eT3BAGpxuS\n12K2Cq6EvQLCy79iJm7Ks+5G6EggMZPfCVdEhffRm2Epl4T7LpIAqWiUDcDfS05n\nNNfAGxxvALPn+D+kzcSF6hpmCVrFVTf9ouhvnr+0DpIIVPwSK/REAF3Ux5SQvFuL\njPmh3bGwfRtcC5d21QNrHdoBVSN2UBLmbHUpBUcOBI8FyivAWJhRfKnhTvXMFG8L\nwaXB51IZAoGBAP/E3uz6zCyN7l2j09wmbyNOi1AKvr1WSmuBJveITouwblnRSdvc\nsYm4YYE0Vb94AG4n7JIfZLKtTN0xvnCo8tYjrdwMJyGfEfMGCQQ9MpOBXAkVVZvP\ne2k4zHNNsfvSc38UNSt7K0HkVuH5BkRBQeskcsyMeu0qK4wQwdtiCoBDAoGBANF7\nFMppYxSW4ir7Jvkh0P8bP/Z7AtaSmkX7iMmUYT+gMFB5EKqFTQjNQgSJxS/uHVDE\nSC5co8WGHnRk7YH2Pp+Ty1fHfXNWyoOOzNEWvg6CFeMHW2o+/qZd4Z5Fep6qCLaa\nFvzWWC2S5YslEaaP8DQ74aAX4o+/TECrxi0z2lllAoGAdRB6qCSyRsI/k4Rkd6Lv\nw00z3lLMsoRIU6QtXaZ5rN335Awyrfr5F3vYxPZbOOOH7uM/GDJeOJmxUJxv+cia\nPQDflpPJZU4VPRJKFjKcb38JzO6C3Gm+po5kpXGuQQA19LgfDeO2DNaiHZOJFrx3\nm1R3Zr/1k491lwokcHETNVkCgYBPLjrZl6Q/8BhlLrG4kbOx+dbfj/euq5NsyHsX\n1uI7bo1Una5TBjfsD8nYdUr3pwWltcui2pl83Ak+7bdo3G8nWnIOJ/WfVzsNJzj7\n/6CvUzR6sBk5u739nJbfgFutBZBtlSkDQPHrqA7j3Ysibl3ZIJlULjMRKrnj6Ans\npCDwkQKBgQCM7gu3p7veYwCZaxqDMz5/GGFUB1My7sK0hcT7/oH61yw3O8pOekee\nuctI1R3NOudn1cs5TAy/aypgLDYTUGQTiBRILeMiZnOrvQQB9cEf7TFgDoRNCcDs\nV/ZWiegVB/WY7H0BkCekuq5bHwjgtJTpvHGqQ9YD7RhE8RSYOhdQ/Q==\n-----END RSA PRIVATE KEY-----\n',
-                cert: '-----BEGIN CERTIFICATE-----\nMIIDBjCCAe4CCQDvLNml6smHlTANBgkqhkiG9w0BAQUFADBFMQswCQYDVQQGEwJV\nUzETMBEGA1UECAwKU29tZS1TdGF0ZTEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0\ncyBQdHkgTHRkMB4XDTE0MDEyNTIxMjIxOFoXDTE1MDEyNTIxMjIxOFowRTELMAkG\nA1UEBhMCVVMxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoMGEludGVybmV0\nIFdpZGdpdHMgUHR5IEx0ZDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB\nANFKslwwqlgyqaDUECv33a9DpBuIFug1Gn8Xbnx/RppF/86Cs4P0hS6z4qc0hiDS\nlrcjL6O5j416qlYBNdCwyN1RVfCEen5wEU/gBfAluRzATxrf7H0FuFuKbrwR5AcV\nkltRL23nIDRCEvYUxrx15Bc5uMSdnvQx6dsaFQI0RAu9weyWxYXOWRhnISsPghZg\nIjcrFNA5gYEHGnNHoNqVqE/mBpk3kI+rEVzuu59scv4QNQ7jegOFgSt8DNzuAZ0x\ntHTW1lBG3u8gG1eYBMquexoSSHmMUb73lQ2l/dC6AKjOHFB9Ouq3IjjdFGwx1diz\n/yWh+Y8wY1Mgpyiy6ObJ5W8CAwEAATANBgkqhkiG9w0BAQUFAAOCAQEAoSc6Skb4\ng1e0ZqPKXBV2qbx7hlqIyYpubCl1rDiEdVzqYYZEwmst36fJRRrVaFuAM/1DYAmT\nWMhU+yTfA+vCS4tql9b9zUhPw/IDHpBDWyR01spoZFBF/hE1MGNpCSXXsAbmCiVf\naxrIgR2DNketbDxkQx671KwF1+1JOMo9ffXp+OhuRo5NaGIxhTsZ+f/MA4y084Aj\nDI39av50sTRTWWShlN+J7PtdQVA5SZD97oYbeUeL7gI18kAJww9eUdmT0nEjcwKs\nxsQT1fyKbo7AlZBY4KSlUMuGnn0VnAsB9b+LxtXlDfnjyM8bVQx1uAfRo0DO8p/5\n3J5DTjAU55deBQ==\n-----END CERTIFICATE-----\n'
-            };
+            const test = function (srv, options) {
 
-            const server = new Hapi.Server({ tls: tlsOptions });
+                const cache = srv.cache({ expiresIn: 10 });
+                srv.expose({
+                    get: function (key) {
 
-            let count = 0;
-            server.route({
-                method: 'GET',
-                path: '/',
-                handler: (request, responder) => {
+                        return cache.get(key);
+                    },
+                    set: function (key, value) {
 
-                    ++count;
-                    return responder.abandon;
-                }
-            });
-
-            await server.start();
-            const promise = Wreck.request('GET', `https://localhost:${server.info.port}/`, { rejectUnauthorized: false });
-
-            await Hoek.wait(50);
-            const count1 = await internals.countConnections(server);
-            expect(count1).to.equal(1);
-            expect(server._sockets.size).to.equal(1);
-            expect(count).to.equal(1);
-
-            promise.req.abort();
-            await expect(promise).to.reject();
-
-            const count2 = await internals.countConnections(server);
-            expect(count2).to.equal(0);
-            expect(server._sockets.size).to.equal(0);
-            expect(count).to.equal(1);
-            await server.stop();
-        });
-    });
-
-    describe('_start()', () => {
-
-        it('starts connection', async () => {
-
-            const server = new Hapi.Server();
-            await server.start();
-            let expectedBoundAddress = '0.0.0.0';
-            if (Net.isIPv6(server.listener.address().address)) {
-                expectedBoundAddress = '::';
-            }
-
-            expect(server.info.host).to.equal(Os.hostname());
-            expect(server.info.address).to.equal(expectedBoundAddress);
-            expect(server.info.port).to.be.a.number().and.above(1);
-            await server.stop();
-        });
-
-        it('starts connection (tls)', async () => {
-
-            const tlsOptions = {
-                key: '-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA0UqyXDCqWDKpoNQQK/fdr0OkG4gW6DUafxdufH9GmkX/zoKz\ng/SFLrPipzSGINKWtyMvo7mPjXqqVgE10LDI3VFV8IR6fnART+AF8CW5HMBPGt/s\nfQW4W4puvBHkBxWSW1EvbecgNEIS9hTGvHXkFzm4xJ2e9DHp2xoVAjREC73B7JbF\nhc5ZGGchKw+CFmAiNysU0DmBgQcac0eg2pWoT+YGmTeQj6sRXO67n2xy/hA1DuN6\nA4WBK3wM3O4BnTG0dNbWUEbe7yAbV5gEyq57GhJIeYxRvveVDaX90LoAqM4cUH06\n6rciON0UbDHV2LP/JaH5jzBjUyCnKLLo5snlbwIDAQABAoIBAQDJm7YC3pJJUcxb\nc8x8PlHbUkJUjxzZ5MW4Zb71yLkfRYzsxrTcyQA+g+QzA4KtPY8XrZpnkgm51M8e\n+B16AcIMiBxMC6HgCF503i16LyyJiKrrDYfGy2rTK6AOJQHO3TXWJ3eT3BAGpxuS\n12K2Cq6EvQLCy79iJm7Ks+5G6EggMZPfCVdEhffRm2Epl4T7LpIAqWiUDcDfS05n\nNNfAGxxvALPn+D+kzcSF6hpmCVrFVTf9ouhvnr+0DpIIVPwSK/REAF3Ux5SQvFuL\njPmh3bGwfRtcC5d21QNrHdoBVSN2UBLmbHUpBUcOBI8FyivAWJhRfKnhTvXMFG8L\nwaXB51IZAoGBAP/E3uz6zCyN7l2j09wmbyNOi1AKvr1WSmuBJveITouwblnRSdvc\nsYm4YYE0Vb94AG4n7JIfZLKtTN0xvnCo8tYjrdwMJyGfEfMGCQQ9MpOBXAkVVZvP\ne2k4zHNNsfvSc38UNSt7K0HkVuH5BkRBQeskcsyMeu0qK4wQwdtiCoBDAoGBANF7\nFMppYxSW4ir7Jvkh0P8bP/Z7AtaSmkX7iMmUYT+gMFB5EKqFTQjNQgSJxS/uHVDE\nSC5co8WGHnRk7YH2Pp+Ty1fHfXNWyoOOzNEWvg6CFeMHW2o+/qZd4Z5Fep6qCLaa\nFvzWWC2S5YslEaaP8DQ74aAX4o+/TECrxi0z2lllAoGAdRB6qCSyRsI/k4Rkd6Lv\nw00z3lLMsoRIU6QtXaZ5rN335Awyrfr5F3vYxPZbOOOH7uM/GDJeOJmxUJxv+cia\nPQDflpPJZU4VPRJKFjKcb38JzO6C3Gm+po5kpXGuQQA19LgfDeO2DNaiHZOJFrx3\nm1R3Zr/1k491lwokcHETNVkCgYBPLjrZl6Q/8BhlLrG4kbOx+dbfj/euq5NsyHsX\n1uI7bo1Una5TBjfsD8nYdUr3pwWltcui2pl83Ak+7bdo3G8nWnIOJ/WfVzsNJzj7\n/6CvUzR6sBk5u739nJbfgFutBZBtlSkDQPHrqA7j3Ysibl3ZIJlULjMRKrnj6Ans\npCDwkQKBgQCM7gu3p7veYwCZaxqDMz5/GGFUB1My7sK0hcT7/oH61yw3O8pOekee\nuctI1R3NOudn1cs5TAy/aypgLDYTUGQTiBRILeMiZnOrvQQB9cEf7TFgDoRNCcDs\nV/ZWiegVB/WY7H0BkCekuq5bHwjgtJTpvHGqQ9YD7RhE8RSYOhdQ/Q==\n-----END RSA PRIVATE KEY-----\n',
-                cert: '-----BEGIN CERTIFICATE-----\nMIIDBjCCAe4CCQDvLNml6smHlTANBgkqhkiG9w0BAQUFADBFMQswCQYDVQQGEwJV\nUzETMBEGA1UECAwKU29tZS1TdGF0ZTEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0\ncyBQdHkgTHRkMB4XDTE0MDEyNTIxMjIxOFoXDTE1MDEyNTIxMjIxOFowRTELMAkG\nA1UEBhMCVVMxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoMGEludGVybmV0\nIFdpZGdpdHMgUHR5IEx0ZDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB\nANFKslwwqlgyqaDUECv33a9DpBuIFug1Gn8Xbnx/RppF/86Cs4P0hS6z4qc0hiDS\nlrcjL6O5j416qlYBNdCwyN1RVfCEen5wEU/gBfAluRzATxrf7H0FuFuKbrwR5AcV\nkltRL23nIDRCEvYUxrx15Bc5uMSdnvQx6dsaFQI0RAu9weyWxYXOWRhnISsPghZg\nIjcrFNA5gYEHGnNHoNqVqE/mBpk3kI+rEVzuu59scv4QNQ7jegOFgSt8DNzuAZ0x\ntHTW1lBG3u8gG1eYBMquexoSSHmMUb73lQ2l/dC6AKjOHFB9Ouq3IjjdFGwx1diz\n/yWh+Y8wY1Mgpyiy6ObJ5W8CAwEAATANBgkqhkiG9w0BAQUFAAOCAQEAoSc6Skb4\ng1e0ZqPKXBV2qbx7hlqIyYpubCl1rDiEdVzqYYZEwmst36fJRRrVaFuAM/1DYAmT\nWMhU+yTfA+vCS4tql9b9zUhPw/IDHpBDWyR01spoZFBF/hE1MGNpCSXXsAbmCiVf\naxrIgR2DNketbDxkQx671KwF1+1JOMo9ffXp+OhuRo5NaGIxhTsZ+f/MA4y084Aj\nDI39av50sTRTWWShlN+J7PtdQVA5SZD97oYbeUeL7gI18kAJww9eUdmT0nEjcwKs\nxsQT1fyKbo7AlZBY4KSlUMuGnn0VnAsB9b+LxtXlDfnjyM8bVQx1uAfRo0DO8p/5\n3J5DTjAU55deBQ==\n-----END CERTIFICATE-----\n'
-            };
-
-            const server = new Hapi.Server({ host: '0.0.0.0', port: 0, tls: tlsOptions });
-            await server.start();
-            expect(server.info.host).to.equal('0.0.0.0');
-            expect(server.info.port).to.not.equal(0);
-            await server.stop();
-        });
-
-        it('sets info with defaults when missing hostname and address', { parallel: false }, async () => {
-
-            const hostname = Os.hostname;
-            Os.hostname = function () {
-
-                Os.hostname = hostname;
-                return '';
-            };
-
-            const server = new Hapi.Server({ port: '8000' });
-            expect(server.info.host).to.equal('localhost');
-            expect(server.info.uri).to.equal('http://localhost:8000');
-        });
-
-        it('ignored repeated calls', async () => {
-
-            const server = new Hapi.Server();
-            await server.start();
-            await server.start();
-            await server.stop();
-        });
-    });
-
-    describe('_stop()', () => {
-
-        it('waits to stop until all connections are closed (HTTP)', async () => {
-
-            const server = new Hapi.Server();
-            await server.start();
-
-            const socket1 = await internals.socket(server);
-            const socket2 = await internals.socket(server);
-
-            const count1 = await internals.countConnections(server);
-            expect(count1).to.equal(2);
-            expect(server._sockets.size).to.equal(2);
-
-            const stop = server.stop();
-            socket1.end();
-            socket2.end();
-
-            await stop;
-            await Hoek.wait(10);
-
-            const count2 = await internals.countConnections(server);
-            expect(count2).to.equal(0);
-            expect(server._sockets.size).to.equal(0);
-        });
-
-        it('waits to stop until all connections are closed (HTTPS)', async () => {
-
-            const tlsOptions = {
-                key: '-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA0UqyXDCqWDKpoNQQK/fdr0OkG4gW6DUafxdufH9GmkX/zoKz\ng/SFLrPipzSGINKWtyMvo7mPjXqqVgE10LDI3VFV8IR6fnART+AF8CW5HMBPGt/s\nfQW4W4puvBHkBxWSW1EvbecgNEIS9hTGvHXkFzm4xJ2e9DHp2xoVAjREC73B7JbF\nhc5ZGGchKw+CFmAiNysU0DmBgQcac0eg2pWoT+YGmTeQj6sRXO67n2xy/hA1DuN6\nA4WBK3wM3O4BnTG0dNbWUEbe7yAbV5gEyq57GhJIeYxRvveVDaX90LoAqM4cUH06\n6rciON0UbDHV2LP/JaH5jzBjUyCnKLLo5snlbwIDAQABAoIBAQDJm7YC3pJJUcxb\nc8x8PlHbUkJUjxzZ5MW4Zb71yLkfRYzsxrTcyQA+g+QzA4KtPY8XrZpnkgm51M8e\n+B16AcIMiBxMC6HgCF503i16LyyJiKrrDYfGy2rTK6AOJQHO3TXWJ3eT3BAGpxuS\n12K2Cq6EvQLCy79iJm7Ks+5G6EggMZPfCVdEhffRm2Epl4T7LpIAqWiUDcDfS05n\nNNfAGxxvALPn+D+kzcSF6hpmCVrFVTf9ouhvnr+0DpIIVPwSK/REAF3Ux5SQvFuL\njPmh3bGwfRtcC5d21QNrHdoBVSN2UBLmbHUpBUcOBI8FyivAWJhRfKnhTvXMFG8L\nwaXB51IZAoGBAP/E3uz6zCyN7l2j09wmbyNOi1AKvr1WSmuBJveITouwblnRSdvc\nsYm4YYE0Vb94AG4n7JIfZLKtTN0xvnCo8tYjrdwMJyGfEfMGCQQ9MpOBXAkVVZvP\ne2k4zHNNsfvSc38UNSt7K0HkVuH5BkRBQeskcsyMeu0qK4wQwdtiCoBDAoGBANF7\nFMppYxSW4ir7Jvkh0P8bP/Z7AtaSmkX7iMmUYT+gMFB5EKqFTQjNQgSJxS/uHVDE\nSC5co8WGHnRk7YH2Pp+Ty1fHfXNWyoOOzNEWvg6CFeMHW2o+/qZd4Z5Fep6qCLaa\nFvzWWC2S5YslEaaP8DQ74aAX4o+/TECrxi0z2lllAoGAdRB6qCSyRsI/k4Rkd6Lv\nw00z3lLMsoRIU6QtXaZ5rN335Awyrfr5F3vYxPZbOOOH7uM/GDJeOJmxUJxv+cia\nPQDflpPJZU4VPRJKFjKcb38JzO6C3Gm+po5kpXGuQQA19LgfDeO2DNaiHZOJFrx3\nm1R3Zr/1k491lwokcHETNVkCgYBPLjrZl6Q/8BhlLrG4kbOx+dbfj/euq5NsyHsX\n1uI7bo1Una5TBjfsD8nYdUr3pwWltcui2pl83Ak+7bdo3G8nWnIOJ/WfVzsNJzj7\n/6CvUzR6sBk5u739nJbfgFutBZBtlSkDQPHrqA7j3Ysibl3ZIJlULjMRKrnj6Ans\npCDwkQKBgQCM7gu3p7veYwCZaxqDMz5/GGFUB1My7sK0hcT7/oH61yw3O8pOekee\nuctI1R3NOudn1cs5TAy/aypgLDYTUGQTiBRILeMiZnOrvQQB9cEf7TFgDoRNCcDs\nV/ZWiegVB/WY7H0BkCekuq5bHwjgtJTpvHGqQ9YD7RhE8RSYOhdQ/Q==\n-----END RSA PRIVATE KEY-----\n',
-                cert: '-----BEGIN CERTIFICATE-----\nMIIDBjCCAe4CCQDvLNml6smHlTANBgkqhkiG9w0BAQUFADBFMQswCQYDVQQGEwJV\nUzETMBEGA1UECAwKU29tZS1TdGF0ZTEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0\ncyBQdHkgTHRkMB4XDTE0MDEyNTIxMjIxOFoXDTE1MDEyNTIxMjIxOFowRTELMAkG\nA1UEBhMCVVMxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoMGEludGVybmV0\nIFdpZGdpdHMgUHR5IEx0ZDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB\nANFKslwwqlgyqaDUECv33a9DpBuIFug1Gn8Xbnx/RppF/86Cs4P0hS6z4qc0hiDS\nlrcjL6O5j416qlYBNdCwyN1RVfCEen5wEU/gBfAluRzATxrf7H0FuFuKbrwR5AcV\nkltRL23nIDRCEvYUxrx15Bc5uMSdnvQx6dsaFQI0RAu9weyWxYXOWRhnISsPghZg\nIjcrFNA5gYEHGnNHoNqVqE/mBpk3kI+rEVzuu59scv4QNQ7jegOFgSt8DNzuAZ0x\ntHTW1lBG3u8gG1eYBMquexoSSHmMUb73lQ2l/dC6AKjOHFB9Ouq3IjjdFGwx1diz\n/yWh+Y8wY1Mgpyiy6ObJ5W8CAwEAATANBgkqhkiG9w0BAQUFAAOCAQEAoSc6Skb4\ng1e0ZqPKXBV2qbx7hlqIyYpubCl1rDiEdVzqYYZEwmst36fJRRrVaFuAM/1DYAmT\nWMhU+yTfA+vCS4tql9b9zUhPw/IDHpBDWyR01spoZFBF/hE1MGNpCSXXsAbmCiVf\naxrIgR2DNketbDxkQx671KwF1+1JOMo9ffXp+OhuRo5NaGIxhTsZ+f/MA4y084Aj\nDI39av50sTRTWWShlN+J7PtdQVA5SZD97oYbeUeL7gI18kAJww9eUdmT0nEjcwKs\nxsQT1fyKbo7AlZBY4KSlUMuGnn0VnAsB9b+LxtXlDfnjyM8bVQx1uAfRo0DO8p/5\n3J5DTjAU55deBQ==\n-----END CERTIFICATE-----\n'
-            };
-
-            const server = new Hapi.Server({ tls: tlsOptions });
-            await server.start();
-
-            const socket1 = await internals.socket(server, 'tls');
-            const socket2 = await internals.socket(server, 'tls');
-
-            const count1 = await internals.countConnections(server);
-            expect(count1).to.equal(2);
-            expect(server._sockets.size).to.equal(2);
-
-            const stop = server.stop();
-            socket1.end();
-            socket2.end();
-
-            await stop;
-            await Hoek.wait(10);
-
-            const count2 = await internals.countConnections(server);
-            expect(count2).to.equal(0);
-            expect(server._sockets.size).to.equal(0);
-        });
-
-        it('immediately destroys unhandled connections', async () => {
-
-            const server = new Hapi.Server();
-            await server.start();
-
-            await internals.socket(server);
-            await internals.socket(server);
-
-            const count1 = await internals.countConnections(server);
-            expect(count1).to.equal(2);
-
-            const timer = new Hoek.Bench();
-            await server.stop({ timeout: 20 });
-            expect(timer.elapsed()).to.be.at.most(20);
-        });
-
-        it('waits to destroy handled connections until after the timeout', async () => {
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: (request, responder) => responder.abandon });
-            await server.start();
-
-            const socket = await internals.socket(server);
-            socket.write('GET / HTTP/1.0\nHost: test\n\n');
-            await Hoek.wait(10);
-
-            const count1 = await internals.countConnections(server);
-            expect(count1).to.equal(1);
-
-            const timer = new Hoek.Bench();
-            await server.stop({ timeout: 20 });
-            expect(timer.elapsed()).to.be.at.least(19);
-        });
-
-        it('waits to destroy connections if they close by themselves', async () => {
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: (request, responder) => responder.abandon });
-            await server.start();
-
-            const socket = await internals.socket(server);
-            socket.write('GET / HTTP/1.0\nHost: test\n\n');
-            await Hoek.wait(10);
-
-            const count1 = await internals.countConnections(server);
-            expect(count1).to.equal(1);
-
-            setTimeout(() => socket.end(), 10);
-
-            const timer = new Hoek.Bench();
-            await server.stop({ timeout: 200 });
-            expect(timer.elapsed()).to.be.below(20);
-        });
-
-        it('immediately destroys idle keep-alive connections', async () => {
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: () => null });
-
-            await server.start();
-
-            const socket = await internals.socket(server);
-            socket.write('GET / HTTP/1.1\nHost: test\nConnection: Keep-Alive\n\n\n');
-            await new Promise((resolve) => socket.on('data', resolve));
-
-            const count = await internals.countConnections(server);
-            expect(count).to.equal(1);
-
-            const timer = new Hoek.Bench();
-            await server.stop({ timeout: 20 });
-            expect(timer.elapsed()).to.be.at.most(20);
-        });
-
-        it('refuses to handle new incoming requests on persistent connections', async () => {
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: () => 'ok' });
-            await server.start();
-
-            const agent = new Http.Agent({ keepAlive: true, maxSockets: 1 });
-            const first = Wreck.get('http://localhost:' + server.info.port + '/', { agent });
-            const second = Wreck.get('http://localhost:' + server.info.port + '/', { agent });
-
-            const { res, payload } = await first;
-            const stop = server.stop();
-
-            await expect(second).to.reject();
-            await stop;
-
-            expect(res.headers.connection).to.equal('keep-alive');
-            expect(payload.toString()).to.equal('ok');
-            expect(server._started).to.equal(false);
-        });
-
-        it('finishes in-progress requests and ends connection', async () => {
-
-            let stop;
-            const handler = async (request) => {
-
-                stop = server.stop({ timeout: 200 });
-                await Hoek.wait(0);
-                return 'ok';
-            };
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler });
-            await server.start();
-
-            const agent = new Http.Agent({ keepAlive: true, maxSockets: 1 });
-
-            const first = Wreck.get('http://localhost:' + server.info.port + '/', { agent });
-            const second = Wreck.get('http://localhost:' + server.info.port + '/404', { agent });
-
-            const { res, payload } = await first;
-            expect(res.headers.connection).to.equal('close');
-            expect(payload.toString()).to.equal('ok');
-
-            await expect(second).to.reject();
-            await expect(stop).to.not.reject();
-        });
-
-        it('does not close longpoll HTTPS requests before response (if within timeout)', async () => {
-
-            const tlsOptions = {
-                key: '-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA0UqyXDCqWDKpoNQQK/fdr0OkG4gW6DUafxdufH9GmkX/zoKz\ng/SFLrPipzSGINKWtyMvo7mPjXqqVgE10LDI3VFV8IR6fnART+AF8CW5HMBPGt/s\nfQW4W4puvBHkBxWSW1EvbecgNEIS9hTGvHXkFzm4xJ2e9DHp2xoVAjREC73B7JbF\nhc5ZGGchKw+CFmAiNysU0DmBgQcac0eg2pWoT+YGmTeQj6sRXO67n2xy/hA1DuN6\nA4WBK3wM3O4BnTG0dNbWUEbe7yAbV5gEyq57GhJIeYxRvveVDaX90LoAqM4cUH06\n6rciON0UbDHV2LP/JaH5jzBjUyCnKLLo5snlbwIDAQABAoIBAQDJm7YC3pJJUcxb\nc8x8PlHbUkJUjxzZ5MW4Zb71yLkfRYzsxrTcyQA+g+QzA4KtPY8XrZpnkgm51M8e\n+B16AcIMiBxMC6HgCF503i16LyyJiKrrDYfGy2rTK6AOJQHO3TXWJ3eT3BAGpxuS\n12K2Cq6EvQLCy79iJm7Ks+5G6EggMZPfCVdEhffRm2Epl4T7LpIAqWiUDcDfS05n\nNNfAGxxvALPn+D+kzcSF6hpmCVrFVTf9ouhvnr+0DpIIVPwSK/REAF3Ux5SQvFuL\njPmh3bGwfRtcC5d21QNrHdoBVSN2UBLmbHUpBUcOBI8FyivAWJhRfKnhTvXMFG8L\nwaXB51IZAoGBAP/E3uz6zCyN7l2j09wmbyNOi1AKvr1WSmuBJveITouwblnRSdvc\nsYm4YYE0Vb94AG4n7JIfZLKtTN0xvnCo8tYjrdwMJyGfEfMGCQQ9MpOBXAkVVZvP\ne2k4zHNNsfvSc38UNSt7K0HkVuH5BkRBQeskcsyMeu0qK4wQwdtiCoBDAoGBANF7\nFMppYxSW4ir7Jvkh0P8bP/Z7AtaSmkX7iMmUYT+gMFB5EKqFTQjNQgSJxS/uHVDE\nSC5co8WGHnRk7YH2Pp+Ty1fHfXNWyoOOzNEWvg6CFeMHW2o+/qZd4Z5Fep6qCLaa\nFvzWWC2S5YslEaaP8DQ74aAX4o+/TECrxi0z2lllAoGAdRB6qCSyRsI/k4Rkd6Lv\nw00z3lLMsoRIU6QtXaZ5rN335Awyrfr5F3vYxPZbOOOH7uM/GDJeOJmxUJxv+cia\nPQDflpPJZU4VPRJKFjKcb38JzO6C3Gm+po5kpXGuQQA19LgfDeO2DNaiHZOJFrx3\nm1R3Zr/1k491lwokcHETNVkCgYBPLjrZl6Q/8BhlLrG4kbOx+dbfj/euq5NsyHsX\n1uI7bo1Una5TBjfsD8nYdUr3pwWltcui2pl83Ak+7bdo3G8nWnIOJ/WfVzsNJzj7\n/6CvUzR6sBk5u739nJbfgFutBZBtlSkDQPHrqA7j3Ysibl3ZIJlULjMRKrnj6Ans\npCDwkQKBgQCM7gu3p7veYwCZaxqDMz5/GGFUB1My7sK0hcT7/oH61yw3O8pOekee\nuctI1R3NOudn1cs5TAy/aypgLDYTUGQTiBRILeMiZnOrvQQB9cEf7TFgDoRNCcDs\nV/ZWiegVB/WY7H0BkCekuq5bHwjgtJTpvHGqQ9YD7RhE8RSYOhdQ/Q==\n-----END RSA PRIVATE KEY-----\n',
-                cert: '-----BEGIN CERTIFICATE-----\nMIIDBjCCAe4CCQDvLNml6smHlTANBgkqhkiG9w0BAQUFADBFMQswCQYDVQQGEwJV\nUzETMBEGA1UECAwKU29tZS1TdGF0ZTEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0\ncyBQdHkgTHRkMB4XDTE0MDEyNTIxMjIxOFoXDTE1MDEyNTIxMjIxOFowRTELMAkG\nA1UEBhMCVVMxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoMGEludGVybmV0\nIFdpZGdpdHMgUHR5IEx0ZDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB\nANFKslwwqlgyqaDUECv33a9DpBuIFug1Gn8Xbnx/RppF/86Cs4P0hS6z4qc0hiDS\nlrcjL6O5j416qlYBNdCwyN1RVfCEen5wEU/gBfAluRzATxrf7H0FuFuKbrwR5AcV\nkltRL23nIDRCEvYUxrx15Bc5uMSdnvQx6dsaFQI0RAu9weyWxYXOWRhnISsPghZg\nIjcrFNA5gYEHGnNHoNqVqE/mBpk3kI+rEVzuu59scv4QNQ7jegOFgSt8DNzuAZ0x\ntHTW1lBG3u8gG1eYBMquexoSSHmMUb73lQ2l/dC6AKjOHFB9Ouq3IjjdFGwx1diz\n/yWh+Y8wY1Mgpyiy6ObJ5W8CAwEAATANBgkqhkiG9w0BAQUFAAOCAQEAoSc6Skb4\ng1e0ZqPKXBV2qbx7hlqIyYpubCl1rDiEdVzqYYZEwmst36fJRRrVaFuAM/1DYAmT\nWMhU+yTfA+vCS4tql9b9zUhPw/IDHpBDWyR01spoZFBF/hE1MGNpCSXXsAbmCiVf\naxrIgR2DNketbDxkQx671KwF1+1JOMo9ffXp+OhuRo5NaGIxhTsZ+f/MA4y084Aj\nDI39av50sTRTWWShlN+J7PtdQVA5SZD97oYbeUeL7gI18kAJww9eUdmT0nEjcwKs\nxsQT1fyKbo7AlZBY4KSlUMuGnn0VnAsB9b+LxtXlDfnjyM8bVQx1uAfRo0DO8p/5\n3J5DTjAU55deBQ==\n-----END CERTIFICATE-----\n'
-            };
-
-            const server = new Hapi.Server({ tls: tlsOptions });
-
-            let stop;
-            const handler = async (request) => {
-
-                stop = server.stop({ timeout: 200 });
-                await Hoek.wait(150);
-                return 'ok';
-            };
-
-            server.route({ method: 'GET', path: '/', handler });
-            await server.start();
-
-            const agent = new Https.Agent({ keepAlive: true, maxSockets: 1, rejectUnauthorized: false });
-            const { res, payload } = await Wreck.get('https://localhost:' + server.info.port + '/', { agent });
-            expect(res.headers.connection).to.equal('close');
-            expect(payload.toString()).to.equal('ok');
-
-            await stop;
-        });
-
-        it('removes connection event listeners after it stops', async () => {
-
-            const server = new Hapi.Server();
-            const initial = server.listener.listeners('connection').length;
-            await server.start();
-
-            expect(server.listener.listeners('connection').length).to.be.greaterThan(initial);
-
-            await server.stop();
-            await server.start();
-            await server.stop();
-
-            expect(server.listener.listeners('connection').length).to.equal(initial);
-        });
-
-        it('ignores repeated calls', async () => {
-
-            const server = new Hapi.Server();
-            await server.stop();
-            await server.stop();
-        });
-    });
-
-    describe('_dispatch()', () => {
-
-        it('rejects request due to high rss load', { parallel: false }, async () => {
-
-            const server = new Hapi.Server({ load: { sampleInterval: 5, maxRssBytes: 1 } });
-
-            const handler = (request) => {
-
-                const start = Date.now();
-                while (Date.now() - start < 10) { }
-                return 'ok';
-            };
-
-            const log = server.events.once('log');
-
-            server.route({ method: 'GET', path: '/', handler });
-            await server.start();
-
-            const res1 = await server.inject('/');
-            expect(res1.statusCode).to.equal(200);
-
-            await Hoek.wait(0);
-            const res2 = await server.inject('/');
-            expect(res2.statusCode).to.equal(503);
-
-            const [event, tags] = await log;
-            expect(event.internal).to.be.true();
-            expect(event.data.rss > 10000).to.equal(true);
-            expect(tags.load).to.be.true();
-
-            await server.stop();
-        });
-    });
-
-    describe('inject()', () => {
-
-        it('keeps the options.credentials object untouched', async () => {
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: () => null });
-
-            const options = {
-                url: '/',
-                credentials: { foo: 'bar' }
-            };
-
-            const res = await server.inject(options);
-            expect(res.statusCode).to.equal(200);
-            expect(options.credentials).to.exist();
-        });
-
-        it('sets credentials (with host header)', async () => {
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: () => null });
-
-            const options = {
-                url: '/',
-                credentials: { foo: 'bar' },
-                headers: {
-                    host: 'something'
-                }
-            };
-
-            const res = await server.inject(options);
-            expect(res.statusCode).to.equal(200);
-            expect(options.credentials).to.exist();
-        });
-
-        it('sets credentials (with authority)', async () => {
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: (request) => request.headers.host });
-
-            const options = {
-                url: '/',
-                credentials: { foo: 'bar' },
-                authority: 'something'
-            };
-
-            const res = await server.inject(options);
-            expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal('something');
-            expect(options.credentials).to.exist();
-        });
-
-        it('sets authority', async () => {
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: (request) => request.headers.host });
-
-            const options = {
-                url: '/',
-                authority: 'something'
-            };
-
-            const res = await server.inject(options);
-            expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal('something');
-        });
-
-        it('passes the options.artifacts object', async () => {
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: (request) => request.auth.artifacts });
-
-            const options = {
-                url: '/',
-                credentials: { foo: 'bar' },
-                artifacts: { bar: 'baz' }
-            };
-
-            const res = await server.inject(options);
-            expect(res.statusCode).to.equal(200);
-            expect(res.result.bar).to.equal('baz');
-            expect(options.artifacts).to.exist();
-        });
-
-        it('sets app settings', async () => {
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: (request) => request.app.x });
-
-            const options = {
-                url: '/',
-                authority: 'x',             // For coverage
-                app: {
-                    x: 123
-                }
-            };
-
-            const res = await server.inject(options);
-            expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal(123);
-        });
-
-        it('sets plugins settings', async () => {
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: (request) => request.plugins.x.y });
-
-            const options = {
-                url: '/',
-                authority: 'x',             // For coverage
-                plugins: {
-                    x: {
-                        y: 123
+                        return cache.set(key, value, 0);
                     }
-                }
+                });
             };
 
-            const res = await server.inject(options);
-            expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal(123);
-        });
-
-        it('returns the request object', async () => {
-
-            const handler = (request) => {
-
-                request.app.key = 'value';
-                return null;
+            test.attributes = {
+                name: 'test'
             };
 
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler });
+            await server.register(test);
+            await server.initialize();
 
-            const res = await server.inject('/');
-            expect(res.statusCode).to.equal(200);
-            expect(res.request.app.key).to.equal('value');
-        });
+            await server.plugins.test.set('a', '1');
+            const { value: value1 } = await server.plugins.test.get('a');
+            expect(value1).to.equal('1');
 
-        it('can set a client remoteAddress', async () => {
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: (request) => request.info.remoteAddress });
-
-            const res = await server.inject({ url: '/', remoteAddress: '1.2.3.4' });
-            expect(res.statusCode).to.equal(200);
-            expect(res.payload).to.equal('1.2.3.4');
-        });
-
-        it('sets a default remoteAddress of 127.0.0.1', async () => {
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: (request) => request.info.remoteAddress });
-
-            const res = await server.inject('/');
-            expect(res.statusCode).to.equal(200);
-            expect(res.payload).to.equal('127.0.0.1');
-        });
-
-        it('sets correct host header', async () => {
-
-            const server = new Hapi.Server({ host: 'example.com', port: 2080 });
-            server.route({
-                method: 'GET',
-                path: '/',
-                handler: (request) => request.headers.host
-            });
-
-            const res = await server.inject('/');
-            expect(res.result).to.equal('example.com:2080');
+            await Hoek.wait(11);
+            const { value: value2 } = await server.plugins.test.get('a');
+            expect(value2).to.equal(null);
         });
     });
 
-    describe('table()', () => {
+    describe('cache.provision()', async () => {
 
-        it('returns an array of the current routes', async () => {
+        it('provisions a server cache (before initialization)', async () => {
 
             const server = new Hapi.Server();
+            await server.cache.provision({ engine: CatboxMemory, name: 'dynamic' });
+            const cache = server.cache({ cache: 'dynamic', segment: 'test', expiresIn: 1000 });
 
-            server.route({ path: '/test/', method: 'get', handler: () => null });
-            server.route({ path: '/test/{p}/end', method: 'get', handler: () => null });
+            await expect(cache.set('a', 'going in', 0)).to.reject();
+            await server.initialize();
 
-            const routes = server.table()[0].table;
-            expect(routes.length).to.equal(2);
-            expect(routes[0].path).to.equal('/test/');
+            await cache.set('a', 'going in', 0);
+            const { value } = await cache.get('a');
+            expect(value).to.equal('going in');
         });
 
-        it('combines global and vhost routes', async () => {
+        it('provisions a server cache (after initialization)', async () => {
 
             const server = new Hapi.Server();
 
-            server.route({ path: '/test/', method: 'get', handler: () => null });
-            server.route({ path: '/test/', vhost: 'one.example.com', method: 'get', handler: () => null });
-            server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: () => null });
-            server.route({ path: '/test/{p}/end', method: 'get', handler: () => null });
+            await server.initialize();
+            await server.cache.provision({ engine: CatboxMemory, name: 'dynamic' });
+            const cache = server.cache({ cache: 'dynamic', segment: 'test', expiresIn: 1000 });
 
-            const routes = server.table()[0].table;
-            expect(routes.length).to.equal(4);
+            await cache.set('a', 'going in', 0);
+            const { value } = await cache.get('a');
+            expect(value).to.equal('going in');
         });
 
-        it('combines global and vhost routes and filters based on host', async () => {
+        it('provisions a server cache (promise)', async () => {
+
+            const server = new Hapi.Server();
+            await server.initialize();
+            await server.cache.provision({ engine: CatboxMemory, name: 'dynamic' });
+            const cache = server.cache({ cache: 'dynamic', segment: 'test', expiresIn: 1000 });
+
+            await cache.set('a', 'going in', 0);
+            const { value } = await cache.get('a');
+            expect(value).to.equal('going in');
+        });
+    });
+
+    describe('decorate()', () => {
+
+        it('decorates request', async () => {
 
             const server = new Hapi.Server();
 
-            server.route({ path: '/test/', method: 'get', handler: () => null });
-            server.route({ path: '/test/', vhost: 'one.example.com', method: 'get', handler: () => null });
-            server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: () => null });
-            server.route({ path: '/test/{p}/end', method: 'get', handler: () => null });
+            const getId = function () {
 
-            const routes = server.table('one.example.com')[0].table;
-            expect(routes.length).to.equal(3);
+                return this.info.id;
+            };
+
+            server.decorate('request', 'getId', getId);
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: (request) => request.getId()
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.match(/^.*\:.*\:.*\:.*\:.*$/);
         });
 
-        it('accepts a list of hosts', async () => {
+        it('decorates request (apply)', async () => {
 
             const server = new Hapi.Server();
 
-            server.route({ path: '/test/', method: 'get', handler: () => null });
-            server.route({ path: '/test/', vhost: 'one.example.com', method: 'get', handler: () => null });
-            server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: () => null });
-            server.route({ path: '/test/{p}/end', method: 'get', handler: () => null });
+            server.decorate('request', 'uri', (request) => request.server.info.uri, { apply: true });
 
-            const routes = server.table(['one.example.com', 'two.example.com'])[0].table;
-            expect(routes.length).to.equal(4);
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: (request) => request.uri
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal(server.info.uri);
         });
 
-        it('ignores unknown host', async () => {
+        it('decorates responder', async () => {
 
             const server = new Hapi.Server();
 
-            server.route({ path: '/test/', method: 'get', handler: () => null });
-            server.route({ path: '/test/', vhost: 'one.example.com', method: 'get', handler: () => null });
-            server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: () => null });
-            server.route({ path: '/test/{p}/end', method: 'get', handler: () => null });
+            const success = function () {
 
-            const routes = server.table('three.example.com')[0].table;
-            expect(routes.length).to.equal(2);
+                return this.wrap({ status: 'ok' });
+            };
+
+            server.decorate('responder', 'success', success);
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: (request, responder) => responder.success()
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result.status).to.equal('ok');
+        });
+
+        it('throws on double responder decoration', async () => {
+
+            const server = new Hapi.Server();
+
+            server.decorate('responder', 'success', () => {
+
+                return this.response({ status: 'ok' });
+            });
+
+            expect(() => {
+
+                server.decorate('responder', 'success', () => { });
+            }).to.throw('Reply interface decoration already defined: success');
+        });
+
+        it('throws on internal conflict', async () => {
+
+            const server = new Hapi.Server();
+
+            expect(() => {
+
+                server.decorate('responder', 'redirect', () => { });
+            }).to.throw('Cannot override built-in responder interface decoration: redirect');
+        });
+
+        it('decorates server', async () => {
+
+            const server = new Hapi.Server();
+
+            const ok = function (path) {
+
+                server.route({
+                    method: 'GET',
+                    path,
+                    handler: () => 'ok'
+                });
+            };
+
+            server.decorate('server', 'ok', ok);
+
+            server.ok('/');
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('ok');
+        });
+
+        it('throws on double server decoration', async () => {
+
+            const server = new Hapi.Server();
+
+            const ok = function (path) {
+
+                server.route({
+                    method: 'GET',
+                    path,
+                    handler: () => 'ok'
+                });
+            };
+
+            server.decorate('server', 'ok', ok);
+
+            expect(() => {
+
+                server.decorate('server', 'ok', () => { });
+            }).to.throw('Server decoration already defined: ok');
+        });
+
+        it('throws on server decoration root conflict', async () => {
+
+            const server = new Hapi.Server();
+
+            expect(() => {
+
+                server.decorate('server', 'start', () => { });
+            }).to.throw('Cannot override the built-in server interface method: start');
+        });
+
+        it('throws on server decoration plugin conflict', async () => {
+
+            const server = new Hapi.Server();
+
+            expect(() => {
+
+                server.decorate('server', 'ext', () => { });
+            }).to.throw('Cannot override the built-in server interface method: ext');
+        });
+
+        it('throws on invalid decoration name', async () => {
+
+            const server = new Hapi.Server();
+
+            expect(() => {
+
+                server.decorate('server', '_special', () => { });
+            }).to.throw('Property name cannot begin with an underscore: _special');
+        });
+    });
+
+    describe('decorations ()', () => {
+
+        it('shows decorations on request (empty array)', async () => {
+
+            const server = new Hapi.Server();
+
+            expect(server.decorations.request).to.be.empty();
+        });
+
+        it('shows decorations on request (single)', async () => {
+
+            const server = new Hapi.Server();
+
+            server.decorate('request', 'a', () => { });
+
+            expect(server.decorations.request).to.equal(['a']);
+        });
+
+        it('shows decorations on request (many)', async () => {
+
+            const server = new Hapi.Server();
+
+            server.decorate('request', 'a', () => { });
+            server.decorate('request', 'b', () => { });
+
+            expect(server.decorations.request).to.equal(['a', 'b']);
+        });
+
+        it('shows decorations on responder (empty array)', async () => {
+
+            const server = new Hapi.Server();
+
+            expect(server.decorations.responder).to.be.empty();
+        });
+
+        it('shows decorations on responder (single)', async () => {
+
+            const server = new Hapi.Server();
+
+            server.decorate('responder', 'a', () => { });
+
+            expect(server.decorations.responder).to.equal(['a']);
+        });
+
+        it('shows decorations on responder (many)', async () => {
+
+            const server = new Hapi.Server();
+
+            server.decorate('responder', 'a', () => { });
+            server.decorate('responder', 'b', () => { });
+
+            expect(server.decorations.responder).to.equal(['a', 'b']);
+        });
+
+        it('shows decorations on server (empty array)', async () => {
+
+            const server = new Hapi.Server();
+
+            expect(server.decorations.server).to.be.empty();
+        });
+
+        it('shows decorations on server (single)', async () => {
+
+            const server = new Hapi.Server();
+
+            server.decorate('server', 'a', () => { });
+
+            expect(server.decorations.server).to.equal(['a']);
+        });
+
+        it('shows decorations on server (many)', async () => {
+
+            const server = new Hapi.Server();
+
+            server.decorate('server', 'a', () => { });
+            server.decorate('server', 'b', () => { });
+
+            expect(server.decorations.server).to.equal(['a', 'b']);
+        });
+    });
+
+    describe('dependency()', () => {
+
+        it('fails to register single plugin with dependencies', async () => {
+
+            const test = function (srv, options) {
+
+                srv.dependency('none');
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            const server = new Hapi.Server();
+            await server.register(test);
+            await expect(server.initialize()).to.reject('Plugin test missing dependency none');
+        });
+
+        it('fails to register single plugin with dependencies (attributes)', async () => {
+
+            const test = function (srv, options) { };
+
+            test.attributes = {
+                name: 'test',
+                dependencies: 'none'
+            };
+
+            const server = new Hapi.Server();
+            await server.register(test);
+            await expect(server.initialize()).to.reject('Plugin test missing dependency none');
+        });
+
+        it('fails to register multiple plugins with dependencies', async () => {
+
+            const server = new Hapi.Server({ port: 80, host: 'localhost' });
+            await server.register([internals.plugins.deps1, internals.plugins.deps3]);
+            await expect(server.initialize()).to.reject('Plugin deps1 missing dependency deps2');
+        });
+
+        it('recognizes dependencies from peer plugins', async () => {
+
+            const b = function (srv, options) { };
+
+            b.attributes = {
+                name: 'b'
+            };
+
+            const a = function (srv, options) {
+
+                return srv.register(b);
+            };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            const c = function (srv, options) {
+
+                srv.dependency('b');
+            };
+
+            c.attributes = {
+                name: 'c'
+            };
+
+            const server = new Hapi.Server();
+            await server.register([a, c]);
+        });
+
+        it('errors when missing inner dependencies', async () => {
+
+            const b = function (srv, options) {
+
+                srv.dependency('c');
+            };
+
+            const a = function (srv, options) {
+
+                return srv.register(b);
+            };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            b.attributes = {
+                name: 'b'
+            };
+
+            const server = new Hapi.Server({ port: 80, host: 'localhost' });
+            await server.register(a);
+            await expect(server.initialize()).to.reject('Plugin b missing dependency c');
+        });
+
+        it('errors when missing inner dependencies (attributes)', async () => {
+
+            const b = function (srv, options) { };
+
+            b.attributes = {
+                name: 'b',
+                dependencies: 'c'
+            };
+
+            const a = function (srv, options) {
+
+                return srv.register(b);
+            };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            const server = new Hapi.Server({ port: 80, host: 'localhost' });
+            await server.register(a);
+            await expect(server.initialize()).to.reject('Plugin b missing dependency c');
+        });
+    });
+
+    describe('encoder()', () => {
+
+        it('adds custom encoder', async () => {
+
+            const data = '{"test":"true"}';
+
+            const server = new Hapi.Server({ compression: { minBytes: 1 }, routes: { compression: { test: { some: 'option' } } } });
+
+            const encoder = (options) => {
+
+                expect(options).to.equal({ some: 'option' });
+                return Zlib.createGzip();
+            };
+
+            server.encoder('test', encoder);
+            server.route({ method: 'POST', path: '/', handler: (request) => request.payload });
+            await server.start();
+
+            const uri = 'http://localhost:' + server.info.port;
+            const zipped = await new Promise((resolve) => Zlib.gzip(new Buffer(data), (ignoreErr, compressed) => resolve(compressed)));
+            const { res, payload } = await Wreck.post(uri, { headers: { 'accept-encoding': 'test' }, payload: data });
+            expect(res.headers['content-encoding']).to.equal('test');
+            expect(payload.toString()).to.equal(zipped.toString());
+            await server.stop();
+        });
+    });
+
+    describe('events', () => {
+
+        it('extends server events', async () => {
+
+            const server = new Hapi.Server();
+
+            const updates = [];
+            server.events.registerEvent({ name: 'test', channels: ['x', 'y'] });
+
+            server.events.on({ name: 'test', channels: 'x' }, (update) => updates.push({ id: 'server', channel: 'x', update }));
+
+            let plugin;
+            const test = function (srv, options) {
+
+                srv.events.on({ name: 'test', channels: 'y' }, (update) => updates.push({ id: 'plugin', channel: 'y', update }));
+                plugin = srv;
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            server.events.on('test', (update) => updates.push({ id: 'server', update }));
+
+            await server.register(test);
+
+            server.events.emit('test', 1);
+            server.events.emit({ name: 'test', channel: 'x' }, 2);
+            await plugin.events.emit({ name: 'test', channel: 'y' }, 3);
+
+            expect(updates).to.equal([
+                { id: 'server', update: 1 },
+                { id: 'server', channel: 'x', update: 2 },
+                { id: 'server', update: 2 },
+                { id: 'server', update: 3 },
+                { id: 'plugin', channel: 'y', update: 3 }
+            ]);
+        });
+    });
+
+    describe('expose()', () => {
+
+        it('exposes an api', async () => {
+
+            const server = new Hapi.Server();
+
+            await server.register(internals.plugins.test1);
+            expect(internals.routesList(server)).to.equal(['/test1']);
+            expect(server.plugins.test1.add(1, 3)).to.equal(4);
+            expect(server.plugins.test1.glue('1', '3')).to.equal('13');
         });
     });
 
     describe('ext()', () => {
 
-        it('supports adding an array of methods', async () => {
+        it('extends onRequest point', async () => {
+
+            const test = function (srv, options) {
+
+                srv.route({
+                    method: 'GET',
+                    path: '/b',
+                    handler: () => 'b'
+                });
+
+                const onRequest = (request, responder) => {
+
+                    request.setUrl('/b');
+                    return responder.continue;
+                };
+
+                srv.ext('onRequest', onRequest);
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
 
             const server = new Hapi.Server();
-            server.ext('onPreHandler', [
-                (request, responder) => {
+            await server.register(test);
 
-                    request.app.x = '1';
-                    return responder.continue;
+            expect(internals.routesList(server)).to.equal(['/b']);
+            const res = await server.inject('/a');
+            expect(res.result).to.equal('b');
+        });
+
+        it('adds multiple ext functions with complex dependencies', async () => {
+
+            // Generate a plugin with a specific index and ext dependencies.
+
+            const pluginCurrier = function (num, deps) {
+
+                const plugin = function (server, options) {
+
+                    const onRequest = (request, responder) => {
+
+                        request.app.complexDeps = request.app.complexDeps || '|';
+                        request.app.complexDeps += num + '|';
+                        return responder.continue;
+                    };
+
+                    server.ext('onRequest', onRequest, deps);
+                };
+
+                plugin.attributes = {
+                    name: 'deps' + num
+                };
+
+                return plugin;
+            };
+
+            const server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: (request) => request.app.complexDeps });
+
+            await server.register([
+                pluginCurrier(1, { after: 'deps2' }),
+                pluginCurrier(2),
+                pluginCurrier(3, { before: ['deps1', 'deps2'] })
+            ]);
+
+            await server.initialize();
+
+            const res = await server.inject('/');
+            expect(res.result).to.equal('|3|2|1|');
+        });
+
+        it('binds server ext to context (options)', async () => {
+
+            const server = new Hapi.Server();
+
+            const bind = {
+                state: false
+            };
+
+            const preStart = function (srv) {
+
+                this.state = true;
+            };
+
+            server.ext('onPreStart', preStart, { bind });
+
+            await server.initialize();
+            expect(bind.state).to.be.true();
+        });
+
+        it('binds server ext to context (realm)', async () => {
+
+            const server = new Hapi.Server();
+
+            const bind = {
+                state: false
+            };
+
+            server.bind(bind);
+            const preStart = function (srv) {
+
+                this.state = true;
+            };
+
+            server.ext('onPreStart', preStart);
+
+            await server.initialize();
+            expect(bind.state).to.be.true();
+        });
+
+        it('extends server actions', async () => {
+
+            const server = new Hapi.Server();
+
+            let result = '';
+            const preStart = function (srv) {
+
+                result += '1';
+            };
+
+            server.ext('onPreStart', preStart);
+
+            const postStart = function (srv) {
+
+                result += '2';
+            };
+
+            server.ext('onPostStart', postStart);
+
+            const preStop = function (srv) {
+
+                result += '3';
+            };
+
+            server.ext('onPreStop', preStop);
+
+            const postStop = function (srv) {
+
+                result += '4';
+            };
+
+            server.ext('onPostStop', postStop);
+
+            await server.start();
+            expect(result).to.equal('12');
+
+            await server.stop();
+            expect(result).to.equal('1234');
+        });
+
+        it('extends server actions (single call)', async () => {
+
+            const server = new Hapi.Server();
+
+            let result = '';
+            server.ext([
+                {
+                    type: 'onPreStart',
+                    method: function (srv) {
+
+                        result += '1';
+                    }
                 },
-                (request, responder) => {
+                {
+                    type: 'onPostStart',
+                    method: function (srv) {
 
-                    request.app.x += '2';
-                    return responder.continue;
+                        result += '2';
+                    }
+                },
+                {
+                    type: 'onPreStop',
+                    method: function (srv) {
+
+                        result += '3';
+                    }
+                },
+                {
+                    type: 'onPreStop',
+                    method: function (srv) {
+
+                        result += '4';
+                    }
                 }
             ]);
 
-            server.route({ method: 'GET', path: '/', handler: (request) => request.app.x });
+            await server.start();
+            expect(result).to.equal('12');
 
-            const res = await server.inject('/');
-            expect(res.result).to.equal('12');
+            await server.stop();
+            expect(result).to.equal('1234');
         });
 
-        it('sets bind via options', async () => {
+        it('combine route extensions', async () => {
 
             const server = new Hapi.Server();
-            const preHandler = function (request, responder) {
 
-                request.app.x = this.y;
+            const preAuth = (request, responder) => {
+
+                request.app.x = '1';
                 return responder.continue;
             };
 
-            server.ext('onPreHandler', preHandler, { bind: { y: 42 } });
+            server.ext('onPreAuth', preAuth);
 
-            server.route({ method: 'GET', path: '/', handler: (request) => request.app.x });
+            const plugin = function (srv, options) {
 
-            const res = await server.inject('/');
-            expect(res.result).to.equal(42);
-        });
+                srv.route({
+                    method: 'GET',
+                    path: '/',
+                    config: {
+                        ext: {
+                            onPreAuth: {
+                                method: (request, responder) => {
 
-        it('uses server views for ext added via server', async () => {
-
-            const server = new Hapi.Server();
-            await server.register(Vision);
-
-            server.views({
-                engines: { html: Handlebars },
-                path: __dirname + '/templates'
-            });
-
-            const preHandler = (request, responder) => {
-
-                return responder.view('test').takeover();
-            };
-
-            server.ext('onPreHandler', preHandler);
-
-            const test = function (plugin, options) {
-
-                plugin.views({
-                    engines: { html: Handlebars },
-                    path: './no_such_directory_found'
+                                    request.app.x += '2';
+                                    return responder.continue;
+                                }
+                            }
+                        },
+                        handler: (request) => request.app.x
+                    }
                 });
 
-                plugin.route({ path: '/view', method: 'GET', handler: () => null });
+                const preAuthSandbox = (request, responder) => {
+
+                    request.app.x += '3';
+                    return responder.continue;
+                };
+
+                srv.ext('onPreAuth', preAuthSandbox, { sandbox: 'plugin' });
+            };
+
+            plugin.attributes = {
+                name: 'test'
+            };
+
+            await server.register(plugin);
+
+            server.route({
+                method: 'GET',
+                path: '/a',
+                handler: (request) => request.app.x
+            });
+
+            const res1 = await server.inject('/');
+            expect(res1.result).to.equal('123');
+
+            const res2 = await server.inject('/a');
+            expect(res2.result).to.equal('1');
+        });
+
+        it('calls method after plugin', async () => {
+
+            const x = function (srv, options) {
+
+                srv.expose('a', 'b');
+            };
+
+            x.attributes = {
+                name: 'x'
+            };
+
+            const server = new Hapi.Server();
+
+            expect(server.plugins.x).to.not.exist();
+
+            let called = false;
+            const preStart = function (srv) {
+
+                expect(srv.plugins.x.a).to.equal('b');
+                called = true;
+            };
+
+            server.ext('onPreStart', preStart, { after: 'x' });
+
+            await server.register(x);
+            await server.initialize();
+            expect(called).to.be.true();
+        });
+
+        it('calls method before start', async () => {
+
+            const server = new Hapi.Server();
+
+            let called = false;
+            const preStart = function (srv) {
+
+                called = true;
+            };
+
+            server.ext('onPreStart', preStart);
+
+            await server.initialize();
+            expect(called).to.be.true();
+        });
+
+        it('calls method before start even if plugin not registered', async () => {
+
+            const server = new Hapi.Server();
+
+            let called = false;
+            const preStart = function (srv) {
+
+                called = true;
+            };
+
+            server.ext('onPreStart', preStart, { after: 'x' });
+
+            await server.initialize();
+            expect(called).to.be.true();
+        });
+
+        it('fails to start server when after method fails', async () => {
+
+            const test = function (srv, options) {
+
+                const preStart1 = function (inner) { };
+
+                srv.ext('onPreStart', preStart1);
+
+                const preStart2 = function (inner) {
+
+                    throw new Error('Not in the mood');
+                };
+
+                srv.ext('onPreStart', preStart2);
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            const server = new Hapi.Server();
+            await server.register(test);
+            await expect(server.initialize()).to.reject('Not in the mood');
+        });
+
+        it('errors when added after initialization', async () => {
+
+            const server = new Hapi.Server();
+
+            await server.initialize();
+            expect(() => {
+
+                server.ext('onPreStart', () => { });
+            }).to.throw('Cannot add onPreStart (after) extension after the server was initialized');
+        });
+    });
+
+    describe('handler()', () => {
+
+        it('add new handler', async () => {
+
+            const test = function (srv, options1) {
+
+                const handler = function (route, options2) {
+
+                    return (request) => 'success';
+                };
+
+                srv.handler('bar', handler);
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            const server = new Hapi.Server();
+            await server.register(test);
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: {
+                    bar: {}
+                }
+            });
+
+            const res = await server.inject('/');
+            expect(res.payload).to.equal('success');
+        });
+
+        it('errors on duplicate handler', async () => {
+
+            const server = new Hapi.Server();
+            await server.register(Inert);
+
+            expect(() => {
+
+                server.handler('file', () => { });
+            }).to.throw('Handler name already exists: file');
+        });
+
+        it('errors on unknown handler', async () => {
+
+            const server = new Hapi.Server();
+
+            expect(() => {
+
+                server.route({ method: 'GET', path: '/', handler: { test: {} } });
+            }).to.throw('Unknown handler: test');
+        });
+
+        it('errors on non-string name', async () => {
+
+            const server = new Hapi.Server();
+
+            expect(() => {
+
+                server.handler();
+            }).to.throw('Invalid handler name');
+        });
+
+        it('errors on non-function handler', async () => {
+
+            const server = new Hapi.Server();
+
+            expect(() => {
+
+                server.handler('foo', 'bar');
+            }).to.throw('Handler must be a function: foo');
+        });
+    });
+
+    describe('log()', { parallel: false }, () => {
+
+        it('emits a log event', async () => {
+
+            const server = new Hapi.Server();
+
+            let count = 0;
+            server.events.once('log', (event, tags) => {
+
+                ++count;
+                expect(event.data).to.equal('log event 1');
+            });
+
+            server.events.once('log', (event, tags) => {
+
+                ++count;
+                expect(event.data).to.equal('log event 1');
+            });
+
+            server.log('1', 'log event 1', Date.now());
+
+            server.events.once('log', (event, tags) => {
+
+                ++count;
+                expect(event.data).to.equal('log event 2');
+            });
+
+            server.log(['2'], 'log event 2', new Date(Date.now()));
+            await Hoek.wait(10);
+            expect(count).to.equal(3);
+        });
+
+        it('emits a log event (function data)', async () => {
+
+            const server = new Hapi.Server();
+            const log = server.events.once('log');
+            server.log('test', () => 123);
+            const [event] = await log;
+            expect(event.data).to.equal(123);
+        });
+
+        it('emits a log event and print to console', { parallel: false }, async () => {
+
+            const server = new Hapi.Server({ debug: { log: '*' } });
+
+            server.events.once('log', (event, tags) => {
+
+                expect(event.data).to.equal('log event 1');
+            });
+
+            const log = new Promise((resolve) => {
+
+                const orig = console.error;
+                console.error = function () {
+
+                    console.error = orig;
+                    expect(arguments[0]).to.equal('Debug:');
+                    expect(arguments[1]).to.equal('internal, implementation, error');
+
+                    resolve();
+                };
+            });
+
+            server.log(['internal', 'implementation', 'error'], 'log event 1');
+            await log;
+        });
+
+        it('outputs log data to debug console', async () => {
+
+            const server = new Hapi.Server({ debug: { log: '*' } });
+
+            const log = new Promise((resolve) => {
+
+                const orig = console.error;
+                console.error = function () {
+
+                    console.error = orig;
+                    expect(arguments[0]).to.equal('Debug:');
+                    expect(arguments[1]).to.equal('implementation');
+                    expect(arguments[2]).to.equal('\n    {"data":1}');
+
+                    resolve();
+                };
+            });
+
+            server.log(['implementation'], { data: 1 });
+            await log;
+        });
+
+        it('outputs log error data to debug console', async () => {
+
+            const server = new Hapi.Server({ debug: { log: '*' } });
+
+            const log = new Promise((resolve) => {
+
+                const orig = console.error;
+                console.error = function () {
+
+                    console.error = orig;
+                    expect(arguments[0]).to.equal('Debug:');
+                    expect(arguments[1]).to.equal('implementation');
+                    expect(arguments[2]).to.contain('\n    Error: test\n    at');
+                    resolve();
+                };
+            });
+
+            server.log(['implementation'], new Error('test'));
+            await log;
+        });
+
+        it('outputs log data to debug console without data', async () => {
+
+            const server = new Hapi.Server({ debug: { log: '*' } });
+
+            const log = new Promise((resolve) => {
+
+                const orig = console.error;
+                console.error = function () {
+
+                    console.error = orig;
+                    expect(arguments[0]).to.equal('Debug:');
+                    expect(arguments[1]).to.equal('implementation');
+                    expect(arguments[2]).to.equal('');
+                    resolve();
+                };
+            });
+
+            server.log(['implementation']);
+            await log;
+        });
+
+        it('does not output events when debug disabled', async () => {
+
+            const server = new Hapi.Server({ debug: false });
+
+            let i = 0;
+            const orig = console.error;
+            console.error = function () {
+
+                ++i;
+            };
+
+            server.log(['implementation']);
+            console.error('nothing');
+            expect(i).to.equal(1);
+            console.error = orig;
+        });
+
+        it('does not output events when debug.log disabled', async () => {
+
+            const server = new Hapi.Server({ debug: { log: false } });
+
+            let i = 0;
+            const orig = console.error;
+            console.error = function () {
+
+                ++i;
+            };
+
+            server.log(['implementation']);
+            console.error('nothing');
+            expect(i).to.equal(1);
+            console.error = orig;
+        });
+
+        it('does not output non-implementation events by default', async () => {
+
+            const server = new Hapi.Server();
+
+            let i = 0;
+            const orig = console.error;
+            console.error = function () {
+
+                ++i;
+            };
+
+            server.log(['xyz']);
+            console.error('nothing');
+            expect(i).to.equal(1);
+            console.error = orig;
+        });
+
+        it('emits server log events once', async () => {
+
+            let pc = 0;
+            const test = function (srv, options) {
+
+                srv.events.on('log', (event, tags) => ++pc);
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            const server = new Hapi.Server();
+
+            let sc = 0;
+            server.events.on('log', (event, tags) => ++sc);
+
+            await server.register(test);
+            server.log('test');
+            expect(sc).to.equal(1);
+            expect(pc).to.equal(1);
+        });
+
+        it('emits log events after handler error when server is started', async () => {
+
+            const server = new Hapi.Server({ debug: false });
+
+            const updates = [];
+            const test = function (srv, options) {
+
+                srv.events.on('log', (event, tags) => updates.push(event.tags));
+                srv.events.on('response', (request) => updates.push('response'));
+                srv.events.on('request-error', (request, err) => updates.push('request-error'));
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: (request) => {
+
+                    request.server.log('1');
+                    throw new Error('2');
+                }
+            });
+
+            await server.register(test);
+            await server.start();
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+            await Hoek.wait(10);
+            expect(updates).to.equal([['1'], 'request-error', 'response']);
+            await server.stop();
+        });
+
+        it('outputs logs for all server log events with a wildcard', async () => {
+
+            const server = new Hapi.Server({ debug: { log: '*' } });
+
+            const log = new Promise((resolve) => {
+
+                const orig = console.error;
+                console.error = function () {
+
+                    console.error = orig;
+                    expect(arguments[0]).to.equal('Debug:');
+                    expect(arguments[1]).to.equal('foobar');
+                    expect(arguments[2]).to.equal('\n    {"data":1}');
+                    resolve();
+                };
+            });
+
+            server.log(['foobar'], { data: 1 });
+            await log;
+        });
+
+        it('outputs logs for all request log events with a wildcard', async () => {
+
+            const server = new Hapi.Server({ debug: { request: '*' }, routes: { log: { stats: true } } });
+
+            const expectedLogs = [
+                ['Debug:', 'received'],
+                ['Debug:', 'handler, error'],
+                ['Debug:', 'response']
+            ];
+
+            const log = new Promise((resolve) => {
+
+                const orig = console.error;
+                console.error = function (...args) {
+
+                    expect(args).to.contain(expectedLogs.shift());
+                    if (expectedLogs.length === 0) {
+                        console.error = orig;
+                        resolve();
+                    }
+                };
+            });
+
+            server.inject('/', () => { });
+            await log;
+        });
+    });
+
+    describe('lookup()', () => {
+
+        it('returns route based on id', async () => {
+
+            const server = new Hapi.Server();
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    handler: () => null,
+                    id: 'root',
+                    app: { test: 123 }
+                }
+            });
+
+            const root = server.lookup('root');
+            expect(root.path).to.equal('/');
+            expect(root.settings.app.test).to.equal(123);
+        });
+
+        it('returns null on unknown route', async () => {
+
+            const server = new Hapi.Server();
+            const root = server.lookup('root');
+            expect(root).to.be.null();
+        });
+
+        it('throws on missing id', async () => {
+
+            const server = new Hapi.Server();
+            expect(() => {
+
+                server.lookup();
+            }).to.throw('Invalid route id: ');
+        });
+    });
+
+    describe('match()', () => {
+
+        it('returns route based on path', async () => {
+
+            const server = new Hapi.Server();
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    handler: () => null,
+                    id: 'root'
+                }
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/abc',
+                config: {
+                    handler: () => null,
+                    id: 'abc'
+                }
+            });
+
+            server.route({
+                method: 'POST',
+                path: '/abc',
+                config: {
+                    handler: () => null,
+                    id: 'post'
+                }
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/{p}/{x}',
+                config: {
+                    handler: () => null,
+                    id: 'params'
+                }
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/abc',
+                vhost: 'example.com',
+                config: {
+                    handler: () => null,
+                    id: 'vhost'
+                }
+            });
+
+            expect(server.match('GET', '/').settings.id).to.equal('root');
+            expect(server.match('GET', '/none')).to.equal(null);
+            expect(server.match('GET', '/abc').settings.id).to.equal('abc');
+            expect(server.match('get', '/').settings.id).to.equal('root');
+            expect(server.match('post', '/abc').settings.id).to.equal('post');
+            expect(server.match('get', '/a/b').settings.id).to.equal('params');
+            expect(server.match('GET', '/abc', 'example.com').settings.id).to.equal('vhost');
+        });
+
+        it('throws on missing method', async () => {
+
+            const server = new Hapi.Server();
+            expect(() => {
+
+                server.match();
+            }).to.throw('Invalid method: ');
+        });
+
+        it('throws on invalid method', async () => {
+
+            const server = new Hapi.Server();
+            expect(() => {
+
+                server.match(5);
+            }).to.throw('Invalid method: 5');
+        });
+
+        it('throws on missing path', async () => {
+
+            const server = new Hapi.Server();
+            expect(() => {
+
+                server.match('get');
+            }).to.throw('Invalid path: ');
+        });
+
+        it('throws on invalid path type', async () => {
+
+            const server = new Hapi.Server();
+            expect(() => {
+
+                server.match('get', 5);
+            }).to.throw('Invalid path: 5');
+        });
+
+        it('throws on invalid path prefix', async () => {
+
+            const server = new Hapi.Server();
+            expect(() => {
+
+                server.match('get', '5');
+            }).to.throw('Invalid path: 5');
+        });
+
+        it('throws on invalid path', async () => {
+
+            const server = new Hapi.Server();
+            server.route({
+                method: 'GET',
+                path: '/{p}',
+                handler: () => null
+            });
+
+            expect(() => {
+
+                server.match('GET', '/%p');
+            }).to.throw('Invalid path: /%p');
+        });
+
+        it('throws on invalid host type', async () => {
+
+            const server = new Hapi.Server();
+            expect(() => {
+
+                server.match('get', '/a', 5);
+            }).to.throw('Invalid host: 5');
+        });
+    });
+
+    describe('method()', () => {
+
+        it('adds server method using arguments', async () => {
+
+            const server = new Hapi.Server();
+
+            const test = function (srv, options) {
+
+                const method = function (methodNext) {
+
+                    return methodNext(null);
+                };
+
+                srv.method('log', method);
             };
 
             test.attributes = {
@@ -1198,556 +2339,415 @@ describe('Server', () => {
             };
 
             await server.register(test);
-            const res = await server.inject('/view');
+        });
+
+        it('adds server method with plugin bind', async () => {
+
+            const server = new Hapi.Server();
+
+            const test = function (srv, options) {
+
+                srv.bind({ x: 1 });
+                const method = function () {
+
+                    return this.x;
+                };
+
+                srv.method('log', method);
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            await server.register(test);
+            const result = server.methods.log();
+            expect(result).to.equal(1);
+        });
+
+        it('adds server method with method bind', async () => {
+
+            const server = new Hapi.Server();
+
+            const test = function (srv, options) {
+
+                const method = function () {
+
+                    return this.x;
+                };
+
+                srv.method('log', method, { bind: { x: 2 } });
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            await server.register(test);
+
+            const result = server.methods.log();
+            expect(result).to.equal(2);
+        });
+
+        it('adds server method with method and ext bind', async () => {
+
+            const server = new Hapi.Server();
+
+            const test = function (srv, options) {
+
+                srv.bind({ x: 1 });
+                const method = function () {
+
+                    return this.x;
+                };
+
+                srv.method('log', method, { bind: { x: 2 } });
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            await server.register(test);
+
+            const result = server.methods.log();
+            expect(result).to.equal(2);
+        });
+    });
+
+    describe('path()', () => {
+
+        it('sets local path for directory route handler', async () => {
+
+            const test = function (srv, options) {
+
+                srv.path(Path.join(__dirname, '..'));
+
+                srv.route({
+                    method: 'GET',
+                    path: '/handler/{file*}',
+                    handler: {
+                        directory: {
+                            path: './'
+                        }
+                    }
+                });
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            const server = new Hapi.Server({ routes: { files: { relativeTo: __dirname } } });
+            await server.register(Inert);
+            await server.register(test);
+
+            const res = await server.inject('/handler/package.json');
             expect(res.statusCode).to.equal(200);
         });
 
-        it('supports responder decorators on empty result', async () => {
+        it('throws when plugin sets undefined path', async () => {
+
+            const test = function (srv, options) {
+
+                srv.path();
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
 
             const server = new Hapi.Server();
-            const onRequest = (request, responder) => {
-
-                return responder.wrap().redirect('/elsewhere').takeover();
-            };
-
-            server.ext('onRequest', onRequest);
-
-            const res = await server.inject('/');
-            expect(res.statusCode).to.equal(302);
-            expect(res.headers.location).to.equal('/elsewhere');
+            await expect(server.register(test)).to.reject('relativeTo must be a non-empty string');
         });
+    });
 
-        it('supports direct responder decorators', async () => {
+    describe('render()', () => {
+
+        it('renders view', async () => {
 
             const server = new Hapi.Server();
-            const onRequest = (request, responder) => {
-
-                return responder.redirect('/elsewhere').takeover();
-            };
-
-            server.ext('onRequest', onRequest);
-
-            const res = await server.inject('/');
-            expect(res.statusCode).to.equal(302);
-            expect(res.headers.location).to.equal('/elsewhere');
-        });
-
-        it('skips extensions once takeover is called', async () => {
-
-            const server = new Hapi.Server();
-
-            const preResponse1 = (request, responder) => {
-
-                return responder.wrap(1).takeover();
-            };
-
-            server.ext('onPreResponse', preResponse1);
-
-            let called = false;
-            const preResponse2 = (request) => {
-
-                called = true;
-                return 2;
-            };
-
-            server.ext('onPreResponse', preResponse2);
-
-            server.route({ method: 'GET', path: '/', handler: () => 0 });
-
-            const res = await server.inject({ method: 'GET', url: '/' });
-            expect(res.result).to.equal(1);
-            expect(called).to.be.false();
-        });
-
-        it('executes all extensions with return values', async () => {
-
-            const server = new Hapi.Server();
-            server.ext('onPreResponse', () => 1);
-
-            let called = false;
-            const preResponse2 = (request) => {
-
-                called = true;
-                return 2;
-            };
-
-            server.ext('onPreResponse', preResponse2);
-            server.route({ method: 'GET', path: '/', handler: () => 0 });
-
-            const res = await server.inject({ method: 'GET', url: '/' });
-            expect(res.result).to.equal(2);
-            expect(called).to.be.true();
-        });
-
-        describe('onRequest', async () => {
-
-            it('replies with custom response', async () => {
-
-                const server = new Hapi.Server();
-                const onRequest = (request) => {
-
-                    throw Boom.badRequest('boom');
-                };
-
-                server.ext('onRequest', onRequest);
-
-                const res = await server.inject('/');
-                expect(res.statusCode).to.equal(400);
-                expect(res.result.message).to.equal('boom');
+            await server.register(Vision);
+            server.views({
+                engines: { html: Handlebars },
+                path: __dirname + '/templates'
             });
 
-            it('replies with a view', async () => {
+            const rendered = await server.render('test', { title: 'test', message: 'Hapi' });
+            expect(rendered).to.exist();
+            expect(rendered).to.contain('Hapi');
+        });
+    });
 
-                const server = new Hapi.Server();
-                await server.register(Vision);
+    describe('views()', () => {
 
-                server.views({
+        it('requires plugin with views', async () => {
+
+            const test = function (srv, options) {
+
+                srv.path(__dirname);
+
+                const views = {
                     engines: { 'html': Handlebars },
-                    path: __dirname + '/templates'
-                });
+                    path: './templates/plugin'
+                };
+
+                srv.views(views);
+                if (Object.keys(views).length !== 2) {
+                    throw new Error('plugin.view() modified options');
+                }
+
+                srv.route([
+                    {
+                        path: '/view',
+                        method: 'GET',
+                        handler: (request, responder) => responder.view('test', { message: options.message })
+                    },
+                    {
+                        path: '/file',
+                        method: 'GET',
+                        handler: { file: './templates/plugin/test.html' }
+                    }
+                ]);
 
                 const onRequest = (request, responder) => {
 
-                    return responder.view('test', { message: 'hola!' }).takeover();
-                };
-
-                server.ext('onRequest', onRequest);
-
-                server.route({ method: 'GET', path: '/', handler: () => 'ok' });
-
-                const res = await server.inject('/');
-                expect(res.result).to.match(/<div>\r?\n    <h1>hola!<\/h1>\r?\n<\/div>\r?\n/);
-            });
-        });
-
-        describe('onPreResponse', async () => {
-
-            it('replies with custom response', async () => {
-
-                const server = new Hapi.Server();
-
-                const preRequest = (request, responder) => {
-
-                    if (typeof request.response.source === 'string') {
-                        throw Boom.badRequest('boom');
+                    if (request.path === '/ext') {
+                        return responder.view('test', { message: 'grabbed' }).takeover();
                     }
 
                     return responder.continue;
                 };
 
-                server.ext('onPreResponse', preRequest);
+                srv.ext('onRequest', onRequest);
+            };
 
-                server.route({
-                    method: 'GET',
-                    path: '/text',
-                    handler: () => 'ok'
-                });
-
-                server.route({
-                    method: 'GET',
-                    path: '/obj',
-                    handler: () => ({ status: 'ok' })
-                });
-
-                const res1 = await server.inject({ method: 'GET', url: '/text' });
-                expect(res1.result.message).to.equal('boom');
-
-                const res2 = await server.inject({ method: 'GET', url: '/obj' });
-                expect(res2.result.status).to.equal('ok');
-            });
-
-            it('intercepts 404 responses', async () => {
-
-                const server = new Hapi.Server();
-
-                const preResponse = (request, responder) => {
-
-                    return responder.wrap(request.response.output.statusCode).takeover();
-                };
-
-                server.ext('onPreResponse', preResponse);
-
-                const res = await server.inject({ method: 'GET', url: '/missing' });
-                expect(res.statusCode).to.equal(200);
-                expect(res.result).to.equal(404);
-            });
-
-            it('intercepts 404 when using directory handler and file is missing', async () => {
-
-                const server = new Hapi.Server();
-                await server.register(Inert);
-
-                const preResponse = (request) => {
-
-                    const response = request.response;
-                    return { isBoom: response.isBoom };
-                };
-
-                server.ext('onPreResponse', preResponse);
-
-                server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './somewhere', listing: false, index: true } } });
-
-                const res = await server.inject('/missing');
-                expect(res.statusCode).to.equal(200);
-                expect(res.result.isBoom).to.equal(true);
-            });
-
-            it('intercepts 404 when using file handler and file is missing', async () => {
-
-                const server = new Hapi.Server();
-                await server.register(Inert);
-
-                const preResponse = (request) => {
-
-                    const response = request.response;
-                    return { isBoom: response.isBoom };
-                };
-
-                server.ext('onPreResponse', preResponse);
-
-                server.route({ method: 'GET', path: '/{path*}', handler: { file: './somewhere/something.txt' } });
-
-                const res = await server.inject('/missing');
-                expect(res.statusCode).to.equal(200);
-                expect(res.result.isBoom).to.equal(true);
-            });
-
-            it('cleans unused file stream when response is overridden', { skip: process.platform === 'win32' }, async () => {
-
-                const server = new Hapi.Server();
-                await server.register(Inert);
-
-                const preResponse = (request) => {
-
-                    return { something: 'else' };
-                };
-
-                server.ext('onPreResponse', preResponse);
-
-                server.route({ method: 'GET', path: '/{path*}', handler: { directory: { path: './' } } });
-
-                const res = await server.inject('/package.json');
-                expect(res.statusCode).to.equal(200);
-                expect(res.result.something).to.equal('else');
-
-                await new Promise((resolve) => {
-
-                    const cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
-                    let lsof = '';
-                    cmd.stdout.on('data', (buffer) => {
-
-                        lsof += buffer.toString();
-                    });
-
-                    cmd.stdout.on('end', () => {
-
-                        let count = 0;
-                        const lines = lsof.split('\n');
-                        for (let i = 0; i < lines.length; ++i) {
-                            count += !!lines[i].match(/package.json/);
-                        }
-
-                        expect(count).to.equal(0);
-                        resolve();
-                    });
-
-                    cmd.stdin.end();
-                });
-            });
-
-            it('executes multiple extensions', async () => {
-
-                const server = new Hapi.Server();
-
-                const preResponse1 = (request, responder) => {
-
-                    request.response.source = request.response.source + '1';
-                    return responder.continue;
-                };
-
-                server.ext('onPreResponse', preResponse1);
-
-                const preResponse2 = (request, responder) => {
-
-                    request.response.source = request.response.source + '2';
-                    return responder.continue;
-                };
-
-                server.ext('onPreResponse', preResponse2);
-                server.route({ method: 'GET', path: '/', handler: () => '0' });
-
-                const res = await server.inject({ method: 'GET', url: '/' });
-                expect(res.result).to.equal('012');
-            });
-        });
-    });
-
-    describe('route()', () => {
-
-        it('emits route event', async () => {
-
-            const server = new Hapi.Server();
-            const log = server.events.once('route');
-
-            server.route({
-                method: 'GET',
-                path: '/',
-                handler: () => null
-            });
-
-            const [route, srv] = await log;
-            expect(route.path).to.equal('/');
-            expect(srv).to.shallow.equal(server);
-        });
-
-        it('overrides the default notFound handler', async () => {
-
-            const server = new Hapi.Server();
-            server.route({ method: '*', path: '/{p*}', handler: () => 'found' });
-            const res = await server.inject({ method: 'GET', url: '/page' });
-            expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal('found');
-        });
-
-        it('responds to HEAD requests for a GET route', async () => {
-
-            const handler = (request, responder) => {
-
-                return responder.wrap('ok').etag('test').code(205);
+            test.attributes = {
+                name: 'test'
             };
 
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler });
-            const res1 = await server.inject({ method: 'GET', url: '/' });
+            await server.register([Inert, Vision]);
+            await server.register({ register: test, options: { message: 'viewing it' } });
 
-            expect(res1.statusCode).to.equal(205);
-            expect(res1.headers['content-type']).to.equal('text/html; charset=utf-8');
-            expect(res1.headers['content-length']).to.equal(2);
-            expect(res1.headers.etag).to.equal('"test"');
-            expect(res1.result).to.equal('ok');
+            const res1 = await server.inject('/view');
+            expect(res1.result).to.equal('<h1>viewing it</h1>');
 
-            const res2 = await server.inject({ method: 'HEAD', url: '/' });
-            expect(res2.statusCode).to.equal(res1.statusCode);
-            expect(res2.headers['content-type']).to.equal(res1.headers['content-type']);
-            expect(res2.headers['content-length']).to.equal(res1.headers['content-length']);
-            expect(res2.headers.etag).to.equal(res1.headers.etag);
-            expect(res2.result).to.not.exist();
-        });
+            const res2 = await server.inject('/file');
+            expect(res2.result).to.equal('<h1>{{message}}</h1>');
 
-        it('returns 404 on HEAD requests for non-GET routes', async () => {
-
-            const server = new Hapi.Server();
-            server.route({ method: 'POST', path: '/', handler: () => 'ok' });
-
-            const res1 = await server.inject({ method: 'HEAD', url: '/' });
-            expect(res1.statusCode).to.equal(404);
-            expect(res1.result).to.not.exist();
-
-            const res2 = await server.inject({ method: 'HEAD', url: '/not-there' });
-
-            expect(res2.statusCode).to.equal(404);
-            expect(res2.result).to.not.exist();
-        });
-
-        it('returns 500 on HEAD requests for failed responses', async () => {
-
-            const preResponse = (request, responder) => {
-
-                request.response._processors.marshal = function (response, callback) {
-
-                    process.nextTick(callback, new Error('boom!'));
-                };
-
-                return responder.continue;
-            };
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: () => 'ok' });
-            server.ext('onPreResponse', preResponse);
-
-            const res1 = await server.inject({ method: 'GET', url: '/' });
-            expect(res1.statusCode).to.equal(500);
-            expect(res1.result).to.exist();
-
-            const res2 = await server.inject({ method: 'HEAD', url: '/' });
-            expect(res2.statusCode).to.equal(res1.statusCode);
-            expect(res2.headers['content-type']).to.equal(res1.headers['content-type']);
-            expect(res2.headers['content-length']).to.equal(res1.headers['content-length']);
-            expect(res2.result).to.not.exist();
-        });
-
-        it('allows methods array', async () => {
-
-            const server = new Hapi.Server();
-            const config = { method: ['GET', 'PUT', 'POST', 'DELETE'], path: '/', handler: (request) => request.route.method };
-            server.route(config);
-            expect(config.method).to.equal(['GET', 'PUT', 'POST', 'DELETE']);                       // Ensure config is cloned
-
-            const res1 = await server.inject({ method: 'HEAD', url: '/' });
-            expect(res1.statusCode).to.equal(200);
-
-            const res2 = await server.inject({ method: 'GET', url: '/' });
-            expect(res2.statusCode).to.equal(200);
-            expect(res2.payload).to.equal('get');
-
-            const res3 = await server.inject({ method: 'PUT', url: '/' });
-            expect(res3.statusCode).to.equal(200);
-            expect(res3.payload).to.equal('put');
-
-            const res4 = await server.inject({ method: 'POST', url: '/' });
-            expect(res4.statusCode).to.equal(200);
-            expect(res4.payload).to.equal('post');
-
-            const res5 = await server.inject({ method: 'DELETE', url: '/' });
-            expect(res5.statusCode).to.equal(200);
-            expect(res5.payload).to.equal('delete');
-        });
-
-        it('adds routes using single and array methods', async () => {
-
-            const server = new Hapi.Server();
-            server.route([
-                {
-                    method: 'GET',
-                    path: '/api/products',
-                    handler: () => null
-                },
-                {
-                    method: 'GET',
-                    path: '/api/products/{id}',
-                    handler: () => null
-                },
-                {
-                    method: 'POST',
-                    path: '/api/products',
-                    handler: () => null
-                },
-                {
-                    method: ['PUT', 'PATCH'],
-                    path: '/api/products/{id}',
-                    handler: () => null
-                },
-                {
-                    method: 'DELETE',
-                    path: '/api/products/{id}',
-                    handler: () => null
-                }
-            ]);
-
-            const table = server.table()[0].table;
-            const paths = table.map((route) => {
-
-                const obj = {
-                    method: route.method,
-                    path: route.path
-                };
-                return obj;
-            });
-
-            expect(table).to.have.length(6);
-            expect(paths).to.only.include([
-                { method: 'get', path: '/api/products' },
-                { method: 'get', path: '/api/products/{id}' },
-                { method: 'post', path: '/api/products' },
-                { method: 'put', path: '/api/products/{id}' },
-                { method: 'patch', path: '/api/products/{id}' },
-                { method: 'delete', path: '/api/products/{id}' }
-            ]);
-        });
-
-        it('throws on methods array with id', async () => {
-
-            const server = new Hapi.Server();
-
-            expect(() => {
-
-                server.route({
-                    method: ['GET', 'PUT', 'POST', 'DELETE'],
-                    path: '/',
-                    config: {
-                        id: 'abc',
-                        handler: (request) => request.route.method
-                    }
-                });
-            }).to.throw('Route id abc for path / conflicts with existing path /');
-        });
-    });
-
-    describe('_defaultRoutes()', () => {
-
-        it('returns 404 when making a request to a route that does not exist', async () => {
-
-            const server = new Hapi.Server();
-            const res = await server.inject({ method: 'GET', url: '/nope' });
-            expect(res.statusCode).to.equal(404);
-        });
-
-        it('returns 400 on bad request', async () => {
-
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/a/{p}', handler: () => null });
-            const res = await server.inject('/a/%');
-            expect(res.statusCode).to.equal(400);
-        });
-    });
-
-    describe('load', { parallel: false }, () => {
-
-        it('measures loop delay', async () => {
-
-            const server = new Hapi.Server({ load: { sampleInterval: 4 } });
-
-            const handler = (request) => {
-
-                const start = Date.now();
-                while (Date.now() - start < 5) { }
-                return 'ok';
-            };
-
-            server.route({ method: 'GET', path: '/', handler });
-            await server.start();
-
-            await server.inject('/');
-            expect(server.load.eventLoopDelay).to.be.below(6);
-
-            await Hoek.wait(0);
-
-            await server.inject('/');
-            expect(server.load.eventLoopDelay).to.be.above(0);
-
-            await Hoek.wait(0);
-
-            await server.inject('/');
-            expect(server.load.eventLoopDelay).to.be.above(0);
-            expect(server.load.heapUsed).to.be.above(1024 * 1024);
-            expect(server.load.rss).to.be.above(1024 * 1024);
-            await server.stop();
+            const res3 = await server.inject('/ext');
+            expect(res3.result).to.equal('<h1>grabbed</h1>');
         });
     });
 });
 
 
-internals.countConnections = function (server) {
+internals.routesList = function (server) {
 
-    return new Promise((resolve, reject) => {
+    const tables = server.table();
 
-        server.listener.getConnections((err, count) => {
+    const list = [];
+    for (let i = 0; i < tables.length; ++i) {
+        const routes = tables[i].table;
+        for (let j = 0; j < routes.length; ++j) {
+            const route = routes[j];
+            if (route.method === 'get') {
+                list.push(route.path);
+            }
+        }
+    }
 
-            return (err ? reject(err) : resolve(count));
-        });
-    });
+    return list;
 };
 
 
-internals.socket = function (server, mode) {
+internals.plugins = {
+    auth: function (server, options) {
 
-    const socket = new Net.Socket();
-    socket.on('error', Hoek.ignore);
+        const scheme = function (srv, authOptions) {
 
-    if (mode === 'tls') {
-        socket.connect(server.info.port, '127.0.0.1');
-        return new Promise((resolve) => TLS.connect({ socket, rejectUnauthorized: false }, () => resolve(socket)));
+            const settings = Hoek.clone(authOptions);
+
+            return {
+                authenticate: (request, responder) => {
+
+                    const req = request.raw.req;
+                    const authorization = req.headers.authorization;
+                    if (!authorization) {
+                        throw Boom.unauthorized(null, 'Basic');
+                    }
+
+                    const parts = authorization.split(/\s+/);
+
+                    if (parts[0] &&
+                        parts[0].toLowerCase() !== 'basic') {
+
+                        throw Boom.unauthorized(null, 'Basic');
+                    }
+
+                    if (parts.length !== 2) {
+                        throw Boom.badRequest('Bad HTTP authentication header format', 'Basic');
+                    }
+
+                    const credentialsParts = new Buffer(parts[1], 'base64').toString().split(':');
+                    if (credentialsParts.length !== 2) {
+                        throw Boom.badRequest('Bad header internal syntax', 'Basic');
+                    }
+
+                    const username = credentialsParts[0];
+                    const password = credentialsParts[1];
+
+                    const { isValid, credentials } = settings.validateFunc(username, password);
+                    if (!isValid) {
+                        return responder.unauthenticated(Boom.unauthorized('Bad username or password', 'Basic'), { credentials });
+                    }
+
+                    return responder.authenticated({ credentials });
+                }
+            };
+        };
+
+        server.auth.scheme('basic', scheme);
+
+        const loadUser = function (username, password) {
+
+            if (username === 'john') {
+                return { isValid: password === '12345', credentials: { user: 'john' } };
+            }
+
+            return { isValid: false };
+        };
+
+        server.auth.strategy('basic', 'basic', 'required', { validateFunc: loadUser });
+
+        server.auth.scheme('special', () => {
+
+            return { authenticate: function () { } };
+        });
+
+        server.auth.strategy('special', 'special', {});
+    },
+    child: function (server, options) {
+
+        if (options.routes) {
+            return server.register(internals.plugins.test1, options);
+        }
+
+        return server.register(internals.plugins.test1);
+    },
+    deps1: function (server, options) {
+
+        const after = function (srv) {
+
+            srv.expose('breaking', srv.plugins.deps2.breaking);
+        };
+
+        server.dependency('deps2', after);
+
+        const onRequest = (request, responder) => {
+
+            request.app.deps = request.app.deps || '|';
+            request.app.deps += '1|';
+            return responder.continue;
+        };
+
+        server.ext('onRequest', onRequest, { after: 'deps3' });
+    },
+    deps2: function (server, options) {
+
+        const onRequest = (request, responder) => {
+
+            request.app.deps = request.app.deps || '|';
+            request.app.deps += '2|';
+            return responder.continue;
+        };
+
+        server.ext('onRequest', onRequest, { after: 'deps3', before: 'deps1' });
+        server.expose('breaking', 'bad');
+    },
+    deps3: function (server, options) {
+
+        const onRequest = (request, responder) => {
+
+            request.app.deps = request.app.deps || '|';
+            request.app.deps += '3|';
+            return responder.continue;
+        };
+
+        server.ext('onRequest', onRequest);
+    },
+    test1: function (server, options) {
+
+        const handler = (request) => {
+
+            return 'testing123' + ((server.settings.app && server.settings.app.my) || '');
+        };
+
+        server.route({ path: '/test1', method: 'GET', handler });
+
+        server.expose({
+            add: function (a, b) {
+
+                return a + b;
+            }
+        });
+
+        const glue = function (a, b) {
+
+            return a + b;
+        };
+
+        server.expose('glue', glue);
+        server.expose('prefix', server.realm.modifiers.route.prefix);
+    },
+    test2: function (server, options) {
+
+        server.route({
+            path: '/test2',
+            method: 'GET',
+            handler: () => 'testing123'
+        });
+
+        server.log('test', 'abc');
     }
+};
 
-    return new Promise((resolve) => socket.connect(server.info.port, '127.0.0.1', () => resolve(socket)));
+
+internals.plugins.auth.attributes = {
+    name: 'auth'
+};
+
+
+internals.plugins.child.attributes = {
+    name: 'child'
+};
+
+
+internals.plugins.deps1.attributes = {
+    name: 'deps1'
+};
+
+
+internals.plugins.deps2.attributes = {
+    name: 'deps2'
+};
+
+
+internals.plugins.deps3.attributes = {
+    name: 'deps3'
+};
+
+
+internals.plugins.test1.attributes = {
+    name: 'test1',
+    version: '1.0.0'
+};
+
+
+internals.plugins.test2.attributes = {
+    pkg: {
+        name: 'test2',
+        version: '1.0.0'
+    }
 };

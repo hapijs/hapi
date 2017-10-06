@@ -9,7 +9,6 @@ const Stream = require('stream');
 const Code = require('code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
-const Hoek = require('hoek');
 const Inert = require('inert');
 const Lab = require('lab');
 const Vision = require('vision');
@@ -455,24 +454,25 @@ describe('Response', () => {
 
         it('passes stream headers and code through', async () => {
 
-            const TestStream = function () {
+            const TestStream = class extends Stream.Readable {
 
-                Stream.Readable.call(this);
-                this.statusCode = 299;
-                this.headers = { xcustom: 'some value' };
-            };
+                constructor() {
 
-            Hoek.inherits(TestStream, Stream.Readable);
-
-            TestStream.prototype._read = function (size) {
-
-                if (this.isDone) {
-                    return;
+                    super();
+                    this.statusCode = 299;
+                    this.headers = { xcustom: 'some value' };
                 }
-                this.isDone = true;
 
-                this.push('x');
-                this.push(null);
+                _read(size) {
+
+                    if (this.isDone) {
+                        return;
+                    }
+                    this.isDone = true;
+
+                    this.push('x');
+                    this.push(null);
+                }
             };
 
             const handler = (request) => {
@@ -491,24 +491,25 @@ describe('Response', () => {
 
         it('excludes stream headers and code when passThrough is false', async () => {
 
-            const TestStream = function () {
+            const TestStream = class extends Stream.Readable {
 
-                Stream.Readable.call(this);
-                this.statusCode = 299;
-                this.headers = { xcustom: 'some value' };
-            };
+                constructor() {
 
-            Hoek.inherits(TestStream, Stream.Readable);
-
-            TestStream.prototype._read = function (size) {
-
-                if (this.isDone) {
-                    return;
+                    super();
+                    this.statusCode = 299;
+                    this.headers = { xcustom: 'some value' };
                 }
-                this.isDone = true;
 
-                this.push('x');
-                this.push(null);
+                _read(size) {
+
+                    if (this.isDone) {
+                        return;
+                    }
+                    this.isDone = true;
+
+                    this.push('x');
+                    this.push(null);
+                }
             };
 
             const handler = (request, responder) => {
@@ -527,24 +528,25 @@ describe('Response', () => {
 
         it('ignores stream headers when empty', async () => {
 
-            const TestStream = function () {
+            const TestStream = class extends Stream.Readable {
 
-                Stream.Readable.call(this);
-                this.statusCode = 299;
-                this.headers = {};
-            };
+                constructor() {
 
-            Hoek.inherits(TestStream, Stream.Readable);
-
-            TestStream.prototype._read = function (size) {
-
-                if (this.isDone) {
-                    return;
+                    super();
+                    this.statusCode = 299;
+                    this.headers = {};
                 }
-                this.isDone = true;
 
-                this.push('x');
-                this.push(null);
+                _read(size) {
+
+                    if (this.isDone) {
+                        return;
+                    }
+                    this.isDone = true;
+
+                    this.push('x');
+                    this.push(null);
+                }
             };
 
             const handler = (request) => {
@@ -563,23 +565,24 @@ describe('Response', () => {
 
         it('retains local headers with stream headers pass-through', async () => {
 
-            const TestStream = function () {
+            const TestStream = class extends Stream.Readable {
 
-                Stream.Readable.call(this);
-                this.headers = { xcustom: 'some value', 'set-cookie': 'a=1' };
-            };
+                constructor() {
 
-            Hoek.inherits(TestStream, Stream.Readable);
-
-            TestStream.prototype._read = function (size) {
-
-                if (this.isDone) {
-                    return;
+                    super();
+                    this.headers = { xcustom: 'some value', 'set-cookie': 'a=1' };
                 }
-                this.isDone = true;
 
-                this.push('x');
-                this.push(null);
+                _read(size) {
+
+                    if (this.isDone) {
+                        return;
+                    }
+                    this.isDone = true;
+
+                    this.push('x');
+                    this.push(null);
+                }
             };
 
             const handler = (request, responder) => {
@@ -1070,41 +1073,41 @@ describe('Response', () => {
 
             // Source
 
-            const Source = function (values) {
+            const Source = class extends Stream.Readable {
 
-                this.data = values;
-                this.pos = 0;
+                constructor(values) {
 
-                Stream.Readable.call(this);
-            };
-
-            Hoek.inherits(Source, Stream.Readable);
-
-            Source.prototype._read = function (/* size */) {
-
-                if (this.pos === this.data.length) {
-                    this.push(null);
-                    return;
+                    super();
+                    this.data = values;
+                    this.pos = 0;
                 }
 
-                this.push(this.data[this.pos++]);
+                _read(/* size */) {
+
+                    if (this.pos === this.data.length) {
+                        this.push(null);
+                        return;
+                    }
+
+                    this.push(this.data[this.pos++]);
+                }
             };
 
             // Target
 
-            const Target = function () {
+            const Target = class extends Stream.Writable {
 
-                this.data = [];
+                constructor() {
 
-                Stream.Writable.call(this);
-            };
+                    super();
+                    this.data = [];
+                }
 
-            Hoek.inherits(Target, Stream.Writable);
+                _write(chunk, encoding, callback) {
 
-            Target.prototype._write = function (chunk, encoding, callback) {
-
-                this.data.push(chunk.toString());
-                return callback();
+                    this.data.push(chunk.toString());
+                    return callback();
+                }
             };
 
             // Peek

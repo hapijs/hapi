@@ -168,23 +168,19 @@ describe('Reply', () => {
 
         it('returns a stream responder', async () => {
 
-            const TestStream = function () {
+            const TestStream = class extends Stream.Readable {
 
-                Stream.Readable.call(this);
-            };
+                _read(size) {
 
-            Hoek.inherits(TestStream, Stream.Readable);
+                    if (this.isDone) {
+                        return;
+                    }
+                    this.isDone = true;
 
-            TestStream.prototype._read = function (size) {
-
-                if (this.isDone) {
-                    return;
+                    this.push('x');
+                    this.push('y');
+                    this.push(null);
                 }
-                this.isDone = true;
-
-                this.push('x');
-                this.push('y');
-                this.push(null);
             };
 
             const handler = (request, responder) => {
@@ -270,23 +266,24 @@ describe('Reply', () => {
 
     it('errors on objectMode stream responder', async () => {
 
-        const TestStream = function () {
+        const TestStream = class extends Stream.Readable {
 
-            Stream.Readable.call(this, { objectMode: true });
-        };
+            constructor() {
 
-        Hoek.inherits(TestStream, Stream.Readable);
-
-        TestStream.prototype._read = function (size) {
-
-            if (this.isDone) {
-                return;
+                super({ objectMode: true });
             }
-            this.isDone = true;
 
-            this.push({ x: 1 });
-            this.push({ y: 1 });
-            this.push(null);
+            _read(size) {
+
+                if (this.isDone) {
+                    return;
+                }
+                this.isDone = true;
+
+                this.push({ x: 1 });
+                this.push({ y: 1 });
+                this.push(null);
+            }
         };
 
         const handler = (request, responder) => {

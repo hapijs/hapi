@@ -168,7 +168,7 @@ describe('Request', () => {
     it('generates unique request id', async () => {
 
         const server = new Hapi.Server();
-        server._requestCounter = { value: 10, min: 10, max: 11 };
+        server._core.requestCounter = { value: 10, min: 10, max: 11 };
         server.route({ method: 'GET', path: '/', handler: (request) => request.info.id });
 
         const res1 = await server.inject('/');
@@ -210,22 +210,18 @@ describe('Request', () => {
 
             const handler = (request) => {
 
-                const TestStream = function () {
+                const TestStream = class extends Stream.Readable {
 
-                    Stream.Readable.call(this);
-                };
+                    _read(size) {
 
-                Hoek.inherits(TestStream, Stream.Readable);
+                        if (this.isDone) {
+                            return;
+                        }
+                        this.isDone = true;
 
-                TestStream.prototype._read = function (size) {
-
-                    if (this.isDone) {
-                        return;
+                        this.push('success');
+                        this.emit('data', 'success');
                     }
-                    this.isDone = true;
-
-                    this.push('success');
-                    this.emit('data', 'success');
                 };
 
                 const stream = new TestStream();
@@ -1341,28 +1337,24 @@ describe('Request', () => {
 
         it('does not return an error when server is responding when the timeout occurs', async () => {
 
-            const TestStream = function () {
-
-                Stream.Readable.call(this);
-            };
-
-            Hoek.inherits(TestStream, Stream.Readable);
-
             let ended = false;
-            TestStream.prototype._read = function (size) {
+            const TestStream = class extends Stream.Readable {
 
-                if (this.isDone) {
-                    return;
+                _read(size) {
+
+                    if (this.isDone) {
+                        return;
+                    }
+
+                    this.isDone = true;
+                    this.push('Hello');
+
+                    setTimeout(() => {
+
+                        this.push(null);
+                        ended = true;
+                    }, 150);
                 }
-
-                this.isDone = true;
-                this.push('Hello');
-
-                setTimeout(() => {
-
-                    this.push(null);
-                    ended = true;
-                }, 150);
             };
 
             const handler = (request) => {
@@ -1386,29 +1378,25 @@ describe('Request', () => {
 
             const streamHandler = (request) => {
 
-                const TestStream = function () {
+                const TestStream = class extends Stream.Readable {
 
-                    Stream.Readable.call(this);
-                };
+                    _read(size) {
 
-                Hoek.inherits(TestStream, Stream.Readable);
+                        if (this.isDone) {
+                            return;
+                        }
+                        this.isDone = true;
 
-                TestStream.prototype._read = function (size) {
+                        setTimeout(() => {
 
-                    if (this.isDone) {
-                        return;
+                            this.push('Hello');
+                        }, 30);
+
+                        setTimeout(() => {
+
+                            this.push(null);
+                        }, 60);
                     }
-                    this.isDone = true;
-
-                    setTimeout(() => {
-
-                        this.push('Hello');
-                    }, 30);
-
-                    setTimeout(() => {
-
-                        this.push(null);
-                    }, 60);
                 };
 
                 return new TestStream();

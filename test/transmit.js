@@ -234,23 +234,24 @@ describe('transmission', () => {
 
             const handler = (request) => {
 
-                const HeadersStream = function () {
+                const HeadersStream = class extends Stream.Readable {
 
-                    Stream.Readable.call(this);
-                    this.headers = { custom: 'header' };
-                };
+                    constructor() {
 
-                Hoek.inherits(HeadersStream, Stream.Readable);
-
-                HeadersStream.prototype._read = function (size) {
-
-                    if (this.isDone) {
-                        return;
+                        super();
+                        this.headers = { custom: 'header' };
                     }
-                    this.isDone = true;
 
-                    this.push('hello');
-                    this.push(null);
+                    _read(size) {
+
+                        if (this.isDone) {
+                            return;
+                        }
+                        this.isDone = true;
+
+                        this.push('hello');
+                        this.push(null);
+                    }
                 };
 
                 return new HeadersStream();
@@ -268,23 +269,24 @@ describe('transmission', () => {
 
             const handler = (request) => {
 
-                const HeadersStream = function () {
+                const HeadersStream = class extends Stream.Readable {
 
-                    Stream.Readable.call(this);
-                    this.statusCode = 201;
-                };
+                    constructor() {
 
-                Hoek.inherits(HeadersStream, Stream.Readable);
-
-                HeadersStream.prototype._read = function (size) {
-
-                    if (this.isDone) {
-                        return;
+                        super();
+                        this.statusCode = 201;
                     }
-                    this.isDone = true;
 
-                    this.push('hello');
-                    this.push(null);
+                    _read(size) {
+
+                        if (this.isDone) {
+                            return;
+                        }
+                        this.isDone = true;
+
+                        this.push('hello');
+                        this.push(null);
+                    }
                 };
 
                 return new HeadersStream();
@@ -496,17 +498,13 @@ describe('transmission', () => {
 
             const handler = (request) => {
 
-                const TestStream = function () {
+                const TestStream = class extends Stream.Readable {
 
-                    Stream.Readable.call(this);
-                };
+                    _read() {
 
-                Hoek.inherits(TestStream, Stream.Readable);
-
-                TestStream.prototype._read = function () {
-
-                    this.push('success');
-                    this.push(null);
+                        this.push('success');
+                        this.push(null);
+                    }
                 };
 
                 const stream = new TestStream();
@@ -556,17 +554,13 @@ describe('transmission', () => {
 
             const handler = (request, responder) => {
 
-                const TestStream = function () {
+                const TestStream = class extends Stream.Readable {
 
-                    Stream.Readable.call(this);
-                };
+                    _read() {
 
-                Hoek.inherits(TestStream, Stream.Readable);
-
-                TestStream.prototype._read = function () {
-
-                    this.push('success');
-                    this.push(null);
+                        this.push('success');
+                        this.push(null);
+                    }
                 };
 
                 const stream = new TestStream();
@@ -1071,30 +1065,30 @@ describe('transmission', () => {
 
         it('stops processing the stream when the request closes', async () => {
 
-            const ErrStream = function (request) {
+            const ErrStream = class extends Stream.Readable {
 
-                Stream.Readable.call(this);
+                constructor(request) {
 
-                this.request = request;
-            };
-
-            Hoek.inherits(ErrStream, Stream.Readable);
-
-            ErrStream.prototype._read = function (size) {
-
-                if (this.isDone) {
-                    return;
+                    super();
+                    this.request = request;
                 }
-                this.isDone = true;
-                this.push('here is the response');
-                process.nextTick(() => {
 
-                    this.request.raw.req.emit('close');
+                _read(size) {
+
+                    if (this.isDone) {
+                        return;
+                    }
+                    this.isDone = true;
+                    this.push('here is the response');
                     process.nextTick(() => {
 
-                        this.push(null);
+                        this.request.raw.req.emit('close');
+                        process.nextTick(() => {
+
+                            this.push(null);
+                        });
                     });
-                });
+                }
             };
 
             const server = new Hapi.Server();
@@ -1625,33 +1619,34 @@ describe('transmission', () => {
 
             it('returns a subset of a stream', async () => {
 
-                const TestStream = function () {
+                const TestStream = class extends Stream.Readable {
 
-                    Stream.Readable.call(this);
-                    this._count = -1;
-                };
+                    constructor() {
 
-                Hoek.inherits(TestStream, Stream.Readable);
-
-                TestStream.prototype._read = function (size) {
-
-                    this._count++;
-
-                    if (this._count > 10) {
-                        return;
+                        super();
+                        this._count = -1;
                     }
 
-                    if (this._count === 10) {
-                        this.push(null);
-                        return;
+                    _read(size) {
+
+                        this._count++;
+
+                        if (this._count > 10) {
+                            return;
+                        }
+
+                        if (this._count === 10) {
+                            this.push(null);
+                            return;
+                        }
+
+                        this.push(this._count.toString());
                     }
 
-                    this.push(this._count.toString());
-                };
+                    size() {
 
-                TestStream.prototype.size = function () {
-
-                    return 10;
+                        return 10;
+                    }
                 };
 
                 const server = new Hapi.Server();
@@ -1667,33 +1662,34 @@ describe('transmission', () => {
 
             it('returns a consolidated range', async () => {
 
-                const TestStream = function () {
+                const TestStream = class extends Stream.Readable {
 
-                    Stream.Readable.call(this);
-                    this._count = -1;
-                };
+                    constructor() {
 
-                Hoek.inherits(TestStream, Stream.Readable);
-
-                TestStream.prototype._read = function (size) {
-
-                    this._count++;
-
-                    if (this._count > 10) {
-                        return;
+                        super();
+                        this._count = -1;
                     }
 
-                    if (this._count === 10) {
-                        this.push(null);
-                        return;
+                    _read(size) {
+
+                        this._count++;
+
+                        if (this._count > 10) {
+                            return;
+                        }
+
+                        if (this._count === 10) {
+                            this.push(null);
+                            return;
+                        }
+
+                        this.push(this._count.toString());
                     }
 
-                    this.push(this._count.toString());
-                };
+                    size() {
 
-                TestStream.prototype.size = function () {
-
-                    return 10;
+                        return 10;
+                    }
                 };
 
                 const server = new Hapi.Server();
@@ -2230,26 +2226,21 @@ describe('transmission', () => {
 });
 
 
-internals.TimerStream = function () {
+internals.TimerStream = class extends Stream.Readable {
 
-    Stream.Readable.call(this);
-};
+    _read(size) {
 
-Hoek.inherits(internals.TimerStream, Stream.Readable);
+        if (this.isDone) {
+            return;
+        }
+        this.isDone = true;
 
+        setTimeout(() => {
 
-internals.TimerStream.prototype._read = function (size) {
-
-    if (this.isDone) {
-        return;
+            this.push('hi');
+            this.push(null);
+        }, 5);
     }
-    this.isDone = true;
-
-    setTimeout(() => {
-
-        this.push('hi');
-        this.push(null);
-    }, 5);
 };
 
 
