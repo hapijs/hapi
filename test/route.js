@@ -3,9 +3,9 @@
 // Load modules
 
 const Path = require('path');
+
 const Code = require('code');
 const Hapi = require('..');
-const Hoek = require('hoek');
 const Inert = require('inert');
 const Joi = require('joi');
 const Lab = require('lab');
@@ -18,18 +18,15 @@ const internals = {};
 
 // Test shortcuts
 
-const lab = exports.lab = Lab.script();
-const describe = lab.describe;
-const it = lab.it;
+const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
 
 
 describe('Route', () => {
 
-    it('registers with config function', (done) => {
+    it('registers with config function', async () => {
 
         const server = new Hapi.Server();
-        server.connection();
         server.bind({ a: 1 });
         server.app.b = 2;
         server.route({
@@ -40,159 +37,113 @@ describe('Route', () => {
                 const a = this.a;
 
                 return {
-                    handler: function (request, reply) {
-
-                        return reply(a + srv.app.b);
-                    }
+                    handler: () => (a + srv.app.b)
                 };
             }
         });
 
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal(3);
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(200);
+        expect(res.result).to.equal(3);
     });
 
-    it('throws an error when a route is missing a path', (done) => {
+    it('throws an error when a route is missing a path', async () => {
 
         expect(() => {
 
             const server = new Hapi.Server();
-            server.connection();
-            server.route({ method: 'GET', handler: function () { } });
+            server.route({ method: 'GET', handler: () => null });
         }).to.throw('Route missing path');
-        done();
     });
 
-    it('throws an error when a route is made without a connection', (done) => {
+    it('throws an error when a route is missing a method', async () => {
 
         expect(() => {
 
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/dork', handler: function () { } });
-        }).to.throw('Cannot add a route without any connections');
-        done();
-    });
-
-    it('throws an error when a route is missing a method', (done) => {
-
-        expect(() => {
-
-            const server = new Hapi.Server();
-            server.connection();
-            server.route({ path: '/', handler: function () { } });
+            server.route({ path: '/', handler: () => null });
         }).to.throw(/"method" is required/);
-        done();
     });
 
-    it('throws an error when a route has a malformed method name', (done) => {
+    it('throws an error when a route has a malformed method name', async () => {
 
         expect(() => {
 
             const server = new Hapi.Server();
-            server.connection();
-            server.route({ method: '"GET"', path: '/', handler: function () { } });
+            server.route({ method: '"GET"', path: '/', handler: () => null });
         }).to.throw(/Invalid route options/);
-        done();
     });
 
-    it('throws an error when a route uses the HEAD method', (done) => {
+    it('throws an error when a route uses the HEAD method', async () => {
 
         expect(() => {
 
             const server = new Hapi.Server();
-            server.connection();
-            server.route({ method: 'HEAD', path: '/', handler: function () { } });
+            server.route({ method: 'HEAD', path: '/', handler: () => null });
         }).to.throw(/Method name not allowed/);
-        done();
     });
 
-    it('throws an error when a route is missing a handler', (done) => {
+    it('throws an error when a route is missing a handler', async () => {
 
         expect(() => {
 
             const server = new Hapi.Server();
-            server.connection();
             server.route({ path: '/test', method: 'put' });
         }).to.throw('Missing or undefined handler: put /test');
-        done();
     });
 
-    it('throws when handler is missing in config', (done) => {
+    it('throws when handler is missing in config', async () => {
 
         const server = new Hapi.Server();
-        server.connection();
         expect(() => {
 
             server.route({ method: 'GET', path: '/', config: {} });
         }).to.throw('Missing or undefined handler: GET /');
-        done();
     });
 
-    it('throws when path has trailing slash and server set to strip', (done) => {
+    it('throws when path has trailing slash and server set to strip', async () => {
 
-        const server = new Hapi.Server();
-        server.connection({ router: { stripTrailingSlash: true } });
+        const server = new Hapi.Server({ router: { stripTrailingSlash: true } });
         expect(() => {
 
-            server.route({ method: 'GET', path: '/test/', handler: function () { } });
-        }).to.throw('Path cannot end with a trailing slash when connection configured to strip: GET /test/');
-        done();
+            server.route({ method: 'GET', path: '/test/', handler: () => null });
+        }).to.throw('Path cannot end with a trailing slash when configured to strip: GET /test/');
     });
 
-    it('allows / when path has trailing slash and server set to strip', (done) => {
+    it('allows / when path has trailing slash and server set to strip', async () => {
 
-        const server = new Hapi.Server();
-        server.connection({ router: { stripTrailingSlash: true } });
+        const server = new Hapi.Server({ router: { stripTrailingSlash: true } });
         expect(() => {
 
-            server.route({ method: 'GET', path: '/', handler: function () { } });
+            server.route({ method: 'GET', path: '/', handler: () => null });
         }).to.not.throw();
-        done();
     });
 
-    it('sets route plugins and app settings', (done) => {
+    it('sets route plugins and app settings', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply(request.route.settings.app.x + request.route.settings.plugins.x.y);
-        };
-
+        const handler = (request) => (request.route.settings.app.x + request.route.settings.plugins.x.y);
         const server = new Hapi.Server();
-        server.connection();
         server.route({ method: 'GET', path: '/', config: { handler, app: { x: 'o' }, plugins: { x: { y: 'k' } } } });
-        server.inject('/', (res) => {
-
-            expect(res.result).to.equal('ok');
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.result).to.equal('ok');
     });
 
-    it('throws when validation is set without payload parsing', (done) => {
+    it('throws when validation is set without payload parsing', async () => {
 
         const server = new Hapi.Server();
-        server.connection();
         expect(() => {
 
-            server.route({ method: 'POST', path: '/', handler: function () { }, config: { validate: { payload: {} }, payload: { parse: false } } });
+            server.route({ method: 'POST', path: '/', handler: () => null, config: { validate: { payload: {} }, payload: { parse: false } } });
         }).to.throw('Route payload must be set to \'parse\' when payload validation enabled: POST /');
-        done();
     });
 
-    it('ignores payload parsing errors', (done) => {
+    it('ignores payload parsing errors', async () => {
 
         const server = new Hapi.Server();
-        server.connection();
         server.route({
             method: 'POST',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 payload: {
                     parse: true,
@@ -201,24 +152,17 @@ describe('Route', () => {
             }
         });
 
-        server.inject({ method: 'POST', url: '/', payload: '{a:"abc"}' }, (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            done();
-        });
+        const res = await server.inject({ method: 'POST', url: '/', payload: '{a:"abc"}' });
+        expect(res.statusCode).to.equal(200);
     });
 
-    it('logs payload parsing errors', (done) => {
+    it('logs payload parsing errors', async () => {
 
         const server = new Hapi.Server();
-        server.connection();
         server.route({
             method: 'POST',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 payload: {
                     parse: true,
@@ -228,34 +172,27 @@ describe('Route', () => {
         });
 
         let logged;
-        server.on('request-internal', (request, event, tags) => {
+        server.events.on('request-internal', (request, event, tags) => {
 
             if (tags.payload && tags.error) {
                 logged = event;
             }
         });
 
-        server.inject({ method: 'POST', url: '/', payload: '{a:"abc"}' }, (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(logged).to.be.an.object();
-            expect(logged.data).to.be.an.error('Invalid request payload JSON format');
-            expect(logged.data.data).to.be.an.error(SyntaxError, /^Unexpected token a/);
-            done();
-        });
+        const res = await server.inject({ method: 'POST', url: '/', payload: '{a:"abc"}' });
+        expect(res.statusCode).to.equal(200);
+        expect(logged).to.be.an.object();
+        expect(logged.data).to.be.an.error('Invalid request payload JSON format');
+        expect(logged.data.data).to.be.an.error(SyntaxError, /^Unexpected token a/);
     });
 
-    it('returns payload parsing errors', (done) => {
+    it('returns payload parsing errors', async () => {
 
         const server = new Hapi.Server();
-        server.connection();
         server.route({
             method: 'POST',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 payload: {
                     parse: true,
@@ -264,104 +201,71 @@ describe('Route', () => {
             }
         });
 
-        server.inject({ method: 'POST', url: '/', payload: '{a:"abc"}' }, (res) => {
-
-            expect(res.statusCode).to.equal(400);
-            expect(res.result.message).to.equal('Invalid request payload JSON format');
-            done();
-        });
+        const res = await server.inject({ method: 'POST', url: '/', payload: '{a:"abc"}' });
+        expect(res.statusCode).to.equal(400);
+        expect(res.result.message).to.equal('Invalid request payload JSON format');
     });
 
-    it('replaces payload parsing errors with custom handler', (done) => {
+    it('replaces payload parsing errors with custom handler', async () => {
 
         const server = new Hapi.Server();
-        server.connection();
         server.route({
             method: 'POST',
             path: '/',
-            handler: function (request, reply) {
-
-                return reply('ok');
-            },
+            handler: () => 'ok',
             config: {
                 payload: {
                     parse: true,
-                    failAction: function (request, reply, error) {
+                    failAction: function (request, h, error) {
 
-                        return reply('This is a custom error').code(418);
+                        return h.wrap('This is a custom error').code(418);
                     }
                 }
             }
         });
 
-        server.inject({ method: 'POST', url: '/', payload: '{a:"abc"}' }, (res) => {
-
-            expect(res.statusCode).to.equal(418);
-            expect(res.result).to.equal('This is a custom error');
-            done();
-        });
+        const res = await server.inject({ method: 'POST', url: '/', payload: '{a:"abc"}' });
+        expect(res.statusCode).to.equal(418);
+        expect(res.result).to.equal('This is a custom error');
     });
 
-    it('throws when validation is set on GET', (done) => {
+    it('throws when validation is set on GET', async () => {
 
         const server = new Hapi.Server();
-        server.connection();
         expect(() => {
 
-            server.route({ method: 'GET', path: '/', handler: function () { }, config: { validate: { payload: {} } } });
+            server.route({ method: 'GET', path: '/', handler: () => null, config: { validate: { payload: {} } } });
         }).to.throw('Cannot validate HEAD or GET requests: GET /');
-        done();
     });
 
-    it('throws when payload parsing is set on GET', (done) => {
+    it('throws when payload parsing is set on GET', async () => {
 
         const server = new Hapi.Server();
-        server.connection();
         expect(() => {
 
-            server.route({ method: 'GET', path: '/', handler: function () { }, config: { payload: { parse: true } } });
+            server.route({ method: 'GET', path: '/', handler: () => null, config: { payload: { parse: true } } });
         }).to.throw('Cannot set payload settings on HEAD or GET request: GET /');
-        done();
     });
 
-    it('ignores validation on * route when request is GET', (done) => {
-
-        const handler = function (request, reply) {
-
-            return reply();
-        };
+    it('ignores validation on * route when request is GET', async () => {
 
         const server = new Hapi.Server();
-        server.connection();
-        server.route({ method: '*', path: '/', handler, config: { validate: { payload: { a: Joi.required() } } } });
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            done();
-        });
+        server.route({ method: '*', path: '/', handler: () => null, config: { validate: { payload: { a: Joi.required() } } } });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(200);
     });
 
-    it('ignores default validation on GET', (done) => {
+    it('ignores default validation on GET', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply();
-        };
-
-        const server = new Hapi.Server();
-        server.connection({ routes: { validate: { payload: { a: Joi.required() } } } });
-        server.route({ method: 'GET', path: '/', handler });
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            done();
-        });
+        const server = new Hapi.Server({ routes: { validate: { payload: { a: Joi.required() } } } });
+        server.route({ method: 'GET', path: '/', handler: () => null });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(200);
     });
 
-    it('shallow copies route config bind', (done) => {
+    it('shallow copies route config bind', async () => {
 
         const server = new Hapi.Server();
-        server.connection();
         const context = { key: 'is ' };
 
         let count = 0;
@@ -374,24 +278,20 @@ describe('Route', () => {
             }
         });
 
-        const handler = function (request, reply) {
+        const handler = function (request) {
 
-            return reply(this.key + (this === context));
+            return this.key + (this === context);
         };
 
         server.route({ method: 'GET', path: '/', handler, config: { bind: context } });
-        server.inject('/', (res) => {
-
-            expect(res.result).to.equal('is true');
-            expect(count).to.equal(0);
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.result).to.equal('is true');
+        expect(count).to.equal(0);
     });
 
-    it('shallow copies route config bind (server.bind())', (done) => {
+    it('shallow copies route config bind (server.bind())', async () => {
 
         const server = new Hapi.Server();
-        server.connection();
         const context = { key: 'is ' };
 
         let count = 0;
@@ -404,24 +304,46 @@ describe('Route', () => {
             }
         });
 
-        const handler = function (request, reply) {
+        const handler = function (request) {
 
-            return reply(this.key + (this === context));
+            return this.key + (this === context);
         };
 
         server.bind(context);
         server.route({ method: 'GET', path: '/', handler });
-        server.inject('/', (res) => {
-
-            expect(res.result).to.equal('is true');
-            expect(count).to.equal(0);
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.result).to.equal('is true');
+        expect(count).to.equal(0);
     });
 
-    it('shallow copies route config bind (connection defaults)', (done) => {
+    it('shallow copies route config bind (connection defaults)', async () => {
 
-        const server = new Hapi.Server();
+        const context = { key: 'is ' };
+        const server = new Hapi.Server({ routes: { bind: context } });
+
+        let count = 0;
+        Object.defineProperty(context, 'test', {
+            enumerable: true,
+            configurable: true,
+            get: function () {
+
+                ++count;
+            }
+        });
+
+        const handler = function (request) {
+
+            return this.key + (this === context);
+        };
+
+        server.route({ method: 'GET', path: '/', handler });
+        const res = await server.inject('/');
+        expect(res.result).to.equal('is true');
+        expect(count).to.equal(0);
+    });
+
+    it('shallow copies route config bind (server defaults)', async () => {
+
         const context = { key: 'is ' };
 
         let count = 0;
@@ -434,150 +356,102 @@ describe('Route', () => {
             }
         });
 
-        const handler = function (request, reply) {
+        const handler = function (request) {
 
-            return reply(this.key + (this === context));
+            return this.key + (this === context);
         };
 
-        server.connection({ routes: { bind: context } });
+        const server = new Hapi.Server({ routes: { bind: context } });
         server.route({ method: 'GET', path: '/', handler });
-        server.inject('/', (res) => {
-
-            expect(res.result).to.equal('is true');
-            expect(count).to.equal(0);
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.result).to.equal('is true');
+        expect(count).to.equal(0);
     });
 
-    it('shallow copies route config bind (server defaults)', (done) => {
-
-        const context = { key: 'is ' };
-
-        let count = 0;
-        Object.defineProperty(context, 'test', {
-            enumerable: true,
-            configurable: true,
-            get: function () {
-
-                ++count;
-            }
-        });
-
-        const handler = function (request, reply) {
-
-            return reply(this.key + (this === context));
-        };
-
-        const server = new Hapi.Server({ connections: { routes: { bind: context } } });
-        server.connection();
-        server.route({ method: 'GET', path: '/', handler });
-        server.inject('/', (res) => {
-
-            expect(res.result).to.equal('is true');
-            expect(count).to.equal(0);
-            done();
-        });
-    });
-
-    it('overrides server relativeTo', (done) => {
+    it('overrides server relativeTo', async () => {
 
         const server = new Hapi.Server();
-        server.register(Inert, Hoek.ignore);
-        server.connection();
-        const handler = function (request, reply) {
-
-            return reply.file('./package.json');
-        };
-
+        await server.register(Inert);
+        const handler = (request, h) => h.file('./package.json');
         server.route({ method: 'GET', path: '/file', handler, config: { files: { relativeTo: Path.join(__dirname, '../') } } });
 
-        server.inject('/file', (res) => {
-
-            expect(res.payload).to.contain('hapi');
-            done();
-        });
+        const res = await server.inject('/file');
+        expect(res.payload).to.contain('hapi');
     });
 
-    it('throws when server timeout is more then socket timeout', (done) => {
+    it('throws when server timeout is more then socket timeout', async () => {
 
-        const server = new Hapi.Server();
         expect(() => {
 
-            server.connection({ routes: { timeout: { server: 60000, socket: 12000 } } });
+            new Hapi.Server({ routes: { timeout: { server: 60000, socket: 12000 } } });
         }).to.throw('Server timeout must be shorter than socket timeout: _special /{p*}');
-        done();
     });
 
-    it('throws when server timeout is more then socket timeout (node default)', (done) => {
+    it('throws when server timeout is more then socket timeout (node default)', async () => {
 
-        const server = new Hapi.Server();
         expect(() => {
 
-            server.connection({ routes: { timeout: { server: 6000000 } } });
+            new Hapi.Server({ routes: { timeout: { server: 6000000 } } });
         }).to.throw('Server timeout must be shorter than socket timeout: _special /{p*}');
-        done();
     });
 
-    it('ignores large server timeout when socket timeout disabled', (done) => {
+    it('ignores large server timeout when socket timeout disabled', async () => {
 
-        const server = new Hapi.Server();
         expect(() => {
 
-            server.connection({ routes: { timeout: { server: 6000000, socket: false } } });
+            new Hapi.Server({ routes: { timeout: { server: 6000000, socket: false } } });
         }).to.not.throw();
-        done();
     });
 
     describe('extensions', () => {
 
-        it('combine connection extensions (route last)', (done) => {
+        it('combine connection extensions (route last)', async () => {
 
             const server = new Hapi.Server();
-            server.connection();
-            const onRequest = function (request, reply) {
+            const onRequest = (request, h) => {
 
                 request.app.x = '1';
-                return reply.continue();
+                return h.continue;
             };
 
             server.ext('onRequest', onRequest);
 
-            const preAuth = function (request, reply) {
+            const preAuth = (request, h) => {
 
                 request.app.x += '2';
-                return reply.continue();
+                return h.continue;
             };
 
             server.ext('onPreAuth', preAuth);
 
-            const postAuth = function (request, reply) {
+            const postAuth = (request, h) => {
 
                 request.app.x += '3';
-                return reply.continue();
+                return h.continue;
             };
 
             server.ext('onPostAuth', postAuth);
 
-            const preHandler = function (request, reply) {
+            const preHandler = (request, h) => {
 
                 request.app.x += '4';
-                return reply.continue();
+                return h.continue;
             };
 
             server.ext('onPreHandler', preHandler);
 
-            const postHandler = function (request, reply) {
+            const postHandler = (request, h) => {
 
                 request.response.source += '5';
-                return reply.continue();
+                return h.continue;
             };
 
             server.ext('onPostHandler', postHandler);
 
-            const preResponse = function (request, reply) {
+            const preResponse = (request, h) => {
 
                 request.response.source += '6';
-                return reply.continue();
+                return h.continue;
             };
 
             server.ext('onPreResponse', preResponse);
@@ -585,113 +459,99 @@ describe('Route', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: function (request, reply) {
-
-                    return reply(request.app.x);
-                }
+                handler: (request) => request.app.x
             });
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal('123456');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('123456');
         });
 
-        it('combine connection extensions (route first)', (done) => {
+        it('combine connection extensions (route first)', async () => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: function (request, reply) {
-
-                    return reply(request.app.x);
-                }
+                handler: (request) => request.app.x
             });
 
-            const onRequest = function (request, reply) {
+            const onRequest = (request, h) => {
 
                 request.app.x = '1';
-                return reply.continue();
+                return h.continue;
             };
 
             server.ext('onRequest', onRequest);
 
-            const preAuth = function (request, reply) {
+            const preAuth = (request, h) => {
 
                 request.app.x += '2';
-                return reply.continue();
+                return h.continue;
             };
 
             server.ext('onPreAuth', preAuth);
 
-            const postAuth = function (request, reply) {
+            const postAuth = (request, h) => {
 
                 request.app.x += '3';
-                return reply.continue();
+                return h.continue;
             };
 
             server.ext('onPostAuth', postAuth);
 
-            const preHandler = function (request, reply) {
+            const preHandler = (request, h) => {
 
                 request.app.x += '4';
-                return reply.continue();
+                return h.continue;
             };
 
             server.ext('onPreHandler', preHandler);
 
-            const postHandler = function (request, reply) {
+            const postHandler = (request, h) => {
 
                 request.response.source += '5';
-                return reply.continue();
+                return h.continue;
             };
 
             server.ext('onPostHandler', postHandler);
 
-            const preResponse = function (request, reply) {
+            const preResponse = (request, h) => {
 
                 request.response.source += '6';
-                return reply.continue();
+                return h.continue;
             };
 
             server.ext('onPreResponse', preResponse);
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal('123456');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('123456');
         });
 
-        it('combine connection extensions (route middle)', (done) => {
+        it('combine connection extensions (route middle)', async () => {
 
             const server = new Hapi.Server();
-            server.connection();
 
-            const onRequest = function (request, reply) {
+            const onRequest = (request, h) => {
 
                 request.app.x = '1';
-                return reply.continue();
+                return h.continue;
             };
 
             server.ext('onRequest', onRequest);
 
-            const preAuth = function (request, reply) {
+            const preAuth = (request, h) => {
 
                 request.app.x += '2';
-                return reply.continue();
+                return h.continue;
             };
 
             server.ext('onPreAuth', preAuth);
 
-            const postAuth = function (request, reply) {
+            const postAuth = (request, h) => {
 
                 request.app.x += '3';
-                return reply.continue();
+                return h.continue;
             };
 
             server.ext('onPostAuth', postAuth);
@@ -699,52 +559,45 @@ describe('Route', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: function (request, reply) {
-
-                    return reply(request.app.x);
-                }
+                handler: (request) => request.app.x
             });
 
-            const preHandler = function (request, reply) {
+            const preHandler = (request, h) => {
 
                 request.app.x += '4';
-                return reply.continue();
+                return h.continue;
             };
 
             server.ext('onPreHandler', preHandler);
 
-            const postHandler = function (request, reply) {
+            const postHandler = (request, h) => {
 
                 request.response.source += '5';
-                return reply.continue();
+                return h.continue;
             };
 
             server.ext('onPostHandler', postHandler);
 
-            const preResponse = function (request, reply) {
+            const preResponse = (request, h) => {
 
                 request.response.source += '6';
-                return reply.continue();
+                return h.continue;
             };
 
             server.ext('onPreResponse', preResponse);
 
-            server.inject('/', (res) => {
-
-                expect(res.result).to.equal('123456');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('123456');
         });
 
-        it('combine connection extensions (mixed sources)', (done) => {
+        it('combine connection extensions (mixed sources)', async () => {
 
             const server = new Hapi.Server();
-            server.connection();
 
-            const preAuth1 = function (request, reply) {
+            const preAuth1 = (request, h) => {
 
                 request.app.x = '1';
-                return reply.continue();
+                return h.continue;
             };
 
             server.ext('onPreAuth', preAuth1);
@@ -755,24 +608,21 @@ describe('Route', () => {
                 config: {
                     ext: {
                         onPreAuth: {
-                            method: function (request, reply) {
+                            method: (request, h) => {
 
                                 request.app.x += '2';
-                                return reply.continue();
+                                return h.continue;
                             }
                         }
                     },
-                    handler: function (request, reply) {
-
-                        return reply(request.app.x);
-                    }
+                    handler: (request) => request.app.x
                 }
             });
 
-            const preAuth3 = function (request, reply) {
+            const preAuth3 = (request, h) => {
 
                 request.app.x += '3';
-                return reply.continue();
+                return h.continue;
             };
 
             server.ext('onPreAuth', preAuth3);
@@ -780,78 +630,60 @@ describe('Route', () => {
             server.route({
                 method: 'GET',
                 path: '/a',
-                config: {
-                    handler: function (request, reply) {
-
-                        return reply(request.app.x);
-                    }
-                }
+                handler: (request) => request.app.x
             });
 
-            server.inject('/', (res1) => {
+            const res1 = await server.inject('/');
+            expect(res1.result).to.equal('123');
 
-                expect(res1.result).to.equal('123');
-
-                server.inject('/a', (res2) => {
-
-                    expect(res2.result).to.equal('13');
-                    done();
-                });
-            });
+            const res2 = await server.inject('/a');
+            expect(res2.result).to.equal('13');
         });
 
-        it('skips inner extensions when not found', (done) => {
+        it('skips inner extensions when not found', async () => {
 
             const server = new Hapi.Server();
-            server.connection();
 
             let state = '';
 
-            const onRequest = function (request, reply) {
+            const onRequest = (request, h) => {
 
                 state += 1;
-                return reply.continue();
+                return h.continue;
             };
 
             server.ext('onRequest', onRequest);
 
-            const preAuth = function (request, reply) {
+            const preAuth = (request) => {
 
                 state += 2;
-                return reply('ok');
+                return 'ok';
             };
 
             server.ext('onPreAuth', preAuth);
 
-            const preResponse = function (request, reply) {
+            const preResponse = (request, h) => {
 
                 state += 3;
-                return reply.continue();
+                return h.continue;
             };
 
             server.ext('onPreResponse', preResponse);
 
-            server.inject('/', (res) => {
-
-                expect(res.statusCode).to.equal(404);
-                expect(state).to.equal('13');
-                done();
-            });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(404);
+            expect(state).to.equal('13');
         });
     });
 
     describe('drain()', () => {
 
-        it('drains the request payload on 404', (done) => {
+        it('drains the request payload on 404', async () => {
 
             const server = new Hapi.Server();
-            server.connection();
-            server.inject({ method: 'POST', url: '/nope', payload: 'something' }, (res) => {
-
-                expect(res.statusCode).to.equal(404);
-                expect(res.raw.req._readableState.ended).to.be.true();
-                done();
-            });
+            const res = await server.inject({ method: 'POST', url: '/nope', payload: 'something' });
+            expect(res.statusCode).to.equal(404);
+            expect(res.raw.req._readableState.ended).to.be.true();
         });
     });
 });

@@ -14,313 +14,167 @@ const internals = {};
 
 // Test shortcuts
 
-const lab = exports.lab = Lab.script();
-const describe = lab.describe;
-const it = lab.it;
+const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
 
 
 describe('state', () => {
 
-    it('parses cookies', (done) => {
-
-        const handler = function (request, reply) {
-
-            return reply(request.state);
-        };
+    it('parses cookies', async () => {
 
         const server = new Hapi.Server();
-        server.connection();
-        server.route({ method: 'GET', path: '/', handler });
-        server.inject({ method: 'GET', url: '/', headers: { cookie: 'v=a' } }, (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.result.v).to.equal('a');
-            done();
-        });
+        server.route({ method: 'GET', path: '/', handler: (request) => request.state });
+        const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'v=a' } });
+        expect(res.statusCode).to.equal(200);
+        expect(res.result.v).to.equal('a');
     });
 
-    it('sets a cookie value to a base64json string representation of an object', (done) => {
-
-        const handler = function (request, reply) {
-
-            return reply('ok').state('data', { b: 3 });
-        };
+    it('sets a cookie value to a base64json string representation of an object', async () => {
 
         const server = new Hapi.Server();
-        server.connection();
         server.state('data', { encoding: 'base64json' });
-        server.route({ method: 'GET', path: '/', handler });
+        server.route({ method: 'GET', path: '/', handler: (request, h) => h.wrap('ok').state('data', { b: 3 }) });
 
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.headers['set-cookie']).to.equal(['data=eyJiIjozfQ==; Secure; HttpOnly; SameSite=Strict']);
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(200);
+        expect(res.headers['set-cookie']).to.equal(['data=eyJiIjozfQ==; Secure; HttpOnly; SameSite=Strict']);
     });
 
-    it('parses base64json cookies', (done) => {
-
-        const handler = function (request, reply) {
-
-            return reply(request.state);
-        };
+    it('parses base64json cookies', async () => {
 
         const server = new Hapi.Server();
-        server.connection();
         server.state('data', { encoding: 'base64json' });
-        server.route({ method: 'GET', path: '/', handler });
-        server.inject({ method: 'GET', url: '/', headers: { cookie: 'data=eyJiIjozfQ==' } }, (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.result.data).to.equal({ b: 3 });
-            done();
-        });
+        server.route({ method: 'GET', path: '/', handler: (request) => request.state });
+        const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'data=eyJiIjozfQ==' } });
+        expect(res.statusCode).to.equal(200);
+        expect(res.result.data).to.equal({ b: 3 });
     });
 
-    it('skips parsing cookies', (done) => {
+    it('skips parsing cookies', async () => {
 
-        const handler = function (request, reply) {
-
-            return reply(request.state);
-        };
-
-        const server = new Hapi.Server();
-        server.connection({ routes: { state: { parse: false } } });
-        server.route({ method: 'GET', path: '/', handler });
-        server.inject({ method: 'GET', url: '/', headers: { cookie: 'v=a' } }, (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal(null);
-            done();
-        });
+        const server = new Hapi.Server({ routes: { state: { parse: false } } });
+        server.route({ method: 'GET', path: '/', handler: (request) => (request.state === null) });
+        const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'v=a' } });
+        expect(res.statusCode).to.equal(200);
+        expect(res.result).to.equal(true);
     });
 
-    it('does not clear invalid cookie if cannot parse', (done) => {
-
-        const handler = function (request, reply) {
-
-            return reply(request.state);
-        };
+    it('does not clear invalid cookie if cannot parse', async () => {
 
         const server = new Hapi.Server();
-        server.connection();
         server.state('vab', { encoding: 'base64json', clearInvalid: true });
-        server.route({ method: 'GET', path: '/', handler });
-        server.inject({ method: 'GET', url: '/', headers: { cookie: 'vab' } }, (res) => {
-
-            expect(res.statusCode).to.equal(400);
-            expect(res.headers['set-cookie']).to.not.exists();
-            done();
-        });
+        server.route({ method: 'GET', path: '/', handler: (request) => request.state });
+        const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'vab' } });
+        expect(res.statusCode).to.equal(400);
+        expect(res.headers['set-cookie']).to.not.exists();
     });
 
-    it('ignores invalid cookies (state level config)', (done) => {
+    it('ignores invalid cookies (state level config)', async () => {
 
-        const handler = function (request, reply) {
-
-            const log = request.getLog('state');
-            return reply(log.length);
-        };
-
-        const server = new Hapi.Server();
-        server.connection({ routes: { log: true } });
+        const server = new Hapi.Server({ routes: { log: { collect: true } } });
         server.state('a', { ignoreErrors: true, encoding: 'base64json' });
-        server.route({ path: '/', method: 'GET', handler });
-        server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x' } }, (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal(0);
-            done();
-        });
+        server.route({ path: '/', method: 'GET', handler: (request) => request.getLog('state').length });
+        const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x' } });
+        expect(res.statusCode).to.equal(200);
+        expect(res.result).to.equal(0);
     });
 
-    it('ignores invalid cookies (header)', (done) => {
+    it('ignores invalid cookies (header)', async () => {
 
-        const handler = function (request, reply) {
-
-            const log = request.getLog('state');
-            return reply(log.length);
-        };
-
-        const server = new Hapi.Server();
-        server.connection({ routes: { state: { failAction: 'ignore' }, log: true } });
-        server.route({ path: '/', method: 'GET', handler });
-        server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x;;' } }, (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal(0);
-            done();
-        });
+        const server = new Hapi.Server({ routes: { state: { failAction: 'ignore' }, log: { collect: true } } });
+        server.route({ path: '/', method: 'GET', handler: (request) => request.getLog('state').length });
+        const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x;;' } });
+        expect(res.statusCode).to.equal(200);
+        expect(res.result).to.equal(0);
     });
 
-    it('ignores invalid cookie using server.state() (header)', (done) => {
+    it('ignores invalid cookie using server.state() (header)', async () => {
 
-        const handler = function (request, reply) {
-
-            const log = request.getLog('state');
-            return reply(log.length);
-        };
-
-        const server = new Hapi.Server();
-        server.connection({ routes: { log: true } });
+        const server = new Hapi.Server({ routes: { log: { collect: true } } });
         server.state('a', { strictHeader: false });
-        server.route({ path: '/', method: 'GET', handler });
-        server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x y;' } }, (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal(0);
-            done();
-        });
+        server.route({ path: '/', method: 'GET', handler: (request) => request.getLog('state').length });
+        const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x y;' } });
+        expect(res.statusCode).to.equal(200);
+        expect(res.result).to.equal(0);
     });
 
-    it('logs invalid cookie (value)', (done) => {
+    it('logs invalid cookie (value)', async () => {
 
-        const handler = function (request, reply) {
-
-            const log = request.getLog('state');
-            return reply(log.length);
-        };
-
-        const server = new Hapi.Server();
-        server.connection({ routes: { state: { failAction: 'log' }, log: true } });
+        const server = new Hapi.Server({ routes: { state: { failAction: 'log' }, log: { collect: true } } });
         server.state('a', { encoding: 'base64json', clearInvalid: true });
-        server.route({ path: '/', method: 'GET', handler });
-        server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x' } }, (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal(1);
-            done();
-        });
+        server.route({ path: '/', method: 'GET', handler: (request) => request.getLog('state').length });
+        const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x' } });
+        expect(res.statusCode).to.equal(200);
+        expect(res.result).to.equal(1);
     });
 
-    it('clears invalid cookies (state level config)', (done) => {
-
-        const handler = function (request, reply) {
-
-            return reply();
-        };
+    it('clears invalid cookies (state level config)', async () => {
 
         const server = new Hapi.Server();
-        server.connection();
         server.state('a', { ignoreErrors: true, encoding: 'base64json', clearInvalid: true });
-        server.route({ path: '/', method: 'GET', handler });
-        server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x' } }, (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.headers['set-cookie'][0]).to.equal('a=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; HttpOnly; SameSite=Strict');
-            done();
-        });
+        server.route({ path: '/', method: 'GET', handler: () => null });
+        const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x' } });
+        expect(res.statusCode).to.equal(200);
+        expect(res.headers['set-cookie'][0]).to.equal('a=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; HttpOnly; SameSite=Strict');
     });
 
-    it('sets cookie value automatically', (done) => {
-
-        const handler = function (request, reply) {
-
-            return reply('ok');
-        };
+    it('sets cookie value automatically', async () => {
 
         const server = new Hapi.Server();
-        server.connection();
-        server.route({ method: 'GET', path: '/', handler });
+        server.route({ method: 'GET', path: '/', handler: () => 'ok' });
         server.state('always', { autoValue: 'present' });
 
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.headers['set-cookie']).to.equal(['always=present; Secure; HttpOnly; SameSite=Strict']);
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(200);
+        expect(res.headers['set-cookie']).to.equal(['always=present; Secure; HttpOnly; SameSite=Strict']);
     });
 
-    it('appends handler set-cookie to server state', (done) => {
-
-        const handler = function (request, reply) {
-
-            return reply().header('set-cookie', ['onecookie=yes', 'twocookie=no']);
-        };
+    it('appends handler set-cookie to server state', async () => {
 
         const server = new Hapi.Server();
-        server.connection();
-        server.route({ method: 'GET', path: '/', handler });
+        server.route({ method: 'GET', path: '/', handler: (request, h) => h.wrap().header('set-cookie', ['onecookie=yes', 'twocookie=no']) });
         server.state('always', { autoValue: 'present' });
 
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.headers['set-cookie']).to.equal(['onecookie=yes', 'twocookie=no', 'always=present; Secure; HttpOnly; SameSite=Strict']);
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(200);
+        expect(res.headers['set-cookie']).to.equal(['onecookie=yes', 'twocookie=no', 'always=present; Secure; HttpOnly; SameSite=Strict']);
     });
 
-    it('sets cookie value automatically using function', (done) => {
+    it('sets cookie value automatically using function', async () => {
 
-        const present = function (request, next) {
+        const server = new Hapi.Server();
+        server.route({ method: 'GET', path: '/{x}', handler: () => 'ok' });
+        server.state('always', { autoValue: (request) => request.params.x });
 
-            return next(null, request.params.x);
-        };
+        const res = await server.inject('/sweet');
+        expect(res.statusCode).to.equal(200);
+        expect(res.headers['set-cookie']).to.equal(['always=sweet; Secure; HttpOnly; SameSite=Strict']);
+    });
 
-        const handler = function (request, reply) {
+    it('fails to set cookie value automatically using function', async () => {
 
-            return reply('ok');
+        const present = (request) => {
+
+            throw new Error();
         };
 
         const server = new Hapi.Server();
-        server.connection();
-        server.route({ method: 'GET', path: '/{x}', handler });
+        server.route({ method: 'GET', path: '/', handler: () => 'ok' });
         server.state('always', { autoValue: present });
 
-        server.inject('/sweet', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.headers['set-cookie']).to.equal(['always=sweet; Secure; HttpOnly; SameSite=Strict']);
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(500);
+        expect(res.headers['set-cookie']).to.not.exist();
     });
 
-    it('fails to set cookie value automatically using function', (done) => {
-
-        const present = function (request, next) {
-
-            return next(new Error());
-        };
-
-        const handler = function (request, reply) {
-
-            return reply('ok');
-        };
+    it('sets cookie value with null ttl', async () => {
 
         const server = new Hapi.Server();
-        server.connection();
-        server.route({ method: 'GET', path: '/', handler });
-        server.state('always', { autoValue: present });
-
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(500);
-            expect(res.headers['set-cookie']).to.not.exist();
-            done();
-        });
-    });
-
-    it('sets cookie value with null ttl', (done) => {
-
-        const handler = function (request, reply) {
-
-            return reply('ok').state('a', 'b');
-        };
-
-        const server = new Hapi.Server();
-        server.connection();
         server.state('a', { ttl: null });
-        server.route({ method: 'GET', path: '/', handler });
+        server.route({ method: 'GET', path: '/', handler: (request, h) => h.wrap('ok').state('a', 'b') });
 
-        server.inject('/', (res) => {
-
-            expect(res.statusCode).to.equal(200);
-            expect(res.headers['set-cookie']).to.equal(['a=b; Secure; HttpOnly; SameSite=Strict']);
-            done();
-        });
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(200);
+        expect(res.headers['set-cookie']).to.equal(['a=b; Secure; HttpOnly; SameSite=Strict']);
     });
 });
