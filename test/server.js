@@ -1525,6 +1525,25 @@ describe('Server', () => {
             expect(bind.state).to.be.true();
         });
 
+        it('binds server ext to context (argument)', async () => {
+
+            const server = new Hapi.Server();
+
+            const bind = {
+                state: false
+            };
+
+            const preStart = (srv, context) => {
+
+                context.state = true;
+            };
+
+            server.ext('onPreStart', preStart, { bind });
+
+            await server.initialize();
+            expect(bind.state).to.be.true();
+        });
+
         it('binds server ext to context (realm)', async () => {
 
             const server = new Hapi.Server();

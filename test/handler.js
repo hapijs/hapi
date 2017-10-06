@@ -97,6 +97,27 @@ describe('handler', () => {
             expect(res.result).to.equal(item.x);
         });
 
+        it('binds handler to route bind object (responder)', async () => {
+
+            const item = { x: 123 };
+
+            const server = new Hapi.Server();
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    handler: function (request, responder) {
+
+                        return responder.context.x;
+                    },
+                    bind: item
+                }
+            });
+
+            const res = await server.inject('/');
+            expect(res.result).to.equal(item.x);
+        });
+
         it('wraps unhandled promise rejections in an error if needed', async () => {
 
             const server = new Hapi.Server({ debug: false });
