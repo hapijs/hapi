@@ -106,10 +106,7 @@ describe('handler', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: function (request, responder) {
-
-                        return responder.context.x;
-                    },
+                    handler: (request, responder) => responder.context.x,
                     bind: item
                 }
             });
