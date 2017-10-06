@@ -2143,12 +2143,10 @@ describe('Server', () => {
 
         it('outputs logs for all request log events with a wildcard', async () => {
 
-            const server = new Hapi.Server({ debug: { request: '*' }, routes: { log: { stats: true } } });
+            const server = new Hapi.Server({ debug: { request: '*' } });
 
             const expectedLogs = [
-                ['Debug:', 'received'],
-                ['Debug:', 'handler, error'],
-                ['Debug:', 'response']
+                ['Debug:', 'handler, error']
             ];
 
             const log = new Promise((resolve) => {

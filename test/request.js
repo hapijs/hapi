@@ -1153,18 +1153,6 @@ describe('Request', () => {
         });
     });
 
-    describe('_log()', { parallel: false }, () => {
-
-        it('emits a request-internal event', async () => {
-
-            const server = new Hapi.Server({ routes: { log: { stats: true } } });
-            const log = server.events.once('request-internal');
-            await server.inject('/');
-            const [, , tags] = await log;
-            expect(tags.received).to.be.true();
-        });
-    });
-
     describe('getLog()', () => {
 
         it('returns the selected logs', async () => {
@@ -1172,12 +1160,13 @@ describe('Request', () => {
             const handler = (request) => {
 
                 request._log('1');
+                request._log('2');
                 request.log('1');
 
                 return [request.getLog('1').length, request.getLog('1', true).length, request.getLog('1', false).length, request.getLog(true).length, request.getLog(false).length, request.getLog().length].join('|');
             };
 
-            const server = new Hapi.Server({ routes: { log: { collect: true, stats: true } } });
+            const server = new Hapi.Server({ routes: { log: { collect: true } } });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
