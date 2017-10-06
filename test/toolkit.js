@@ -22,18 +22,18 @@ const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
 
 
-describe('Reply', () => {
+describe('Toolkit', () => {
 
-    it('decorates responder with non function', async () => {
+    it('decorates toolkit with non function', async () => {
 
         const server = new Hapi.Server();
 
-        server.decorate('responder', 'abc', 123);
+        server.decorate('toolkit', 'abc', 123);
 
         server.route({
             method: 'GET',
             path: '/',
-            handler: (request, responder) => responder.wrap(responder.abc)
+            handler: (request, h) => h.wrap(h.abc)
         });
 
         const res = await server.inject('/');
@@ -43,9 +43,9 @@ describe('Reply', () => {
 
     it('redirects from handler', async () => {
 
-        const handler = (request, responder) => {
+        const handler = (request, h) => {
 
-            return responder.redirect('/elsewhere');
+            return h.redirect('/elsewhere');
         };
 
         const server = new Hapi.Server();
@@ -63,9 +63,9 @@ describe('Reply', () => {
             path: '/',
             config: {
                 pre: [
-                    (request, responder) => {
+                    (request, h) => {
 
-                        return responder.redirect('/elsewhere').takeover();
+                        return h.redirect('/elsewhere').takeover();
                     }
                 ],
                 handler: () => 'ok'
@@ -82,7 +82,7 @@ describe('Reply', () => {
         it('returns null', async () => {
 
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: (request, responder) => responder.wrap() });
+            server.route({ method: 'GET', path: '/', handler: (request, h) => h.wrap() });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal(null);
@@ -92,9 +92,9 @@ describe('Reply', () => {
 
         it('returns a buffer response', async () => {
 
-            const handler = (request, responder) => {
+            const handler = (request, h) => {
 
-                return responder.wrap(new Buffer('Tada1')).code(299);
+                return h.wrap(new Buffer('Tada1')).code(299);
             };
 
             const server = new Hapi.Server();
@@ -108,9 +108,9 @@ describe('Reply', () => {
 
         it('returns an object response', async () => {
 
-            const handler = (request, responder) => {
+            const handler = (request, h) => {
 
-                return responder.wrap({ a: 1, b: 2 });
+                return h.wrap({ a: 1, b: 2 });
             };
 
             const server = new Hapi.Server();
@@ -123,9 +123,9 @@ describe('Reply', () => {
 
         it('returns false', async () => {
 
-            const handler = (request, responder) => {
+            const handler = (request, h) => {
 
-                return responder.wrap(false);
+                return h.wrap(false);
             };
 
             const server = new Hapi.Server();
@@ -137,9 +137,9 @@ describe('Reply', () => {
 
         it('returns an error response', async () => {
 
-            const handler = (request, responder) => {
+            const handler = (request, h) => {
 
-                return responder.wrap(new Error('boom'));
+                return h.wrap(new Error('boom'));
             };
 
             const server = new Hapi.Server({ debug: false });
@@ -152,9 +152,9 @@ describe('Reply', () => {
 
         it('returns an empty response', async () => {
 
-            const handler = (request, responder) => {
+            const handler = (request, h) => {
 
-                return responder.wrap().code(299);
+                return h.wrap().code(299);
             };
 
             const server = new Hapi.Server();
@@ -183,9 +183,9 @@ describe('Reply', () => {
                 }
             };
 
-            const handler = (request, responder) => {
+            const handler = (request, h) => {
 
-                return responder.wrap(new TestStream()).ttl(2000);
+                return h.wrap(new TestStream()).ttl(2000);
             };
 
             const server = new Hapi.Server();
@@ -205,20 +205,20 @@ describe('Reply', () => {
 
     it('errors on non-readable stream response', async () => {
 
-        const streamHandler = (request, responder) => {
+        const streamHandler = (request, h) => {
 
             const stream = new Stream();
             stream.writable = true;
 
-            return responder.wrap(stream);
+            return h.wrap(stream);
         };
 
-        const writableHandler = (request, responder) => {
+        const writableHandler = (request, h) => {
 
             const writable = new Stream.Writable();
             writable._write = function () { };
 
-            return responder.wrap(writable);
+            return h.wrap(writable);
         };
 
         const server = new Hapi.Server({ debug: false });
@@ -245,14 +245,14 @@ describe('Reply', () => {
 
     it('errors on an http client stream response', async () => {
 
-        const handler = (request, responder) => {
+        const handler = (request, h) => {
 
-            return responder.wrap('just a string');
+            return h.wrap('just a string');
         };
 
-        const streamHandler = (request, responder) => {
+        const streamHandler = (request, h) => {
 
-            return responder.wrap(Http.get(request.server.info + '/'));
+            return h.wrap(Http.get(request.server.info + '/'));
         };
 
         const server = new Hapi.Server({ debug: false });
@@ -286,9 +286,9 @@ describe('Reply', () => {
             }
         };
 
-        const handler = (request, responder) => {
+        const handler = (request, h) => {
 
-            return responder.wrap(new TestStream());
+            return h.wrap(new TestStream());
         };
 
         const server = new Hapi.Server({ debug: false });
@@ -302,10 +302,10 @@ describe('Reply', () => {
 
         it('returns a response with manual end', async () => {
 
-            const handler = (request, responder) => {
+            const handler = (request, h) => {
 
                 request.raw.res.end();
-                return responder.abandon;
+                return h.abandon;
             };
 
             const server = new Hapi.Server();
@@ -317,9 +317,9 @@ describe('Reply', () => {
 
         it('returns a response with auto end', async () => {
 
-            const handler = (request, responder) => {
+            const handler = (request, h) => {
 
-                return responder.close;
+                return h.close;
             };
 
             const server = new Hapi.Server();
@@ -334,9 +334,9 @@ describe('Reply', () => {
 
         it('sets empty response on continue in handler', async () => {
 
-            const handler = (request, responder) => {
+            const handler = (request, h) => {
 
-                return responder.continue;
+                return h.continue;
             };
 
             const server = new Hapi.Server();
@@ -350,17 +350,17 @@ describe('Reply', () => {
 
         it('ignores continue in prerequisite', async () => {
 
-            const pre1 = (request, responder) => {
+            const pre1 = (request, h) => {
 
-                return responder.continue;
+                return h.continue;
             };
 
-            const pre2 = (request, responder) => {
+            const pre2 = (request, h) => {
 
-                return responder.continue;
+                return h.continue;
             };
 
-            const pre3 = (request, responder) => {
+            const pre3 = (request, h) => {
 
                 return {
                     m1: request.pre.m1,
@@ -395,27 +395,27 @@ describe('Reply', () => {
 
             const server = new Hapi.Server();
 
-            server.ext('onPreResponse', (request, responder) => {
+            server.ext('onPreResponse', (request, h) => {
 
                 if (request.response.isBoom) {
-                    return responder.wrap('2');
+                    return h.wrap('2');
                 }
 
-                return responder.continue;
+                return h.continue;
             });
 
-            server.ext('onPreResponse', (request, responder) => {
+            server.ext('onPreResponse', (request, h) => {
 
                 request.response.source += 'x';
-                return responder.continue;
+                return h.continue;
             });
 
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: (request, responder) => {
+                handler: (request, h) => {
 
-                    return responder.wrap(request.query.x ? new Error() : '1');
+                    return h.wrap(request.query.x ? new Error() : '1');
                 }
             });
 
@@ -430,9 +430,9 @@ describe('Reply', () => {
 
         it('errors on non auth argument', async () => {
 
-            const handler = (request, responder) => {
+            const handler = (request, h) => {
 
-                return responder.continue('ok');
+                return h.continue('ok');
             };
 
             const server = new Hapi.Server({ debug: false });
@@ -453,14 +453,14 @@ describe('Reply', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: (request, responder) => {
+                handler: (request, h) => {
 
-                    if (responder.entity({ modified: 1200 })) {
+                    if (h.entity({ modified: 1200 })) {
                         return;
                     }
 
                     ++count;
-                    return responder.wrap('ok');
+                    return h.wrap('ok');
                 }
             });
 
@@ -485,16 +485,16 @@ describe('Reply', () => {
                 path: '/',
                 config: {
                     cache: { expiresIn: 5000 },
-                    handler: (request, responder) => {
+                    handler: (request, h) => {
 
-                        const response = responder.entity({ etag: 'abc' });
+                        const response = h.entity({ etag: 'abc' });
                         if (response) {
                             response.header('X', 'y');
                             return;
                         }
 
                         ++count;
-                        return responder.wrap('ok');
+                        return h.wrap('ok');
                     }
                 }
             });
@@ -519,9 +519,9 @@ describe('Reply', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: (request, responder) => {
+                handler: (request, h) => {
 
-                    if (!responder.entity({ etag: 'abc', vary: false })) {
+                    if (!h.entity({ etag: 'abc', vary: false })) {
                         return 'ok';
                     }
                 }
@@ -543,10 +543,10 @@ describe('Reply', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: (request, responder) => {
+                handler: (request, h) => {
 
-                    if (!responder.entity({ etag: 'abc' })) {
-                        return responder.wrap('ok').etag('def');
+                    if (!h.entity({ etag: 'abc' })) {
+                        return h.wrap('ok').etag('def');
                     }
                 }
             });

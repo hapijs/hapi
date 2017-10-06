@@ -24,7 +24,7 @@ describe('security', () => {
     it('blocks response splitting through the request.create method', async () => {
 
         const server = new Hapi.Server();
-        const handler = (request, responder) => responder.wrap('Moved').created('/item/' + request.payload.name);
+        const handler = (request, h) => h.wrap('Moved').created('/item/' + request.payload.name);
         server.route({ method: 'POST', path: '/item', handler });
 
         const res = await server.inject({

@@ -33,7 +33,7 @@ describe('state', () => {
 
         const server = new Hapi.Server();
         server.state('data', { encoding: 'base64json' });
-        server.route({ method: 'GET', path: '/', handler: (request, responder) => responder.wrap('ok').state('data', { b: 3 }) });
+        server.route({ method: 'GET', path: '/', handler: (request, h) => h.wrap('ok').state('data', { b: 3 }) });
 
         const res = await server.inject('/');
         expect(res.statusCode).to.equal(200);
@@ -132,7 +132,7 @@ describe('state', () => {
     it('appends handler set-cookie to server state', async () => {
 
         const server = new Hapi.Server();
-        server.route({ method: 'GET', path: '/', handler: (request, responder) => responder.wrap().header('set-cookie', ['onecookie=yes', 'twocookie=no']) });
+        server.route({ method: 'GET', path: '/', handler: (request, h) => h.wrap().header('set-cookie', ['onecookie=yes', 'twocookie=no']) });
         server.state('always', { autoValue: 'present' });
 
         const res = await server.inject('/');
@@ -171,7 +171,7 @@ describe('state', () => {
 
         const server = new Hapi.Server();
         server.state('a', { ttl: null });
-        server.route({ method: 'GET', path: '/', handler: (request, responder) => responder.wrap('ok').state('a', 'b') });
+        server.route({ method: 'GET', path: '/', handler: (request, h) => h.wrap('ok').state('a', 'b') });
 
         const res = await server.inject('/');
         expect(res.statusCode).to.equal(200);

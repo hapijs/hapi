@@ -271,10 +271,10 @@ describe('Server', () => {
                 expect(srv.realm.pluginOptions).to.equal(options);
 
                 srv.route({
-                    method: 'GET', path: '/foo', handler: (request, responder) => {
+                    method: 'GET', path: '/foo', handler: (request, h) => {
 
                         expect(request.route.realm.pluginOptions).to.equal(options);
-                        expect(responder.realm.pluginOptions).to.equal(options);
+                        expect(h.realm.pluginOptions).to.equal(options);
                         return 'foo';
                     }
                 });
@@ -290,10 +290,10 @@ describe('Server', () => {
                 expect(srv.realm.pluginOptions).to.equal(options);
 
                 srv.route({
-                    method: 'GET', path: '/bar', handler: (request, responder) => {
+                    method: 'GET', path: '/bar', handler: (request, h) => {
 
                         expect(request.route.realm.pluginOptions).to.equal(options);
-                        expect(responder.realm.pluginOptions).to.equal(options);
+                        expect(h.realm.pluginOptions).to.equal(options);
                         return 'bar';
                     }
                 });
@@ -823,7 +823,7 @@ describe('Server', () => {
                     }
                 });
 
-                const preResponse = function (request, responder) {
+                const preResponse = function (request, h) {
 
                     return request.response.source + this.suffix;
                 };
@@ -1033,7 +1033,7 @@ describe('Server', () => {
             expect(res.result).to.equal(server.info.uri);
         });
 
-        it('decorates responder', async () => {
+        it('decorates toolkit', async () => {
 
             const server = new Hapi.Server();
 
@@ -1042,12 +1042,12 @@ describe('Server', () => {
                 return this.wrap({ status: 'ok' });
             };
 
-            server.decorate('responder', 'success', success);
+            server.decorate('toolkit', 'success', success);
 
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: (request, responder) => responder.success()
+                handler: (request, h) => h.success()
             });
 
             const res = await server.inject('/');
@@ -1055,18 +1055,18 @@ describe('Server', () => {
             expect(res.result.status).to.equal('ok');
         });
 
-        it('throws on double responder decoration', async () => {
+        it('throws on double toolkit decoration', async () => {
 
             const server = new Hapi.Server();
 
-            server.decorate('responder', 'success', () => {
+            server.decorate('toolkit', 'success', () => {
 
                 return this.response({ status: 'ok' });
             });
 
             expect(() => {
 
-                server.decorate('responder', 'success', () => { });
+                server.decorate('toolkit', 'success', () => { });
             }).to.throw('Reply interface decoration already defined: success');
         });
 
@@ -1076,8 +1076,8 @@ describe('Server', () => {
 
             expect(() => {
 
-                server.decorate('responder', 'redirect', () => { });
-            }).to.throw('Cannot override built-in responder interface decoration: redirect');
+                server.decorate('toolkit', 'redirect', () => { });
+            }).to.throw('Cannot override built-in toolkit decoration: redirect');
         });
 
         it('decorates server', async () => {
@@ -1182,30 +1182,30 @@ describe('Server', () => {
             expect(server.decorations.request).to.equal(['a', 'b']);
         });
 
-        it('shows decorations on responder (empty array)', async () => {
+        it('shows decorations on toolkit (empty array)', async () => {
 
             const server = new Hapi.Server();
 
-            expect(server.decorations.responder).to.be.empty();
+            expect(server.decorations.toolkit).to.be.empty();
         });
 
-        it('shows decorations on responder (single)', async () => {
+        it('shows decorations on toolkit (single)', async () => {
 
             const server = new Hapi.Server();
 
-            server.decorate('responder', 'a', () => { });
+            server.decorate('toolkit', 'a', () => { });
 
-            expect(server.decorations.responder).to.equal(['a']);
+            expect(server.decorations.toolkit).to.equal(['a']);
         });
 
-        it('shows decorations on responder (many)', async () => {
+        it('shows decorations on toolkit (many)', async () => {
 
             const server = new Hapi.Server();
 
-            server.decorate('responder', 'a', () => { });
-            server.decorate('responder', 'b', () => { });
+            server.decorate('toolkit', 'a', () => { });
+            server.decorate('toolkit', 'b', () => { });
 
-            expect(server.decorations.responder).to.equal(['a', 'b']);
+            expect(server.decorations.toolkit).to.equal(['a', 'b']);
         });
 
         it('shows decorations on server (empty array)', async () => {
@@ -1445,10 +1445,10 @@ describe('Server', () => {
                     handler: () => 'b'
                 });
 
-                const onRequest = (request, responder) => {
+                const onRequest = (request, h) => {
 
                     request.setUrl('/b');
-                    return responder.continue;
+                    return h.continue;
                 };
 
                 srv.ext('onRequest', onRequest);
@@ -1474,11 +1474,11 @@ describe('Server', () => {
 
                 const plugin = function (server, options) {
 
-                    const onRequest = (request, responder) => {
+                    const onRequest = (request, h) => {
 
                         request.app.complexDeps = request.app.complexDeps || '|';
                         request.app.complexDeps += num + '|';
-                        return responder.continue;
+                        return h.continue;
                     };
 
                     server.ext('onRequest', onRequest, deps);
@@ -1651,10 +1651,10 @@ describe('Server', () => {
 
             const server = new Hapi.Server();
 
-            const preAuth = (request, responder) => {
+            const preAuth = (request, h) => {
 
                 request.app.x = '1';
-                return responder.continue;
+                return h.continue;
             };
 
             server.ext('onPreAuth', preAuth);
@@ -1667,10 +1667,10 @@ describe('Server', () => {
                     config: {
                         ext: {
                             onPreAuth: {
-                                method: (request, responder) => {
+                                method: (request, h) => {
 
                                     request.app.x += '2';
-                                    return responder.continue;
+                                    return h.continue;
                                 }
                             }
                         },
@@ -1678,10 +1678,10 @@ describe('Server', () => {
                     }
                 });
 
-                const preAuthSandbox = (request, responder) => {
+                const preAuthSandbox = (request, h) => {
 
                     request.app.x += '3';
-                    return responder.continue;
+                    return h.continue;
                 };
 
                 srv.ext('onPreAuth', preAuthSandbox, { sandbox: 'plugin' });
@@ -2520,7 +2520,7 @@ describe('Server', () => {
                     {
                         path: '/view',
                         method: 'GET',
-                        handler: (request, responder) => responder.view('test', { message: options.message })
+                        handler: (request, h) => h.view('test', { message: options.message })
                     },
                     {
                         path: '/file',
@@ -2529,13 +2529,13 @@ describe('Server', () => {
                     }
                 ]);
 
-                const onRequest = (request, responder) => {
+                const onRequest = (request, h) => {
 
                     if (request.path === '/ext') {
-                        return responder.view('test', { message: 'grabbed' }).takeover();
+                        return h.view('test', { message: 'grabbed' }).takeover();
                     }
 
-                    return responder.continue;
+                    return h.continue;
                 };
 
                 srv.ext('onRequest', onRequest);
@@ -2589,7 +2589,7 @@ internals.plugins = {
             const settings = Hoek.clone(authOptions);
 
             return {
-                authenticate: (request, responder) => {
+                authenticate: (request, h) => {
 
                     const req = request.raw.req;
                     const authorization = req.headers.authorization;
@@ -2619,10 +2619,10 @@ internals.plugins = {
 
                     const { isValid, credentials } = settings.validateFunc(username, password);
                     if (!isValid) {
-                        return responder.unauthenticated(Boom.unauthorized('Bad username or password', 'Basic'), { credentials });
+                        return h.unauthenticated(Boom.unauthorized('Bad username or password', 'Basic'), { credentials });
                     }
 
-                    return responder.authenticated({ credentials });
+                    return h.authenticated({ credentials });
                 }
             };
         };
@@ -2664,22 +2664,22 @@ internals.plugins = {
 
         server.dependency('deps2', after);
 
-        const onRequest = (request, responder) => {
+        const onRequest = (request, h) => {
 
             request.app.deps = request.app.deps || '|';
             request.app.deps += '1|';
-            return responder.continue;
+            return h.continue;
         };
 
         server.ext('onRequest', onRequest, { after: 'deps3' });
     },
     deps2: function (server, options) {
 
-        const onRequest = (request, responder) => {
+        const onRequest = (request, h) => {
 
             request.app.deps = request.app.deps || '|';
             request.app.deps += '2|';
-            return responder.continue;
+            return h.continue;
         };
 
         server.ext('onRequest', onRequest, { after: 'deps3', before: 'deps1' });
@@ -2687,11 +2687,11 @@ internals.plugins = {
     },
     deps3: function (server, options) {
 
-        const onRequest = (request, responder) => {
+        const onRequest = (request, h) => {
 
             request.app.deps = request.app.deps || '|';
             request.app.deps += '3|';
-            return responder.continue;
+            return h.continue;
         };
 
         server.ext('onRequest', onRequest);

@@ -232,14 +232,14 @@ describe('Request', () => {
             server.route({ method: 'GET', path: '/', handler });
 
             let disconnected = 0;
-            const onRequest = (request, responder) => {
+            const onRequest = (request, h) => {
 
                 request.events.once('disconnect', () => {
 
                     ++disconnected;
                 });
 
-                return responder.continue;
+                return h.continue;
             };
 
             server.ext('onRequest', onRequest);
@@ -292,18 +292,18 @@ describe('Request', () => {
             });
 
             const team = new Teamwork.Team({ meetings: 1 });
-            const onRequest = (request, responder) => {
+            const onRequest = (request, h) => {
 
                 request.events.once('disconnect', () => team.attend());
-                return responder.continue;
+                return h.continue;
             };
 
             server.ext('onRequest', onRequest);
 
-            const onPreHandler = (request, responder) => {
+            const onPreHandler = (request, h) => {
 
                 client.destroy();
-                return responder.continue;
+                return h.continue;
             };
 
             server.ext('onPreHandler', onPreHandler);
@@ -381,12 +381,12 @@ describe('Request', () => {
 
             server.route({ method: 'GET', path: '/', handler: () => null });
 
-            const preHandler = async (request, responder) => {
+            const preHandler = async (request, h) => {
 
                 clientRequest.abort();
                 await Hoek.wait(10);
                 team.attend();
-                return responder.continue;
+                return h.continue;
             };
 
             server.ext('onPreHandler', preHandler);
@@ -418,9 +418,9 @@ describe('Request', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler });
 
-            const preResponse = (request, responder) => {
+            const preResponse = (request, h) => {
 
-                return responder.continue;
+                return h.continue;
             };
 
             server.ext('onPreResponse', preResponse);
@@ -496,10 +496,10 @@ describe('Request', () => {
 
     describe('_reply()', () => {
 
-        it('returns a responder with auto end in onPreResponse', async () => {
+        it('returns a reply with auto end in onPreResponse', async () => {
 
             const server = new Hapi.Server();
-            server.ext('onPreResponse', (request, responder) => responder.close);
+            server.ext('onPreResponse', (request, h) => h.close);
             server.route({ method: 'GET', path: '/', handler: () => null });
 
             const res = await server.inject('/');
@@ -643,10 +643,10 @@ describe('Request', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler: () => null });
 
-            const onRequest = (request, responder) => {
+            const onRequest = (request, h) => {
 
                 request.setMethod('POST');
-                return responder.wrap(request.method).takeover();
+                return h.wrap(request.method).takeover();
             };
 
             server.ext('onRequest', onRequest);
@@ -684,10 +684,10 @@ describe('Request', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler: () => null });
 
-            const onRequest = (request, responder) => {
+            const onRequest = (request, h) => {
 
                 request.setUrl(url);
-                return responder.wrap([request.url.href, request.path, request.query.param1].join('|')).takeover();
+                return h.wrap([request.url.href, request.path, request.query.param1].join('|')).takeover();
             };
 
             server.ext('onRequest', onRequest);
@@ -702,12 +702,12 @@ describe('Request', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler: () => null });
 
-            const onRequest = (request, responder) => {
+            const onRequest = (request, h) => {
 
                 const initialHost = request.info.host;
 
                 request.setUrl(url);
-                return responder.wrap([request.url.href, request.path, initialHost, request.info.host, request.info.hostname].join('|')).takeover();
+                return h.wrap([request.url.href, request.path, initialHost, request.info.host, request.info.hostname].join('|')).takeover();
             };
 
             server.ext('onRequest', onRequest);
@@ -722,12 +722,12 @@ describe('Request', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler: () => null });
 
-            const onRequest = (request, responder) => {
+            const onRequest = (request, h) => {
 
                 const initialHost = request.info.host;
 
                 request.setUrl(url);
-                return responder.wrap([request.url.href, request.path, initialHost, request.info.host, request.info.hostname].join('|')).takeover();
+                return h.wrap([request.url.href, request.path, initialHost, request.info.host, request.info.hostname].join('|')).takeover();
             };
 
             server.ext('onRequest', onRequest);
@@ -743,13 +743,13 @@ describe('Request', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler: () => null });
 
-            const onRequest = (request, responder) => {
+            const onRequest = (request, h) => {
 
                 const uri = request.raw.req.url;
                 const parsed = Url.parse(uri, true);
                 parsed.query.a = 2;
                 request.setUrl(parsed);
-                return responder.wrap([request.url.href, request.path, request.query.a].join('|')).takeover();
+                return h.wrap([request.url.href, request.path, request.query.a].join('|')).takeover();
             };
 
             server.ext('onRequest', onRequest);
@@ -769,10 +769,10 @@ describe('Request', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', handler: () => null });
 
-            const onRequest = (request, responder) => {
+            const onRequest = (request, h) => {
 
                 request.setUrl(url);
-                return responder.wrap([request.url.href, request.path, request.query.param1].join('|')).takeover();
+                return h.wrap([request.url.href, request.path, request.query.param1].join('|')).takeover();
             };
 
             server.ext('onRequest', onRequest);
@@ -784,10 +784,10 @@ describe('Request', () => {
         it('allows missing path', async () => {
 
             const server = new Hapi.Server();
-            const onRequest = (request, responder) => {
+            const onRequest = (request, h) => {
 
                 request.setUrl('');
-                return responder.continue;
+                return h.continue;
             };
 
             server.ext('onRequest', onRequest);
@@ -830,12 +830,12 @@ describe('Request', () => {
             let requestUrl;
 
             const server = new Hapi.Server();
-            const onRequest = (request, responder) => {
+            const onRequest = (request, h) => {
 
                 request.setUrl(passedUrl);
                 requestUrl = request.url;
 
-                return responder.continue;
+                return h.continue;
             };
 
             server.ext('onRequest', onRequest);
@@ -852,10 +852,10 @@ describe('Request', () => {
             const server = new Hapi.Server();
             server.route({ method: 'GET', path: '/', vhost: 'one', handler: () => 'success' });
 
-            const onRequest = (request, responder) => {
+            const onRequest = (request, h) => {
 
                 request.setUrl('http://one/');
-                return responder.continue;
+                return h.continue;
             };
 
             server.ext('onRequest', onRequest);
@@ -1270,9 +1270,9 @@ describe('Request', () => {
             const server = new Hapi.Server({ routes: { timeout: { server: 10 } } });
             server.route({ method: 'GET', path: '/', config: { handler } });
 
-            const postHandler = (request, responder) => {
+            const postHandler = (request, h) => {
 
-                return responder.continue;
+                return h.continue;
             };
 
             server.ext('onPostHandler', postHandler);
@@ -1285,10 +1285,10 @@ describe('Request', () => {
 
             const server = new Hapi.Server({ routes: { timeout: { server: 2 } } });
             server.route({ method: 'GET', path: '/', config: { handler: function () { } } });
-            const onRequest = async (request, responder) => {
+            const onRequest = async (request, h) => {
 
                 await Hoek.wait(10);
-                return responder.continue;
+                return h.continue;
             };
 
             server.ext('onRequest', onRequest);
@@ -1307,9 +1307,9 @@ describe('Request', () => {
 
             const server = new Hapi.Server({ routes: { timeout: { server: 10 } } });
             server.route({ method: 'GET', path: '/', config: { handler } });
-            const preResponse = (request, responder) => {
+            const preResponse = (request, h) => {
 
-                return responder.continue;
+                return h.continue;
             };
 
             server.ext('onPreResponse', preResponse);

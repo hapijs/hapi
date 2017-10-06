@@ -51,7 +51,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/b/{x}',
-                handler: (request, responder) => responder.wrap(request.params.x + request.query.a),
+                handler: (request, h) => h.wrap(request.params.x + request.query.a),
                 config: {
                     validate: {
                         query: {
@@ -105,9 +105,9 @@ describe('validation', () => {
             const scheme = function (authServer, options) {
 
                 return {
-                    authenticate: (request, responder) => {
+                    authenticate: (request, h) => {
 
-                        return responder.authenticated({ credentials: { name: 'john' } });
+                        return h.authenticated({ credentials: { name: 'john' } });
                     }
                 };
             };
@@ -524,9 +524,9 @@ describe('validation', () => {
                         query: {
                             a: Joi.string().min(2)
                         },
-                        failAction: function (request, responder, source, error) {
+                        failAction: function (request, h, source, error) {
 
-                            return responder.wrap('Got error in ' + source + ' where ' + error.output.payload.validation.keys[0] + ' is bad').code(400);
+                            return h.wrap('Got error in ' + source + ' where ' + error.output.payload.validation.keys[0] + ' is bad').code(400);
                         }
                     }
                 }
@@ -549,7 +549,7 @@ describe('validation', () => {
                         query: {
                             a: Joi.string().min(2)
                         },
-                        failAction: function (request, responder, source, error) {
+                        failAction: function (request, h, source, error) {
 
                             throw new Error('my bad');
                         }
@@ -1095,7 +1095,7 @@ describe('validation', () => {
                             204: false
                         }
                     },
-                    handler: (request, responder) => responder.wrap().code(204)
+                    handler: (request, h) => h.wrap().code(204)
                 }
             });
 
@@ -1402,7 +1402,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: (request, responder) => responder.file('./package.json'),
+                    handler: (request, h) => h.file('./package.json'),
                     response: {
                         schema: {
                             b: Joi.string()
@@ -1452,9 +1452,9 @@ describe('validation', () => {
                 config: {
                     handler: () => ({ a: '1' }),
                     response: {
-                        failAction: function (request, responder, error) {
+                        failAction: function (request, h, error) {
 
-                            return responder.wrap('Validation Error Occurred').code(400);
+                            return h.wrap('Validation Error Occurred').code(400);
                         },
                         schema: {
                             b: Joi.string()

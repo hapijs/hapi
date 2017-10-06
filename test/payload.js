@@ -162,7 +162,7 @@ describe('payload', () => {
     it('peeks at unparsed data', async () => {
 
         let data = null;
-        const ext = (request, responder) => {
+        const ext = (request, h) => {
 
             const chunks = [];
             request.events.on('peek', (chunk, encoding) => {
@@ -175,7 +175,7 @@ describe('payload', () => {
                 data = Buffer.concat(chunks);
             });
 
-            return responder.continue;
+            return h.continue;
         };
 
         const server = new Hapi.Server();
