@@ -1708,7 +1708,7 @@ describe('Server', () => {
             await server.start();
 
             await server.inject('/');
-            expect(server.load.eventLoopDelay).to.be.below(6);
+            expect(server.load.eventLoopDelay).to.be.below(7);
 
             await Hoek.wait(0);
 

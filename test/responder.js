@@ -90,7 +90,7 @@ describe('Reply', () => {
             expect(res.headers['content-type']).to.not.exist();
         });
 
-        it('returns a buffer responder', async () => {
+        it('returns a buffer response', async () => {
 
             const handler = (request, responder) => {
 
@@ -135,7 +135,7 @@ describe('Reply', () => {
             expect(res.payload).to.equal('false');
         });
 
-        it('returns an error responder', async () => {
+        it('returns an error response', async () => {
 
             const handler = (request, responder) => {
 
@@ -150,7 +150,7 @@ describe('Reply', () => {
             expect(res.result).to.exist();
         });
 
-        it('returns an empty responder', async () => {
+        it('returns an empty response', async () => {
 
             const handler = (request, responder) => {
 
@@ -166,7 +166,7 @@ describe('Reply', () => {
             expect(res.result).to.equal(null);
         });
 
-        it('returns a stream responder', async () => {
+        it('returns a stream response', async () => {
 
             const TestStream = class extends Stream.Readable {
 
@@ -203,7 +203,7 @@ describe('Reply', () => {
         });
     });
 
-    it('errors on non-readable stream responder', async () => {
+    it('errors on non-readable stream response', async () => {
 
         const streamHandler = (request, responder) => {
 
@@ -243,7 +243,7 @@ describe('Reply', () => {
         expect(updates).to.equal(2);
     });
 
-    it('errors on an http client stream responder', async () => {
+    it('errors on an http client stream response', async () => {
 
         const handler = (request, responder) => {
 
@@ -264,7 +264,7 @@ describe('Reply', () => {
         expect(res.statusCode).to.equal(500);
     });
 
-    it('errors on objectMode stream responder', async () => {
+    it('errors on objectMode stream response', async () => {
 
         const TestStream = class extends Stream.Readable {
 
@@ -300,7 +300,7 @@ describe('Reply', () => {
 
     describe('close()', () => {
 
-        it('returns a responder with manual end', async () => {
+        it('returns a response with manual end', async () => {
 
             const handler = (request, responder) => {
 
@@ -315,7 +315,7 @@ describe('Reply', () => {
             expect(res.result).to.equal('');
         });
 
-        it('returns a responder with auto end', async () => {
+        it('returns a response with auto end', async () => {
 
             const handler = (request, responder) => {
 
@@ -332,7 +332,7 @@ describe('Reply', () => {
 
     describe('continue()', () => {
 
-        it('sets empty responder on continue in handler', async () => {
+        it('sets empty response on continue in handler', async () => {
 
             const handler = (request, responder) => {
 
