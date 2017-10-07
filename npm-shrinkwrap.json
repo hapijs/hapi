@@ -1,6 +1,6 @@
 {
   "name": "hapi",
-  "version": "17.0.0-rc5",
+  "version": "17.0.0-rc6",
   "lockfileVersion": 1,
   "dependencies": {
     "accept": {
