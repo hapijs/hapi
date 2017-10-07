@@ -39,7 +39,7 @@ describe('Toolkit', () => {
                 server.route({
                     method: 'GET',
                     path: '/',
-                    handler: (request, h) => h.wrap(h.abc)
+                    handler: (request, h) => h.response(h.abc)
                 });
 
                 const res = await server.inject('/');
@@ -147,12 +147,12 @@ describe('Toolkit', () => {
             });
         });
 
-        describe('wrap()', () => {
+        describe('response()', () => {
 
             it('returns null', async () => {
 
                 const server = new Hapi.Server();
-                server.route({ method: 'GET', path: '/', handler: (request, h) => h.wrap() });
+                server.route({ method: 'GET', path: '/', handler: (request, h) => h.response() });
                 const res = await server.inject('/');
                 expect(res.statusCode).to.equal(200);
                 expect(res.result).to.equal(null);
@@ -164,7 +164,7 @@ describe('Toolkit', () => {
 
                 const handler = (request, h) => {
 
-                    return h.wrap(new Buffer('Tada1')).code(299);
+                    return h.response(new Buffer('Tada1')).code(299);
                 };
 
                 const server = new Hapi.Server();
@@ -180,7 +180,7 @@ describe('Toolkit', () => {
 
                 const handler = (request, h) => {
 
-                    return h.wrap({ a: 1, b: 2 });
+                    return h.response({ a: 1, b: 2 });
                 };
 
                 const server = new Hapi.Server();
@@ -195,7 +195,7 @@ describe('Toolkit', () => {
 
                 const handler = (request, h) => {
 
-                    return h.wrap(false);
+                    return h.response(false);
                 };
 
                 const server = new Hapi.Server();
@@ -209,7 +209,7 @@ describe('Toolkit', () => {
 
                 const handler = (request, h) => {
 
-                    return h.wrap(new Error('boom'));
+                    return h.response(new Error('boom'));
                 };
 
                 const server = new Hapi.Server({ debug: false });
@@ -224,7 +224,7 @@ describe('Toolkit', () => {
 
                 const handler = (request, h) => {
 
-                    return h.wrap().code(299);
+                    return h.response().code(299);
                 };
 
                 const server = new Hapi.Server();
@@ -255,7 +255,7 @@ describe('Toolkit', () => {
 
                 const handler = (request, h) => {
 
-                    return h.wrap(new TestStream()).ttl(2000);
+                    return h.response(new TestStream()).ttl(2000);
                 };
 
                 const server = new Hapi.Server();
@@ -387,7 +387,7 @@ describe('Toolkit', () => {
                 server.ext('onPreResponse', (request, h) => {
 
                     if (request.response.isBoom) {
-                        return h.wrap('2');
+                        return h.response('2');
                     }
 
                     return h.continue;
@@ -404,7 +404,7 @@ describe('Toolkit', () => {
                     path: '/',
                     handler: (request, h) => {
 
-                        return h.wrap(request.query.x ? new Error() : '1');
+                        return h.response(request.query.x ? new Error() : '1');
                     }
                 });
 
@@ -449,7 +449,7 @@ describe('Toolkit', () => {
                         }
 
                         ++count;
-                        return h.wrap('ok');
+                        return h.response('ok');
                     }
                 });
 
@@ -483,7 +483,7 @@ describe('Toolkit', () => {
                             }
 
                             ++count;
-                            return h.wrap('ok');
+                            return h.response('ok');
                         }
                     }
                 });
@@ -535,7 +535,7 @@ describe('Toolkit', () => {
                     handler: (request, h) => {
 
                         if (!h.entity({ etag: 'abc' })) {
-                            return h.wrap('ok').etag('def');
+                            return h.response('ok').etag('def');
                         }
                     }
                 });

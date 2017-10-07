@@ -29,7 +29,7 @@ describe('handler', () => {
             const server = Hapi.server();
             server.ext('onPostHandler', () => 'else');
             server.route({ method: 'GET', path: '/', handler: (request, h) => 'something' });
-            server.route({ method: 'GET', path: '/takeover', handler: (request, h) => h.wrap('something').takeover() });
+            server.route({ method: 'GET', path: '/takeover', handler: (request, h) => h.response('something').takeover() });
 
             const res1 = await server.inject('/');
             expect(res1.result).to.equal('else');
@@ -149,7 +149,7 @@ describe('handler', () => {
 
             const pre1 = (request, h) => {
 
-                return h.wrap('Hello').code(444);
+                return h.response('Hello').code(444);
             };
 
             const pre2 = (request) => {
@@ -244,7 +244,7 @@ describe('handler', () => {
             const pre3 = async (request, h) => {
 
                 await Hoek.wait(0);
-                return h.wrap(' ').takeover();
+                return h.response(' ').takeover();
             };
 
             const pre4 = () => 'World';
@@ -306,7 +306,7 @@ describe('handler', () => {
 
             const pre = (request, h) => {
 
-                return h.wrap('Hello').code(444);
+                return h.response('Hello').code(444);
             };
 
             const server = new Hapi.Server();

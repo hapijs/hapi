@@ -212,7 +212,7 @@ describe('CORS', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('ok').header('access-control-expose-headers', 'something');
+                return h.response('ok').header('access-control-expose-headers', 'something');
             };
 
             const server = new Hapi.Server({ routes: { cors: { additionalExposedHeaders: ['xyz'] } } });
@@ -241,7 +241,7 @@ describe('CORS', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('Tada').header('vary', 'x-test');
+                return h.response('Tada').header('vary', 'x-test');
             };
 
             const server = new Hapi.Server({ compression: { minBytes: 1 }, routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } } });
@@ -259,7 +259,7 @@ describe('CORS', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('Tada').header('vary', 'x-test');
+                return h.response('Tada').header('vary', 'x-test');
             };
 
             const server = new Hapi.Server({ compression: { minBytes: 1 }, routes: { cors: { origin: ['*'] } } });
@@ -277,7 +277,7 @@ describe('CORS', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('Tada').header('vary', 'x-test');
+                return h.response('Tada').header('vary', 'x-test');
             };
 
             const server = new Hapi.Server({ compression: { minBytes: 1 }, routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.a.com'] } } });
@@ -295,7 +295,7 @@ describe('CORS', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('Tada').header('vary', 'x-test', true);
+                return h.response('Tada').header('vary', 'x-test', true);
             };
 
             const server = new Hapi.Server({ compression: { minBytes: 1 }, routes: { cors: { origin: ['http://test.example.com', 'http://www.example.com', 'http://*.b.com', 'http://*.a.com'] } } });

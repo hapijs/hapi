@@ -658,7 +658,7 @@ describe('Request', () => {
             const onRequest = (request, h) => {
 
                 request.setMethod('POST');
-                return h.wrap(request.method).takeover();
+                return h.response(request.method).takeover();
             };
 
             server.ext('onRequest', onRequest);
@@ -699,7 +699,7 @@ describe('Request', () => {
             const onRequest = (request, h) => {
 
                 request.setUrl(url);
-                return h.wrap([request.url.href, request.path, request.query.param1].join('|')).takeover();
+                return h.response([request.url.href, request.path, request.query.param1].join('|')).takeover();
             };
 
             server.ext('onRequest', onRequest);
@@ -719,7 +719,7 @@ describe('Request', () => {
                 const initialHost = request.info.host;
 
                 request.setUrl(url);
-                return h.wrap([request.url.href, request.path, initialHost, request.info.host, request.info.hostname].join('|')).takeover();
+                return h.response([request.url.href, request.path, initialHost, request.info.host, request.info.hostname].join('|')).takeover();
             };
 
             server.ext('onRequest', onRequest);
@@ -739,7 +739,7 @@ describe('Request', () => {
                 const initialHost = request.info.host;
 
                 request.setUrl(url);
-                return h.wrap([request.url.href, request.path, initialHost, request.info.host, request.info.hostname].join('|')).takeover();
+                return h.response([request.url.href, request.path, initialHost, request.info.host, request.info.hostname].join('|')).takeover();
             };
 
             server.ext('onRequest', onRequest);
@@ -761,7 +761,7 @@ describe('Request', () => {
                 const parsed = Url.parse(uri, true);
                 parsed.query.a = 2;
                 request.setUrl(parsed);
-                return h.wrap([request.url.href, request.path, request.query.a].join('|')).takeover();
+                return h.response([request.url.href, request.path, request.query.a].join('|')).takeover();
             };
 
             server.ext('onRequest', onRequest);
@@ -784,7 +784,7 @@ describe('Request', () => {
             const onRequest = (request, h) => {
 
                 request.setUrl(url);
-                return h.wrap([request.url.href, request.path, request.query.param1].join('|')).takeover();
+                return h.response([request.url.href, request.path, request.query.param1].join('|')).takeover();
             };
 
             server.ext('onRequest', onRequest);

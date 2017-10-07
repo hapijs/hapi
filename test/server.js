@@ -1067,7 +1067,7 @@ describe('Server', () => {
 
             const success = function () {
 
-                return this.wrap({ status: 'ok' });
+                return this.response({ status: 'ok' });
             };
 
             server.decorate('toolkit', 'success', success);

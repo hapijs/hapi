@@ -132,7 +132,7 @@ describe('Headers', () => {
         it('leaves existing cache-control header', async () => {
 
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: (request, h) => h.wrap('text').code(400).header('cache-control', 'some value') });
+            server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('text').code(400).header('cache-control', 'some value') });
 
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(400);
@@ -142,7 +142,7 @@ describe('Headers', () => {
         it('sets cache-control header from ttl without policy', async () => {
 
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: (request, h) => h.wrap('text').ttl(10000) });
+            server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('text').ttl(10000) });
 
             const res = await server.inject('/');
             expect(res.headers['cache-control']).to.equal('max-age=10, must-revalidate');
@@ -151,7 +151,7 @@ describe('Headers', () => {
         it('sets cache-control header from ttl with disabled policy', async () => {
 
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', config: { cache: false, handler: (request, h) => h.wrap('text').ttl(10000) } });
+            server.route({ method: 'GET', path: '/', config: { cache: false, handler: (request, h) => h.response('text').ttl(10000) } });
 
             const res = await server.inject('/');
             expect(res.headers['cache-control']).to.equal('max-age=10, must-revalidate');
@@ -160,7 +160,7 @@ describe('Headers', () => {
         it('leaves existing cache-control header (ttl)', async () => {
 
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: (request, h) => h.wrap('text').ttl(1000).header('cache-control', 'none') });
+            server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('text').ttl(1000).header('cache-control', 'none') });
 
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
@@ -445,7 +445,7 @@ describe('Headers', () => {
         it('does not modify content-type header when charset manually set', async () => {
 
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: (request, h) => h.wrap('text').type('text/plain; charset=ISO-8859-1') });
+            server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('text').type('text/plain; charset=ISO-8859-1') });
 
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
@@ -455,7 +455,7 @@ describe('Headers', () => {
         it('does not modify content-type header when charset is unset', async () => {
 
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: (request, h) => h.wrap('text').type('text/plain').charset() });
+            server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('text').type('text/plain').charset() });
 
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
@@ -465,7 +465,7 @@ describe('Headers', () => {
         it('does not modify content-type header when charset is unset (default type)', async () => {
 
             const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: (request, h) => h.wrap('text').charset() });
+            server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('text').charset() });
 
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);

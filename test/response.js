@@ -35,7 +35,7 @@ describe('Response', () => {
 
         const handler = (request, h) => {
 
-            return h.wrap('text')
+            return h.response('text')
                 .type('text/plain')
                 .charset('ISO-8859-1')
                 .ttl(1000)
@@ -82,7 +82,7 @@ describe('Response', () => {
 
         const handler = (request, h) => {
 
-            return h.wrap('text').header('Content-Type', 'text/plain; something=something;');
+            return h.response('text').header('Content-Type', 'text/plain; something=something;');
         };
 
         const server = new Hapi.Server();
@@ -135,7 +135,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('ok').header('set-cookie', 'A').header('set-cookie', 'B', { append: true });
+                return h.response('ok').header('set-cookie', 'A').header('set-cookie', 'B', { append: true });
             };
 
             const server = new Hapi.Server();
@@ -149,7 +149,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('ok').header('set-cookie', null);
+                return h.response('ok').header('set-cookie', null);
             };
 
             const server = new Hapi.Server();
@@ -163,7 +163,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('ok').header('set-cookie', decodeURIComponent('%E0%B4%8Aset-cookie:%20foo=bar'));
+                return h.response('ok').header('set-cookie', decodeURIComponent('%E0%B4%8Aset-cookie:%20foo=bar'));
             };
 
             const server = new Hapi.Server();
@@ -177,7 +177,7 @@ describe('Response', () => {
             const handler = (request, h) => {
 
                 const badName = decodeURIComponent('%E0%B4%8Aset-cookie:%20foo=bar');
-                return h.wrap('ok').header(badName, 'value');
+                return h.response('ok').header(badName, 'value');
             };
 
             const server = new Hapi.Server();
@@ -190,7 +190,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('ok').header('set-cookie', new Buffer(decodeURIComponent('%E0%B4%8Aset-cookie:%20foo=bar')));
+                return h.response('ok').header('set-cookie', new Buffer(decodeURIComponent('%E0%B4%8Aset-cookie:%20foo=bar')));
             };
 
             const server = new Hapi.Server();
@@ -206,7 +206,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap({ a: 1 }).created('/special');
+                return h.response({ a: 1 }).created('/special');
             };
 
             const server = new Hapi.Server();
@@ -223,7 +223,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap().created('/something');
+                return h.response().created('/something');
             };
 
             const server = new Hapi.Server({ debug: false });
@@ -240,7 +240,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('text').state(';sid', 'abcdefg123456');
+                return h.response('text').state(';sid', 'abcdefg123456');
             };
 
             const server = new Hapi.Server({ debug: false });
@@ -260,7 +260,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap().unstate('session', { path: '/unset', isSecure: true });
+                return h.response().unstate('session', { path: '/unset', isSecure: true });
             };
 
             const server = new Hapi.Server();
@@ -278,7 +278,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('ok').vary('x');
+                return h.response('ok').vary('x');
             };
 
             const server = new Hapi.Server({ compression: { minBytes: 1 } });
@@ -294,7 +294,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('ok').vary('x').vary('y');
+                return h.response('ok').vary('x').vary('y');
             };
 
             const server = new Hapi.Server({ compression: { minBytes: 1 } });
@@ -310,7 +310,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('ok').vary('*');
+                return h.response('ok').vary('*');
             };
 
             const server = new Hapi.Server();
@@ -326,7 +326,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('ok').vary('*').vary('x');
+                return h.response('ok').vary('*').vary('x');
             };
 
             const server = new Hapi.Server();
@@ -342,7 +342,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('ok').vary('x').vary('*');
+                return h.response('ok').vary('x').vary('*');
             };
 
             const server = new Hapi.Server();
@@ -358,7 +358,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('ok').vary('x').vary('xyz').vary('xy').vary('x');
+                return h.response('ok').vary('x').vary('xyz').vary('xy').vary('x');
             };
 
             const server = new Hapi.Server({ compression: { minBytes: 1 } });
@@ -377,7 +377,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('ok').etag('abc');
+                return h.response('ok').etag('abc');
             };
 
             const server = new Hapi.Server();
@@ -391,7 +391,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('ok').etag('abc', { weak: true });
+                return h.response('ok').etag('abc', { weak: true });
             };
 
             const server = new Hapi.Server();
@@ -405,7 +405,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                const response = h.wrap('ok').etag('abc').vary('x');
+                const response = h.response('ok').etag('abc').vary('x');
                 delete response.headers.etag;
                 return response;
             };
@@ -421,7 +421,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('ok').etag('abc', { vary: false }).vary('x');
+                return h.response('ok').etag('abc', { vary: false }).vary('x');
             };
 
             const server = new Hapi.Server({ compression: { minBytes: 1 } });
@@ -441,7 +441,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('ok').etag('abc').header('last-modified', mdate);
+                return h.response('ok').etag('abc').header('last-modified', mdate);
             };
 
             const server = new Hapi.Server({ compression: { minBytes: 1 } });
@@ -516,7 +516,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap(new TestStream()).passThrough(false);
+                return h.response(new TestStream()).passThrough(false);
             };
 
             const server = new Hapi.Server();
@@ -589,7 +589,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap(new TestStream()).header('xcustom', 'other value').state('b', '2');
+                return h.response(new TestStream()).header('xcustom', 'other value').state('b', '2');
             };
 
             const server = new Hapi.Server();
@@ -608,7 +608,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('x').replacer(['x']);
+                return h.response('x').replacer(['x']);
             };
 
             const server = new Hapi.Server({ debug: false });
@@ -624,7 +624,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('x').spaces(2);
+                return h.response('x').spaces(2);
             };
 
             const server = new Hapi.Server({ debug: false });
@@ -640,7 +640,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('x').suffix('x');
+                return h.response('x').suffix('x');
             };
 
             const server = new Hapi.Server({ debug: false });
@@ -656,7 +656,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap({ x: 'x' }).escape(true);
+                return h.response({ x: 'x' }).escape(true);
             };
 
             const server = new Hapi.Server({ debug: false });
@@ -669,7 +669,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('x').escape('x');
+                return h.response('x').escape('x');
             };
 
             const server = new Hapi.Server({ debug: false });
@@ -703,7 +703,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('text').charset('abc');
+                return h.response('text').charset('abc');
             };
 
             const server = new Hapi.Server();
@@ -771,7 +771,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('Please wait while we send your elsewhere').redirect('/example');
+                return h.response('Please wait while we send your elsewhere').redirect('/example');
             };
 
             const server = new Hapi.Server();
@@ -787,7 +787,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('We moved!').redirect().location('/examplex');
+                return h.response('We moved!').redirect().location('/examplex');
             };
 
             const server = new Hapi.Server();
@@ -804,7 +804,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap().redirect('example').permanent().rewritable();
+                return h.response().redirect('example').permanent().rewritable();
             };
 
             const server = new Hapi.Server();
@@ -818,7 +818,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap().redirect('example').temporary().rewritable();
+                return h.response().redirect('example').temporary().rewritable();
             };
 
             const server = new Hapi.Server();
@@ -832,7 +832,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap().redirect('example').temporary().rewritable(false);
+                return h.response().redirect('example').temporary().rewritable(false);
             };
 
             const server = new Hapi.Server();
@@ -846,7 +846,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap().redirect('example').permanent().rewritable(false);
+                return h.response().redirect('example').permanent().rewritable(false);
             };
 
             const server = new Hapi.Server();
@@ -860,7 +860,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap().redirect('example').rewritable().permanent();
+                return h.response().redirect('example').rewritable().permanent();
             };
 
             const server = new Hapi.Server();
@@ -874,7 +874,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap().redirect('example').rewritable().temporary();
+                return h.response().redirect('example').rewritable().temporary();
             };
 
             const server = new Hapi.Server();
@@ -888,7 +888,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap().redirect('example').rewritable(false).temporary();
+                return h.response().redirect('example').rewritable(false).temporary();
             };
 
             const server = new Hapi.Server();
@@ -902,7 +902,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap().redirect('example').rewritable(false).permanent();
+                return h.response().redirect('example').rewritable(false).permanent();
             };
 
             const server = new Hapi.Server();
@@ -916,7 +916,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap().redirect('example').permanent().temporary();
+                return h.response().redirect('example').permanent().temporary();
             };
 
             const server = new Hapi.Server();
@@ -970,7 +970,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap({ a: 1, b: 2, '<': '&' }).type('application/x-test').spaces(2).replacer(['a']).suffix('\n').escape(false);
+                return h.response({ a: 1, b: 2, '<': '&' }).type('application/x-test').spaces(2).replacer(['a']).suffix('\n').escape(false);
             };
 
             const server = new Hapi.Server();
@@ -985,7 +985,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap({ a: 1, b: 2, '<': '&' }).type('application/x-test').escape(false).replacer(['a']).suffix('\n').spaces(2);
+                return h.response({ a: 1, b: 2, '<': '&' }).type('application/x-test').escape(false).replacer(['a']).suffix('\n').spaces(2);
             };
 
             const server = new Hapi.Server();
@@ -1019,7 +1019,7 @@ describe('Response', () => {
                 const stream = new Stream();
                 stream.writable = true;
 
-                return h.wrap(stream);
+                return h.response(stream);
             };
 
             const writableHandler = (request, h) => {
@@ -1027,7 +1027,7 @@ describe('Response', () => {
                 const writable = new Stream.Writable();
                 writable._write = function () { };
 
-                return h.wrap(writable);
+                return h.response(writable);
             };
 
             const server = new Hapi.Server({ debug: false });
@@ -1056,12 +1056,12 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('just a string');
+                return h.response('just a string');
             };
 
             const streamHandler = (request, h) => {
 
-                return h.wrap(Http.get(request.server.info + '/'));
+                return h.response(Http.get(request.server.info + '/'));
             };
 
             const server = new Hapi.Server({ debug: false });
@@ -1097,7 +1097,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap(new TestStream());
+                return h.response(new TestStream());
             };
 
             const server = new Hapi.Server({ debug: false });
@@ -1145,7 +1145,7 @@ describe('Response', () => {
                 path: '/',
                 handler: (request, h) => {
 
-                    const response = h.wrap('1234567890');
+                    const response = h.response('1234567890');
 
                     response.events.on('peek', (chunk, encoding) => {
 

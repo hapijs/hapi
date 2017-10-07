@@ -62,7 +62,7 @@ describe('authentication', () => {
         const server = new Hapi.Server();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
-        server.route({ method: 'GET', path: '/', handler: (request, h) => h.wrap('ok').ttl(1000) });
+        server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('ok').ttl(1000) });
 
         const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
         expect(res.statusCode).to.equal(200);
@@ -1144,7 +1144,7 @@ describe('authentication', () => {
             server.auth.scheme('test', (srv, options) => {
 
                 return {
-                    authenticate: (request, h) => h.wrap('Redirecting ...').redirect('/test')
+                    authenticate: (request, h) => h.response('Redirecting ...').redirect('/test')
                 };
             });
 

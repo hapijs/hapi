@@ -1207,7 +1207,7 @@ describe('Core', () => {
             const server = new Hapi.Server();
             const onRequest = (request, h) => {
 
-                return h.wrap().redirect('/elsewhere').takeover();
+                return h.response().redirect('/elsewhere').takeover();
             };
 
             server.ext('onRequest', onRequest);
@@ -1238,7 +1238,7 @@ describe('Core', () => {
 
             const preResponse1 = (request, h) => {
 
-                return h.wrap(1).takeover();
+                return h.response(1).takeover();
             };
 
             server.ext('onPreResponse', preResponse1);
@@ -1362,7 +1362,7 @@ describe('Core', () => {
 
                 const preResponse = (request, h) => {
 
-                    return h.wrap(request.response.output.statusCode).takeover();
+                    return h.response(request.response.output.statusCode).takeover();
                 };
 
                 server.ext('onPreResponse', preResponse);
@@ -1513,7 +1513,7 @@ describe('Core', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('ok').etag('test').code(205);
+                return h.response('ok').etag('test').code(205);
             };
 
             const server = new Hapi.Server();
