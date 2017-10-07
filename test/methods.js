@@ -675,20 +675,55 @@ describe('Methods', () => {
                 server.methods.add(1, 5);
             }).to.throw('boom');
         });
+
+        it('throws an error if unknown keys are present when making a server method using an object', async () => {
+
+            const fn = function () { };
+            const server = new Hapi.Server();
+
+            expect(() => {
+
+                server.method({
+                    name: 'fn',
+                    method: fn,
+                    cache: {}
+                });
+            }).to.throw();
+        });
     });
 
-    it('throws an error if unknown keys are present when making a server method using an object', async () => {
+    describe('generateKey()', () => {
 
-        const fn = function () { };
-        const server = new Hapi.Server();
+        it('handles string argument type', async () => {
 
-        expect(() => {
+            const method = (id) => id;
+            const server = new Hapi.Server();
+            server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
-            server.method({
-                name: 'fn',
-                method: fn,
-                cache: {}
-            });
-        }).to.throw();
+            await server.initialize();
+            const { value } = await server.methods.test('x');
+            expect(value).to.equal('x');
+        });
+
+        it('handles multiple arguments', async () => {
+
+            const method = (a, b, c) => a + b + c;
+            const server = new Hapi.Server();
+            server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
+
+            await server.initialize();
+            const { value } = await server.methods.test('a', 'b', 'c');
+            expect(value).to.equal('abc');
+        });
+
+        it('errors on invalid argument type', async () => {
+
+            const method = (id) => id;
+            const server = new Hapi.Server();
+            server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
+
+            await server.initialize();
+            await expect(server.methods.test({})).to.reject('Invalid method key when invoking: test');
+        });
     });
 });

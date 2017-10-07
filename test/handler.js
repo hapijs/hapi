@@ -2,16 +2,11 @@
 
 // Load modules
 
-const Path = require('path');
-
 const Boom = require('boom');
 const Code = require('code');
-const Handlebars = require('handlebars');
 const Hapi = require('..');
 const Hoek = require('hoek');
-const Inert = require('inert');
 const Lab = require('lab');
-const Vision = require('vision');
 
 
 // Declare internals
@@ -29,6 +24,20 @@ describe('handler', () => {
 
     describe('execute()', () => {
 
+        it('bypasses onPostHandler when handler calls takeover()', async () => {
+
+            const server = Hapi.server();
+            server.ext('onPostHandler', () => 'else');
+            server.route({ method: 'GET', path: '/', handler: (request, h) => 'something' });
+            server.route({ method: 'GET', path: '/takeover', handler: (request, h) => h.wrap('something').takeover() });
+
+            const res1 = await server.inject('/');
+            expect(res1.result).to.equal('else');
+
+            const res2 = await server.inject('/takeover');
+            expect(res2.result).to.equal('something');
+        });
+
         it('returns 500 on handler exception (same tick)', async () => {
 
             const server = new Hapi.Server({ debug: false });
@@ -45,7 +54,7 @@ describe('handler', () => {
             expect(res.statusCode).to.equal(500);
         });
 
-        it('returns 500 on handler exception (next tick await)', { parallel: false }, async () => {
+        it('returns 500 on handler exception (next tick await)', async () => {
 
             const handler = async (request) => {
 
@@ -115,63 +124,22 @@ describe('handler', () => {
             expect(res.result).to.equal(item.x);
         });
 
-        it('wraps unhandled promise rejections in an error if needed', async () => {
+        it('returns 500 on ext method exception (same tick)', async () => {
 
             const server = new Hapi.Server({ debug: false });
 
-            const handler = (request) => {
+            const onRequest = function () {
 
-                return Promise.reject('this should be wrapped in an error');
+                const a = null;
+                a.b.c;
             };
 
-            server.route({ method: 'GET', path: '/', handler });
+            server.ext('onRequest', onRequest);
 
-            const res = await server.inject('/');
+            server.route({ method: 'GET', path: '/domain', handler: () => 'neven gonna happen' });
+
+            const res = await server.inject('/domain');
             expect(res.statusCode).to.equal(500);
-            expect(res.result.error).to.equal('Internal Server Error');
-        });
-    });
-
-    describe('register()', () => {
-
-        it('returns a file', async () => {
-
-            const server = new Hapi.Server({ routes: { files: { relativeTo: Path.join(__dirname, '../') } } });
-            await server.register(Inert);
-            const handler = (request, h) => {
-
-                return h.file('./package.json').code(499);
-            };
-
-            server.route({ method: 'GET', path: '/file', handler });
-
-            const res = await server.inject('/file');
-            expect(res.statusCode).to.equal(499);
-            expect(res.payload).to.contain('hapi');
-            expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
-            expect(res.headers['content-length']).to.exist();
-            expect(res.headers['content-disposition']).to.not.exist();
-        });
-
-        it('returns a view', async () => {
-
-            const server = new Hapi.Server();
-            await server.register(Vision);
-
-            server.views({
-                engines: { 'html': Handlebars },
-                relativeTo: Path.join(__dirname, '/templates/plugin')
-            });
-
-            const handler = (request, h) => {
-
-                return h.view('test', { message: 'steve' });
-            };
-
-            server.route({ method: 'GET', path: '/', handler });
-
-            const res = await server.inject('/');
-            expect(res.result).to.equal('<h1>steve</h1>');
         });
     });
 
@@ -199,7 +167,7 @@ describe('handler', () => {
 
             const pre5 = (request) => {
 
-                return request.pre.m2 + '!';
+                return request.pre.m2 + (request.pre.m0 === null ? '!' : 'x');
             };
 
             const server = new Hapi.Server();
@@ -208,6 +176,10 @@ describe('handler', () => {
                 path: '/',
                 config: {
                     pre: [
+                        {
+                            method: (request, h) => h.continue,
+                            assign: 'm0'
+                        },
                         [
                             { method: pre1, assign: 'm1' },
                             { method: pre3, assign: 'm3' },
@@ -608,27 +580,6 @@ describe('handler', () => {
 
                 server.handler('test', handler);
             }).to.throw('Handler defaults property must be an object or function');
-        });
-    });
-
-    describe('invoke()', () => {
-
-        it('returns 500 on ext method exception (same tick)', async () => {
-
-            const server = new Hapi.Server({ debug: false });
-
-            const onRequest = function () {
-
-                const a = null;
-                a.b.c;
-            };
-
-            server.ext('onRequest', onRequest);
-
-            server.route({ method: 'GET', path: '/domain', handler: () => 'neven gonna happen' });
-
-            const res = await server.inject('/domain');
-            expect(res.statusCode).to.equal(500);
         });
     });
 });

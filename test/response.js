@@ -3,12 +3,14 @@
 // Load modules
 
 const Events = require('events');
+const Http = require('http');
 const Path = require('path');
 const Stream = require('stream');
 
 const Code = require('code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
+const Hoek = require('hoek');
 const Inert = require('inert');
 const Lab = require('lab');
 const Vision = require('vision');
@@ -1009,6 +1011,126 @@ describe('Response', () => {
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
         });
+
+        it('errors on non-readable stream response', async () => {
+
+            const streamHandler = (request, h) => {
+
+                const stream = new Stream();
+                stream.writable = true;
+
+                return h.wrap(stream);
+            };
+
+            const writableHandler = (request, h) => {
+
+                const writable = new Stream.Writable();
+                writable._write = function () { };
+
+                return h.wrap(writable);
+            };
+
+            const server = new Hapi.Server({ debug: false });
+            server.route({ method: 'GET', path: '/stream', handler: streamHandler });
+            server.route({ method: 'GET', path: '/writable', handler: writableHandler });
+
+            let updates = 0;
+            server.events.on('request-error', (request, err) => {
+
+                expect(err).to.be.an.error('Stream must have a streams2 readable interface');
+                ++updates;
+            });
+
+            await server.initialize();
+            const res1 = await server.inject('/stream');
+
+            expect(res1.statusCode).to.equal(500);
+            const res2 = await server.inject('/writable');
+
+            expect(res2.statusCode).to.equal(500);
+            await Hoek.wait(10);
+            expect(updates).to.equal(2);
+        });
+
+        it('errors on an http client stream response', async () => {
+
+            const handler = (request, h) => {
+
+                return h.wrap('just a string');
+            };
+
+            const streamHandler = (request, h) => {
+
+                return h.wrap(Http.get(request.server.info + '/'));
+            };
+
+            const server = new Hapi.Server({ debug: false });
+            server.route({ method: 'GET', path: '/', handler });
+            server.route({ method: 'GET', path: '/stream', handler: streamHandler });
+
+            await server.initialize();
+            const res = await server.inject('/stream');
+            expect(res.statusCode).to.equal(500);
+        });
+
+        it('errors on objectMode stream response', async () => {
+
+            const TestStream = class extends Stream.Readable {
+
+                constructor() {
+
+                    super({ objectMode: true });
+                }
+
+                _read(size) {
+
+                    if (this.isDone) {
+                        return;
+                    }
+                    this.isDone = true;
+
+                    this.push({ x: 1 });
+                    this.push({ y: 1 });
+                    this.push(null);
+                }
+            };
+
+            const handler = (request, h) => {
+
+                return h.wrap(new TestStream());
+            };
+
+            const server = new Hapi.Server({ debug: false });
+            server.route({ method: 'GET', path: '/', handler });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+        });
+    });
+
+    describe('_prepare()', () => {
+
+        it('boomifies response prepare error', async () => {
+
+            const server = Hapi.server();
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: (request) => {
+
+                    const prepare = () => {
+
+                        throw new Error('boom');
+                    };
+
+                    return request.generateResponse('nothing', { variety: 'special', marshal: null, prepare, close: null });
+                }
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+        });
     });
 
     describe('_tap()', () => {
@@ -1138,6 +1260,18 @@ describe('Response', () => {
 
             source.pipe(peek).pipe(target);
             await finish;
+        });
+    });
+
+    describe('Payload', () => {
+
+        it('streams empty string', async () => {
+
+            const server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler: () => '' });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('');
         });
     });
 });

@@ -1879,7 +1879,7 @@ describe('Server', () => {
         });
     });
 
-    describe('log()', { parallel: false }, () => {
+    describe('log()', () => {
 
         it('emits a log event', async () => {
 
@@ -1920,9 +1920,9 @@ describe('Server', () => {
             expect(event.data).to.equal(123);
         });
 
-        it('emits a log event and print to console', { parallel: false }, async () => {
+        it('emits a log event and print to console', async () => {
 
-            const server = new Hapi.Server({ debug: { log: '*' } });
+            const server = new Hapi.Server({ debug: { log: 'implementation' } });
 
             server.events.once('log', (event, tags) => {
 

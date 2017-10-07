@@ -206,7 +206,7 @@ describe('Request', () => {
             expect(res.result.statusCode).to.equal(400);
         });
 
-        it('handles aborted requests (during response)', { parallel: false }, async () => {
+        it('handles aborted requests (during response)', async () => {
 
             const handler = (request) => {
 
@@ -282,7 +282,7 @@ describe('Request', () => {
             await server.stop();
         });
 
-        it('handles aborted requests (pre response)', { parallel: false }, async () => {
+        it('handles aborted requests (pre response)', async () => {
 
             const server = new Hapi.Server();
             server.route({
@@ -491,6 +491,18 @@ describe('Request', () => {
 
             const res = await server.inject({ url: '/some/route', allowInternals: true });
             expect(res.statusCode).to.equal(200);
+        });
+    });
+
+    describe('_invoke()', () => {
+
+        it('errors on non-takeover response in pre handler ext', async () => {
+
+            const server = Hapi.server({ debug: false });
+            server.ext('onPreHandler', () => 'something');
+            server.route({ method: 'GET', path: '/', handler: () => null });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
         });
     });
 
@@ -889,7 +901,44 @@ describe('Request', () => {
         });
     });
 
-    describe('log()', { parallel: false }, () => {
+    describe('_tap()', () => {
+
+        it('listens to request payload read finish', async () => {
+
+            let finish;
+            const ext = (request, h) => {
+
+                finish = request.events.once('finish');
+                return h.continue;
+            };
+
+            const server = new Hapi.Server();
+            server.ext('onRequest', ext);
+            server.route({ method: 'POST', path: '/', config: { handler: () => null, payload: { parse: false } } });
+
+            const payload = '0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789';
+            await server.inject({ method: 'POST', url: '/', payload });
+            await finish;
+        });
+
+        it('ignores emitter when created for other events', async () => {
+
+            const ext = (request, h) => {
+
+                request.events;
+                return h.continue;
+            };
+
+            const server = new Hapi.Server();
+            server.ext('onRequest', ext);
+            server.route({ method: 'POST', path: '/', config: { handler: () => null, payload: { parse: false } } });
+
+            const payload = '0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789';
+            await server.inject({ method: 'POST', url: '/', payload });
+        });
+    });
+
+    describe('log()', () => {
 
         it('outputs log data to debug console', async () => {
 
@@ -965,7 +1014,7 @@ describe('Request', () => {
             expect(res.statusCode).to.equal(200);
         });
 
-        it('outputs log to debug console without data', { parallel: false }, async () => {
+        it('outputs log to debug console without data', async () => {
 
             const handler = (request) => {
 
@@ -994,7 +1043,7 @@ describe('Request', () => {
             await log;
         });
 
-        it('outputs log to debug console with error data', { parallel: false }, async () => {
+        it('outputs log to debug console with error data', async () => {
 
             const handler = (request) => {
 
@@ -1023,7 +1072,7 @@ describe('Request', () => {
             await log;
         });
 
-        it('handles invalid log data object stringify', { parallel: false }, async () => {
+        it('handles invalid log data object stringify', async () => {
 
             const handler = (request) => {
 
@@ -1077,7 +1126,7 @@ describe('Request', () => {
             expect(res.payload).to.equal('2|4|4|0|7|true');
         });
 
-        it('does not output events when debug disabled', { parallel: false }, async () => {
+        it('does not output events when debug disabled', async () => {
 
             const server = new Hapi.Server({ debug: false });
 
@@ -1102,7 +1151,7 @@ describe('Request', () => {
             console.error = orig;
         });
 
-        it('does not output events when debug.request disabled', { parallel: false }, async () => {
+        it('does not output events when debug.request disabled', async () => {
 
             const server = new Hapi.Server({ debug: { request: false } });
 
@@ -1127,7 +1176,7 @@ describe('Request', () => {
             console.error = orig;
         });
 
-        it('does not output non-implementation events by default', { parallel: false }, async () => {
+        it('does not output non-implementation events by default', async () => {
 
             const server = new Hapi.Server();
 
@@ -1228,7 +1277,7 @@ describe('Request', () => {
         });
     });
 
-    describe('timeout', { parallel: false }, () => {
+    describe('timeout', () => {
 
         it('returns server error message when server taking too long', async () => {
 

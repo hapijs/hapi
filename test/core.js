@@ -260,7 +260,7 @@ describe('Core', () => {
         await server.stop();
     });
 
-    it('disables node socket timeout', { parallel: false }, async () => {
+    it('disables node socket timeout', async () => {
 
         const server = new Hapi.Server({ routes: { timeout: { socket: false } } });
         server.route({ method: 'GET', path: '/', handler: () => null });
@@ -602,7 +602,7 @@ describe('Core', () => {
             await server.stop();
         });
 
-        it('sets info with defaults when missing hostname and address', { parallel: false }, async () => {
+        it('sets info with defaults when missing hostname and address', async () => {
 
             const hostname = Os.hostname;
             Os.hostname = function () {
@@ -854,7 +854,7 @@ describe('Core', () => {
 
     describe('_dispatch()', () => {
 
-        it('rejects request due to high rss load', { parallel: false }, async () => {
+        it('rejects request due to high rss load', async () => {
 
             const server = new Hapi.Server({ load: { sampleInterval: 5, maxRssBytes: 1 } });
 
@@ -1691,7 +1691,7 @@ describe('Core', () => {
         });
     });
 
-    describe('load', { parallel: false }, () => {
+    describe('load', () => {
 
         it('measures loop delay', async () => {
 
