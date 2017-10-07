@@ -1267,11 +1267,11 @@ describe('Response', () => {
 
         it('streams empty string', async () => {
 
-            const server = new Hapi.Server();
-            server.route({ method: 'GET', path: '/', handler: () => '' });
-            const res = await server.inject('/');
+            const server = Hapi.server({ compression: { minBytes: 1 } });
+            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: () => '' } });
+
+            const res = await server.inject({ url: '/?callback=me', headers: { 'Accept-Encoding': 'gzip' } });
             expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal('');
         });
     });
 });

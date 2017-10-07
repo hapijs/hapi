@@ -1193,6 +1193,45 @@ describe('authentication', () => {
             expect(res.statusCode).to.equal(200);
             expect(res.result.bar).to.equal('baz');
         });
+
+        it('errors on empty authenticate()', async () => {
+
+            const scheme = () => {
+
+                return { authenticate: (request, h) => h.authenticated() };
+            };
+
+            const server = new Hapi.Server();
+            server.auth.scheme('custom', scheme);
+            server.auth.strategy('default', 'custom', true);
+            server.route({ method: 'GET', path: '/', handler: () => null });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+        });
+
+        it('passes credentials on unauthenticated()', async () => {
+
+            const scheme = () => {
+
+                return { authenticate: (request, h) => h.unauthenticated(Boom.unauthorized(), { credentials: { user: 'steve' } }) };
+            };
+
+            const server = new Hapi.Server();
+            server.ext('onPreResponse', (request, h) => {
+
+                if (request.auth.credentials.user === 'steve') {
+                    return h.continue;
+                }
+            });
+
+            server.auth.scheme('custom', scheme);
+            server.auth.strategy('default', 'custom', 'try');
+            server.route({ method: 'GET', path: '/', handler: () => null });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+        });
     });
 
     describe('payload()', () => {

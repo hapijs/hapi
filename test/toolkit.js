@@ -87,6 +87,23 @@ describe('Toolkit', () => {
                 expect(res.result).to.equal('<h1>steve</h1>');
             });
         });
+
+        describe('execute()', () => {
+
+            it('replaces non-error throws with error', async () => {
+
+                const handler = () => {
+
+                    throw 'this is not an error';
+                };
+
+                const server = new Hapi.Server();
+                server.route({ method: 'GET', path: '/', handler });
+                const res = await server.inject('/');
+                expect(res.statusCode).to.equal(500);
+            });
+
+        });
     });
 
     describe('Toolkit', () => {
