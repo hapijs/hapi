@@ -95,7 +95,7 @@
 
 [Test](#test)
 
-## <a name='test'></a> Server
+## <a name='test'/> Server
 
 The `Server` object is the main application container. The server manages all incoming connections
 along with all the facilities provided by the framework. A server can contain more than one
