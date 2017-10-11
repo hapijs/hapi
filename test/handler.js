@@ -40,7 +40,7 @@ describe('handler', () => {
 
         it('returns 500 on handler exception (same tick)', async () => {
 
-            const server = new Hapi.Server({ debug: false });
+            const server = Hapi.server({ debug: false });
 
             const handler = (request) => {
 
@@ -63,7 +63,7 @@ describe('handler', () => {
                 not.here;
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
             const log = server.events.once('request-error');
 
@@ -89,7 +89,7 @@ describe('handler', () => {
 
             const item = { x: 123 };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({
                 method: 'GET',
                 path: '/',
@@ -110,7 +110,7 @@ describe('handler', () => {
 
             const item = { x: 123 };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({
                 method: 'GET',
                 path: '/',
@@ -126,7 +126,7 @@ describe('handler', () => {
 
         it('returns 500 on ext method exception (same tick)', async () => {
 
-            const server = new Hapi.Server({ debug: false });
+            const server = Hapi.server({ debug: false });
 
             const onRequest = function () {
 
@@ -170,7 +170,7 @@ describe('handler', () => {
                 return request.pre.m2 + (request.pre.m0 === null ? '!' : 'x');
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({
                 method: 'GET',
                 path: '/',
@@ -198,7 +198,7 @@ describe('handler', () => {
 
         it('allows a single prerequisite', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
 
             server.route({
                 method: 'GET',
@@ -217,7 +217,7 @@ describe('handler', () => {
 
         it('allows an empty prerequisite array', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
 
             server.route({
                 method: 'GET',
@@ -254,7 +254,7 @@ describe('handler', () => {
                 return request.pre.m2 + '!';
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({
                 method: 'GET',
                 path: '/',
@@ -285,7 +285,7 @@ describe('handler', () => {
                 throw Boom.internal('boom');
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({
                 method: 'GET',
                 path: '/',
@@ -309,7 +309,7 @@ describe('handler', () => {
                 return h.response('Hello').code(444);
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({
                 method: 'GET',
                 path: '/',
@@ -334,7 +334,7 @@ describe('handler', () => {
                 a.b.c = 0;
             };
 
-            const server = new Hapi.Server({ debug: false });
+            const server = Hapi.server({ debug: false });
             server.route({
                 method: 'GET',
                 path: '/',
@@ -353,7 +353,7 @@ describe('handler', () => {
 
         it('sets pre failAction to error', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({
                 method: 'GET',
                 path: '/',
@@ -377,7 +377,7 @@ describe('handler', () => {
 
         it('sets pre failAction to ignore', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({
                 method: 'GET',
                 path: '/',
@@ -401,7 +401,7 @@ describe('handler', () => {
 
         it('sets pre failAction to log', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({
                 method: 'GET',
                 path: '/',
@@ -449,7 +449,7 @@ describe('handler', () => {
 
             const item = { x: 123 };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({
                 method: 'GET',
                 path: '/',
@@ -472,7 +472,7 @@ describe('handler', () => {
 
         it('logs boom error instance as data if handler returns boom error', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({
                 method: 'GET',
                 path: '/',
@@ -516,7 +516,7 @@ describe('handler', () => {
                 return (request) => request.route.settings.app;
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.handler('test', handler);
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
             const res = await server.inject('/');
@@ -536,7 +536,7 @@ describe('handler', () => {
                 }
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.handler('test', handler);
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
             const res = await server.inject('/');
@@ -559,7 +559,7 @@ describe('handler', () => {
                 };
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.handler('test', handler);
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
             const res = await server.inject('/');
@@ -575,7 +575,7 @@ describe('handler', () => {
 
             handler.defaults = 'invalid';
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             expect(() => {
 
                 server.handler('test', handler);

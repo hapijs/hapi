@@ -23,7 +23,7 @@ describe('security', () => {
 
     it('blocks response splitting through the request.create method', async () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         const handler = (request, h) => h.response('Moved').created('/item/' + request.payload.name);
         server.route({ method: 'POST', path: '/item', handler });
 
@@ -38,7 +38,7 @@ describe('security', () => {
 
     it('prevents xss with invalid content types', async () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.state('encoded', { encoding: 'iron' });
         server.route({
             method: 'POST', path: '/',
@@ -57,7 +57,7 @@ describe('security', () => {
 
     it('prevents xss with invalid cookie values in the request', async () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.state('encoded', { encoding: 'iron' });
         server.route({
             method: 'POST', path: '/',
@@ -76,7 +76,7 @@ describe('security', () => {
 
     it('prevents xss with invalid cookie name in the request', async () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.state('encoded', { encoding: 'iron' });
         server.route({
             method: 'POST', path: '/',
@@ -95,7 +95,7 @@ describe('security', () => {
 
     it('prevents xss in path validation response message', async () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.state('encoded', { encoding: 'iron' });
 
         server.route({
@@ -117,7 +117,7 @@ describe('security', () => {
 
     it('prevents xss in payload validation response message', async () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.route({
             method: 'POST', path: '/fail/payload',
             handler: () => 'Success',
@@ -139,7 +139,7 @@ describe('security', () => {
 
     it('prevents xss in query validation response message', async () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.route({
             method: 'GET', path: '/fail/query',
             handler: () => 'Success',

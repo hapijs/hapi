@@ -31,7 +31,7 @@ describe('Request.Generator', () => {
 
     it('decorates request multiple times', async () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
 
         server.decorate('request', 'x2', () => 2);
         server.decorate('request', 'abc', () => 1);
@@ -52,7 +52,7 @@ describe('Request.Generator', () => {
 
     it('decorates request with non function method', async () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
 
         server.decorate('request', 'x2', 2);
         server.decorate('request', 'abc', 1);
@@ -76,7 +76,7 @@ describe('Request', () => {
 
     it('sets client address', async () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
 
         const handler = (request) => {
 
@@ -101,7 +101,7 @@ describe('Request', () => {
 
     it('sets referrer', async () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
 
         const handler = (request) => {
 
@@ -117,7 +117,7 @@ describe('Request', () => {
 
     it('sets referer', async () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
 
         const handler = (request) => {
 
@@ -133,7 +133,7 @@ describe('Request', () => {
 
     it('sets acceptEncoding', async () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.route({ method: 'GET', path: '/', handler: (request) => request.info.acceptEncoding });
 
         const res = await server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } });
@@ -142,7 +142,7 @@ describe('Request', () => {
 
     it('handles invalid accept encoding header', async () => {
 
-        const server = new Hapi.Server({ routes: { log: { collect: true } } });
+        const server = Hapi.server({ routes: { log: { collect: true } } });
 
         const handler = (request) => {
 
@@ -158,7 +158,7 @@ describe('Request', () => {
 
     it('sets headers', async () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.route({ method: 'GET', path: '/', handler: (request) => request.headers['user-agent'] });
 
         const res = await server.inject('/');
@@ -167,7 +167,7 @@ describe('Request', () => {
 
     it('generates unique request id', async () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server._core.requestCounter = { value: 10, min: 10, max: 11 };
         server.route({ method: 'GET', path: '/', handler: (request) => request.info.id });
 
@@ -185,14 +185,14 @@ describe('Request', () => {
 
         it('returns 400 on invalid path', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             const res = await server.inject('invalid');
             expect(res.statusCode).to.equal(400);
         });
 
         it('returns error response on ext error', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
 
             const ext = (request) => {
 
@@ -228,7 +228,7 @@ describe('Request', () => {
                 return stream;
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             let disconnected = 0;
@@ -284,7 +284,7 @@ describe('Request', () => {
 
         it('handles aborted requests (pre response)', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({
                 method: 'GET',
                 path: '/test',
@@ -323,7 +323,7 @@ describe('Request', () => {
 
         it('returns empty params array when none present', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: (request) => request.params });
 
             const res = await server.inject('/');
@@ -332,7 +332,7 @@ describe('Request', () => {
 
         it('returns empty params array when none present (not found)', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             const preResponse = (request) => {
 
                 return request.params;
@@ -346,7 +346,7 @@ describe('Request', () => {
 
         it('does not fail on abort', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             const team = new Teamwork.Team({ meetings: 1 });
 
             const handler = async (request) => {
@@ -376,7 +376,7 @@ describe('Request', () => {
 
         it('does not fail on abort (onPreHandler)', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             const team = new Teamwork.Team({ meetings: 1 });
 
             server.route({ method: 'GET', path: '/', handler: () => null });
@@ -415,7 +415,7 @@ describe('Request', () => {
                 throw new Error('boom');
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const preResponse = (request, h) => {
@@ -444,7 +444,7 @@ describe('Request', () => {
 
         it('returns not found on internal only route (external)', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({
                 method: 'GET',
                 path: '/some/route',
@@ -463,7 +463,7 @@ describe('Request', () => {
 
         it('returns not found on internal only route (inject)', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({
                 method: 'GET',
                 path: '/some/route',
@@ -479,7 +479,7 @@ describe('Request', () => {
 
         it('allows internal only route (inject with allowInternals)', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({
                 method: 'GET',
                 path: '/some/route',
@@ -510,7 +510,7 @@ describe('Request', () => {
 
         it('returns a reply with auto end in onPreResponse', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.ext('onPreResponse', (request, h) => h.close);
             server.route({ method: 'GET', path: '/', handler: () => null });
 
@@ -524,7 +524,7 @@ describe('Request', () => {
 
         it('generate response event', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: () => 'ok' });
 
             const log = server.events.once('response');
@@ -551,7 +551,7 @@ describe('Request', () => {
                 return stream;
             };
 
-            const server = new Hapi.Server({ routes: { timeout: { server: 50 } } });
+            const server = Hapi.server({ routes: { timeout: { server: 50 } } });
             server.route({
                 method: 'GET',
                 path: '/',
@@ -571,7 +571,7 @@ describe('Request', () => {
                 throw new Error('after');
             };
 
-            const server = new Hapi.Server({ routes: { timeout: { server: 5 } } });
+            const server = Hapi.server({ routes: { timeout: { server: 5 } } });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -580,7 +580,7 @@ describe('Request', () => {
 
         it('emits request-error once', async () => {
 
-            const server = new Hapi.Server({ debug: false, routes: { log: { collect: true } } });
+            const server = Hapi.server({ debug: false, routes: { log: { collect: true } } });
 
             let errs = 0;
             let req = null;
@@ -620,7 +620,7 @@ describe('Request', () => {
 
         it('does not emit request-error when error is replaced with valid response', async () => {
 
-            const server = new Hapi.Server({ debug: false });
+            const server = Hapi.server({ debug: false });
 
             let errs = 0;
             server.events.on('request-error', (request, err) => {
@@ -652,7 +652,7 @@ describe('Request', () => {
 
         it('changes method with a lowercase version of the value passed in', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: () => null });
 
             const onRequest = (request, h) => {
@@ -669,7 +669,7 @@ describe('Request', () => {
 
         it('errors on missing method', async () => {
 
-            const server = new Hapi.Server({ debug: false });
+            const server = Hapi.server({ debug: false });
             server.route({ method: 'GET', path: '/', handler: () => null });
             server.ext('onRequest', (request) => request.setMethod());
 
@@ -679,7 +679,7 @@ describe('Request', () => {
 
         it('errors on invalid method type', async () => {
 
-            const server = new Hapi.Server({ debug: false });
+            const server = Hapi.server({ debug: false });
             server.route({ method: 'GET', path: '/', handler: () => null });
             server.ext('onRequest', (request) => request.setMethod(42));
 
@@ -693,7 +693,7 @@ describe('Request', () => {
         it('sets url, path, and query', async () => {
 
             const url = 'http://localhost/page?param1=something';
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: () => null });
 
             const onRequest = (request, h) => {
@@ -711,7 +711,7 @@ describe('Request', () => {
         it('updates host info', async () => {
 
             const url = 'http://redirected:321/';
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: () => null });
 
             const onRequest = (request, h) => {
@@ -731,7 +731,7 @@ describe('Request', () => {
         it('updates host info when set without port number', async () => {
 
             const url = 'http://redirected/';
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: () => null });
 
             const onRequest = (request, h) => {
@@ -752,7 +752,7 @@ describe('Request', () => {
 
         it('overrides query string parsing', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: () => null });
 
             const onRequest = (request, h) => {
@@ -778,7 +778,7 @@ describe('Request', () => {
             const url = 'http://localhost' + rawPath + '?param1=something';
             const normUrl = 'http://localhost' + normPath + '?param1=something';
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: () => null });
 
             const onRequest = (request, h) => {
@@ -795,7 +795,7 @@ describe('Request', () => {
 
         it('allows missing path', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             const onRequest = (request, h) => {
 
                 request.setUrl('');
@@ -810,7 +810,7 @@ describe('Request', () => {
 
         it('strips trailing slash', async () => {
 
-            const server = new Hapi.Server({ router: { stripTrailingSlash: true } });
+            const server = Hapi.server({ router: { stripTrailingSlash: true } });
             server.route({ method: 'GET', path: '/test', handler: () => null });
             const res = await server.inject('/test/');
             expect(res.statusCode).to.equal(200);
@@ -818,7 +818,7 @@ describe('Request', () => {
 
         it('does not strip trailing slash on /', async () => {
 
-            const server = new Hapi.Server({ router: { stripTrailingSlash: true } });
+            const server = Hapi.server({ router: { stripTrailingSlash: true } });
             server.route({ method: 'GET', path: '/', handler: () => null });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
@@ -826,7 +826,7 @@ describe('Request', () => {
 
         it('strips trailing slash with query', async () => {
 
-            const server = new Hapi.Server({ router: { stripTrailingSlash: true } });
+            const server = Hapi.server({ router: { stripTrailingSlash: true } });
             server.route({ method: 'GET', path: '/test', handler: () => null });
             const res = await server.inject('/test/?a=b');
             expect(res.statusCode).to.equal(200);
@@ -841,7 +841,7 @@ describe('Request', () => {
             const passedUrl = Hoek.clone(urlObject);
             let requestUrl;
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             const onRequest = (request, h) => {
 
                 request.setUrl(passedUrl);
@@ -861,7 +861,7 @@ describe('Request', () => {
 
         it('handles vhost redirection', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', vhost: 'one', handler: () => 'success' });
 
             const onRequest = (request, h) => {
@@ -879,7 +879,7 @@ describe('Request', () => {
 
         it('handles hostname in HTTP request resource', async () => {
 
-            const server = new Hapi.Server({ debug: false });
+            const server = Hapi.server({ debug: false });
 
             let hostname;
             server.route({
@@ -912,7 +912,7 @@ describe('Request', () => {
                 return h.continue;
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.ext('onRequest', ext);
             server.route({ method: 'POST', path: '/', config: { handler: () => null, payload: { parse: false } } });
 
@@ -929,7 +929,7 @@ describe('Request', () => {
                 return h.continue;
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.ext('onRequest', ext);
             server.route({ method: 'POST', path: '/', config: { handler: () => null, payload: { parse: false } } });
 
@@ -948,7 +948,7 @@ describe('Request', () => {
                 return null;
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const log = new Promise((resolve) => {
@@ -971,7 +971,7 @@ describe('Request', () => {
 
         it('emits a request event', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
 
             const handler = async (request) => {
 
@@ -993,7 +993,7 @@ describe('Request', () => {
 
         it('emits a request event (function data)', async () => {
 
-            const server = new Hapi.Server({ routes: { log: { collect: true } } });
+            const server = Hapi.server({ routes: { log: { collect: true } } });
 
             const handler = async (request) => {
 
@@ -1022,7 +1022,7 @@ describe('Request', () => {
                 return null;
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const log = new Promise((resolve) => {
@@ -1051,7 +1051,7 @@ describe('Request', () => {
                 return null;
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const log = new Promise((resolve) => {
@@ -1083,7 +1083,7 @@ describe('Request', () => {
                 return null;
             };
 
-            const server = new Hapi.Server({ routes: { log: { collect: true } } });
+            const server = Hapi.server({ routes: { log: { collect: true } } });
             server.route({ method: 'GET', path: '/', handler });
 
             const log = new Promise((resolve) => {
@@ -1119,7 +1119,7 @@ describe('Request', () => {
                 return [request.getLog('1').length, request.getLog('4').length, request.getLog(['4']).length, request.getLog('0').length, request.getLog(['1', '2', '3', '4']).length, request.getLog().length >= 7].join('|');
             };
 
-            const server = new Hapi.Server({ routes: { log: { collect: true } } });
+            const server = Hapi.server({ routes: { log: { collect: true } } });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -1128,7 +1128,7 @@ describe('Request', () => {
 
         it('does not output events when debug disabled', async () => {
 
-            const server = new Hapi.Server({ debug: false });
+            const server = Hapi.server({ debug: false });
 
             let i = 0;
             const orig = console.error;
@@ -1153,7 +1153,7 @@ describe('Request', () => {
 
         it('does not output events when debug.request disabled', async () => {
 
-            const server = new Hapi.Server({ debug: { request: false } });
+            const server = Hapi.server({ debug: { request: false } });
 
             let i = 0;
             const orig = console.error;
@@ -1178,7 +1178,7 @@ describe('Request', () => {
 
         it('does not output non-implementation events by default', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
 
             let i = 0;
             const orig = console.error;
@@ -1215,7 +1215,7 @@ describe('Request', () => {
                 return [request.getLog('1').length, request.getLog('1', true).length, request.getLog('1', false).length, request.getLog(true).length, request.getLog(false).length, request.getLog().length].join('|');
             };
 
-            const server = new Hapi.Server({ routes: { log: { collect: true } } });
+            const server = Hapi.server({ routes: { log: { collect: true } } });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -1227,7 +1227,7 @@ describe('Request', () => {
 
         it('leaves the response open when the same response is set again', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             const postHandler = (request) => {
 
                 return request.response;
@@ -1255,7 +1255,7 @@ describe('Request', () => {
 
         it('leaves the response open when the same response source is set again', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.ext('onPostHandler', (request) => request.response.source);
 
             const handler = (request) => {
@@ -1287,7 +1287,7 @@ describe('Request', () => {
                 return 'too slow';
             };
 
-            const server = new Hapi.Server({ routes: { timeout: { server: 50 } } });
+            const server = Hapi.server({ routes: { timeout: { server: 50 } } });
             server.route({ method: 'GET', path: '/timeout', handler });
 
             const timer = new Hoek.Bench();
@@ -1305,7 +1305,7 @@ describe('Request', () => {
                 return null;
             };
 
-            const server = new Hapi.Server({ routes: { timeout: { server: 10 } } });
+            const server = Hapi.server({ routes: { timeout: { server: 10 } } });
             server.route({ method: 'GET', path: '/', config: { handler } });
 
             const postHandler = (request, h) => {
@@ -1321,7 +1321,7 @@ describe('Request', () => {
 
         it('returns server error message when server timeout is short and already occurs when request executes', async () => {
 
-            const server = new Hapi.Server({ routes: { timeout: { server: 2 } } });
+            const server = Hapi.server({ routes: { timeout: { server: 2 } } });
             server.route({ method: 'GET', path: '/', config: { handler: function () { } } });
             const onRequest = async (request, h) => {
 
@@ -1343,7 +1343,7 @@ describe('Request', () => {
                 return null;
             };
 
-            const server = new Hapi.Server({ routes: { timeout: { server: 10 } } });
+            const server = Hapi.server({ routes: { timeout: { server: 10 } } });
             server.route({ method: 'GET', path: '/', config: { handler } });
             const preResponse = (request, h) => {
 
@@ -1364,7 +1364,7 @@ describe('Request', () => {
                 return 'slow';
             };
 
-            const server = new Hapi.Server({ routes: { timeout: { server: 50 } } });
+            const server = Hapi.server({ routes: { timeout: { server: 50 } } });
             server.route({ method: 'GET', path: '/slow', config: { handler: slowHandler } });
 
             const timer = new Hoek.Bench();
@@ -1402,7 +1402,7 @@ describe('Request', () => {
 
             const timer = new Hoek.Bench();
 
-            const server = new Hapi.Server({ routes: { timeout: { server: 100 } } });
+            const server = Hapi.server({ routes: { timeout: { server: 100 } } });
             server.route({ method: 'GET', path: '/', handler });
             await server.start();
             const { res } = await Wreck.get('http://localhost:' + server.info.port);
@@ -1440,7 +1440,7 @@ describe('Request', () => {
                 return new TestStream();
             };
 
-            const server = new Hapi.Server({ routes: { timeout: { server: 50 } } });
+            const server = Hapi.server({ routes: { timeout: { server: 50 } } });
             server.route({ method: 'GET', path: '/stream', config: { handler: streamHandler } });
 
             await server.start();
@@ -1451,7 +1451,7 @@ describe('Request', () => {
 
         it('does not return an error response when server takes less than timeout to respond', async () => {
 
-            const server = new Hapi.Server({ routes: { timeout: { server: 50 } } });
+            const server = Hapi.server({ routes: { timeout: { server: 50 } } });
             server.route({ method: 'GET', path: '/fast', handler: () => 'Fast' });
 
             const res = await server.inject('/fast');
@@ -1460,7 +1460,7 @@ describe('Request', () => {
 
         it('handles race condition between equal client and server timeouts', async () => {
 
-            const server = new Hapi.Server({ routes: { timeout: { server: 50 }, payload: { timeout: 50 } } });
+            const server = Hapi.server({ routes: { timeout: { server: 50 }, payload: { timeout: 50 } } });
             server.route({ method: 'POST', path: '/timeout', config: { handler: Hoek.block } });
 
             await server.start();

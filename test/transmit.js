@@ -36,7 +36,7 @@ describe('transmission', () => {
 
         it('returns valid http date responses in last-modified header', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
@@ -47,7 +47,7 @@ describe('transmission', () => {
 
         it('returns 200 if if-modified-since is invalid', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
@@ -57,7 +57,7 @@ describe('transmission', () => {
 
         it('returns 200 if last-modified is invalid', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('ok').header('last-modified', 'some crap') });
 
             const res = await server.inject({ url: '/', headers: { 'if-modified-since': 'Fri, 28 Mar 2014 22:52:39 GMT' } });
@@ -66,7 +66,7 @@ describe('transmission', () => {
 
         it('closes file handlers when not reading file stream', { skip: process.platform === 'win32' }, async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
@@ -101,7 +101,7 @@ describe('transmission', () => {
 
         it('closes file handlers when not using a manually open file stream', { skip: process.platform === 'win32' }, async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/file', handler: (request, h) => h.response(Fs.createReadStream(__dirname + '/../package.json')).header('etag', 'abc') });
 
             const res1 = await server.inject('/file');
@@ -135,7 +135,7 @@ describe('transmission', () => {
 
         it('returns a 304 when the request has if-modified-since and the response has not been modified since (larger)', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
@@ -150,7 +150,7 @@ describe('transmission', () => {
 
         it('returns a 304 when the request has if-modified-since and the response has not been modified since (equal)', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
@@ -164,7 +164,7 @@ describe('transmission', () => {
 
         it('matches etag with content-encoding', async () => {
 
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             await server.register(Inert);
             server.route({ method: 'GET', path: '/', handler: { file: __dirname + '/../package.json' } });
 
@@ -222,7 +222,7 @@ describe('transmission', () => {
 
         it('returns 304 when manually set to 304', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: (request, h) => h.response().code(304) });
 
             const res = await server.inject('/');
@@ -256,7 +256,7 @@ describe('transmission', () => {
                 return new HeadersStream();
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/stream', handler });
 
             const res = await server.inject('/stream');
@@ -291,7 +291,7 @@ describe('transmission', () => {
                 return new HeadersStream();
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/stream', handler });
 
             const res = await server.inject('/stream');
@@ -300,7 +300,7 @@ describe('transmission', () => {
 
         it('returns an JSONP response', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: () => ({ some: 'value' }) } });
 
             const res = await server.inject('/?callback=me');
@@ -311,7 +311,7 @@ describe('transmission', () => {
 
         it('returns an JSONP response with no payload', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: () => null } });
 
             const res = await server.inject('/?callback=me');
@@ -322,7 +322,7 @@ describe('transmission', () => {
 
         it('returns an JSONP response (no charset)', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: (request, h) => h.response({ some: 'value' }).charset('') } });
 
             const res = await server.inject('/?callback=me');
@@ -333,7 +333,7 @@ describe('transmission', () => {
 
         it('returns a X-Content-Type-Options: nosniff header on JSONP responses', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: () => ({ some: 'value' }) } });
 
             const res = await server.inject('/?callback=me');
@@ -343,7 +343,7 @@ describe('transmission', () => {
 
         it('returns a normal response when JSONP enabled but not requested', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: () => ({ some: 'value' }) } });
 
             const res = await server.inject('/');
@@ -352,7 +352,7 @@ describe('transmission', () => {
 
         it('returns an JSONP response with compression', async () => {
 
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({
                 method: 'GET',
                 path: '/user/{name*2}',
@@ -384,7 +384,7 @@ describe('transmission', () => {
 
         it('returns an JSONP response when response is a buffer', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: () => new Buffer('value') } });
 
             const res = await server.inject('/?callback=me');
@@ -394,7 +394,7 @@ describe('transmission', () => {
 
         it('returns response on bad JSONP parameter', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: () => ({ some: 'value' }) } });
 
             const res = await server.inject('/?callback=me*');
@@ -409,7 +409,7 @@ describe('transmission', () => {
                 throw Boom.badRequest('wrong');
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
 
             const res = await server.inject('/?callback=me');
@@ -419,7 +419,7 @@ describe('transmission', () => {
 
         it('returns an JSONP state error', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: () => 'ok' } });
 
             let validState = false;
@@ -439,7 +439,7 @@ describe('transmission', () => {
 
         it('sets specific caching headers', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             await server.register(Inert);
             server.route({ method: 'GET', path: '/public/{path*}', config: { cache: { privacy: 'public', expiresIn: 24 * 60 * 60 * 1000 } }, handler: { directory: { path: __dirname, listing: false, index: false } } });
 
@@ -450,7 +450,7 @@ describe('transmission', () => {
 
         it('sets caching headers', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             await server.register(Inert);
             server.route({ method: 'GET', path: '/public/{path*}', handler: { directory: { path: __dirname, listing: false, index: false } } });
 
@@ -461,7 +461,7 @@ describe('transmission', () => {
 
         it('does not set caching headers if disabled', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             await server.register(Inert);
             server.route({ method: 'GET', path: '/public/{path*}', config: { cache: false }, handler: { directory: { path: __dirname, listing: false, index: false } } });
 
@@ -475,7 +475,7 @@ describe('transmission', () => {
 
         it('sends empty payload on 204', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('ok').code(204) });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(204);
@@ -484,7 +484,7 @@ describe('transmission', () => {
 
         it('sends 204 on empty payload', async () => {
 
-            const server = new Hapi.Server({ routes: { response: { emptyStatusCode: 204 } } });
+            const server = Hapi.server({ routes: { response: { emptyStatusCode: 204 } } });
             server.route({ method: 'GET', path: '/', handler: () => null });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(204);
@@ -493,7 +493,7 @@ describe('transmission', () => {
 
         it('does not send 204 for chunked transfer payloads', async () => {
 
-            const server = new Hapi.Server({ routes: { response: { emptyStatusCode: 204 } } });
+            const server = Hapi.server({ routes: { response: { emptyStatusCode: 204 } } });
 
             const handler = (request) => {
 
@@ -518,7 +518,7 @@ describe('transmission', () => {
 
         it('skips compression on empty', async () => {
 
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'GET', path: '/', handler: (request, h) => h.response().type('text/html') });
             const res = await server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } });
             expect(res.statusCode).to.equal(200);
@@ -528,7 +528,7 @@ describe('transmission', () => {
 
         it('skips compression on small payload', async () => {
 
-            const server = new Hapi.Server({ compression: { minBytes: 10 } });
+            const server = Hapi.server({ compression: { minBytes: 10 } });
             server.route({ method: 'GET', path: '/', handler: (request, h) => 'hello' });
             const res = await server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } });
             expect(res.statusCode).to.equal(200);
@@ -538,7 +538,7 @@ describe('transmission', () => {
 
         it('skips compression for 206 responses', async () => {
 
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('test').code(206) });
             const res = await server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } });
             expect(res.statusCode).to.equal(206);
@@ -549,7 +549,7 @@ describe('transmission', () => {
 
         it('does not skip compression for chunked transfer payloads', async () => {
 
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
 
             const handler = (request, h) => {
 
@@ -574,7 +574,7 @@ describe('transmission', () => {
 
         it('sets vary header when accept-encoding is present but does not match', async () => {
 
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'GET', path: '/', handler: () => 'abc' });
             const res = await server.inject({ url: '/', headers: { 'accept-encoding': 'example' } });
             expect(res.statusCode).to.equal(200);
@@ -605,7 +605,7 @@ describe('transmission', () => {
                 return stream;
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -633,7 +633,7 @@ describe('transmission', () => {
                 return stream;
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             await server.start();
@@ -643,7 +643,7 @@ describe('transmission', () => {
 
         it('matches etag header list value', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
@@ -659,7 +659,7 @@ describe('transmission', () => {
 
         it('changes etag when content encoding is used', async () => {
 
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
@@ -680,7 +680,7 @@ describe('transmission', () => {
 
         it('returns a gzipped file in the response when the request accepts gzip', async () => {
 
-            const server = new Hapi.Server({ compression: { minBytes: 1 }, routes: { files: { relativeTo: __dirname } } });
+            const server = Hapi.server({ compression: { minBytes: 1 }, routes: { files: { relativeTo: __dirname } } });
             await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: (request, h) => h.file(__dirname + '/../package.json') });
 
@@ -693,7 +693,7 @@ describe('transmission', () => {
 
         it('returns a plain file when not compressible', async () => {
 
-            const server = new Hapi.Server({ compression: { minBytes: 1 }, routes: { files: { relativeTo: __dirname } } });
+            const server = Hapi.server({ compression: { minBytes: 1 }, routes: { files: { relativeTo: __dirname } } });
             await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: (request, h) => h.file(__dirname + '/file/image.png') });
 
@@ -707,7 +707,7 @@ describe('transmission', () => {
 
         it('returns a plain file when compression disabled', async () => {
 
-            const server = new Hapi.Server({ compression: { minBytes: 1 }, routes: { files: { relativeTo: __dirname } }, compression: false });
+            const server = Hapi.server({ compression: { minBytes: 1 }, routes: { files: { relativeTo: __dirname } }, compression: false });
             await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: (request, h) => h.file(__dirname + '/../package.json') });
 
@@ -719,7 +719,7 @@ describe('transmission', () => {
 
         it('returns a deflated file in the response when the request accepts deflate', async () => {
 
-            const server = new Hapi.Server({ compression: { minBytes: 1 }, routes: { files: { relativeTo: __dirname } } });
+            const server = Hapi.server({ compression: { minBytes: 1 }, routes: { files: { relativeTo: __dirname } } });
             await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: (request, h) => h.file(__dirname + '/../package.json') });
 
@@ -732,7 +732,7 @@ describe('transmission', () => {
 
         it('returns a gzipped stream response without a content-length header when accept-encoding is gzip', async () => {
 
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'GET', path: '/stream', handler: () => new internals.TimerStream() });
 
             const res = await server.inject({ url: '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'gzip' } });
@@ -742,7 +742,7 @@ describe('transmission', () => {
 
         it('returns a deflated stream response without a content-length header when accept-encoding is deflate', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/stream', handler: () => new internals.TimerStream() });
 
             const res = await server.inject({ url: '/stream', headers: { 'Content-Type': 'application/json', 'accept-encoding': 'deflate' } });
@@ -754,7 +754,7 @@ describe('transmission', () => {
 
             const data = '{"test":"true"}';
 
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'POST', path: '/', handler: (request) => request.payload });
             await server.start();
 
@@ -770,7 +770,7 @@ describe('transmission', () => {
 
             const data = '{"test":"true"}';
 
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'GET', path: '/', handler: () => data });
             await server.start();
 
@@ -785,7 +785,7 @@ describe('transmission', () => {
 
             const data = '{"test":"true"}';
 
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'POST', path: '/', handler: (request) => request.payload });
             await server.start();
 
@@ -798,7 +798,7 @@ describe('transmission', () => {
         it('returns a gzip response on a get request when accept-encoding: * is requested', async () => {
 
             const data = '{"test":"true"}';
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'GET', path: '/', handler: () => data });
             await server.start();
 
@@ -811,7 +811,7 @@ describe('transmission', () => {
         it('returns a deflate response on a post request when accept-encoding: deflate is requested', async () => {
 
             const data = '{"test":"true"}';
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'POST', path: '/', handler: (request) => request.payload });
             await server.start();
 
@@ -825,7 +825,7 @@ describe('transmission', () => {
         it('returns a deflate response on a get request when accept-encoding: deflate is requested', async () => {
 
             const data = '{"test":"true"}';
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'GET', path: '/', handler: () => data });
             await server.start();
 
@@ -839,7 +839,7 @@ describe('transmission', () => {
         it('returns a gzip response on a post request when accept-encoding: gzip;q=1, deflate;q=0.5 is requested', async () => {
 
             const data = '{"test":"true"}';
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'POST', path: '/', handler: (request) => request.payload });
             await server.start();
 
@@ -853,7 +853,7 @@ describe('transmission', () => {
         it('returns a gzip response on a get request when accept-encoding: gzip;q=1, deflate;q=0.5 is requested', async () => {
 
             const data = '{"test":"true"}';
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'GET', path: '/', handler: () => data });
             await server.start();
 
@@ -867,7 +867,7 @@ describe('transmission', () => {
         it('returns a deflate response on a post request when accept-encoding: deflate;q=1, gzip;q=0.5 is requested', async () => {
 
             const data = '{"test":"true"}';
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'POST', path: '/', handler: (request) => request.payload });
             await server.start();
 
@@ -881,7 +881,7 @@ describe('transmission', () => {
         it('returns a deflate response on a get request when accept-encoding: deflate;q=1, gzip;q=0.5 is requested', async () => {
 
             const data = '{"test":"true"}';
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'GET', path: '/', handler: () => data });
             await server.start();
 
@@ -895,7 +895,7 @@ describe('transmission', () => {
         it('returns a gzip response on a post request when accept-encoding: deflate, gzip is requested', async () => {
 
             const data = '{"test":"true"}';
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'POST', path: '/', handler: (request) => request.payload });
             await server.start();
 
@@ -909,7 +909,7 @@ describe('transmission', () => {
         it('returns a gzip response on a get request when accept-encoding: deflate, gzip is requested', async () => {
 
             const data = '{"test":"true"}';
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'GET', path: '/', handler: () => data });
             await server.start();
 
@@ -924,7 +924,7 @@ describe('transmission', () => {
 
             const error = Boom.badRequest();
             const data = JSON.stringify(error.output.payload);
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
 
             const handler = () => {
 
@@ -949,7 +949,7 @@ describe('transmission', () => {
             const error = new Error('something went wrong');
             const wrappedError = Boom.boomify(error);
             const data = JSON.stringify(wrappedError.output.payload);
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
 
             const handler = () => {
 
@@ -973,7 +973,7 @@ describe('transmission', () => {
 
             const data = '{"test":"true"}';
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'POST', path: '/', handler: (request) => request.payload });
             await server.start();
 
@@ -987,7 +987,7 @@ describe('transmission', () => {
 
             const data = '{"test":"true"}';
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1006,7 +1006,7 @@ describe('transmission', () => {
 
             const data = '{"test":"true"}';
             const zipped = await internals.compress('gzip', new Buffer(data));
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'POST', path: '/', handler: (request, h) => h.response(zipped).type('text/plain').header('content-encoding', 'gzip') });
             await server.start();
 
@@ -1018,7 +1018,7 @@ describe('transmission', () => {
 
         it('does not open file stream on 304', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
 
@@ -1042,7 +1042,7 @@ describe('transmission', () => {
 
         it('object listeners are maintained after transmission is complete', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: () => 'ok' });
 
             let response;
@@ -1090,7 +1090,7 @@ describe('transmission', () => {
                 }
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/stream', handler: (request, h) => h.response(new ErrStream(request)).bytes(0) });
 
             const res = await server.inject({ url: '/stream', headers: { 'Accept-Encoding': 'gzip' } });
@@ -1126,7 +1126,7 @@ describe('transmission', () => {
                 return fileStream;
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
             await server.start();
 
@@ -1171,7 +1171,7 @@ describe('transmission', () => {
                 }
             };
 
-            const server = new Hapi.Server(config);
+            const server = Hapi.server(config);
             server.route({ method: 'GET', path: '/', handler });
             await server.start();
 
@@ -1182,7 +1182,7 @@ describe('transmission', () => {
 
         it('does not leak stream data when request aborts before stream drains', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
 
             let destroyed = false;
             const team = new Teamwork.Team({ meetings: 1 });
@@ -1231,7 +1231,7 @@ describe('transmission', () => {
 
         it('does not leak classic stream data when passed to request and aborted', async () => {
 
-            const server = new Hapi.Server({ debug: false });
+            const server = Hapi.server({ debug: false });
 
             let destroyed = false;
             const team = new Teamwork.Team({ meetings: 1 });
@@ -1298,7 +1298,7 @@ describe('transmission', () => {
 
         it('does not leak stream data when request timeouts before stream drains', async () => {
 
-            const server = new Hapi.Server({ routes: { timeout: { server: 20, socket: 40 }, payload: { timeout: false } } });
+            const server = Hapi.server({ routes: { timeout: { server: 20, socket: 40 }, payload: { timeout: false } } });
             const team = new Teamwork.Team({ meetings: 1 });
 
             const handler = (request) => {
@@ -1334,7 +1334,7 @@ describe('transmission', () => {
 
         it('does not leak stream data when request aborts before stream is returned', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             const team = new Teamwork.Team({ meetings: 1 });
 
             const handler = async (request) => {
@@ -1391,7 +1391,7 @@ describe('transmission', () => {
 
         it('changes etag when content-encoding set manually', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('x').header('content-encoding', 'gzip').etag('abc') });
 
             const res = await server.inject('/');
@@ -1402,7 +1402,7 @@ describe('transmission', () => {
 
         it('head request retains content-length header', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('x').bytes(1) });
 
             const res = await server.inject({ method: 'HEAD', url: '/' });
@@ -1412,7 +1412,7 @@ describe('transmission', () => {
 
         it('does not set accept-encoding multiple times', async () => {
 
-            const upstream = new Hapi.Server();
+            const upstream = Hapi.server();
             upstream.route({ method: 'GET', path: '/headers', handler: (request, h) => h.response({ status: 'success' }).vary('X-Custom3') });
             await upstream.start();
 
@@ -1426,7 +1426,7 @@ describe('transmission', () => {
                 return h.response(res).code(res.statusCode);
             };
 
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'GET', path: '/headers', handler: proxyHandler });
 
             const res = await server.inject({ url: '/headers', headers: { 'accept-encoding': 'gzip' } });
@@ -1438,7 +1438,7 @@ describe('transmission', () => {
 
         it('ends response stream once', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
 
             let count = 0;
             const onRequest = (request, h) => {
@@ -1470,7 +1470,7 @@ describe('transmission', () => {
 
             it('returns a subset of a fileStream (start)', async () => {
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 const res = await server.inject({ url: '/file', headers: { 'range': 'bytes=0-4' } });
@@ -1483,7 +1483,7 @@ describe('transmission', () => {
 
             it('ignores range request when disabled', async () => {
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler, config: { response: { ranges: false } } });
 
                 const res = await server.inject({ url: '/file', headers: { 'range': 'bytes=0-4' } });
@@ -1492,7 +1492,7 @@ describe('transmission', () => {
 
             it('returns a subset of a fileStream (middle)', async () => {
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 const res = await server.inject({ url: '/file', headers: { 'range': 'bytes=1-5' } });
@@ -1505,7 +1505,7 @@ describe('transmission', () => {
 
             it('returns a subset of a fileStream (-to)', async () => {
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 const res = await server.inject({ url: '/file', headers: { 'range': 'bytes=-5' } });
@@ -1518,7 +1518,7 @@ describe('transmission', () => {
 
             it('returns a subset of a fileStream (from-)', async () => {
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 const res = await server.inject({ url: '/file', headers: { 'range': 'bytes=42005-' } });
@@ -1531,7 +1531,7 @@ describe('transmission', () => {
 
             it('returns a subset of a fileStream (beyond end)', async () => {
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 const res = await server.inject({ url: '/file', headers: { 'range': 'bytes=42005-42011' } });
@@ -1544,7 +1544,7 @@ describe('transmission', () => {
 
             it('returns a subset of a fileStream (if-range)', async () => {
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 await server.inject('/file');
@@ -1559,7 +1559,7 @@ describe('transmission', () => {
 
             it('returns 200 on incorrect if-range', async () => {
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 const res = await server.inject({ url: '/file', headers: { 'range': 'bytes=42005-42011', 'if-range': 'abc' } });
@@ -1568,7 +1568,7 @@ describe('transmission', () => {
 
             it('returns 416 on invalid range (unit)', async () => {
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 const res = await server.inject({ url: '/file', headers: { 'range': 'horses=1-5' } });
@@ -1578,7 +1578,7 @@ describe('transmission', () => {
 
             it('returns 416 on invalid range (inversed)', async () => {
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 const res = await server.inject({ url: '/file', headers: { 'range': 'bytes=5-1' } });
@@ -1588,7 +1588,7 @@ describe('transmission', () => {
 
             it('returns 416 on invalid range (format)', async () => {
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 const res = await server.inject({ url: '/file', headers: { 'range': 'bytes 1-5' } });
@@ -1598,7 +1598,7 @@ describe('transmission', () => {
 
             it('returns 416 on invalid range (empty range)', async () => {
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 const res = await server.inject({ url: '/file', headers: { 'range': 'bytes=-' } });
@@ -1608,7 +1608,7 @@ describe('transmission', () => {
 
             it('returns 200 on multiple ranges', async () => {
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({ method: 'GET', path: '/file', handler: fileStreamHandler });
 
                 const res = await server.inject({ url: '/file', headers: { 'range': 'bytes=1-5,7-10' } });
@@ -1648,7 +1648,7 @@ describe('transmission', () => {
                     }
                 };
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({ method: 'GET', path: '/', handler: () => new TestStream() });
 
                 const res = await server.inject({ url: '/', headers: { 'range': 'bytes=2-4' } });
@@ -1691,7 +1691,7 @@ describe('transmission', () => {
                     }
                 };
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({ method: 'GET', path: '/', handler: () => new TestStream() });
 
                 const res = await server.inject({ url: '/', headers: { 'range': 'bytes=0-1,1-2, 3-5' } });
@@ -1705,7 +1705,7 @@ describe('transmission', () => {
 
         it('skips undefined header values', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('ok').header('x', undefined) });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
@@ -1714,7 +1714,7 @@ describe('transmission', () => {
 
         it('does not add connection close header to normal requests', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: () => 'ok' });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
@@ -1723,7 +1723,7 @@ describe('transmission', () => {
 
         it('returns 500 when node rejects a header', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('ok').header('x', '1').header('', 'test') });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
@@ -1732,7 +1732,7 @@ describe('transmission', () => {
 
         it('returns 500 for out of range status code', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
 
             const handler = (request, h) => {
 
@@ -1762,7 +1762,7 @@ describe('transmission', () => {
 
         it('ignores NaN content-length', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', config: { handler: (request, h) => h.response().header('Content-Length', 'x') } });
 
             const res = await server.inject('/');
@@ -1775,7 +1775,7 @@ describe('transmission', () => {
 
         it('set custom statusMessage', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: (request, h) => h.response({}).message('Great') });
             await server.start();
 
@@ -1808,7 +1808,7 @@ describe('transmission', () => {
                 return h.response(stream).type('text/html');
             };
 
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } });

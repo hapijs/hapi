@@ -27,7 +27,7 @@ describe('Headers', () => {
 
         it('sets max-age value (method and route)', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
 
             const method = function (id) {
 
@@ -54,7 +54,7 @@ describe('Headers', () => {
 
         it('sets max-age value (expiresAt)', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', config: { handler: () => null, cache: { expiresAt: '10:00' } } });
             await server.start();
 
@@ -70,7 +70,7 @@ describe('Headers', () => {
                 throw Boom.badRequest();
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', config: { handler, cache: { expiresIn: 120000 } } });
             const res = await server.inject('/');
             expect(res.headers['cache-control']).to.equal('no-cache');
@@ -83,7 +83,7 @@ describe('Headers', () => {
                 throw Boom.badRequest();
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', config: { handler, cache: { otherwise: 'no-store' } } });
             const res = await server.inject('/');
             expect(res.headers['cache-control']).to.equal('no-store');
@@ -96,7 +96,7 @@ describe('Headers', () => {
                 throw Boom.badRequest();
             };
 
-            const server = new Hapi.Server({ routes: { cache: { statuses: [200, 400] } } });
+            const server = Hapi.server({ routes: { cache: { statuses: [200, 400] } } });
             server.route({ method: 'GET', path: '/', config: { handler, cache: { expiresIn: 120000 } } });
             const res = await server.inject('/');
             expect(res.headers['cache-control']).to.equal('max-age=120, must-revalidate');
@@ -104,7 +104,7 @@ describe('Headers', () => {
 
         it('does not return max-age value when route is not cached', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/item2', config: { handler: () => ({ 'id': '55cf687663', 'name': 'Active Items' }) } });
             const res = await server.inject('/item2');
             expect(res.headers['cache-control']).to.not.equal('max-age=120, must-revalidate');
@@ -112,7 +112,7 @@ describe('Headers', () => {
 
         it('caches using non default cache', async () => {
 
-            const server = new Hapi.Server({ cache: { name: 'primary', engine: CatboxMemory } });
+            const server = Hapi.server({ cache: { name: 'primary', engine: CatboxMemory } });
             const defaults = server.cache({ segment: 'a', expiresIn: 2000 });
             const primary = server.cache({ segment: 'a', expiresIn: 2000, cache: 'primary' });
 
@@ -131,7 +131,7 @@ describe('Headers', () => {
 
         it('leaves existing cache-control header', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('text').code(400).header('cache-control', 'some value') });
 
             const res = await server.inject('/');
@@ -141,7 +141,7 @@ describe('Headers', () => {
 
         it('sets cache-control header from ttl without policy', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('text').ttl(10000) });
 
             const res = await server.inject('/');
@@ -150,7 +150,7 @@ describe('Headers', () => {
 
         it('sets cache-control header from ttl with disabled policy', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', config: { cache: false, handler: (request, h) => h.response('text').ttl(10000) } });
 
             const res = await server.inject('/');
@@ -159,7 +159,7 @@ describe('Headers', () => {
 
         it('leaves existing cache-control header (ttl)', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('text').ttl(1000).header('cache-control', 'none') });
 
             const res = await server.inject('/');
@@ -169,7 +169,7 @@ describe('Headers', () => {
 
         it('includes caching header with 304', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' }, config: { cache: { expiresIn: 60000 } } });
 
@@ -181,7 +181,7 @@ describe('Headers', () => {
 
         it('forbids caching on 304 if 200 is not included', async () => {
 
-            const server = new Hapi.Server({ routes: { cache: { statuses: [400] } } });
+            const server = Hapi.server({ routes: { cache: { statuses: [400] } } });
             await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' }, config: { cache: { expiresIn: 60000 } } });
 
@@ -196,7 +196,7 @@ describe('Headers', () => {
 
         it('does not set security headers by default', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: () => 'Test' });
 
             const res = await server.inject({ url: '/' });
@@ -211,7 +211,7 @@ describe('Headers', () => {
 
         it('returns default security headers when security is true', async () => {
 
-            const server = new Hapi.Server({ routes: { security: true } });
+            const server = Hapi.server({ routes: { security: true } });
             server.route({ method: 'GET', path: '/', handler: () => 'Test' });
 
             const res = await server.inject({ url: '/' });
@@ -226,7 +226,7 @@ describe('Headers', () => {
 
         it('does not set default security headers when the route sets security false', async () => {
 
-            const server = new Hapi.Server({ routes: { security: true } });
+            const server = Hapi.server({ routes: { security: true } });
             server.route({ method: 'GET', path: '/', handler: () => 'Test', config: { security: false } });
 
             const res = await server.inject({ url: '/' });
@@ -241,7 +241,7 @@ describe('Headers', () => {
 
         it('does not return hsts header when secuirty.hsts is false', async () => {
 
-            const server = new Hapi.Server({ routes: { security: { hsts: false } } });
+            const server = Hapi.server({ routes: { security: { hsts: false } } });
             server.route({ method: 'GET', path: '/', handler: () => 'Test' });
 
             const res = await server.inject({ url: '/' });
@@ -256,7 +256,7 @@ describe('Headers', () => {
 
         it('returns only default hsts header when security.hsts is true', async () => {
 
-            const server = new Hapi.Server({ routes: { security: { hsts: true } } });
+            const server = Hapi.server({ routes: { security: { hsts: true } } });
             server.route({ method: 'GET', path: '/', handler: () => 'Test' });
 
             const res = await server.inject({ url: '/' });
@@ -267,7 +267,7 @@ describe('Headers', () => {
 
         it('returns correct hsts header when security.hsts is a number', async () => {
 
-            const server = new Hapi.Server({ routes: { security: { hsts: 123456789 } } });
+            const server = Hapi.server({ routes: { security: { hsts: 123456789 } } });
             server.route({ method: 'GET', path: '/', handler: () => 'Test' });
 
             const res = await server.inject({ url: '/' });
@@ -278,7 +278,7 @@ describe('Headers', () => {
 
         it('returns correct hsts header when security.hsts is an object', async () => {
 
-            const server = new Hapi.Server({ routes: { security: { hsts: { maxAge: 123456789, includeSubDomains: true } } } });
+            const server = Hapi.server({ routes: { security: { hsts: { maxAge: 123456789, includeSubDomains: true } } } });
             server.route({ method: 'GET', path: '/', handler: () => 'Test' });
 
             const res = await server.inject({ url: '/' });
@@ -289,7 +289,7 @@ describe('Headers', () => {
 
         it('returns the correct hsts header when security.hsts is an object only sepcifying maxAge', async () => {
 
-            const server = new Hapi.Server({ routes: { security: { hsts: { maxAge: 123456789 } } } });
+            const server = Hapi.server({ routes: { security: { hsts: { maxAge: 123456789 } } } });
             server.route({ method: 'GET', path: '/', handler: () => 'Test' });
 
             const res = await server.inject({ url: '/' });
@@ -300,7 +300,7 @@ describe('Headers', () => {
 
         it('returns correct hsts header when security.hsts is an object only specifying includeSubdomains', async () => {
 
-            const server = new Hapi.Server({ routes: { security: { hsts: { includeSubdomains: true } } } });
+            const server = Hapi.server({ routes: { security: { hsts: { includeSubdomains: true } } } });
             server.route({ method: 'GET', path: '/', handler: () => 'Test' });
 
             const res = await server.inject({ url: '/' });
@@ -311,7 +311,7 @@ describe('Headers', () => {
 
         it('returns correct hsts header when security.hsts is an object only specifying includeSubDomains', async () => {
 
-            const server = new Hapi.Server({ routes: { security: { hsts: { includeSubDomains: true } } } });
+            const server = Hapi.server({ routes: { security: { hsts: { includeSubDomains: true } } } });
             server.route({ method: 'GET', path: '/', handler: () => 'Test' });
 
             const res = await server.inject({ url: '/' });
@@ -322,7 +322,7 @@ describe('Headers', () => {
 
         it('returns correct hsts header when security.hsts is an object only specifying includeSubDomains and preload', async () => {
 
-            const server = new Hapi.Server({ routes: { security: { hsts: { includeSubDomains: true, preload: true } } } });
+            const server = Hapi.server({ routes: { security: { hsts: { includeSubDomains: true, preload: true } } } });
             server.route({ method: 'GET', path: '/', handler: () => 'Test' });
 
             const res = await server.inject({ url: '/' });
@@ -333,7 +333,7 @@ describe('Headers', () => {
 
         it('does not return the xframe header whe security.xframe is false', async () => {
 
-            const server = new Hapi.Server({ routes: { security: { xframe: false } } });
+            const server = Hapi.server({ routes: { security: { xframe: false } } });
             server.route({ method: 'GET', path: '/', handler: () => 'Test' });
 
             const res = await server.inject({ url: '/' });
@@ -348,7 +348,7 @@ describe('Headers', () => {
 
         it('returns only default xframe header when security.xframe is true', async () => {
 
-            const server = new Hapi.Server({ routes: { security: { xframe: true } } });
+            const server = Hapi.server({ routes: { security: { xframe: true } } });
             server.route({ method: 'GET', path: '/', handler: () => 'Test' });
 
             const res = await server.inject({ url: '/' });
@@ -359,7 +359,7 @@ describe('Headers', () => {
 
         it('returns correct xframe header when security.xframe is a string', async () => {
 
-            const server = new Hapi.Server({ routes: { security: { xframe: 'sameorigin' } } });
+            const server = Hapi.server({ routes: { security: { xframe: 'sameorigin' } } });
             server.route({ method: 'GET', path: '/', handler: () => 'Test' });
 
             const res = await server.inject({ url: '/' });
@@ -370,7 +370,7 @@ describe('Headers', () => {
 
         it('returns correct xframe header when security.xframe is an object', async () => {
 
-            const server = new Hapi.Server({ routes: { security: { xframe: { rule: 'allow-from', source: 'http://example.com' } } } });
+            const server = Hapi.server({ routes: { security: { xframe: { rule: 'allow-from', source: 'http://example.com' } } } });
             server.route({ method: 'GET', path: '/', handler: () => 'Test' });
 
             const res = await server.inject({ url: '/' });
@@ -381,7 +381,7 @@ describe('Headers', () => {
 
         it('returns correct xframe header when security.xframe is an object', async () => {
 
-            const server = new Hapi.Server({ routes: { security: { xframe: { rule: 'deny' } } } });
+            const server = Hapi.server({ routes: { security: { xframe: { rule: 'deny' } } } });
             server.route({ method: 'GET', path: '/', handler: () => 'Test' });
 
             const res = await server.inject({ url: '/' });
@@ -392,7 +392,7 @@ describe('Headers', () => {
 
         it('returns sameorigin xframe header when rule is allow-from but source is unspecified', async () => {
 
-            const server = new Hapi.Server({ routes: { security: { xframe: { rule: 'allow-from' } } } });
+            const server = Hapi.server({ routes: { security: { xframe: { rule: 'allow-from' } } } });
             server.route({ method: 'GET', path: '/', handler: () => 'Test' });
 
             const res = await server.inject({ url: '/' });
@@ -404,7 +404,7 @@ describe('Headers', () => {
 
         it('does not set x-download-options if noOpen is false', async () => {
 
-            const server = new Hapi.Server({ routes: { security: { noOpen: false } } });
+            const server = Hapi.server({ routes: { security: { noOpen: false } } });
             server.route({ method: 'GET', path: '/', handler: () => 'Test' });
 
             const res = await server.inject({ url: '/' });
@@ -415,7 +415,7 @@ describe('Headers', () => {
 
         it('does not set x-content-type-options if noSniff is false', async () => {
 
-            const server = new Hapi.Server({ routes: { security: { noSniff: false } } });
+            const server = Hapi.server({ routes: { security: { noSniff: false } } });
             server.route({ method: 'GET', path: '/', handler: () => 'Test' });
 
             const res = await server.inject({ url: '/' });
@@ -426,7 +426,7 @@ describe('Headers', () => {
 
         it('does not set the x-xss-protection header when security.xss is false', async () => {
 
-            const server = new Hapi.Server({ routes: { security: { xss: false } } });
+            const server = Hapi.server({ routes: { security: { xss: false } } });
             server.route({ method: 'GET', path: '/', handler: () => 'Test' });
 
             const res = await server.inject({ url: '/' });
@@ -444,7 +444,7 @@ describe('Headers', () => {
 
         it('does not modify content-type header when charset manually set', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('text').type('text/plain; charset=ISO-8859-1') });
 
             const res = await server.inject('/');
@@ -454,7 +454,7 @@ describe('Headers', () => {
 
         it('does not modify content-type header when charset is unset', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('text').type('text/plain').charset() });
 
             const res = await server.inject('/');
@@ -464,7 +464,7 @@ describe('Headers', () => {
 
         it('does not modify content-type header when charset is unset (default type)', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('text').charset() });
 
             const res = await server.inject('/');
