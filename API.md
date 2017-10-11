@@ -2977,7 +2977,11 @@ Note that prerequisites do not follow the same rules of the normal
 [reply interface](#reply-interface). In all other cases, calling `reply()` with or without a value
 will use the result as the response sent back to the client. In a prerequisite method, calling
 `reply()` will assign the returned value to the provided `assign` key. If the returned value is an
-error, the `failAction` setting determines the behavior. To force the return value as the response
+error, the `failAction` setting determines the behavior.
+
+Prerequisites are not parallel. They are kicked off asynchronously. However, prerequisite methods can have parallel operations within them. The Handler gets the reply once all prerequisite methods are done.
+
+To force the return value as the response
 and skip any other prerequisites and the handler, use the `reply().takeover()` method.
 
 The reason for the difference in the reply interface behavior is to allow reusing handlers and
