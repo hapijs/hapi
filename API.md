@@ -93,7 +93,9 @@
     - [`reply.state(name, value, [options])`](#replystatenamevalueoptions)
     - [`reply.unstate(name, [options])`](#replyunstatenameoptions)
 
-## Server
+[Test](#test)
+
+## <a name='test'></a> Server
 
 The `Server` object is the main application container. The server manages all incoming connections
 along with all the facilities provided by the framework. A server can contain more than one
