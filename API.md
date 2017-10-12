@@ -1,7 +1,5 @@
 # 16.6.x API Reference
 
-_**aaa**_
-
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
     - [Server properties](#server-properties)
