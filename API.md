@@ -3419,9 +3419,9 @@ the same. The following is the complete list of steps a request can go through:
     - skips to _**Finalize request**_ on abort.
 
 - _**onPostHandler**_
-    - The response object contained in `request.response` may be modified (but not assigned a new
+    - the response contained in [`request.response`](#todo) may be modified (but not assigned a new
       value). To return a different response type (for example, replace an error with an HTML
-      response), return a new response via `reply(response)`.
+      response), return a new response value.
     - continues to **_Response validation**_ on first error or first takeover response.
     - skips to _**Finalize request**_ on abort.
 
@@ -3445,6 +3445,11 @@ the same. The following is the complete list of steps a request can go through:
     - emits `'response'` event.
 
 ### Lifecycle methods
+
+Lifecycle methods are the main interface between the framework and the application business logic.
+The request lifecycle includes many steps that execute application code such as [extensions](#todo),
+[authentication](#todo), [handlers](#route.options.handler), [pre-handler methods](#route.options.pre),
+and [fail-action methods](#todo).
 
 A function with the signature `await function(request, h)` where:
 - `request` - the [request object](#request-object).
@@ -3963,110 +3968,110 @@ The request properties change throughout the [request lifecycle](#request-lifecy
 
 #### <a name="request.app" /> `app`
 
-- `` - application-specific state. Provides a safe place to store application data without
-  potential conflicts with the framework. Should not be used by [plugins](#plugins) which should use
-  `plugins[name]`.
+Application-specific state. Provides a safe place to store application data without potential
+conflicts with the framework. Should not be used by [plugins](#plugins) which should use
+`plugins[name]`.
 
 #### <a name="request.auth" /> `auth`
 
-- `` - authentication information:
-    - `isAuthenticated` - `true` if the request has been successfully authenticated, otherwise
-      `false`.
-    - `credentials` - the `credential` object received during the authentication process. The
-      presence of an object does not mean successful authentication.
-    - `artifacts` - an artifact object received from the authentication strategy and used in
-      authentication-related actions.
-    - `mode` - the route authentication mode.
-    - `error` - the authentication error is failed and mode set to `'try'`.
+Authentication information:
+- `isAuthenticated` - `true` if the request has been successfully authenticated, otherwise `false`.
+- `credentials` - the `credential` object received during the authentication process. The
+  presence of an object does not mean successful authentication.
+- `artifacts` - an artifact object received from the authentication strategy and used in
+  authentication-related actions.
+- `mode` - the route authentication mode.
+- `error` - the authentication error is failed and mode set to `'try'`.
 
 #### <a name="request.headers" /> `headers`
 
-- `` - the raw request headers (references `request.raw.headers`).
+The raw request headers (references `request.raw.req.headers`).
 
 #### <a name="request.info" /> `info`
 
-- `` - request information:
-    - `acceptEncoding` - the request preferred encoding.
-    - `cors` - if CORS is enabled for the route, contains the following:
-        - `isOriginMatch` - `true` if the request 'Origin' header matches the configured CORS
-          restrictions. Set to `false` if no 'Origin' header is found or if it does not match.
-          Note that this is only available after the `'onRequest'` extension point as CORS is
-          configured per-route and no routing decisions are made at that point in the request
-          lifecycle.
-    - `host` - content of the HTTP 'Host' header (e.g. 'example.com:8080').
-    - `hostname` - the hostname part of the 'Host' header (e.g. 'example.com').
+Request information:
+- `acceptEncoding` - the request preferred encoding.
+- `cors` - if CORS is enabled for the route, contains the following:
+    - `isOriginMatch` - `true` if the request 'Origin' header matches the configured CORS
+      restrictions. Set to `false` if no 'Origin' header is found or if it does not match.
+      Note that this is only available after the `'onRequest'` extension point as CORS is
+      configured per-route and no routing decisions are made at that point in the request
+      lifecycle.
+- `host` - content of the HTTP 'Host' header (e.g. 'example.com:8080').
+- `hostname` - the hostname part of the 'Host' header (e.g. 'example.com').
 - `id` - a unique request identifier (using the format '{now}:{connection.info.id}:{5 digits counter}').
-    - `received` - request reception timestamp.
-    - `referrer` - content of the HTTP 'Referrer' (or 'Referer') header.
-    - `remoteAddress` - remote client IP address.
-    - `remotePort` - remote client port.
-    - `responded` - request response timestamp (`0` is not responded yet).
+- `received` - request reception timestamp.
+- `referrer` - content of the HTTP 'Referrer' (or 'Referer') header.
+- `remoteAddress` - remote client IP address.
+- `remotePort` - remote client port.
+- `responded` - request response timestamp (`0` is not responded yet).
 
 #### <a name="request.method" /> `method`
 
-- `` - the request method in lower case (e.g. `'get'`, `'post'`).
+The request method in lower case (e.g. `'get'`, `'post'`).
 
 #### <a name="request.mime" /> `mime`
 
-- `` - the parsed content-type header. Only available when payload parsing enabled and no
+The parsed content-type header. Only available when payload parsing enabled and no
   payload error occurred.
 
 #### <a name="request.orig" /> `orig`
 
-- `` - an object containing the values of `params`, `query`, and `payload` before any
-  validation modifications made. Only set when input validation is performed.
+An object containing the values of `params`, `query`, and `payload` before any validation
+modifications made. Only set when input validation is performed.
 
 #### <a name="request.params" /> `params`
 
-- `` - an object where each key is a path parameter name with matching value as described in
-  [Path parameters](#path-parameters).
+An object where each key is a path parameter name with matching value as described in
+[Path parameters](#path-parameters).
 
 #### <a name="request.paramsArray" /> `paramsArray`
 
-- `` - an array containing all the path `params` values in the order they appeared in
-  the path.
+An array containing all the path `params` values in the order they appeared in the path.
 
 #### <a name="request.path" /> `path`
 
-- `` - the request URI's [pathname](https://nodejs.org/api/url.html#url_urlobject_pathname) component.
+The request URI's [pathname](https://nodejs.org/api/url.html#url_urlobject_pathname) component.
 
 #### <a name="request.payload" /> `payload`
 
-- `` - the request payload based on the route `payload.output` and `payload.parse` settings.
+The request payload based on the route `payload.output` and `payload.parse` settings.
 
 #### <a name="request.plugins" /> `plugins`
 
-- `` - plugin-specific state. Provides a place to store and pass request-level plugin data.
-  The `plugins` is an object where each key is a plugin name and the value is the state.
+Plugin-specific state. Provides a place to store and pass request-level plugin data. The `plugins`
+is an object where each key is a plugin name and the value is the state.
 
 #### <a name="request.pre" /> `pre`
 
-- `` - an object where each key is the name assigned by a
-  [route pre-handler methods](#route.options.pre) function. The values are the raw values provided to
-  the continuation function as argument. For the wrapped response object, use `responses`.
+An object where each key is the name assigned by a [route pre-handler methods](#route.options.pre)
+function. The values are the raw values provided to the continuation function as argument. For the
+wrapped response object, use `responses`.
 
 #### <a name="request.response" /> `response`
 
-- `` - the response object when set. The object can be modified but must not be assigned
-  another object. To replace the response with another from within an
-  [extension point](#serverextevent-method-options), use `reply(response)` to override with a
-  different response. Contains `null` when no response has been set (e.g. when a request terminates
-  prematurely when the client disconnects).
+The response object when set. The object can be modified but must not be assigned another object.
+To replace the response with another from within an [extension point](#serverextevent-method-options),
+use `reply(response)` to override with a different response. Contains `null` when no response has
+been set (e.g. when a request terminates prematurely when the client disconnects).
 
 #### <a name="request.preResponses" /> `preResponses`
 
-- `` - same as `pre` but represented as the response object created by the pre method.
+Same as `pre` but represented as the response object created by the pre method.
 
 #### <a name="request.query" /> `query`
 
-- `` - by default the object outputted from [node's URL parse()](https://nodejs.org/docs/latest/api/url.html#url_urlobject_query) method.  Might also be set indirectly via [request.setUrl](#requestseturlurl-striptrailingslash) in which case it may be a `string` (if `url` is set to an object with the `query` attribute as an unparsed string).
+By default the object outputted from [node's URL parse()](https://nodejs.org/docs/latest/api/url.html#url_urlobject_query)
+method.  Might also be set indirectly via [request.setUrl](#requestseturlurl-striptrailingslash)
+in which case it may be a `string` (if `url` is set to an object with the `query` attribute as an
+unparsed string).
 
 #### <a name="request.raw" /> `raw`
 
-- `` - an object containing the Node HTTP server objects. **Direct interaction with these raw
-  objects is not recommended.**
-    - `req` - the node request object.
-    - `res` - the node response object.
+An object containing the Node HTTP server objects. **Direct interaction with these raw objects is
+not recommended.**
+- `req` - the node request object.
+- `res` - the node response object.
 
 #### <a name="request.route" /> `route`
 
@@ -4090,93 +4095,22 @@ The request route information object, where:
 
 #### <a name="request.server" /> `server`
 
-- `` - the server object.
+The server object.
 
 #### <a name="request.state" /> `state`
 
-- `` - an object containing parsed HTTP state information (cookies) where each key is the
-  cookie name and value is the matching cookie content after processing using any registered cookie
-  definition.
+An object containing parsed HTTP state information (cookies) where each key is the cookie name and
+value is the matching cookie content after processing using any registered cookie definition.
 
-#### <a name="request.url" /> url``
+#### <a name="request.url" /> `url`
 
-- `` - the parsed request URI.
-
-### `request.setUrl(url, [stripTrailingSlash]`
-
-Changes the request URI before the router begins processing the request where:
- - `url` - the new request URI. If `url` is a string, it is parsed with [node's **URL**
- `parse()`](https://nodejs.org/docs/latest/api/url.html#url_url_parse_urlstring_parsequerystring_slashesdenotehost)
- method with `parseQueryString` set to `true`.  `url` can also be set to an object
- compatible with node's **URL** `parse()` method output.
- - `stripTrailingSlash` - if `true`, strip the trailing slash from the path. Defaults to `false`.
-
-```js
-const Hapi = require('hapi');
-const server = Hapi.server({ port: 80 });
-
-const onRequest = function (request, h) {
-
-    // Change all requests to '/test'
-    request.setUrl('/test');
-    return h.continue;
-};
-
-server.ext('onRequest', onRequest);
-```
-
-To use another query string parser:
-
-```js
-const Url = require('url');
-const Hapi = require('hapi');
-const Qs = require('qs');
-
-const server = Hapi.server({ port: 80 });
-
-const onRequest = function (request, h) {
-
-    const uri = request.url.href;
-    const parsed = Url.parse(uri, false);
-    parsed.query = Qs.parse(parsed.query);
-    request.setUrl(parsed);
-
-    return h.continue;
-};
-
-server.ext('onRequest', onRequest);
-```
-
-Can only be called from an `'onRequest'` extension method.
-
-### `request.setMethod(method)`
-
-Changes the request method before the router begins processing the request where:
-- `method` - is the request HTTP method (e.g. `'GET'`).
-
-```js
-const Hapi = require('hapi');
-const server = Hapi.server({ port: 80 });
-
-const onRequest = function (request, h) {
-
-    // Change all requests to 'GET'
-    request.setMethod('GET');
-    return h.continue;
-};
-
-server.ext('onRequest', onRequest);
-```
-
-Can only be called from an `'onRequest'` extension method.
+The parsed request URI.
 
 ### `request.generateResponse(source, [options])`
 
 Returns a [`response`](#response-object) which you can pass into the [reply interface](#response-toolkit) where:
 - `source` - the value to set as the source of the [reply interface](#response-toolkit), optional.
 - `options` - options for the method, optional.
-
-```
 
 ### `request.log(tags, [data, [timestamp]])`
 
@@ -4229,6 +4163,74 @@ request.getLog(['error', 'auth']);
 request.getLog(['error'], true);
 request.getLog(false);
 ```
+
+### `request.setMethod(method)`
+
+Changes the request method before the router begins processing the request where:
+- `method` - is the request HTTP method (e.g. `'GET'`).
+
+```js
+const Hapi = require('hapi');
+const server = Hapi.server({ port: 80 });
+
+const onRequest = function (request, h) {
+
+    // Change all requests to 'GET'
+    request.setMethod('GET');
+    return h.continue;
+};
+
+server.ext('onRequest', onRequest);
+```
+
+Can only be called from an `'onRequest'` extension method.
+
+### `request.setUrl(url, [stripTrailingSlash]`
+
+Changes the request URI before the router begins processing the request where:
+ - `url` - the new request URI. If `url` is a string, it is parsed with [node's **URL**
+ `parse()`](https://nodejs.org/docs/latest/api/url.html#url_url_parse_urlstring_parsequerystring_slashesdenotehost)
+ method with `parseQueryString` set to `true`.  `url` can also be set to an object
+ compatible with node's **URL** `parse()` method output.
+ - `stripTrailingSlash` - if `true`, strip the trailing slash from the path. Defaults to `false`.
+
+```js
+const Hapi = require('hapi');
+const server = Hapi.server({ port: 80 });
+
+const onRequest = function (request, h) {
+
+    // Change all requests to '/test'
+    request.setUrl('/test');
+    return h.continue;
+};
+
+server.ext('onRequest', onRequest);
+```
+
+To use another query string parser:
+
+```js
+const Url = require('url');
+const Hapi = require('hapi');
+const Qs = require('qs');
+
+const server = Hapi.server({ port: 80 });
+
+const onRequest = function (request, h) {
+
+    const uri = request.url.href;
+    const parsed = Url.parse(uri, false);
+    parsed.query = Qs.parse(parsed.query);
+    request.setUrl(parsed);
+
+    return h.continue;
+};
+
+server.ext('onRequest', onRequest);
+```
+
+Can only be called from an `'onRequest'` extension method.
 
 ### Request events
 

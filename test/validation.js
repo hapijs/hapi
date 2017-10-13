@@ -524,9 +524,9 @@ describe('validation', () => {
                         query: {
                             a: Joi.string().min(2)
                         },
-                        failAction: function (request, h, source, error) {
+                        failAction: function (request, h, err) {
 
-                            return h.response('Got error in ' + source + ' where ' + error.output.payload.validation.keys[0] + ' is bad').code(400);
+                            return h.response('Got error in ' + err.output.payload.validation.source + ' where ' + err.output.payload.validation.keys[0] + ' is bad').code(400);
                         }
                     }
                 }
@@ -549,7 +549,7 @@ describe('validation', () => {
                         query: {
                             a: Joi.string().min(2)
                         },
-                        failAction: function (request, h, source, error) {
+                        failAction: function (request, h, err) {
 
                             throw new Error('my bad');
                         }
@@ -1452,7 +1452,7 @@ describe('validation', () => {
                 config: {
                     handler: () => ({ a: '1' }),
                     response: {
-                        failAction: function (request, h, error) {
+                        failAction: function (request, h, err) {
 
                             return h.response('Validation Error Occurred').code(400);
                         },
