@@ -3451,7 +3451,8 @@ The request lifecycle includes many steps that execute application code such as 
 [authentication](#todo), [handlers](#route.options.handler), [pre-handler methods](#route.options.pre),
 and [fail-action methods](#todo).
 
-A function with the signature `await function(request, h)` where:
+In each of these steps, a lifecycle method provided by the developer is executed by the framework.
+Each lifecycle method is a function with the signature `await function(request, h)` where:
 - `request` - the [request object](#request-object).
 - `h` - the [response toolkit](#response-toolkit) the handler must call to set a response and
   return control back to the framework.

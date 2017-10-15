@@ -494,7 +494,19 @@ describe('Request', () => {
         });
     });
 
-    describe('_invoke()', () => {
+    describe('_onRequest()', () => {
+
+        it('errors on non-takeover response', async () => {
+
+            const server = Hapi.server({ debug: false });
+            server.ext('onRequest', () => 'something');
+            server.route({ method: 'GET', path: '/', handler: () => null });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+        });
+    });
+
+    describe('_lifecycle()', () => {
 
         it('errors on non-takeover response in pre handler ext', async () => {
 

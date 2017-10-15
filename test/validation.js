@@ -526,7 +526,7 @@ describe('validation', () => {
                         },
                         failAction: function (request, h, err) {
 
-                            return h.response('Got error in ' + err.output.payload.validation.source + ' where ' + err.output.payload.validation.keys[0] + ' is bad').code(400);
+                            return h.response('Got error in ' + err.output.payload.validation.source + ' where ' + err.output.payload.validation.keys[0] + ' is bad').code(400).takeover();
                         }
                     }
                 }
@@ -1435,7 +1435,7 @@ describe('validation', () => {
             server.events.on('request-internal', (request, event, tags) => {
 
                 if (tags.validation) {
-                    expect(event.data).to.equal('"a" is not allowed');
+                    expect(event.data.message).to.equal('"a" is not allowed');
                 }
             });
 
@@ -1466,6 +1466,58 @@ describe('validation', () => {
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(400);
             expect(res.payload).to.equal('Validation Error Occurred');
+        });
+
+        it('combines onPreResponse with response validation override', async () => {
+
+            const server = Hapi.server();
+            server.ext('onPreResponse', () => 'else');
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    handler: () => ({ a: '1' }),
+                    response: {
+                        failAction: function (request, h, err) {
+
+                            return h.response('something');
+                        },
+                        schema: {
+                            b: Joi.string()
+                        }
+                    }
+                }
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('else');
+        });
+
+        it('combines onPreResponse with response validation override takeover', async () => {
+
+            const server = Hapi.server();
+            server.ext('onPreResponse', () => 'else');
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    handler: () => ({ a: '1' }),
+                    response: {
+                        failAction: function (request, h, err) {
+
+                            return h.response('something').takeover();
+                        },
+                        schema: {
+                            b: Joi.string()
+                        }
+                    }
+                }
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('else');
         });
 
         it('validates string response', async () => {

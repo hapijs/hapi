@@ -218,7 +218,7 @@ describe('Route', () => {
                     parse: true,
                     failAction: function (request, h, error) {
 
-                        return h.response('This is a custom error').code(418);
+                        return h.response('This is a custom error').code(418).takeover();
                     }
                 }
             }

@@ -169,7 +169,7 @@ describe('authentication', () => {
                 });
 
                 return {
-                    authenticate: (request, h) => h.view('test', { message: 'xyz' })
+                    authenticate: (request, h) => h.view('test', { message: 'xyz' }).takeover()
                 };
             };
 
@@ -1144,7 +1144,7 @@ describe('authentication', () => {
             server.auth.scheme('test', (srv, options) => {
 
                 return {
-                    authenticate: (request, h) => h.response('Redirecting ...').redirect('/test')
+                    authenticate: (request, h) => h.response('Redirecting ...').redirect('/test').takeover()
                 };
             });
 
@@ -1617,7 +1617,7 @@ internals.implementation = function (server, options) {
             }
 
             if (typeof credentials === 'string') {
-                return credentials;
+                return h.response(credentials).takeover();
             }
 
             credentials.user = credentials.user || null;
@@ -1638,11 +1638,16 @@ internals.implementation = function (server, options) {
 
         scheme.payload = (request, h) => {
 
-            if (request.auth.credentials.payload) {
-                return request.auth.credentials.payload;
+            const result = request.auth.credentials.payload;
+            if (!result) {
+                return h.continue;
             }
 
-            return h.continue;
+            if (result.isBoom) {
+                throw result;
+            }
+
+            return h.response(request.auth.credentials.payload).takeover();
         };
     }
 
