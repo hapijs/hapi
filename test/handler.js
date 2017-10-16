@@ -445,6 +445,66 @@ describe('handler', () => {
             expect(logged.data.assign).to.equal('before');
         });
 
+        it('sets pre failAction to method', async () => {
+
+            const server = Hapi.server();
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    pre: [
+                        {
+                            assign: 'value',
+                            method: () => {
+
+                                throw Boom.forbidden();
+                            },
+                            failAction: (request, h, err) => {
+
+                                expect(err.output.statusCode).to.equal(403);
+                                return 'failed';
+                            }
+                        }
+                    ],
+                    handler: (request) => (request.pre.value + '!')
+                }
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('failed!');
+        });
+
+        it('sets pre failAction to method with takeover', async () => {
+
+            const server = Hapi.server();
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    pre: [
+                        {
+                            assign: 'value',
+                            method: () => {
+
+                                throw Boom.forbidden();
+                            },
+                            failAction: (request, h, err) => {
+
+                                expect(err.output.statusCode).to.equal(403);
+                                return h.response('failed').takeover();
+                            }
+                        }
+                    ],
+                    handler: (request) => (request.pre.value + '!')
+                }
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('failed');
+        });
+
         it('binds pre to route bind object', async () => {
 
             const item = { x: 123 };
