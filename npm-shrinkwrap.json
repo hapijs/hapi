@@ -52,8 +52,8 @@
       "resolved": "https://registry.npmjs.org/iron/-/iron-5.0.1.tgz"
     },
     "joi": {
-      "version": "11.1.0",
-      "resolved": "https://registry.npmjs.org/joi/-/joi-11.1.0.tgz"
+      "version": "13.0.0",
+      "resolved": "https://registry.npmjs.org/joi/-/joi-13.0.0.tgz"
     },
     "mime-db": {
       "version": "1.30.0",

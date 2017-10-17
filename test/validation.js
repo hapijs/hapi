@@ -305,7 +305,7 @@ describe('validation', () => {
             });
 
             const res = await server.inject('/?a=456');
-            expect(res.statusCode).to.equal(500);
+            expect(res.statusCode).to.equal(400);
         });
 
         it('casts input to desired type', async () => {
@@ -377,12 +377,13 @@ describe('validation', () => {
                 handler: () => 'ok',
                 config: {
                     validate: {
-                        query: false
+                        query: false,
+                        failAction: (request, h, err) => err            // Expose detailed error
                     }
                 }
             });
 
-            server.ext('onPreResponse', (request) => request.response.data.details[0].path);
+            server.ext('onPreResponse', (request) => request.response.details[0].path);
 
             const res = await server.inject('/?a=123');
             expect(res.statusCode).to.equal(200);
@@ -463,10 +464,6 @@ describe('validation', () => {
 
             const res = await server.inject('/?a=1');
             expect(res.statusCode).to.equal(400);
-            expect(res.result.validation).to.equal({
-                source: 'query',
-                keys: ['a']
-            });
         });
 
         it('ignores invalid input', async () => {
@@ -509,7 +506,7 @@ describe('validation', () => {
 
             const res = await server.inject('/?a=1');
             expect(res.statusCode).to.equal(200);
-            expect(res.result.data.output.payload.message).to.equal('child "a" fails because ["a" length must be at least 2 characters long]');
+            expect(res.result.data.output.payload.message).to.equal('Invalid request query input');
         });
 
         it('replaces error with message on invalid input', async () => {
@@ -575,7 +572,8 @@ describe('validation', () => {
                         },
                         errorFields: {
                             walt: 'jr'
-                        }
+                        },
+                        failAction: (request, h, err) => err            // Expose detailed error
                     }
                 }
             });
@@ -630,14 +628,14 @@ describe('validation', () => {
 
             const res1 = await server.inject({ url: '/', method: 'GET' });
             expect(res1.statusCode).to.equal(400);
-            expect(res1.result.message).to.equal('child "a" fails because ["a" is required]');
+            expect(res1.result.message).to.equal('Invalid request query input');
 
             const res2 = await server.inject({ url: '/?a=1', method: 'GET' });
             expect(res2.statusCode).to.equal(200);
 
             const res3 = await server.inject({ url: '/other', method: 'GET' });
             expect(res3.statusCode).to.equal(400);
-            expect(res3.result.message).to.equal('child "b" fails because ["b" is required]');
+            expect(res3.result.message).to.equal('Invalid request query input');
 
             const res4 = await server.inject({ url: '/other?b=1', method: 'GET' });
             expect(res4.statusCode).to.equal(200);
@@ -654,7 +652,8 @@ describe('validation', () => {
                     validate: {
                         payload: {
                             a: Joi.string().min(8)
-                        }
+                        },
+                        failAction: (request, h, err) => err            // Expose detailed error
                     }
                 }
             });
@@ -704,7 +703,7 @@ describe('validation', () => {
 
             const res = await server.inject({ method: 'POST', url: '/?a=1', payload: 'some text', headers: { 'content-type': 'text/plain' } });
             expect(res.statusCode).to.equal(400);
-            expect(res.result.message).to.equal('"value" must be an object');
+            expect(res.result.message).to.equal('Invalid request payload input');
         });
 
         it('fails on null input', async () => {
@@ -718,7 +717,8 @@ describe('validation', () => {
                     validate: {
                         payload: {
                             a: Joi.string().required()
-                        }
+                        },
+                        failAction: (request, h, err) => err            // Expose detailed error
                     }
                 }
             });
@@ -739,7 +739,8 @@ describe('validation', () => {
                     validate: {
                         payload: {
                             a: Joi.string().required()
-                        }
+                        },
+                        failAction: (request, h, err) => err            // Expose detailed error
                     }
                 }
             });
