@@ -1083,6 +1083,78 @@ describe('Server', () => {
             expect(res.result.status).to.equal('ok');
         });
 
+        it('add new handler', async () => {
+
+            const test = function (srv, options1) {
+
+                const handler = function (route, options2) {
+
+                    return (request) => 'success';
+                };
+
+                srv.decorate('handler', 'bar', handler);
+            };
+
+            test.attributes = {
+                name: 'test'
+            };
+
+            const server = Hapi.server();
+            await server.register(test);
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: {
+                    bar: {}
+                }
+            });
+
+            const res = await server.inject('/');
+            expect(res.payload).to.equal('success');
+        });
+
+        it('errors on duplicate handler', async () => {
+
+            const server = Hapi.server();
+            await server.register(Inert);
+
+            expect(() => {
+
+                server.decorate('handler', 'file', () => { });
+            }).to.throw('Handler name already exists: file');
+        });
+
+        it('errors on unknown handler', async () => {
+
+            const server = Hapi.server();
+
+            expect(() => {
+
+                server.route({ method: 'GET', path: '/', handler: { test: {} } });
+            }).to.throw('Unknown handler: test');
+        });
+
+        it('errors on non-string name', async () => {
+
+            const server = Hapi.server();
+
+            expect(() => {
+
+                server.decorate('handler', null);
+            }).to.throw('Missing decoration property name');
+        });
+
+        it('errors on non-function handler', async () => {
+
+            const server = Hapi.server();
+
+            expect(() => {
+
+                server.decorate('handler', 'foo', 'bar');
+            }).to.throw('Handler must be a function: foo');
+        });
+
         it('throws on double toolkit decoration', async () => {
 
             const server = Hapi.server();
@@ -1829,81 +1901,6 @@ describe('Server', () => {
 
                 server.ext('onPreStart', () => { });
             }).to.throw('Cannot add onPreStart (after) extension after the server was initialized');
-        });
-    });
-
-    describe('handler()', () => {
-
-        it('add new handler', async () => {
-
-            const test = function (srv, options1) {
-
-                const handler = function (route, options2) {
-
-                    return (request) => 'success';
-                };
-
-                srv.handler('bar', handler);
-            };
-
-            test.attributes = {
-                name: 'test'
-            };
-
-            const server = Hapi.server();
-            await server.register(test);
-
-            server.route({
-                method: 'GET',
-                path: '/',
-                handler: {
-                    bar: {}
-                }
-            });
-
-            const res = await server.inject('/');
-            expect(res.payload).to.equal('success');
-        });
-
-        it('errors on duplicate handler', async () => {
-
-            const server = Hapi.server();
-            await server.register(Inert);
-
-            expect(() => {
-
-                server.handler('file', () => { });
-            }).to.throw('Handler name already exists: file');
-        });
-
-        it('errors on unknown handler', async () => {
-
-            const server = Hapi.server();
-
-            expect(() => {
-
-                server.route({ method: 'GET', path: '/', handler: { test: {} } });
-            }).to.throw('Unknown handler: test');
-        });
-
-        it('errors on non-string name', async () => {
-
-            const server = Hapi.server();
-
-            expect(() => {
-
-                server.handler();
-            }).to.throw('Invalid handler name');
-        });
-
-        it('errors on non-function handler', async () => {
-
-            const server = Hapi.server();
-
-            expect(() => {
-
-                server.handler('foo', 'bar');
-            }).to.throw('Handler must be a function: foo');
         });
     });
 

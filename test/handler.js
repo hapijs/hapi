@@ -577,7 +577,7 @@ describe('handler', () => {
             };
 
             const server = Hapi.server();
-            server.handler('test', handler);
+            server.decorate('handler', 'test', handler);
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
             const res = await server.inject('/');
             expect(res.result).to.equal({});
@@ -597,7 +597,7 @@ describe('handler', () => {
             };
 
             const server = Hapi.server();
-            server.handler('test', handler);
+            server.decorate('handler', 'test', handler);
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
             const res = await server.inject('/');
             expect(res.result).to.equal({ x: 1 });
@@ -620,7 +620,7 @@ describe('handler', () => {
             };
 
             const server = Hapi.server();
-            server.handler('test', handler);
+            server.decorate('handler', 'test', handler);
             server.route({ method: 'get', path: '/', handler: { test: 'value' } });
             const res = await server.inject('/');
             expect(res.result).to.equal({ x: 'get' });
@@ -638,7 +638,7 @@ describe('handler', () => {
             const server = Hapi.server();
             expect(() => {
 
-                server.handler('test', handler);
+                server.decorate('handler', 'test', handler);
             }).to.throw('Handler defaults property must be an object or function');
         });
     });

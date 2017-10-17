@@ -53,7 +53,6 @@
   - [`server.expose(obj)`](#server.expose.obj())
   - [`server.ext(events)`](#server.ext())
   - [`server.ext(event, method, [options])`](#server.ext.args())
-  - [`server.handler(name, method)`](#server.handler())
   - [`await server.initialize([callback])`](#server.initialize())
   - [`await server.inject(options)`](#server.inject())
   - [`server.log(tags, [data, [timestamp]])`](#server.log())
@@ -1136,9 +1135,10 @@ server.decoder('special', (options) => Zlib.createGunzip(options));
 
 Extends various framework interfaces with custom methods where:
 - `type` - the interface being decorated. Supported types:
+    - `'handler'` - adds a new handler type to be used in [routes handlers](#route.options.handler).
     - `'request'` - adds methods to the [Request object](#request-object).
-    - `'toolkit'` - adds methods to the [response toolkit](#response-toolkit).
     - `'server'` - adds methods to the [Server](#server) object.
+    - `'toolkit'` - adds methods to the [response toolkit](#response-toolkit).
 - `property` - the object decoration key name.
 - `method` - the extension function or other value.
 - `options` - if the `type` is `'request'`, supports the following optional settings:
@@ -1168,6 +1168,64 @@ server.route({
         return h.success();
     }
 });
+```
+
+When registering a handler decoration, the `method` must be a function using the signature
+`function(route, options)` where:
+- `route` - the [route information](#request.route).
+- `options` - the configuration object provided in the handler config.
+
+```js
+const Hapi = require('hapi');
+const server = Hapi.server({ host: 'localhost', port: 8000 });
+
+// Defines new handler for routes on this server
+const handler = function (route, options) {
+
+    return function (request, h) {
+
+        return 'new handler: ' + options.msg;
+    }
+};
+
+server.decorate('handler', 'test', handler);
+
+server.route({
+    method: 'GET',
+    path: '/',
+    handler: { test: { msg: 'test' } }
+});
+
+server.start(function (err) { });
+```
+
+The `method` function can have a `defaults` object or function property. If the property is set to
+an object, that object is used as the default route config for routes using this handler. If the
+property is set to a function, the function uses the signature `function(method)` and returns the
+route default configuration.
+
+```js
+const Hapi = require('hapi');
+const server = Hapi.server({ host: 'localhost', port: 8000 });
+
+const handler = function (route, options) {
+
+    return function (request, h) {
+
+        return 'new handler: ' + options.msg;
+    }
+};
+
+// Change the default payload processing for this handler
+
+handler.defaults = {
+    payload: {
+        output: 'stream',
+        parse: false
+    }
+};
+
+server.decorate('handler', 'test', handler);
 ```
 
 ### <a name="server.dependency()" /> `server.dependency(dependencies, [after])`
@@ -1423,69 +1481,6 @@ server.route({ method: 'GET', path: '/test', handler });
 server.start((err) => { });
 
 // All requests will get routed to '/test'
-```
-
-### <a name="server.handler()" /> `server.handler(name, method)`
-
-Registers a new handler type to be used in routes where:
-- `name` - string name for the handler being registered. Cannot override any previously registered
-  type.
-- `method` - the function used to generate the route handler using the signature
-  `function(route, options)` where:
-    - `route` - the [route information](#request.route).
-    - `options` - the configuration object provided in the handler config.
-
-```js
-const Hapi = require('hapi');
-const server = Hapi.server({ host: 'localhost', port: 8000 });
-
-// Defines new handler for routes on this server
-const handler = function (route, options) {
-
-    return function (request, h) {
-
-        return 'new handler: ' + options.msg;
-    }
-};
-
-server.handler('test', handler);
-
-server.route({
-    method: 'GET',
-    path: '/',
-    handler: { test: { msg: 'test' } }
-});
-
-server.start(function (err) { });
-```
-
-The `method` function can have a `defaults` object or function property. If the property is set to
-an object, that object is used as the default route config for routes using this handler. If the
-property is set to a function, the function uses the signature `function(method)` and returns the
-route default configuration.
-
-```js
-const Hapi = require('hapi');
-const server = Hapi.server({ host: 'localhost', port: 8000 });
-
-const handler = function (route, options) {
-
-    return function (request, h) {
-
-        return 'new handler: ' + options.msg;
-    }
-};
-
-// Change the default payload processing for this handler
-
-handler.defaults = {
-    payload: {
-        output: 'stream',
-        parse: false
-    }
-};
-
-server.handler('test', handler);
 ```
 
 ### <a name="server.initialize()" /> `await server.initialize([callback])`
