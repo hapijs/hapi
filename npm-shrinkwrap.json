@@ -24,8 +24,8 @@
       "resolved": "https://registry.npmjs.org/call/-/call-5.0.0.tgz"
     },
     "catbox": {
-      "version": "8.0.0",
-      "resolved": "https://registry.npmjs.org/catbox/-/catbox-8.0.0.tgz"
+      "version": "9.0.0",
+      "resolved": "https://registry.npmjs.org/catbox/-/catbox-9.0.0.tgz"
     },
     "catbox-memory": {
       "version": "3.0.0",

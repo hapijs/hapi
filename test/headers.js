@@ -113,8 +113,8 @@ describe('Headers', () => {
         it('caches using non default cache', async () => {
 
             const server = Hapi.server({ cache: { name: 'primary', engine: CatboxMemory } });
-            const defaults = server.cache({ segment: 'a', expiresIn: 2000 });
-            const primary = server.cache({ segment: 'a', expiresIn: 2000, cache: 'primary' });
+            const defaults = server.cache({ segment: 'a', expiresIn: 2000, getDecoratedValue: true });
+            const primary = server.cache({ segment: 'a', expiresIn: 2000, getDecoratedValue: true, cache: 'primary' });
 
             await server.start();
 

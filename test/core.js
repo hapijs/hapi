@@ -450,8 +450,8 @@ describe('Core', () => {
             await server.initialize();
 
             await cache.set('a', 'going in', 0);
-            const { value: value1 } = await cache.get('a');
-            expect(value1).to.equal('going in');
+            const value = await cache.get('a');
+            expect(value).to.equal('going in');
             await server.stop();
             await expect(cache.get('a')).to.reject();
         });

@@ -880,7 +880,7 @@ describe('Server', () => {
             await server.initialize();
 
             await cache.set('a', 'going in', 0);
-            const { value } = await cache.get('a');
+            const value = await cache.get('a');
             expect(value).to.equal('going in');
         });
 
@@ -900,7 +900,7 @@ describe('Server', () => {
             await server.initialize();
 
             await cache.set('a', 'going in', 0);
-            const { value } = await cache.get('a');
+            const value = await cache.get('a');
             expect(value).to.equal('going in');
             expect(cache._cache.connection.settings.partition).to.equal('hapi-test-other');
         });
@@ -969,11 +969,11 @@ describe('Server', () => {
             await server.initialize();
 
             await server.plugins.test.set('a', '1');
-            const { value: value1 } = await server.plugins.test.get('a');
+            const value1 = await server.plugins.test.get('a');
             expect(value1).to.equal('1');
 
             await Hoek.wait(11);
-            const { value: value2 } = await server.plugins.test.get('a');
+            const value2 = await server.plugins.test.get('a');
             expect(value2).to.equal(null);
         });
     });
@@ -990,7 +990,7 @@ describe('Server', () => {
             await server.initialize();
 
             await cache.set('a', 'going in', 0);
-            const { value } = await cache.get('a');
+            const value = await cache.get('a');
             expect(value).to.equal('going in');
         });
 
@@ -1003,7 +1003,7 @@ describe('Server', () => {
             const cache = server.cache({ cache: 'dynamic', segment: 'test', expiresIn: 1000 });
 
             await cache.set('a', 'going in', 0);
-            const { value } = await cache.get('a');
+            const value = await cache.get('a');
             expect(value).to.equal('going in');
         });
 
@@ -1015,7 +1015,7 @@ describe('Server', () => {
             const cache = server.cache({ cache: 'dynamic', segment: 'test', expiresIn: 1000 });
 
             await cache.set('a', 'going in', 0);
-            const { value } = await cache.get('a');
+            const value = await cache.get('a');
             expect(value).to.equal('going in');
         });
     });

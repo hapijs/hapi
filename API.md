@@ -1668,45 +1668,36 @@ const route = server.match('get', '/');
 
 ### <a name="server.method()" /> `server.method(name, method, [options])`
 
-Registers a server method.
+Registers a [server method](#server.methods) where:
 
-Methods are registered via `server.method(name, method, [options])` where:
-- `name` - a unique method name used to invoke the method via `server.methods[name]`.
-  Supports using nested names such as `utils.users.get` which will automatically
-  create the missing path under [`server.methods`](#server.methods) and can be accessed
-  for the previous example via `server.methods.utils.users.get`.
-  When configured with caching enabled, `server.methods[name].cache` will be an object
-  with the following properties and methods:
-    - `drop(arg1, arg2, ..., argn, callback)` - function that can be used to clear the cache for a given key.
-    - `stats` - an object with cache statistics, see stats documentation for **catbox**.
+- `name` - a unique method name used to invoke the method via [`server.methods[name]`](#server.method).
 - `method` - the method function with the signature is one of:
-    - `function(arg1, arg2, ..., argn)` where:
-        - `arg1`, `arg2`, etc. - the method function arguments.
-        - `next` - the function called when the method is done with the signature
-          `function(err, result, [ttl])` where:
-            - `err` - error response if the method failed.
-            - `result` - the return value.
+    - `async function(...args, flags)` where:
+        - `...args` - the method function arguments (can be any number of arguments or none).
+        - `flags` - when caching is enabled, an object used to set optional method result flags:
             - `ttl` - `0` if result is valid but cannot be cached. Defaults to cache policy.
-    - `function(arg1, arg2, ..., argn)` where:
-        - `arg1`, `arg2`, etc. - the method function arguments.
-        - the `callback` option is set to `false`.
-        - the method must return a value (result, `Error`, or a promise) or throw an `Error`.
 - `options` - (optional) configuration object:
     - `bind` - a context object passed back to the method function (via `this`) when called.
       Defaults to active context (set via [`server.bind()`](#server.bind()) when the method is
       registered. Ignored if the method is an arrow function.
     - `cache` - the same cache configuration used in [`server.cache()`](#server.cache()). The
       `generateTimeout` option is required.
-    - `callback` - if `false`, expects the `method` to be a synchronous function. Note that using a
-      synchronous function with caching will convert the method interface to require a callback as
-      an additional argument with the signature `function(err, result, cached, report)` since the
-      cache interface cannot return values synchronously. Defaults to `true`.
     - `generateKey` - a function used to generate a unique key (for caching) from the arguments
-      passed to the method function (the callback argument is not passed as input). The server
+      passed to the method function (the `flags` argument is not passed as input). The server
       will automatically generate a unique key if the function's arguments are all of types
       `'string'`, `'number'`, or `'boolean'`. However if the method uses other types of arguments,
       a key generation function must be provided which takes the same arguments as the function and
       returns a unique string (or `null` if no key can be generated).
+
+Return value: none.
+
+Method names can be nested (e.g. `utils.users.get`) which will automatically create the full path
+under [`server.methods`](#server.methods) (e.g. accessed via `server.methods.utils.users.get`).
+
+When configured with caching enabled, `server.methods[name].cache` is assigned an object with the
+following properties and methods:
+    - `await drop(...args)` - a function that can be used to clear the cache for a given key.
+    - `stats` - an object with cache statistics, see **catbox** for stats documentation.
 
 ```js
 const Hapi = require('hapi');
@@ -1721,10 +1712,7 @@ const add = function (a, b) {
 
 server.method('sum', add, { cache: { expiresIn: 2000, generateTimeout: 100 } });
 
-server.methods.sum(4, 5, (err, result) => {
-
-    console.log(result);
-});
+console.log(server.methods.sum(4, 5));          // 9
 
 // Object argument
 
@@ -1747,24 +1735,7 @@ server.method('sumObj', addArray, {
     }
 });
 
-server.methods.sumObj([5, 6], (err, result) => {
-
-    console.log(result);
-});
-
-// Synchronous method with cache
-
-const addSync = function (a, b) {
-
-    return a + b;
-};
-
-server.method('sumSync', addSync, { cache: { expiresIn: 2000, generateTimeout: 100 }, callback: false });
-
-server.methods.sumSync(4, 5, (err, result) => {
-
-    console.log(result);
-});
+console.log(server.methods.sumObj([5, 6]));     // 11
 ```
 
 ### <a name="server.method.array()" /> `server.method(methods)`

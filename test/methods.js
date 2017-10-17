@@ -193,10 +193,10 @@ describe('Methods', () => {
 
         await server.initialize();
 
-        const { value: result1 } = await server.methods.test(1);
+        const result1 = await server.methods.test(1);
         expect(result1.gen).to.equal(0);
 
-        const { value: result2 } = await server.methods.test(1);
+        const result2 = await server.methods.test(1);
         expect(result2.gen).to.equal(0);
     });
 
@@ -214,10 +214,10 @@ describe('Methods', () => {
 
         await server.initialize();
 
-        const { value: result1 } = await server.methods.test(1);
+        const result1 = await server.methods.test(1);
         expect(result1.gen).to.equal(0);
 
-        const { value: result2 } = await server.methods.test(1);
+        const result2 = await server.methods.test(1);
         expect(result2.gen).to.equal(0);
     });
 
@@ -241,13 +241,33 @@ describe('Methods', () => {
 
         await server.initialize();
 
+        const result1 = await server.methods.test(1);
+        expect(result1.gen).to.equal(0);
+
+        const result2 = await server.methods.test(1);
+        expect(result2.gen).to.equal(0);
+
+        await expect(server.methods.test(2)).to.reject('boom');
+    });
+
+    it('caches method value (decorated)', async () => {
+
+        let gen = 0;
+        const method = function (id) {
+
+            return { id, gen: gen++ };
+        };
+
+        const server = Hapi.server();
+        server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10, getDecoratedValue: true } });
+
+        await server.initialize();
+
         const { value: result1 } = await server.methods.test(1);
         expect(result1.gen).to.equal(0);
 
         const { value: result2 } = await server.methods.test(1);
         expect(result2.gen).to.equal(0);
-
-        await expect(server.methods.test(2)).to.reject('boom');
     });
 
     it('reuses cached method value with custom key function', async () => {
@@ -269,10 +289,10 @@ describe('Methods', () => {
 
         await server.initialize();
 
-        const { value: result1 } = await server.methods.test(1);
+        const result1 = await server.methods.test(1);
         expect(result1.gen).to.equal(0);
 
-        const { value: result2 } = await server.methods.test(1);
+        const result2 = await server.methods.test(1);
         expect(result2.gen).to.equal(0);
     });
 
@@ -330,10 +350,10 @@ describe('Methods', () => {
 
         await server.initialize();
 
-        const { value: result1 } = await server.methods.test(1);
+        const result1 = await server.methods.test(1);
         expect(result1.gen).to.equal(0);
 
-        const { value: result2 } = await server.methods.test(1);
+        const result2 = await server.methods.test(1);
         expect(result2.gen).to.equal(1);
     });
 
@@ -350,10 +370,10 @@ describe('Methods', () => {
 
         await server.initialize();
 
-        const { value: result1 } = await server.methods.dropTest(2);
+        const result1 = await server.methods.dropTest(2);
         expect(result1.gen).to.equal(0);
         await server.methods.dropTest.cache.drop(2);
-        const { value: result2 } = await server.methods.dropTest(2);
+        const result2 = await server.methods.dropTest(2);
         expect(result2.gen).to.equal(1);
     });
 
@@ -503,7 +523,7 @@ describe('Methods', () => {
 
         await Hoek.wait(3);
 
-        const { value: result2 } = await server.methods.user(id);
+        const result2 = await server.methods.user(id);
         expect(result2.id).to.equal(id);
         expect(result2.gen).to.equal(1);
     });
@@ -523,11 +543,11 @@ describe('Methods', () => {
 
         await server.initialize();
 
-        const { value: result1 } = await server.methods.tos();
+        const result1 = await server.methods.tos();
         expect(result1.terms).to.equal(terms);
         expect(result1.gen).to.equal(0);
 
-        const { value: result2 } = await server.methods.tos();
+        const result2 = await server.methods.tos();
         expect(result2.terms).to.equal(terms);
         expect(result2.gen).to.equal(0);
     });
@@ -545,12 +565,12 @@ describe('Methods', () => {
         await server.initialize();
 
         const id1 = Math.random();
-        const { value: result1 } = await server.methods.user(id1);
+        const result1 = await server.methods.user(id1);
         expect(result1.id).to.equal(id1);
         expect(result1.gen).to.equal(1);
 
         const id2 = Math.random();
-        const { value: result2 } = await server.methods.user(id2);
+        const result2 = await server.methods.user(id2);
         expect(result2.id).to.equal(id2);
         expect(result2.gen).to.equal(2);
     });
@@ -568,7 +588,7 @@ describe('Methods', () => {
 
         await server.initialize();
 
-        const { value: result1 } = await server.methods.user(1);
+        const result1 = await server.methods.user(1);
         expect(result1.id).to.equal(1);
 
         const invalid = function () { };
@@ -604,10 +624,10 @@ describe('Methods', () => {
 
         await server.initialize();
 
-        const { value: result1 } = await server.methods.test(1);
+        const result1 = await server.methods.test(1);
         expect(result1.gen).to.equal(7);
 
-        const { value: result2 } = await server.methods.test(1);
+        const result2 = await server.methods.test(1);
         expect(result2.gen).to.equal(7);
     });
 
@@ -624,11 +644,11 @@ describe('Methods', () => {
 
         await server.initialize();
 
-        const { value: result1 } = await server.methods.test(1);
+        const result1 = await server.methods.test(1);
         expect(result1.gen).to.equal(7);
         expect(result1.bound).to.equal(true);
 
-        const { value: result2 } = await server.methods.test(1);
+        const result2 = await server.methods.test(1);
         expect(result2.gen).to.equal(7);
     });
 
@@ -701,7 +721,7 @@ describe('Methods', () => {
             server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
             await server.initialize();
-            const { value } = await server.methods.test('x');
+            const value = await server.methods.test('x');
             expect(value).to.equal('x');
         });
 
@@ -712,7 +732,7 @@ describe('Methods', () => {
             server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
             await server.initialize();
-            const { value } = await server.methods.test('a', 'b', 'c');
+            const value = await server.methods.test('a', 'b', 'c');
             expect(value).to.equal('abc');
         });
 
