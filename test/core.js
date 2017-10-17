@@ -1067,7 +1067,7 @@ describe('Core', () => {
             server.route({ path: '/test/', method: 'get', handler: () => null });
             server.route({ path: '/test/{p}/end', method: 'get', handler: () => null });
 
-            const routes = server.table()[0].table;
+            const routes = server.table();
             expect(routes.length).to.equal(2);
             expect(routes[0].path).to.equal('/test/');
         });
@@ -1081,7 +1081,7 @@ describe('Core', () => {
             server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: () => null });
             server.route({ path: '/test/{p}/end', method: 'get', handler: () => null });
 
-            const routes = server.table()[0].table;
+            const routes = server.table();
             expect(routes.length).to.equal(4);
         });
 
@@ -1094,7 +1094,7 @@ describe('Core', () => {
             server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: () => null });
             server.route({ path: '/test/{p}/end', method: 'get', handler: () => null });
 
-            const routes = server.table('one.example.com')[0].table;
+            const routes = server.table('one.example.com');
             expect(routes.length).to.equal(3);
         });
 
@@ -1107,7 +1107,7 @@ describe('Core', () => {
             server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: () => null });
             server.route({ path: '/test/{p}/end', method: 'get', handler: () => null });
 
-            const routes = server.table(['one.example.com', 'two.example.com'])[0].table;
+            const routes = server.table(['one.example.com', 'two.example.com']);
             expect(routes.length).to.equal(4);
         });
 
@@ -1120,7 +1120,7 @@ describe('Core', () => {
             server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: () => null });
             server.route({ path: '/test/{p}/end', method: 'get', handler: () => null });
 
-            const routes = server.table('three.example.com')[0].table;
+            const routes = server.table('three.example.com');
             expect(routes.length).to.equal(2);
         });
     });
@@ -1634,7 +1634,7 @@ describe('Core', () => {
                 }
             ]);
 
-            const table = server.table()[0].table;
+            const table = server.table();
             const paths = table.map((route) => {
 
                 const obj = {

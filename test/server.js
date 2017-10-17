@@ -2587,20 +2587,7 @@ describe('Server', () => {
 
 internals.routesList = function (server) {
 
-    const tables = server.table();
-
-    const list = [];
-    for (let i = 0; i < tables.length; ++i) {
-        const routes = tables[i].table;
-        for (let j = 0; j < routes.length; ++j) {
-            const route = routes[j];
-            if (route.method === 'get') {
-                list.push(route.path);
-            }
-        }
-    }
-
-    return list;
+    return server.table().filter((route) => route.method === 'get').map((route) => route.path);
 };
 
 

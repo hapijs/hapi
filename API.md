@@ -60,8 +60,8 @@
   - [`server.match(method, path, [host])`](#server.match())
   - [`server.method(name, method, [options])`](#server.method())
   - [`server.method(methods)`](#server.method.array())
-- [`server.events.on(criteria, listener)`](#server.events.on())
-- [`server.events.once(criteria, listener)`](#server.events.once())
+  - [`server.events.on(criteria, listener)`](#server.events.on())
+  - [`server.events.once(criteria, listener)`](#server.events.once())
   - [`server.path(relativeTo)`](#server.path())
   - [`await server.register(plugins, [options])`](#server.register())
   - [`server.route(options)`](#server.route())
@@ -1795,7 +1795,7 @@ server.method({
 });
 ```
 
-## <a name="server.events.on()" /> `server.events.on(criteria, listener)`
+### <a name="server.events.on()" /> `server.events.on(criteria, listener)`
 
 Subscribe a handler to an event where:
 - `criteria` - the subscription criteria which must be one of:
@@ -1848,7 +1848,7 @@ server.on('test', (update) => console.log(update));
 server.emit('test', 'hello');
 ```
 
-## <a name="server.events.once()" /> `server.events.once(criteria, listener)`
+### <a name="server.events.once()" /> `server.events.once(criteria, listener)`
 
 Same as calling [`server.events.on()`](#server.events.on()) with the `count` option set to `1`.
 
@@ -2241,19 +2241,13 @@ server.stop({ timeout: 60 * 1000 }, (err) => {
 ### <a name="server.table()" /> `server.table([host])`
 
 Returns a copy of the routing table where:
-- `host` - (optional) host to filter routes matching a specific virtual host. Defaults to all virtual
-  hosts.
+- `host` - (optional) host to filter routes matching a specific virtual host. Defaults to all
+  virtual hosts.
 
-The return value is an array where each item is an object containing:
-- `info` - the `connection.info` the connection the table was generated for.
-- `labels` - the connection labels.
-- `table` - an array of routes where each route contains:
-    - `settings` - the route config with defaults applied.
-    - `method` - the HTTP method in lower case.
-    - `path` - the route path.
-
-Note that if the server has not been started and multiple connections use port `0`, the table items
-will override each other and will produce an incomplete result.
+The return value is an array of routes where each route contains:
+- `settings` - the route config with defaults applied.
+- `method` - the HTTP method in lower case.
+- `path` - the route path.
 
 ```js
 const Hapi = require('hapi');
@@ -2261,27 +2255,6 @@ const server = Hapi.server({ port: 80, host: 'example.com' });
 server.route({ method: 'GET', path: '/example', handler: function (request, h) { return null; } });
 
 const table = server.table();
-```
-
-When calling `connection.table()` directly on each connection, the return value is the same as the
-array `table` item value of an individual connection:
-
-```js
-const Hapi = require('hapi');
-const server = Hapi.server({ port: 80, host: 'example.com' });
-server.route({ method: 'GET', path: '/example', handler: function (request, h) { return null; } });
-
-const table = server.connections[0].table();
-
-/*
-    [
-        {
-            method: 'get',
-            path: '/example',
-            settings: { ... }
-        }
-    ]
-*/
 ```
 
 ### Server events
