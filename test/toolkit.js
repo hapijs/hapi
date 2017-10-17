@@ -273,13 +273,13 @@ describe('Toolkit', () => {
             });
         });
 
-        describe('close', () => {
+        describe('abandon', () => {
 
-            it('returns a response with manual end', async () => {
+            it('abandon request with manual response', async () => {
 
                 const handler = (request, h) => {
 
-                    request.raw.res.end();
+                    request.raw.res.end('manual');
                     return h.abandon;
                 };
 
@@ -287,8 +287,11 @@ describe('Toolkit', () => {
                 server.route({ method: 'GET', path: '/', handler });
 
                 const res = await server.inject('/');
-                expect(res.result).to.equal('');
+                expect(res.result).to.equal('manual');
             });
+        });
+
+        describe('close', () => {
 
             it('returns a response with auto end (handler)', async () => {
 
