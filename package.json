@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "17.0.0-rc6",
+  "version": "17.0.0-rc7",
   "repository": {
     "type": "git",
     "url": "git://github.com/hapijs/hapi"
@@ -39,9 +39,9 @@
     "code": "5.x.x",
     "handlebars": "4.x.x",
     "hapitoc": "1.x.x",
-    "inert": "^5.0.0-rc5",
+    "inert": "5.0.0-rc7",
     "lab": "14.x.x",
-    "vision": "^5.0.0-rc5",
+    "vision": "5.0.0-rc7",
     "wreck": "13.x.x"
   },
   "scripts": {
