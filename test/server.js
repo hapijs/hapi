@@ -2664,7 +2664,8 @@ internals.plugins = {
             return { isValid: false };
         };
 
-        server.auth.strategy('basic', 'basic', 'required', { validateFunc: loadUser });
+        server.auth.strategy('basic', 'basic', { validateFunc: loadUser });
+        server.auth.default('basic');
 
         server.auth.scheme('special', () => {
 

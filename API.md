@@ -38,7 +38,7 @@
     - [`server.version`](#server.version)
   - [`server.auth.default(options)`](#server.auth.default())
   - [`server.auth.scheme(name, scheme)`](#server.auth.scheme())
-  - [`server.auth.strategy(name, scheme, [mode], [options])`](#server.auth.strategy())
+  - [`server.auth.strategy(name, scheme, [options])`](#server.auth.strategy())
   - [`await server.auth.test(strategy, request)`](#server.auth.test())
   - [`server.bind(context)`](#server.bind())
   - [`server.cache(options)`](#server.cache())
@@ -935,15 +935,12 @@ const scheme = function (server, options) {
 server.auth.scheme('custom', scheme);
 ```
 
-### <a name="server.auth.strategy()" /> `server.auth.strategy(name, scheme, [mode], [options])`
+### <a name="server.auth.strategy()" /> `server.auth.strategy(name, scheme, [options])`
 
 Registers an authentication strategy where:
 - `name` - the strategy name.
 - `scheme` - the scheme name (must be previously registered using
   [`server.auth.scheme()`](#server.auth.scheme())).
-- `mode` - if set to `true` (which is the same as `'required'`) or to a valid authentication mode (`'required'`, `'optional'`,
-  `'try'`), the scheme is automatically assigned as the default strategy for any route without an `auth` config. Can only be
-  assigned to a single server strategy. Defaults to `false` (no default settings).
 - `options` - scheme options based on the scheme requirements.
 
 ```js

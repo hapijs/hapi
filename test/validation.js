@@ -113,8 +113,8 @@ describe('validation', () => {
             };
 
             server.auth.scheme('none', scheme);
-
-            server.auth.strategy('default', 'none', true);
+            server.auth.strategy('default', 'none');
+            server.auth.default('default');
 
             server.route({
                 method: 'GET',

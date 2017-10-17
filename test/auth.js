@@ -30,7 +30,8 @@ describe('authentication', () => {
 
         const server = Hapi.server();
         server.auth.scheme('custom', internals.implementation);
-        server.auth.strategy('default', 'custom', true, { users: { steve: { user: 'steve' } } });
+        server.auth.strategy('default', 'custom', { users: { steve: { user: 'steve' } } });
+        server.auth.default('default');
         server.route({ method: 'GET', path: '/', handler: (request) => request.auth.credentials.user });
 
         const res1 = await server.inject('/');
@@ -45,7 +46,8 @@ describe('authentication', () => {
 
         const server = Hapi.server();
         server.auth.scheme('custom', internals.implementation);
-        server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
+        server.auth.strategy('default', 'custom', { users: { steve: {} } });
+        server.auth.default('default');
         server.route({ method: 'POST', path: '/', config: { auth: false, handler: (request) => request.auth.isAuthenticated } });
 
         const res1 = await server.inject({ url: '/', method: 'POST' });
@@ -61,7 +63,8 @@ describe('authentication', () => {
 
         const server = Hapi.server();
         server.auth.scheme('custom', internals.implementation);
-        server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
+        server.auth.strategy('default', 'custom', { users: { steve: {} } });
+        server.auth.default('default');
         server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('ok').ttl(1000) });
 
         const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
@@ -73,7 +76,8 @@ describe('authentication', () => {
 
         const server = Hapi.server();
         server.auth.scheme('custom', internals.implementation);
-        server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['one'] } } });
+        server.auth.strategy('default', 'custom', { users: { steve: { scope: ['one'] } } });
+        server.auth.default('default');
 
         server.route({
             method: 'GET',
@@ -123,7 +127,8 @@ describe('authentication', () => {
 
             const server = Hapi.server({ debug: false });
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true);
+            server.auth.strategy('default', 'custom');
+            server.auth.default('default');
             server.route({ method: 'GET', path: '/', handler: (request) => request.auth.credentials.user });
 
             const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
@@ -143,7 +148,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: {} }, route: true });
+            server.auth.strategy('default', 'custom', { users: { steve: {} }, route: true });
+            server.auth.default('default');
 
             const res1 = await server.inject('/');
             expect(res1.statusCode).to.equal(401);
@@ -182,7 +188,8 @@ describe('authentication', () => {
             });
 
             server.auth.scheme('custom', implementation);
-            server.auth.strategy('default', 'custom', true);
+            server.auth.strategy('default', 'custom');
+            server.auth.default('default');
 
             server.route({ method: 'GET', path: '/', handler: () => null });
 
@@ -208,7 +215,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', implementation);
-            server.auth.strategy('xyz', 'custom', true);
+            server.auth.strategy('xyz', 'custom');
+            server.auth.default('xyz');
 
             expect(server.auth.api.xyz.x).to.equal(5);
         });
@@ -320,7 +328,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
+            server.auth.strategy('default', 'custom', { users: { steve: {} } });
+            server.auth.default('default');
             server.route({ method: 'GET', path: '/', handler: (request) => request.server.auth.lookup(request.route) });
 
             const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
@@ -338,7 +347,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
+            server.auth.strategy('default', 'custom', { users: { steve: {} } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/',
@@ -363,7 +373,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
+            server.auth.strategy('default', 'custom', { users: { steve: {} } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/',
@@ -401,7 +412,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: { user: 'steve' } } });
+            server.auth.strategy('default', 'custom', { users: { steve: { user: 'steve' } } });
+            server.auth.default('default');
 
             const doubleHandler = async (request) => {
 
@@ -422,7 +434,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: { user: 'steve' } } });
+            server.auth.strategy('default', 'custom', { users: { steve: { user: 'steve' } } });
+            server.auth.default('default');
 
             const doubleHandler = async (request) => {
 
@@ -448,7 +461,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
+            server.auth.strategy('default', 'custom', { users: { steve: {} } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/',
@@ -491,7 +505,9 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', 'try', { users: { steve: {} } });
+            server.auth.strategy('default', 'custom', { users: { steve: {} } });
+            server.auth.default({ strategy: 'default', mode: 'try' });
+
             server.route({ method: 'GET', path: '/', handler });
 
             const res1 = await server.inject('/');
@@ -514,7 +530,8 @@ describe('authentication', () => {
 
             const server = Hapi.server({ debug: false });
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
+            server.auth.strategy('default', 'custom', { users: { steve: {} } });
+            server.auth.default('default');
             server.route({ method: 'GET', path: '/', handler: (request) => request.auth.credentials.user });
 
             const res = await server.inject({ url: '/', headers: { authorization: 'Custom' } });
@@ -525,7 +542,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
+            server.auth.strategy('default', 'custom', { users: { steve: {} } });
+            server.auth.default('default');
             server.route({ method: 'GET', path: '/', handler: (request) => request.auth.credentials.user });
 
             let logged = false;
@@ -545,7 +563,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { message: 'in a bottle' } });
+            server.auth.strategy('default', 'custom', { users: { message: 'in a bottle' } });
+            server.auth.default('default');
             server.route({ method: 'GET', path: '/', handler: (request) => request.auth.credentials.user });
 
             const res = await server.inject({ url: '/', headers: { authorization: 'Custom message' } });
@@ -557,7 +576,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', 'try', { users: { message: 'in a bottle' } });
+            server.auth.strategy('default', 'custom', { users: { message: 'in a bottle' } });
+            server.auth.default({ strategy: 'default', mode: 'try' });
             server.route({ method: 'GET', path: '/', handler: () => 'ok' });
 
             const res = await server.inject({ url: '/', headers: { authorization: 'Custom message' } });
@@ -569,7 +589,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['one'] } } });
+            server.auth.strategy('default', 'custom', { users: { steve: { scope: ['one'] } } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/',
@@ -589,7 +610,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['one', 'two'] } } });
+            server.auth.strategy('default', 'custom', { users: { steve: { scope: ['one', 'two'] } } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/',
@@ -609,7 +631,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: 'one' } } });
+            server.auth.strategy('default', 'custom', { users: { steve: { scope: 'one' } } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/',
@@ -629,7 +652,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: 'one' } } });
+            server.auth.strategy('default', 'custom', { users: { steve: { scope: 'one' } } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/',
@@ -649,7 +673,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: 'one-test' } } });
+            server.auth.strategy('default', 'custom', { users: { steve: { scope: 'one-test' } } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/{id}',
@@ -669,7 +694,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['test', 'one-test'] } } });
+            server.auth.strategy('default', 'custom', { users: { steve: { scope: ['test', 'one-test'] } } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/{id}',
@@ -689,7 +715,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['test', 'one-test'] } } });
+            server.auth.strategy('default', 'custom', { users: { steve: { scope: ['test', 'one-test'] } } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/{id}',
@@ -709,7 +736,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: 'one-test-admin' } } });
+            server.auth.strategy('default', 'custom', { users: { steve: { scope: 'one-test-admin' } } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/{id}/{role}',
@@ -729,7 +757,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: 'one-test' } } });
+            server.auth.strategy('default', 'custom', { users: { steve: { scope: 'one-test' } } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/{id}',
@@ -756,7 +785,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: 'one' } } });
+            server.auth.strategy('default', 'custom', { users: { steve: { scope: 'one' } } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/',
@@ -777,7 +807,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['a'] } } });
+            server.auth.strategy('default', 'custom', { users: { steve: { scope: ['a'] } } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/',
@@ -798,7 +829,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
+            server.auth.strategy('default', 'custom', { users: { steve: {} } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/',
@@ -819,12 +851,14 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, {
+            server.auth.strategy('default', 'custom', {
                 users: {
                     steve: { scope: ['a', 'b'] },
                     john: { scope: ['a', 'b', 'c'] }
                 }
             });
+
+            server.auth.default('default');
 
             server.route({
                 method: 'GET',
@@ -849,12 +883,14 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, {
+            server.auth.strategy('default', 'custom', {
                 users: {
                     steve: { scope: ['a', 'b'] },
                     john: { scope: ['b', 'c'] }
                 }
             });
+
+            server.auth.default('default');
 
             server.route({
                 method: 'GET',
@@ -879,7 +915,7 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, {
+            server.auth.strategy('default', 'custom', {
                 users: {
                     steve: { scope: ['a', 'b', 'c'] },
                     john: { scope: ['b', 'c'] },
@@ -888,6 +924,8 @@ describe('authentication', () => {
                     larry: { scope: ['c', 'd'] }
                 }
             });
+
+            server.auth.default('default');
 
             server.route({
                 method: 'GET',
@@ -923,7 +961,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['a', 'b'] } } });
+            server.auth.strategy('default', 'custom', { users: { steve: { scope: ['a', 'b'] } } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/',
@@ -969,7 +1008,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['one'] } } });
+            server.auth.strategy('default', 'custom', { users: { steve: { scope: ['one'] } } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/',
@@ -991,7 +1031,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['one'] } } });
+            server.auth.strategy('default', 'custom', { users: { steve: { scope: ['one'] } } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1014,7 +1055,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: { scope: ['one'] } } });
+            server.auth.strategy('default', 'custom', { users: { steve: { scope: ['one'] } } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1040,7 +1082,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: { user: 'steve' } } });
+            server.auth.strategy('default', 'custom', { users: { steve: { user: 'steve' } } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1060,7 +1103,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: { user: 'steve' } } });
+            server.auth.strategy('default', 'custom', { users: { steve: { user: 'steve' } } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1080,7 +1124,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { client: {} } });
+            server.auth.strategy('default', 'custom', { users: { client: {} } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1101,7 +1146,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { client: {} } });
+            server.auth.strategy('default', 'custom', { users: { client: {} } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1121,7 +1167,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: { user: 'steve' } } });
+            server.auth.strategy('default', 'custom', { users: { steve: { user: 'steve' } } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1148,7 +1195,8 @@ describe('authentication', () => {
                 };
             });
 
-            server.auth.strategy('test', 'test', true, {});
+            server.auth.strategy('test', 'test', {});
+            server.auth.default('test');
 
             server.route({
                 method: 'GET',
@@ -1172,7 +1220,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
+            server.auth.strategy('default', 'custom', { users: { steve: {} } });
+            server.auth.default('default');
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1203,7 +1252,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', scheme);
-            server.auth.strategy('default', 'custom', true);
+            server.auth.strategy('default', 'custom');
+            server.auth.default('default');
             server.route({ method: 'GET', path: '/', handler: () => null });
 
             const res = await server.inject('/');
@@ -1226,7 +1276,8 @@ describe('authentication', () => {
             });
 
             server.auth.scheme('custom', scheme);
-            server.auth.strategy('default', 'custom', 'try');
+            server.auth.strategy('default', 'custom');
+            server.auth.default({ strategy: 'default', mode: 'try' });
             server.route({ method: 'GET', path: '/', handler: () => null });
 
             const res = await server.inject('/');
@@ -1240,7 +1291,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { validPayload: { payload: null } } });
+            server.auth.strategy('default', 'custom', { users: { validPayload: { payload: null } } });
+            server.auth.default('default');
             server.route({
                 method: 'POST',
                 path: '/',
@@ -1260,7 +1312,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { validPayload: { payload: null } }, payload: false });
+            server.auth.strategy('default', 'custom', { users: { validPayload: { payload: null } }, payload: false });
+            server.auth.default('default');
             server.route({
                 method: 'POST',
                 path: '/',
@@ -1277,7 +1330,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { validPayload: { payload: null } }, options: { payload: true } });
+            server.auth.strategy('default', 'custom', { users: { validPayload: { payload: null } }, options: { payload: true } });
+            server.auth.default('default');
             server.route({
                 method: 'POST',
                 path: '/',
@@ -1295,7 +1349,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { validPayload: { payload: null } }, options: { payload: true } });
+            server.auth.strategy('default', 'custom', { users: { validPayload: { payload: null } }, options: { payload: true } });
+            server.auth.default('default');
             server.route({
                 method: 'POST',
                 path: '/',
@@ -1315,7 +1370,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { validPayload: { payload: null } }, options: { payload: true } });
+            server.auth.strategy('default', 'custom', { users: { validPayload: { payload: null } }, options: { payload: true } });
+            server.auth.default('default');
             expect(() => {
 
                 server.route({
@@ -1340,7 +1396,8 @@ describe('authentication', () => {
             };
 
             server.auth.scheme('custom', implementation);
-            server.auth.strategy('default', 'custom', true, {});
+            server.auth.strategy('default', 'custom', {});
+            server.auth.default('default');
             expect(() => {
 
                 server.route({
@@ -1365,7 +1422,8 @@ describe('authentication', () => {
             };
 
             server.auth.scheme('custom', implementation);
-            server.auth.strategy('default', 'custom', true, {});
+            server.auth.strategy('default', 'custom', {});
+            server.auth.default('default');
             expect(() => {
 
                 server.route({
@@ -1414,7 +1472,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { skip: {} } });
+            server.auth.strategy('default', 'custom', { users: { skip: {} } });
+            server.auth.default('default');
             server.route({
                 method: 'POST',
                 path: '/',
@@ -1431,7 +1490,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { skip: {} } });
+            server.auth.strategy('default', 'custom', { users: { skip: {} } });
+            server.auth.default('default');
             server.route({
                 method: 'POST',
                 path: '/',
@@ -1452,7 +1512,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { optionalPayload: { payload: Boom.unauthorized(null, 'Custom') } } });
+            server.auth.strategy('default', 'custom', { users: { optionalPayload: { payload: Boom.unauthorized(null, 'Custom') } } });
+            server.auth.default('default');
             server.route({
                 method: 'POST',
                 path: '/',
@@ -1472,7 +1533,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { optionalPayload: { payload: Boom.unauthorized(null, 'Custom') } } });
+            server.auth.strategy('default', 'custom', { users: { optionalPayload: { payload: Boom.unauthorized(null, 'Custom') } } });
+            server.auth.default('default');
             server.route({
                 method: 'POST',
                 path: '/',
@@ -1492,7 +1554,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { optionalPayload: { payload: Boom.unauthorized() } } });
+            server.auth.strategy('default', 'custom', { users: { optionalPayload: { payload: Boom.unauthorized() } } });
+            server.auth.default('default');
             server.route({
                 method: 'POST',
                 path: '/',
@@ -1512,7 +1575,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { invalidPayload: { payload: 'Payload is invalid' } } });
+            server.auth.strategy('default', 'custom', { users: { invalidPayload: { payload: 'Payload is invalid' } } });
+            server.auth.default('default');
             server.route({
                 method: 'POST',
                 path: '/',
@@ -1536,7 +1600,8 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', true, { users: { steve: { response: Boom.internal() } } });
+            server.auth.strategy('default', 'custom', { users: { steve: { response: Boom.internal() } } });
+            server.auth.default('default');
             server.route({ method: 'GET', path: '/', handler: (request) => request.auth.credentials.user });
 
             const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
