@@ -721,17 +721,16 @@ and the values are the exposed properties by each plugin using
 `server.plugins[name]` object directly or via the `server.expose()` method.
 
 ```js
-exports.register = function (server, options) {
+exports.plugin = {
+    name: 'example',
+    register: function (server, options) {
 
-    server.expose('key', 'value');
-    server.plugins.example.other = 'other';
+        server.expose('key', 'value');
+        server.plugins.example.other = 'other';
 
-    console.log(server.plugins.example.key);    // 'value'
-    console.log(server.plugins.example.other);    // 'other'
-};
-
-exports.register.attributes = {
-    name: 'example'
+        console.log(server.plugins.example.key);      // 'value'
+        console.log(server.plugins.example.other);    // 'other'
+    }
 };
 ```
 
@@ -794,7 +793,6 @@ value is an object containing:
 - `version` - the plugin version.
 - `name` - the plugin name.
 - `options` - (optional) options passed to the plugin during registration.
-- `attributes` - plugin registration attributes.
 
 #### <a name="server.settings" /> `server.settings`
 
@@ -1245,9 +1243,7 @@ Used within a plugin to declare a required dependency on other [plugins](#plugin
         - `err` - internal error condition, which is returned back via the
           [`server.initialize()`](#server.initialize()) or [`server.start()`](#server.start()) callback.
 
-The `after` method is identical to setting a server extension point on `'onPreStart'`. Connectionless
-plugins (those with `attributes.connections` set to `false`) can only depend on other connectionless
-plugins (server initialization will fail even of the dependency is loaded but is not connectionless).
+The `after` method is identical to setting a server extension point on `'onPreStart'`.
 
 ```js
 const after = function (server) {
@@ -1255,24 +1251,24 @@ const after = function (server) {
     // Additional plugin registration logic
 };
 
-exports.register = function (server, options) {
+exports.plugin = {
+    name: 'example',
+    register: function (server, options) {
 
-    server.dependency('yar', after);
+        server.dependency('yar', after);
+    }
 };
 ```
 
-Dependencies can also be set via the register `attributes` property (does not support setting
+Dependencies can also be set via the plugin `dependencies` property (does not support setting
 `after`):
 
 ```js
-exports.register = function (server, options) {
-
-};
-
-register.attributes = {
+exports.plugin = {
     name: 'test',
     version: '1.0.0',
-    dependencies: 'yar'
+    dependencies: 'yar',
+    register = function (server, options) { }
 };
 ```
 
@@ -4419,64 +4415,70 @@ server.ext('onRequest', onRequest);
 
 ## Plugins
 
-Plugins provide a way to organize the application code by splitting the server logic into smaller
-components. Each plugin can manipulate the server and its connections through the standard server
-interface, but with the added ability to sandbox certain properties.
+Plugins provide a way to organize application code by splitting the server logic into smaller
+components. Each plugin can manipulate the server through the standard server interface, but with
+the added ability to sandbox certain properties. For example, setting a file path in one plugin
+doesn't affect the file path set in another plugin.
 
-A plugin is a function with the signature `function(server, options)` where:
-- `server` - the server object the plugin is being registered to.
-- `options` - (optional) options passed to the plugin during registration.
-- `next` - a callback method the function must call to return control back to the framework to
-  complete the registration process with signature `function(err)` where:
-    - `err` - any plugin registration error.
+A plugin is an object with the following properties:
 
-The plugin function must include an `attributes` function property with the following:
-- `name` - required plugin name string. The name is used as a unique key. Published
-  [plugins](#plugins) should  use the same name as the name field in the 'package.json' file. Names
-  must be unique within each application.
-- `version` - (optional) plugin version. The version is only used informatively to enable other
-  [plugins](#plugins) to find out the versions loaded. The version should be the same as the one
+- `register` - (required) the registration function with the signature
+  `async function(server, options)` where:
+
+    - `server` - the server object with a plugin-specific [`server.realm`](#server.realm).
+    - `options` - any options passed to the plugin during registration via [`server.register()`](#server.register()).
+
+- `name` - (required) the plugin name string. The name is used as a unique key. Published plugins
+  (e.g. published in the npm registry) should  use the same name as the name field in their
+  'package.json' file. Names must be unique within each application.
+
+- `version` - (optional) plugin version string. The version is only used informatively to enable
+  other plugins to find out the versions loaded. The version should be the same as the one
   specified in the plugin's 'package.json' file.
-- `multiple` - if `true`, allows the plugin to be registered multiple times with the same server.
+
+- `multiple` - (optional) if `true`, allows the plugin to be registered multiple times with the same server.
   Defaults to `false`.
-- `dependencies` - (optional) string or array of string indicating a plugin dependency. Same as
-  setting dependencies via [`server.dependency()`](#server.dependency()).
-- `connections` - if `false`, does not allow the plugin to call server APIs that modify the
-  connections such as adding a route or configuring state. This flag allows the plugin to be
-  registered before connections are added and to pass dependency requirements. When set to
-  `'conditional'`, the mode is based on the presence of selected connections (if the server
-  has connections, it is the same as `true`, but if no connections are available, it is the
-  same as `false`). Defaults to `true`.
-- `once` - if `true`, will only register the plugin once per connection (or once per server for a
-  connectionless plugin). If set, overrides the `once` option passed to `server.register()`.
-  Defaults to `undefined` (registration will be based on the `server.register()` option `once`).
+
+- `dependencies` - (optional) a string or an array of strings indicating a plugin dependency. Same
+  as setting dependencies via [`server.dependency()`](#server.dependency()).
+
+- `once` - (optional) if `true`, will only register the plugin once per server. If set, overrides
+  the `once` option passed to [`server.register()`](#server.register()). Defaults to no override.
 
 ```js
-const register = function (server, options) {
-
-    server.route({
-        method: 'GET',
-        path: '/test',
-        handler: function (request, h) {
-
-            return 'ok';
-        }
-    });
-
-    return next();
-};
-
-register.attributes = {
+const plugin = {
     name: 'test',
-    version: '1.0.0'
+    version: '1.0.0',
+    register: function (server, options) {
+
+        server.route({
+            method: 'GET',
+            path: '/test',
+            handler: function (request, h) {
+
+                return 'ok';
+            }
+        });
+    }
 };
 ```
 
-Alternatively, the `name` and `version` can be included via the `pkg` attribute containing the
+Alternatively, the `name` and `version` can be included via the `pkg` property containing the
 'package.json' file for the module which already has the name and version included:
 
 ```js
-register.attributes = {
-    pkg: require('./package.json')
+const plugin = {
+    pkg: require('./package.json'),
+    register: function (server, options) {
+
+        server.route({
+            method: 'GET',
+            path: '/test',
+            handler: function (request, h) {
+
+                return 'ok';
+            }
+        });
+    }
 };
 ```

@@ -410,8 +410,10 @@ describe('Core', () => {
 
         it('fails to start server when registration incomplete', async () => {
 
-            const plugin = function () { };
-            plugin.attributes = { name: 'plugin' };
+            const plugin = {
+                name: 'plugin',
+                register: Hoek.ignore
+            };
 
             const server = Hapi.server();
             server.register(plugin);
@@ -1183,18 +1185,18 @@ describe('Core', () => {
 
             server.ext('onPreHandler', preHandler);
 
-            const test = function (plugin, options) {
+            const test = {
+                name: 'test',
 
-                plugin.views({
-                    engines: { html: Handlebars },
-                    path: './no_such_directory_found'
-                });
+                register: function (plugin, options) {
 
-                plugin.route({ path: '/view', method: 'GET', handler: () => null });
-            };
+                    plugin.views({
+                        engines: { html: Handlebars },
+                        path: './no_such_directory_found'
+                    });
 
-            test.attributes = {
-                name: 'test'
+                    plugin.route({ path: '/view', method: 'GET', handler: () => null });
+                }
             };
 
             await server.register(test);
