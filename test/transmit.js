@@ -1227,6 +1227,7 @@ describe('transmission', () => {
             });
 
             await team.work;
+            await server.stop();
         });
 
         it('does not leak classic stream data when passed to request and aborted', async () => {

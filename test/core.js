@@ -428,6 +428,7 @@ describe('Core', () => {
             const server = Hapi.server();
             await server.start();
             await expect(server.initialize()).to.reject('Cannot initialize server while it is in started phase');
+            await server.stop();
         });
 
         it('fails to start server when starting', async () => {
