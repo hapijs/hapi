@@ -371,15 +371,8 @@ describe('transmission', () => {
             expect(res.headers['content-encoding']).to.equal('gzip');
             expect(res.headers.vary).to.equal('accept-encoding');
 
-            await new Promise((resolve) => {
-
-                Zlib.unzip(res.rawPayload, (err, result) => {
-
-                    expect(err).to.not.exist();
-                    expect(result.toString()).to.equal('/**/docall({"first":"1","last":"2"});');
-                    resolve();
-                });
-            });
+            const uncompressed = await internals.uncompress('unzip', res.rawPayload);
+            expect(uncompressed.toString()).to.equal('/**/docall({"first":"1","last":"2"});');
         });
 
         it('returns an JSONP response when response is a buffer', async () => {
@@ -1772,6 +1765,49 @@ describe('transmission', () => {
         });
     });
 
+    describe('encoding()', () => {
+
+        it('passes compressor to stream', async () => {
+
+            const handler = (request, h) => {
+
+                const TestStream = class extends Stream.Readable {
+
+                    _read(size) {
+
+                        if (this.isDone) {
+                            return;
+                        }
+                        this.isDone = true;
+
+                        this.push('some payload');
+                        this._compressor.flush();
+
+                        setTimeout(() => {
+
+                            this.push(' and some other payload');
+                            this.push(null);
+                        }, 10);
+                    }
+
+                    setCompressor(compressor) {
+
+                        this._compressor = compressor;
+                    }
+                };
+
+                return h.response(new TestStream()).type('text/html');
+            };
+
+            const server = Hapi.server({ compression: { minBytes: 1 } });
+            server.route({ method: 'GET', path: '/', handler });
+
+            const res = await server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } });
+            const uncompressed = await internals.uncompress('unzip', res.rawPayload);
+            expect(uncompressed.toString()).to.equal('some payload and some other payload');
+        });
+    });
+
     describe('writeHead()', () => {
 
         it('set custom statusMessage', async () => {
@@ -1840,4 +1876,10 @@ internals.TimerStream = class extends Stream.Readable {
 internals.compress = function (encoder, value) {
 
     return new Promise((resolve) => Zlib[encoder](value, (ignoreErr, compressed) => resolve(compressed)));
+};
+
+
+internals.uncompress = function (decoder, value) {
+
+    return new Promise((resolve) => Zlib[decoder](value, (ignoreErr, uncompressed) => resolve(uncompressed)));
 };

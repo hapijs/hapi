@@ -3323,7 +3323,13 @@ The return value must be one of:
 - `Stream` object
     - must be compatible with the "streams2" API and not be in `objectMode`.
     - if the stream object has a `statusCode` property, that status code will be used as
-      the default response code.
+      the default response code based on the [`passThrough`](#response.settings.passThrough)
+      option.
+    - if the stream object has a `headers` property, the headers will be included in the response
+      based on the [`passThrough`](#response.settings.passThrough) option.
+    - if the stream object has a function property `setCompressor(compressor)` and the response
+      passes through a compressor, a reference to the compressor stream will be passed to the
+      response stream via this method.
 - any object or array
     - must not include circular references.
 - a toolkit signal:
