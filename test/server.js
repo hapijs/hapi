@@ -571,7 +571,7 @@ describe('Server', () => {
             await server.initialize();
         });
 
-        it('register a plugin once per connection (no selection left)', async () => {
+        it('register a plugin once per server', async () => {
 
             let count = 0;
             const b = {
@@ -587,6 +587,33 @@ describe('Server', () => {
                 register: function (srv, options) {
 
                     return srv.register(b, { once: true });
+                }
+            };
+
+            const server = Hapi.server();
+            await server.register(b);
+            await server.register(a);
+            await server.initialize();
+            expect(count).to.equal(1);
+        });
+
+        it('register a plugin once (plugin)', async () => {
+
+            let count = 0;
+            const b = {
+                name: 'b',
+                once: true,
+                register: function (srv, options) {
+
+                    ++count;
+                }
+            };
+
+            const a = {
+                name: 'a',
+                register: function (srv, options) {
+
+                    return srv.register(b);
                 }
             };
 
