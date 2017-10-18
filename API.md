@@ -3040,14 +3040,15 @@ Each request object includes the following properties:
   potential conflicts with the framework. Should not be used by [plugins](#plugins) which should use
   `plugins[name]`.
 - `auth` - authentication information:
-    - `isAuthenticated` - `true` if the request has been successfully authenticated, otherwise
-      `false`.
-    - `credentials` - the `credential` object received during the authentication process. The
-      presence of an object does not mean successful authentication.
     - `artifacts` - an artifact object received from the authentication strategy and used in
       authentication-related actions.
-    - `mode` - the route authentication mode.
+    - `credentials` - the `credential` object received during the authentication process. The
+      presence of an object does not mean successful authentication.
     - `error` - the authentication error is failed and mode set to `'try'`.
+    - `isAuthenticated` - `true` if the request has been successfully authenticated, otherwise
+      `false`.
+    - `mode` - the route authentication mode.
+    - `strategy` - the name of the strategy used.
 - `connection` - the connection the request was received by.
 - `domain` - the [node domain object](https://nodejs.org/api/domain.html#domain_domain) used to protect against exceptions thrown in extensions,
   handlers and [route prerequisites](#route-prerequisites). Can be used to manually bind callback
