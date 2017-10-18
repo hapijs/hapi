@@ -491,6 +491,45 @@ describe('Response', () => {
             expect(res.headers.xcustom).to.equal('some value');
         });
 
+        it('excludes connection header', async () => {
+
+            const upstreamConnectionHeader = 'some per-hop connection options';
+
+            const TestStream = class extends Stream.Readable {
+
+                constructor() {
+
+                    super();
+                    this.statusCode = 200;
+                    this.headers = { connection: upstreamConnectionHeader };
+                }
+
+                _read(size) {
+
+                    if (this.isDone) {
+                        return;
+                    }
+                    this.isDone = true;
+
+                    this.push('x');
+                    this.push(null);
+                }
+            };
+
+            const handler = (request) => {
+
+                return new TestStream();
+            };
+
+            const server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler });
+
+            const res = await server.inject('/');
+            expect(res.result).to.equal('x');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers.connection).to.not.equal(upstreamConnectionHeader);
+        });
+
         it('excludes stream headers and code when passThrough is false', async () => {
 
             const TestStream = class extends Stream.Readable {
