@@ -137,6 +137,15 @@ describe('Route', () => {
         }).to.throw('Route payload must be set to \'parse\' when payload validation enabled: POST /');
     });
 
+    it('throws when validation is set without path parameters', async () => {
+
+        const server = Hapi.server();
+        expect(() => {
+
+            server.route({ method: 'POST', path: '/', handler: () => null, config: { validate: { params: {} } } });
+        }).to.throw('Cannot set path parameters validations without path parameters: POST /');
+    });
+
     it('ignores payload parsing errors', async () => {
 
         const server = Hapi.server();
