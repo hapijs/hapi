@@ -68,8 +68,8 @@
       "resolved": "https://registry.npmjs.org/nigel/-/nigel-3.0.0.tgz"
     },
     "pez": {
-      "version": "3.0.1",
-      "resolved": "https://registry.npmjs.org/pez/-/pez-3.0.1.tgz"
+      "version": "4.0.0",
+      "resolved": "https://registry.npmjs.org/pez/-/pez-4.0.0.tgz"
     },
     "podium": {
       "version": "3.1.1",
@@ -84,8 +84,8 @@
       "resolved": "https://registry.npmjs.org/statehood/-/statehood-6.0.1.tgz"
     },
     "subtext": {
-      "version": "6.0.3",
-      "resolved": "https://registry.npmjs.org/subtext/-/subtext-6.0.3.tgz"
+      "version": "6.0.4",
+      "resolved": "https://registry.npmjs.org/subtext/-/subtext-6.0.4.tgz"
     },
     "teamwork": {
       "version": "2.1.0",
