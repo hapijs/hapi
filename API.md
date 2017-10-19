@@ -1177,10 +1177,10 @@ Extends various framework interfaces with custom methods where:
 
 - `method` - the extension function or other value.
 
-- `options` - if the `type` is `'request'`, supports the following optional settings:
-    - `apply` - if `true`, the `method` function is invoked using the signature `function(request)`
-      where `request` is the current request object and the returned value is assigned as the
-      decoration.
+- `options` - (optional) supports the following optional settings:
+    - `apply` - when the `type` is `'request'`, if `true`, the `method` function is invoked using
+      the signature `function(request)` where `request` is the current request object and the
+      returned value is assigned as the decoration.
 
 Return value: none.
 

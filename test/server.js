@@ -1098,7 +1098,7 @@ describe('Server', () => {
             expect(() => {
 
                 server.decorate('handler', 'file', () => { });
-            }).to.throw('Handler name already exists: file');
+            }).to.throw('Handler decoration already defined: file');
         });
 
         it('errors on unknown handler', async () => {
@@ -1143,7 +1143,7 @@ describe('Server', () => {
             expect(() => {
 
                 server.decorate('toolkit', 'success', () => { });
-            }).to.throw('Reply interface decoration already defined: success');
+            }).to.throw('Toolkit decoration already defined: success');
         });
 
         it('throws on internal conflict', async () => {
