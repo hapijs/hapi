@@ -1498,9 +1498,8 @@ describe('Core', () => {
                 handler: () => null
             });
 
-            const [route, srv] = await log;
+            const [route] = await log;
             expect(route.path).to.equal('/');
-            expect(srv).to.shallow.equal(server);
         });
 
         it('overrides the default notFound handler', async () => {
