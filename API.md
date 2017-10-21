@@ -2191,8 +2191,9 @@ Registers a plugin where:
 - `options` - (optional) registration options (different from the options passed to the
   registration function):
 
-    - `once` - if `true`, the registration is skipped for any connection already registered with.
+    - `once` - if `true`, subsequent registrations of the same plugin are skipped without error.
       Cannot be used with plugin options. Defaults to `false`.
+      If not set to `true`, an error will be thrown the second time a plugin is registered on the server.
 
     - `routes` - modifiers applied to each route added by the plugin:
 
