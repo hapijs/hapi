@@ -635,6 +635,26 @@ describe('Server', () => {
             await expect(server.register({ plugin: a, options: {}, once: true })).to.reject();
         });
 
+        it('throws when once is false', async () => {
+
+            const b = {
+                name: 'b',
+                register: Hoek.ignore
+            };
+
+            const a = {
+                name: 'a',
+                register: function (srv, options) {
+
+                    return srv.register(b);
+                }
+            };
+
+            const server = Hapi.server();
+            await server.register(b);
+            await expect(server.register(a)).to.reject(Error, 'Plugin b already registered');
+        });
+
         it('throws when dependencies is an object', async () => {
 
             const a = {
