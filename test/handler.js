@@ -58,28 +58,28 @@ describe('handler', () => {
 
             const handler = async (request) => {
 
-                await new Promise((resolve) => setImmediate(resolve));
+                await Hoek.wait(0);
                 const not = null;
                 not.here;
             };
 
             const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
-            const log = server.events.once('request-error');
+            const log = server.events.once({ name: 'request', channels: 'error' });
 
             const orig = console.error;
-            console.error = function () {
+            console.error = function (...args) {
 
                 console.error = orig;
-                expect(arguments[0]).to.equal('Debug:');
-                expect(arguments[1]).to.equal('internal, implementation, error');
+                expect(args[0]).to.equal('Debug:');
+                expect(args[1]).to.equal('internal, implementation, error');
             };
 
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
 
-            const [, err] = await log;
-            expect(err.message).to.equal('Cannot read property \'here\' of null');
+            const [, event] = await log;
+            expect(event.error.message).to.equal('Cannot read property \'here\' of null');
         });
     });
 
@@ -430,10 +430,9 @@ describe('handler', () => {
             });
 
             let logged;
-            server.events.on('request-internal', (request, event, tags) => {
+            server.events.on({ name: 'request', channels: 'internal' }, (request, event, tags) => {
 
-                if (event.internal &&
-                    tags.pre &&
+                if (tags.pre &&
                     tags.error) {
 
                     logged = event;
@@ -442,7 +441,7 @@ describe('handler', () => {
 
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
-            expect(logged.data.assign).to.equal('before');
+            expect(logged.error.assign).to.equal('before');
         });
 
         it('sets pre failAction to method', async () => {
@@ -546,10 +545,9 @@ describe('handler', () => {
 
             const log = new Promise((resolve) => {
 
-                server.events.on('request-internal', (request, event, tags) => {
+                server.events.on({ name: 'request', channels: 'internal' }, (request, event, tags) => {
 
-                    if (event.internal &&
-                        tags.handler &&
+                    if (tags.handler &&
                         tags.error) {
 
                         resolve({ event, tags });
@@ -561,9 +559,9 @@ describe('handler', () => {
             expect(res.statusCode).to.equal(403);
 
             const { event } = await log;
-            expect(event.data.data.isBoom).to.equal(true);
-            expect(event.data.data.output.statusCode).to.equal(403);
-            expect(event.data.data.message).to.equal('Forbidden');
+            expect(event.error.isBoom).to.equal(true);
+            expect(event.error.output.statusCode).to.equal(403);
+            expect(event.error.message).to.equal('Forbidden');
         });
     });
 

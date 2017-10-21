@@ -73,7 +73,7 @@ describe('state', () => {
 
         const server = Hapi.server({ routes: { log: { collect: true } } });
         server.state('a', { ignoreErrors: true, encoding: 'base64json' });
-        server.route({ path: '/', method: 'GET', handler: (request) => request.getLog('state').length });
+        server.route({ path: '/', method: 'GET', handler: (request) => request.logs.filter((event) => event.tags[0] === 'state').length });
         const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x' } });
         expect(res.statusCode).to.equal(200);
         expect(res.result).to.equal(0);
@@ -82,7 +82,7 @@ describe('state', () => {
     it('ignores invalid cookies (header)', async () => {
 
         const server = Hapi.server({ routes: { state: { failAction: 'ignore' }, log: { collect: true } } });
-        server.route({ path: '/', method: 'GET', handler: (request) => request.getLog('state').length });
+        server.route({ path: '/', method: 'GET', handler: (request) => request.logs.filter((event) => event.tags[0] === 'state').length });
         const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x;;' } });
         expect(res.statusCode).to.equal(200);
         expect(res.result).to.equal(0);
@@ -92,7 +92,7 @@ describe('state', () => {
 
         const server = Hapi.server({ routes: { log: { collect: true } } });
         server.state('a', { strictHeader: false });
-        server.route({ path: '/', method: 'GET', handler: (request) => request.getLog('state').length });
+        server.route({ path: '/', method: 'GET', handler: (request) => request.logs.filter((event) => event.tags[0] === 'state').length });
         const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x y;' } });
         expect(res.statusCode).to.equal(200);
         expect(res.result).to.equal(0);
@@ -102,7 +102,7 @@ describe('state', () => {
 
         const server = Hapi.server({ routes: { state: { failAction: 'log' }, log: { collect: true } } });
         server.state('a', { encoding: 'base64json', clearInvalid: true });
-        server.route({ path: '/', method: 'GET', handler: (request) => request.getLog('state').length });
+        server.route({ path: '/', method: 'GET', handler: (request) => request.logs.filter((event) => event.tags[0] === 'state').length });
         const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x' } });
         expect(res.statusCode).to.equal(200);
         expect(res.result).to.equal(1);

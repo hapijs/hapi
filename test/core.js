@@ -269,11 +269,11 @@ describe('Core', () => {
 
         let timeout;
         const orig = Net.Socket.prototype.setTimeout;
-        Net.Socket.prototype.setTimeout = function () {
+        Net.Socket.prototype.setTimeout = function (...args) {
 
             timeout = 'gotcha';
             Net.Socket.prototype.setTimeout = orig;
-            return orig.apply(this, arguments);
+            return orig.apply(this, args);
         };
 
         const res = await Wreck.request('GET', 'http://localhost:' + server.info.port + '/');
@@ -881,7 +881,7 @@ describe('Core', () => {
             expect(res2.statusCode).to.equal(503);
 
             const [event, tags] = await log;
-            expect(event.internal).to.be.true();
+            expect(event.channel).to.equal('internal');
             expect(event.data.rss > 10000).to.equal(true);
             expect(tags.load).to.be.true();
 

@@ -978,7 +978,7 @@ describe('Response', () => {
                 path: __dirname
             });
 
-            const log = server.events.once('request-error');
+            const log = server.events.once({ name: 'request', channels: 'error' });
 
             server.route({ method: 'GET', path: '/{param}', handler: { view: 'templates/invalid' } });
 
@@ -987,8 +987,8 @@ describe('Response', () => {
             expect(res.result).to.exist();
             expect(res.result.message).to.equal('An internal server error occurred');
 
-            const [, err] = await log;
-            expect(err.message).to.contain('The partial x could not be found: The partial x could not be found');
+            const [, event] = await log;
+            expect(event.error.message).to.contain('The partial x could not be found: The partial x could not be found');
         });
 
         it('returns a formatted response', async () => {
@@ -1074,9 +1074,9 @@ describe('Response', () => {
             server.route({ method: 'GET', path: '/writable', handler: writableHandler });
 
             let updates = 0;
-            server.events.on('request-error', (request, err) => {
+            server.events.on({ name: 'request', channels: 'error' }, (request, event) => {
 
-                expect(err).to.be.an.error('Stream must have a streams2 readable interface');
+                expect(event.error).to.be.an.error('Stream must have a streams2 readable interface');
                 ++updates;
             });
 

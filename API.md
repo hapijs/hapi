@@ -24,8 +24,16 @@
     - [`uri`](#server.options.uri)
   - [Server properties](#server-properties)
     - [`server.app`](#server.app)
-  - [`server.auth.api`](#server.auth.api)
+    - [`server.auth.api`](#server.auth.api)
+    - [`server.auth.settings.default`](#server.auth.settings.default)
     - [`server.decorations`](#server.decorations)
+    - [`server.events`](#server.events)
+      - [`'log'`](#server.events.log)
+      - [`'request'`](#server.events.request)
+      - [`'response'`](#server.events.response)
+      - [`'route'`](#server.events.route)
+      - [`'start'`](#server.events.start)
+      - [`'stop'`](#server.events.stop)
     - [`server.info`](#server.info)
     - [`server.load`](#server.load)
     - [`server.listener`](#server.listener)
@@ -38,30 +46,32 @@
     - [`server.version`](#server.version)
   - [`server.auth.default(options)`](#server.auth.default())
   - [`server.auth.scheme(name, scheme)`](#server.auth.scheme())
+    - [Authentication scheme](#authentication-scheme)
   - [`server.auth.strategy(name, scheme, [options])`](#server.auth.strategy())
   - [`await server.auth.test(strategy, request)`](#server.auth.test())
   - [`server.bind(context)`](#server.bind())
   - [`server.cache(options)`](#server.cache())
-  - [`server.cache.provision(options)`](#server.cache.provision())
+  - [`await server.cache.provision(options)`](#server.cache.provision())
   - [`server.decoder(encoding, decoder)`](#server.decoder())
   - [`server.decorate(type, property, method, [options])`](#server.decorate())
   - [`server.dependency(dependencies, [after])`](#server.dependency())
-  - [`server.events.emit(criteria, data)`](#server.events.emit())
   - [`server.encoder(encoding, encoder)`](#server.encoder())
   - [`server.event(events)`](#server.event())
+  - [`await server.events.emit(criteria, data)`](#server.events.emit())
+  - [`server.events.on(criteria, listener)`](#server.events.on())
+  - [`server.events.once(criteria, listener)`](#server.events.once())
+  - [`await server.events.once(criteria)`](#server.events.once.await())
   - [`server.expose(key, value)`](#server.expose())
   - [`server.expose(obj)`](#server.expose.obj())
   - [`server.ext(events)`](#server.ext())
   - [`server.ext(event, method, [options])`](#server.ext.args())
-  - [`await server.initialize([callback])`](#server.initialize())
+  - [`await server.initialize()`](#server.initialize())
   - [`await server.inject(options)`](#server.inject())
   - [`server.log(tags, [data, [timestamp]])`](#server.log())
   - [`server.lookup(id)`](#server.lookup())
   - [`server.match(method, path, [host])`](#server.match())
   - [`server.method(name, method, [options])`](#server.method())
   - [`server.method(methods)`](#server.method.array())
-  - [`server.events.on(criteria, listener)`](#server.events.on())
-  - [`server.events.once(criteria, listener)`](#server.events.once())
   - [`server.path(relativeTo)`](#server.path())
   - [`await server.register(plugins, [options])`](#server.register())
   - [`server.route(options)`](#server.route())
@@ -72,10 +82,6 @@
   - [`server.state(name, [options])`](#server.state())
   - [`await server.stop([options])`](#server.stop())
   - [`server.table([host])`](#server.table())
-  - [Server events](#server-events)
-    - [Internal events](#internal-events)
-      - [Request logs](#request-logs)
-      - [Server logs](#server-logs)
 - [Route options](#route-options)
   - [`app`](#route.options.app)
   - [`auth`](#route.options.auth)
@@ -128,16 +134,16 @@
   - [`state`](#route.options.state)
   - [`tags`](#route.options.tags)
   - [`timeout`](#route.options.timeout)
-  - [`server`](#route.options.timeout.server)
-  - [`socket`](#route.options.timeout.socket)
+    - [`server`](#route.options.timeout.server)
+    - [`socket`](#route.options.timeout.socket)
   - [`validate`](#route.options.validate)
-  - [`errorFields`](#route.options.validate.errorFields)
-  - [`failAction`](#route.options.validate.failAction)
-  - [`headers`](#route.options.validate.headers)
-  - [`options`](#route.options.validate.options)
-  - [`params`](#route.options.validate.params)
-  - [`payload`](#route.options.validate.payload)
-  - [`query`](#route.options.validate.query)
+    - [`errorFields`](#route.options.validate.errorFields)
+    - [`failAction`](#route.options.validate.failAction)
+    - [`headers`](#route.options.validate.headers)
+    - [`options`](#route.options.validate.options)
+    - [`params`](#route.options.validate.params)
+    - [`payload`](#route.options.validate.payload)
+    - [`query`](#route.options.validate.query)
 - [Request lifecycle](#request-lifecycle)
   - [Lifecycle methods](#lifecycle-methods)
     - [Lifecycle workflow](#lifecycle-workflow)
@@ -162,20 +168,18 @@
     - [`h.unstate(name, [options])`](#h.unstate())
   - [Response object](#response-object)
     - [Response properties](#response-properties)
-      - [`statusCode`](#response.statusCode)
-      - [`headers`](#response.headers)
-      - [`source`](#response.source)
-      - [`variety`](#response.variety)
       - [`app`](#response.app)
+      - [`events`](#response.events)
+      - [`headers`](#response.headers)
       - [`plugins`](#response.plugins)
       - [`settings`](#response.settings)
-        - [`charset`](#response.settings.charset)
-        - [`encoding`](#response.settings.encoding)
-        - [`message`](#response.settings.message)
         - [`passThrough`](#response.settings.passThrough)
         - [`stringify`](#response.settings.stringify)
         - [`ttl`](#response.settings.ttl)
         - [`varyEtag`](#response.settings.varyEtag)
+      - [`source`](#response.source)
+      - [`statusCode`](#response.statusCode)
+      - [`variety`](#response.variety)
     - [`bytes(length)`](#response.bytes())
     - [`charset(charset)`](#response.charset())
     - [`code(statusCode)`](#response.code())
@@ -198,13 +202,14 @@
     - [`temporary(isTemporary)`](#response.temporary())
     - [`permanent(isPermanent)`](#response.permanent())
     - [`rewritable(isRewritable)`](#response.rewritable())
-    - [Response events](#response-events)
 - [Request](#request)
   - [Request properties](#request-properties)
     - [`app`](#request.app)
     - [`auth`](#request.auth)
+    - [`events`](#request.events)
     - [`headers`](#request.headers)
     - [`info`](#request.info)
+    - [`logs`](#request.logs)
     - [`method`](#request.method)
     - [`mime`](#request.mime)
     - [`orig`](#request.orig)
@@ -223,11 +228,9 @@
     - [`state`](#request.state)
     - [`url`](#request.url)
   - [`request.generateResponse(source, [options])`](#request.generateResponse())
-  - [`request.getLog([tags], [internal])`](#request.getLog())
-  - [`request.log(tags, [data, [timestamp]])`](#request.log())
+  - [`request.log(tags, [data])`](#request.log())
   - [`request.setMethod(method)`](#request.setMethod())
   - [`request.setUrl(url, [stripTrailingSlash]`](#request.setUrl())
-  - [Request events](#request-events)
 - [Plugins](#plugins)
 
 <!-- tocstop -->
@@ -603,7 +606,195 @@ console.log(server.decorations.toolkit);            // ['success']
 
 #### <a name="server.events" /> `server.events`
 
-The server event emitter.
+The server events emitter. Utilizes the [**podium**](https://github.com/hapijs/podium) with support
+for event criteria validation, channels, and filters.
+
+Use the following methods to interact with `server.events`:
+
+- [`server.event(events)`](#server.event()) - register application events.
+- [`server.events.emit(criteria, data)`](#server.events.emit()) - emit server events.
+- [`server.events.on(criteria, listener)`](#server.events.on()) - subscribe to all events.
+- [`server.events.once(criteria, listener)`](#server.events.once()) - subscribe to 
+
+Other methods include: `server.events.removeListener(name, listener)`,
+`server.events.removeAllListeners(name)`, and `server.events.hasListeners(name)`.
+
+##### <a name="server.events.log" /> `'log'`
+
+The `'log'` event type emits internal server events generated by the framework as well as
+application events logged with [`server.log()`](#server.log()).
+
+The `'log'` event handler uses the function signature `function(event, tags)` where:
+
+- `event` - an object with the following properties:
+    - `timestamp` - the event timestamp.
+    - `tags` - an array of tags identifying the event (e.g. `['error', 'http']`).
+    - `channel` - set to `'internal'` for internally generated events, otherwise `'app'` for events
+      generated by [`server.log()`](#server.log()).
+    - `data` - event-specific information. Available when event data was provided and is not an
+      error. Errors are passed via `error`.
+    - `error` - the error object related to the event if applicable. Cannot appear together with
+      `data`.
+
+- `tags` - an object where each `event.tag` is a key and the value is `true`. Useful for quick
+  identification of events.
+
+```js
+server.events.on('log', (event, tags) => {
+
+    if (tags.error) {
+        console.log(`Server error: ${event.error ? event.error.message : 'unknown'}`);
+    }
+});
+```
+
+The internally generated events are (identified by their `tags`):
+
+- `load` - logs the current server load measurements when the server rejects a request due to
+  [high load](#server.options.load). The event data contains the process load metrics.
+
+- `connection` `client` `error` - a `clientError` event was received from the HTTP or HTTPS
+  listener. The event data is the error object received.
+
+##### <a name="server.events.request" /> `'request'`
+
+The `'request'` event type emits internal request events generated by the framework as well as
+application events logged with [`request.log()`](#request.log()).
+
+The `'request'` event handler uses the function signature `function(request, event, tags)` where:
+
+- `request` - the [request object](#request-object).
+
+- `event` - an object with the following properties:
+    - `timestamp` - the event timestamp.
+    - `tags` - an array of tags identifying the event (e.g. `['error', 'http']`).
+    - `channel` - one of
+        - `'app'` - events generated by [`server.log()`](#server.log()).
+        - `'error'` - emitted once per request if the response had a `500` status code.
+        - `'internal'` - internally generated events.
+    - `request` - the request [identifier](#request.info.id).
+    - `data` - event-specific information. Available when event data was provided and is not an
+      error. Errors are passed via `error`.
+    - `error` - the error object related to the event if applicable. Cannot appear together with
+      `data`.
+
+- `tags` - an object where each `event.tag` is a key and the value is `true`. Useful for quick
+  identification of events.
+
+```js
+server.events.on('request', (request, event, tags) => {
+
+    if (tags.error) {
+        console.log(`Request ${event.request} error: ${event.error ? event.error.message : 'unknown'}`);
+    }
+});
+```
+
+To listen to only one of the channels, use the event criteria object:
+
+```js
+server.events.on({ name: 'request', channels: 'error' }, (request, event, tags) => {
+
+    console.log(`Request ${event.request} failed`);
+});
+```
+
+The internally generated events are (identified by their `tags`):
+
+- `accept-encoding` `error` - a request received contains an invalid Accept-Encoding header.
+- `auth` `unauthenticated` - no authentication scheme included with the request.
+- `auth` `unauthenticated` `response` `{strategy}` - the authentication strategy listed returned a
+  non-error response (e.g. a redirect to a login page).
+- `auth` `unauthenticated` `error` `{strategy}` - the request failed to pass the listed
+  authentication strategy (invalid credentials).
+- `auth` `unauthenticated` `missing` `{strategy}` - the request failed to pass the listed
+  authentication strategy (no credentials found).
+- `auth` `unauthenticated` `try` `{strategy}` - the request failed to pass the listed
+  authentication strategy in `'try'` mode and will continue.
+- `auth` `scope` `error` `{strategy}` - the request authenticated but failed to meet the scope
+  requirements.
+- `auth` `entity` `user` `error` `{strategy}` - the request authenticated but included an
+  application entity when a user entity was required.
+- `auth` `entity` `app` `error` `{strategy}` - the request authenticated but included a user
+  entity when an application entity was required.
+- `handler` `error` - the route handler returned an error. Includes the execution duration and the
+  error message.
+- `pre` `error` - a pre method was executed and returned an error. Includes the execution duration,
+  assignment key, and error.
+- `internal` `error` - an HTTP 500 error response was assigned to the request.
+- `internal` `implementation` `error` - an incorrectly implemented [lifecycle method](#lifecycle-methods).
+- `request` `abort` `error` - the request aborted.
+- `request` `closed` `error` - the request closed prematurely.
+- `request` `error` - the request stream emitted an error. Includes the error.
+- `request` `server` `timeout` `error` - the request took too long to process by the server.
+  Includes the timeout configuration value and the duration.
+- `state` `error` - the request included an invalid cookie or cookies. Includes the cookies and
+  error details.
+- `state` `response` `error` - the response included an invalid cookie which prevented generating a
+  valid header. Includes the error.
+- `payload` `error` - failed processing the request payload. Includes the error.
+- `response` `error` - failed writing the response to the client. Includes the error.
+- `response` `error` `close` - failed writing the response to the client due to prematurely closed
+  connection.
+- `response` `error` `aborted` - failed writing the response to the client due to prematurely
+  aborted connection.
+- `validation` `error` `{input}` - input (i.e. payload, query, params, headers) validation failed.
+  Includes the error.
+- `validation` `response` `error` - response validation failed. Includes the error message.
+
+##### <a name="server.events.response" /> `'response'`
+
+The `'response'` event type is emitted after the response is sent back to the client (or when the
+client connection closed and no response sent, in which case [`request.response`](#request.response)
+is `null`). A single event is emitted per request. The `'response'` event handler uses the function
+signature `function(request)` where:
+
+- `request` - the [request object](#request-object).
+
+```js
+server.events.on('response', (request) => {
+
+    console.log(`Response sent for request: ${request.id}`);
+});
+```
+
+##### <a name="server.events.route" /> `'route'`
+
+The `'route'` event type is emitted when a route is added via [`server.route()`](#server.route()). 
+The `'route'` event handler uses the function signature `function(route)` where:
+
+- `route` - the [route information](#request.route). The `route` object must not be modified.
+
+```js
+server.events.on('route', (route) => {
+
+    console.log(`New route added: ${route.path}`);
+});
+```
+
+##### <a name="server.events.start" /> `'start'`
+
+The `'start'` event type is emitted when the server is started using [`server.start()`](#server.start()).
+The `'start'` event handler uses the function signature `function()`.
+
+```js
+server.events.on('start', (route) => {
+
+    console.log('Server started');
+});
+```
+
+##### <a name="server.events.stop" /> `'stop'`
+
+The `'stop'` event type is emitted when the server is stopped using [`server.stop()`](#server.stop()).
+The `'stop'` event handler uses the function signature `function()`.
+
+```js
+server.events.on('stop', (route) => {
+
+    console.log('Server stopped');
+});
+```
 
 #### <a name="server.info" /> `server.info`
 
@@ -1314,37 +1505,6 @@ exports.plugin = {
 };
 ```
 
-### <a name="server.events.emit()" /> `await server.events.emit(criteria, data)`
-
-Emits a custom application event to all the subscribed listeners where:
-
-- `criteria` - the event update criteria which must be one of:
-
-    - the event name string.
-    - an object with the following optional keys (unless noted otherwise):
-        - `name` - the event name string (required).
-        - `channel` - the channel name string.
-        - `tags` - a tag string or array of tag strings.
-
-- `data` - the value emitted to the subscribers. If `data` is a function, the function signature
-  is `function()` and it called once to generate (return value) the actual data emitted to the
-  listeners. If no listeners match the event, the `data` function is not invoked.
-
-Return value: none.
-
-Note that events must be registered before they can be emitted or subscribed to by calling
-[`server.event(events)`](#server.event()). This is done to detect event name misspelling and
-invalid event activities.
-
-```js
-const Hapi = require('hapi');
-const server = Hapi.server({ port: 80 });
-
-server.event('test');
-server.on('test', (update) => console.log(update));
-await server.emit('test', 'hello');         // await is optional
-```
-
 ### <a name="server.encoder()" /> `server.encoder(encoding, encoder)`
 
 Registers a custom content encoding compressor to extend the built-in support for `'gzip'` and
@@ -1416,6 +1576,37 @@ const server = Hapi.server({ port: 80 });
 server.event('test');
 server.events.on('test', (update) => console.log(update));
 await server.events.emit('test', 'hello');
+```
+
+### <a name="server.events.emit()" /> `await server.events.emit(criteria, data)`
+
+Emits a custom application event to all the subscribed listeners where:
+
+- `criteria` - the event update criteria which must be one of:
+
+    - the event name string.
+    - an object with the following optional keys (unless noted otherwise):
+        - `name` - the event name string (required).
+        - `channel` - the channel name string.
+        - `tags` - a tag string or array of tag strings.
+
+- `data` - the value emitted to the subscribers. If `data` is a function, the function signature
+  is `function()` and it called once to generate (return value) the actual data emitted to the
+  listeners. If no listeners match the event, the `data` function is not invoked.
+
+Return value: none.
+
+Note that events must be registered before they can be emitted or subscribed to by calling
+[`server.event(events)`](#server.event()). This is done to detect event name misspelling and
+invalid event activities.
+
+```js
+const Hapi = require('hapi');
+const server = Hapi.server({ port: 80 });
+
+server.event('test');
+server.on('test', (update) => console.log(update));
+await server.emit('test', 'hello');         // await is optional
 ```
 
 ### <a name="server.events.on()" /> `server.events.on(criteria, listener)`
@@ -2359,164 +2550,6 @@ server.route({ method: 'GET', path: '/example', handler: () => 'ok' });
 const table = server.table();
 ```
 
-### Server events
-
-The server object inherits from `Events.EventEmitter` and emits the following events:
-
-- `'log'` - events logged with [`server.log()`](#server.log()) and
-  [server events](#server-logs) generated internally by the framework.
-- `'start'` - emitted when the server is started using [`server.start()`](#server.start()).
-- `'stop'` - emitted when the server is stopped using [`server.stop()`](#server.stop()).
-- `'request'` - events generated by [`request.log()`](#request.log()). Does not
-  include any internally generated events.
-- `'request-internal'` - [request events](#request-logs) generated internally by the framework
-  (multiple events per request).
-- `'request-error'` - emitted whenever an Internal Server Error (500) error response is sent.
-  Note that this event is emitted only if the error response is sent to the client. If the error
-  is replaced with a different response before it is sent to the client, no event is emitted.
-  Single event per request.
-- `'response'` - emitted after the response is sent back to the client (or when the client
-  connection closed and no response sent, in which case `request.response` is `null`). Single event
-  per request.
-- `'route'` - emitted when a route is added to a connection. Note that if a route is added to
-  multiple connections at the same time, each will emit a separate event. Note that the `route`
-  object must not be modified.
-
-Note that the server object should not be used to emit application events as its internal
-implementation is designed to fan events out to the various plugin selections and not for
-application events.
-
-When provided (as listed below) the `event` object includes:
-
-- `timestamp` - the event timestamp.
-- `request` - if the event relates to a request, the `request id`.
-- `server` - if the event relates to a server, the `server.info.uri`.
-- `tags` - an array of tags (e.g. `['error', 'http']`).
-- `data` - (optional) event-specific information.
-- `internal` -  `true` if the event was generated internally by the framework.
-
-The `'log'` event includes the `event` object and a `tags` object (where each tag is a key with the
-value `true`):
-
-```js
-server.on('log', (event, tags) => {
-
-    if (tags.error) {
-        console.log('Server error: ' + (event.data || 'unspecified'));
-    }
-});
-```
-
-The `'request'` and `'request-internal'` events include the [request object](#request-object), the
-`event` object, and a `tags` object (where each tag is a key with the value `true`):
-
-```js
-server.on('request', (request, event, tags) => {
-
-    if (tags.received) {
-        console.log('New request: ' + request.id);
-    }
-});
-```
-
-The `'request-error'` event includes the [request object](#request-object) and the causing error
-`err` object:
-
-```js
-server.on('request-error', (request, err) => {
-
-    console.log('Error response (500) sent for request: ' + request.id + ' because: ' + err.message);
-});
-```
-
-The `'response'` event include the [request object](#request-object):
-
-```js
-server.on('response', (request) => {
-
-    console.log('Response sent for request: ' + request.id);
-});
-```
-
-The `'route'` event includes the [route information](#request.route), and the server object used to
-add the route (e.g. the result of a plugin select operation):
-
-```js
-server.on('route', (route, server) => {
-
-    console.log('New route added: ' + route.path);
-});
-```
-
-#### Internal events
-
-The following logs are generated automatically by the framework. Each event can be identified by
-the combination of tags used.
-
-##### Request logs
-
-Emitted by the server `'request-internal'` event:
-- `received` - a new request received. Includes information about the request.
-- `accept-encoding` `error` - a request received contains an invalid Accept-Encoding header.
-- `auth` `{strategy}` - the request successfully authenticated with the listed strategy.
-- `auth` `unauthenticated` - no authentication scheme included with the request.
-- `auth` `unauthenticated` `response` `{strategy}` - the authentication strategy listed returned a
-  non-error response (e.g. a redirect to a login page).
-- `auth` `unauthenticated` `error` `{strategy}` - the request failed to pass the listed
-  authentication strategy (invalid credentials).
-- `auth` `unauthenticated` `missing` `{strategy}` - the request failed to pass the listed
-  authentication strategy (no credentials found).
-- `auth` `unauthenticated` `try` `{strategy}` - the request failed to pass the listed
-  authentication strategy in `'try'` mode and will continue.
-- `auth` `scope` `error` `{strategy}` - the request authenticated but failed to meet the scope
-  requirements.
-- `auth` `entity` `user` `error` `{strategy}` - the request authenticated but included an
-  application entity when a user entity was required.
-- `auth` `entity` `app` `error` `{strategy}` - the request authenticated but included a user
-  entity when an application entity was required.
-- `handler` - the route handler executed. Includes the execution duration.
-- `handler` `error` - the route handler returned an error. Includes the execution duration and the
-  error message.
-- `handler` `method` {method} - a string-shortcut handler method was executed (when cache enabled).
-  Includes information about the execution including cache performance.
-- `pre` `method` {method} - a string-shortcut pre method was executed (when cache enabled).
-  Includes information about the execution including cache performance.
-- `pre` - a pre method was executed. Includes the execution duration and assignment key.
-- `pre` `error` - a pre method was executed and returned an error. Includes the execution duration,
-  assignment key, and error.
-- `internal` `error` - an HTTP 500 error response was assigned to the request.
-- `internal` `implementation` `error` - a function provided by the user failed with an exception
-  during request execution.
-- `request` `closed` `error` - the request closed prematurely.
-- `request` `error` - the request stream emitted an error. Includes the error.
-- `request` `server` `timeout` `error` - the request took too long to process by the server.
-  Includes the timeout configuration value and the duration.
-- `state` `error` - the request included an invalid cookie or cookies. Includes the cookies and
-  error details.
-- `state` `response` `error` - the response included an invalid cookie which prevented generating a
-  valid header. Includes the error.
-- `payload` `error` - failed processing the request payload. Includes the error.
-- `response` - the response was sent successfully.
-- `response` `error` - failed writing the response to the client. Includes the error.
-- `response` `error` `close` - failed writing the response to the client due to prematurely closed
-  connection.
-- `response` `error` `aborted` - failed writing the response to the client due to prematurely
-  aborted connection.
-- `validation` `error` `{input}` - input (i.e. payload, query, params, headers) validation failed.
-  Includes the error.
-- `validation` `response` `error` - response validation failed. Includes the error message.
-
-##### Server logs
-
-Emitted by the server `'log'` event:
-- `load` - logs the current server load measurements when the server rejects a request due to high
-  load. The event data contains the metrics.
-- `internal` `implementation` `error` - a function provided by the user failed with an exception
-  during request execution. The log appears under the server logs when the exception cannot be
-  associated with the request that generated it.
-- `connection` `client` `error` - a `clientError` event was received from the HTTP or HTTPS
-  listener. The event data is the error object received.
-
 ## Route options
 
 Each route can be customized to change the default behavior of the request lifecycle.
@@ -2792,7 +2825,7 @@ Default value: `{ collect: false }`.
 Request logging options:
 
 - `collect` - if `true`, request-level logs (both internal and application) are collected and
-  accessible via [`request.getLog()`](#request.getLog()).
+  accessible via [`request.logs`](#request.logs).
 
 ### <a name="route.options.notes" /> `notes`
 
@@ -3174,14 +3207,14 @@ Default value: `{ server: false }`.
 
 Timeouts for processing durations.
 
-### <a name="route.options.timeout.server" /> `server`
+#### <a name="route.options.timeout.server" /> `server`
 
 Default value: `false`.
 
 Response timeout in milliseconds. Sets the maximum time allowed for the server to respond to an
 incoming request before giving up and responding with a Service Unavailable (503) error response.
 
-### <a name="route.options.timeout.socket" /> `socket`
+#### <a name="route.options.timeout.socket" /> `socket`
 
 Default value: none (use node default of 2 minutes).
 
@@ -3194,13 +3227,13 @@ Default value: `{ headers: true, params: true, query: true, payload: true, failA
 
 Request input validation rules for various request components.
 
-### <a name="route.options.validate.errorFields" /> `errorFields`
+#### <a name="route.options.validate.errorFields" /> `errorFields`
 
 Default value: none.
 
 An optional object with error fields copied into every validation error response.
 
-### <a name="route.options.validate.failAction" /> `failAction`
+#### <a name="route.options.validate.failAction" /> `failAction`
 
 Default value: `'error'` (return a Bad Request (400) error response).
 
@@ -3208,7 +3241,7 @@ A [`failAction` value](#lifecycle-failAction) which determines how to handle fai
 When set to a function, the `err` argument includes the type of validation error under
 `err.output.payload.validation.source`.
 
-### <a name="route.options.validate.headers" /> `headers`
+#### <a name="route.options.validate.headers" /> `headers`
 
 Default value: `true` (no validation).
 
@@ -3229,7 +3262,7 @@ Validation rules for incoming request headers:
 
 Note that all header field names must be in lowercase to match the headers normalized by node.
 
-### <a name="route.options.validate.options" /> `options`
+#### <a name="route.options.validate.options" /> `options`
 
 Default value: none.
 
@@ -3253,7 +3286,7 @@ If the validation rules for `headers`, `params`, `query`, and `payload` are defi
 server [`routes`](#server.options.routes) level and at the route level, the individual route
 settings override the routes defaults (the rules are not merged).
 
-### <a name="route.options.validate.params" /> `params`
+#### <a name="route.options.validate.params" /> `params`
 
 Default value: `true` (no validation).
 
@@ -3277,7 +3310,7 @@ extracting any parameters, and storing them in [`request.params`](#request.param
 Note that failing to match the validation rules to the route path parameters definition will cause
 all requests to fail.
 
-### <a name="route.options.validate.payload" /> `payload`
+#### <a name="route.options.validate.payload" /> `payload`
 
 Default value: `true` (no validation).
 
@@ -3306,7 +3339,7 @@ Note that validating large payloads and modifying them will cause memory duplica
 (since the original is kept), as well as the significant performance cost of validating large
 amounts of data.
 
-### <a name="route.options.validate.query" /> `query`
+#### <a name="route.options.validate.query" /> `query`
 
 Default value: `true` (no validation).
 
@@ -3483,8 +3516,8 @@ The return value must be one of:
 - a promise object that resolve to any of the above values
 
 Any error thrown by a lifecycel method will be used as the reponse object. While errors and valid
-values can be both returned or thrown, it is recommended to throw errors and return all other
-values.
+values can be returned, it is recommended to throw errors. Throwing non-error values will generate
+a Bad Implementation (500) error response.
 
 ```js
 const handler = function (request, h) {
@@ -3866,11 +3899,52 @@ before it is returned, the [`h.response()`](#h.response()) method is provided.
 
 #### Response properties
 
-##### <a name="response.statusCode" /> `statusCode`
+##### <a name="response.app" /> `app`
 
-Default value: `200`.
+Default value: `{}`.
 
-The HTTP response status code.
+Application-specific state. Provides a safe place to store application data without potential
+conflicts with the framework. Should not be used by [plugins](#plugins) which should use
+[`plugins[name]`](#response.plugins).
+
+##### <a name="response.events" /> `events`
+
+The `response.events` object supports the following events:
+
+- `'peek'` - emitted for each chunk of data written back to the client connection. The event method
+  signature is `function(chunk, encoding)`.
+
+- `'finish'` - emitted when the response finished writing but before the client response connection
+  is ended. The event method signature is `function ()`.
+
+```js
+const Crypto = require('crypto');
+const Hapi = require('hapi');
+const server = Hapi.server({ port: 80 });
+
+const preResponse = function (request, h) {
+
+    const response = request.response;
+    if (response.isBoom) {
+        return null;
+    }
+
+    const hash = Crypto.createHash('sha1');
+    response.events.on('peek', (chunk) => {
+
+        hash.update(chunk);
+    });
+
+    response.events.once('finish', () => {
+
+        console.log(hash.digest('hex'));
+    });
+
+    return h.continue;
+};
+
+server.ext('onPreResponse', preResponse);
+```
 
 ##### <a name="response.headers" /> `headers`
 
@@ -3882,26 +3956,6 @@ the string header value or array of string.
 Note that this is an incomplete list of headers to be included with the response. Additional
 headers will be added once the response is prepared for transmission.
 
-##### <a name="response.source" /> `source`
-
-The raw value returned by the [lifecycle method](#lifecycle-methods).
-
-##### <a name="response.variety" /> `variety`
-
-A string indicating the type of [`source`](#response.source) with available values:
-
-- `'plain'` - a plain response such as string, number, `null`, or simple object.
-- `'buffer'` - a `Buffer`.
-- `'stream'` - a `Stream`.
-
-##### <a name="response.app" /> `app`
-
-Default value: `{}`.
-
-Application-specific state. Provides a safe place to store application data without potential
-conflicts with the framework. Should not be used by [plugins](#plugins) which should use
-[`plugins[name]`](#response.plugins).
-
 ##### <a name="response.plugins" /> `plugins`
 
 Default value: `{}`.
@@ -3912,25 +3966,6 @@ an object where each key is a plugin name and the value is the state.
 ##### <a name="response.settings" /> `settings`
 
 Object containing the response handling flags.
-
-###### <a name="response.settings.charset" /> `charset`
-
- Default value: `'utf-8'`.
-
-The 'Content-Type' HTTP header 'charset' property.
-
-###### <a name="response.settings.encoding" /> `encoding`
-
-Default value: `'utf8'`.
-
-The string encoding scheme used to serial data into the HTTP payload when [`source`](#response.source)
-is a string or marshals into a string.
-
-###### <a name="response.settings.message" /> `message`
-
-Default value: `null`.
-
-An override HTTP status message (e.g. 'Bad Request').
 
 ###### <a name="response.settings.passThrough" /> `passThrough`
 
@@ -3959,6 +3994,24 @@ Default value: `false`.
 
 If `true`, a suffix will be automatically added to the 'ETag' header at transmission time
 (separated by a `'-'` character) when the HTTP 'Vary' header is present.
+
+##### <a name="response.source" /> `source`
+
+The raw value returned by the [lifecycle method](#lifecycle-methods).
+
+##### <a name="response.statusCode" /> `statusCode`
+
+Default value: `200`.
+
+The HTTP response status code.
+
+##### <a name="response.variety" /> `variety`
+
+A string indicating the type of [`source`](#response.source) with available values:
+
+- `'plain'` - a plain response such as string, number, `null`, or simple object.
+- `'buffer'` - a `Buffer`.
+- `'stream'` - a `Stream`.
 
 #### <a name="response.bytes()" /> `bytes(length)`
 
@@ -4191,44 +4244,6 @@ Return value: the current response object.
 
 Only available after calling the [`response.redirect()`](#response.redirect()) method.
 
-#### Response events
-
-The response object supports the following events:
-
-- `'peek'` - emitted for each chunk of data written back to the client connection. The event method
-  signature is `function(chunk, encoding)`.
-- `'finish'` - emitted when the response finished writing but before the client response connection
-  is ended. The event method signature is `function ()`.
-
-```js
-const Crypto = require('crypto');
-const Hapi = require('hapi');
-const server = Hapi.server({ port: 80 });
-
-const preResponse = function (request, h) {
-
-    const response = request.response;
-    if (response.isBoom) {
-        return null;
-    }
-
-    const hash = Crypto.createHash('sha1');
-    response.on('peek', (chunk) => {
-
-        hash.update(chunk);
-    });
-
-    response.once('finish', () => {
-
-        console.log(hash.digest('hex'));
-    });
-
-    return h.continue;
-};
-
-server.ext('onPreResponse', preResponse);
-```
-
 ## Request
 
 The request object is created internally for each incoming request. It is not the same object
@@ -4260,6 +4275,47 @@ Authentication information:
 - `mode` - the route authentication mode.
 
 - `strategy` - the name of the strategy used.
+
+#### <a name="request.events" /> `events`
+
+The `request.events` supports the following events:
+
+- `'peek'` - emitted for each chunk of payload data read from the client connection. The event
+  method signature is `function(chunk, encoding)`.
+
+- `'finish'` - emitted when the request payload finished reading. The event method signature is
+  `function ()`.
+
+- `'disconnect'` - emitted when a request errors or aborts unexpectedly.
+
+```js
+const Crypto = require('crypto');
+const Hapi = require('hapi');
+const server = Hapi.server({ port: 80 });
+
+const onRequest = function (request, h) {
+
+    const hash = Crypto.createHash('sha1');
+    request.events.on('peek', (chunk) => {
+
+        hash.update(chunk);
+    });
+
+    request.events.once('finish', () => {
+
+        console.log(hash.digest('hex'));
+    });
+
+    request.events.once('disconnect', () => {
+
+        console.error('request aborted');
+    });
+
+    return h.continue;
+};
+
+server.ext('onRequest', onRequest);
+```
 
 #### <a name="request.headers" /> `headers`
 
@@ -4295,6 +4351,12 @@ Request information:
 - `responded` - request response timestamp (`0` is not responded yet).
 
 Note that the `request.info` object is not meant to be modified.
+
+#### <a name="request.logs" /> `logs`
+
+An array containing the logged request events.
+
+Note that this array will be empty if route [`log.collect`](#route.options.log) is set to `false`.
 
 #### <a name="request.method" /> `method`
 
@@ -4402,26 +4464,7 @@ Returns a [`response`](#response-object) which you can pass into the [reply inte
 - `source` - the value to set as the source of the [reply interface](#response-toolkit), optional.
 - `options` - options for the method, optional.
 
-### <a name="request.getLog()" /> `request.getLog([tags], [internal])`
-
-Returns an array containing the events matching any of the tags specified (logical OR) where:
-- `tags` - is a single tag string or array of tag strings. If no `tags` specified, returns all
-  events.
-- `internal` - filters the events to only those with a matching `event.internal` value. If `true`,
-  only internal logs are included. If `false`, only user event are included. Defaults to all events
-  (`undefined`).
-
-Note that this methods requires the route `log` configuration set to `true`.
-
-```js
-request.getLog();
-request.getLog('error');
-request.getLog(['error', 'auth']);
-request.getLog(['error'], true);
-request.getLog(false);
-```
-
-### <a name="request.log()" /> `request.log(tags, [data, [timestamp]])`
+### <a name="request.log()" /> `request.log(tags, [data])`
 
 Logs request-specific events. When called, the server emits a `'request'` event which can be used
 by other listeners or [plugins](#plugins). The arguments are:
@@ -4431,7 +4474,6 @@ by other listeners or [plugins](#plugins). The arguments are:
 - `data` - (optional) an message string or object with the application data being logged. If `data`
   is a function, the function signature is `function()` and it called once to generate (return
   value) the actual data emitted to the listeners.
-- `timestamp` - (optional) an timestamp expressed in milliseconds. Defaults to `Date.now()` (now).
 
 Any logs generated by the server internally will be emitted only on the `'request-internal'`
 channel and will include the `event.internal` flag set to `true`.
@@ -4521,45 +4563,6 @@ server.ext('onRequest', onRequest);
 ```
 
 Can only be called from an `'onRequest'` extension method.
-
-### Request events
-
-The [request object](#request-object) supports the following events:
-
-- `'peek'` - emitted for each chunk of payload data read from the client connection. The event
-  method signature is `function(chunk, encoding)`.
-- `'finish'` - emitted when the request payload finished reading. The event method signature is
-  `function ()`.
-- `'disconnect'` - emitted when a request errors or aborts unexpectedly.
-
-```js
-const Crypto = require('crypto');
-const Hapi = require('hapi');
-const server = Hapi.server({ port: 80 });
-
-const onRequest = function (request, h) {
-
-    const hash = Crypto.createHash('sha1');
-    request.on('peek', (chunk) => {
-
-        hash.update(chunk);
-    });
-
-    request.once('finish', () => {
-
-        console.log(hash.digest('hex'));
-    });
-
-    request.once('disconnect', () => {
-
-        console.error('request aborted');
-    });
-
-    return h.continue;
-};
-
-server.ext('onRequest', onRequest);
-```
 
 ## Plugins
 

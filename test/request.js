@@ -146,7 +146,7 @@ describe('Request', () => {
 
         const handler = (request) => {
 
-            expect(request.getLog('accept-encoding')[0].data.header).to.equal('a;b');
+            expect(request.logs[0].error.header).to.equal('a;b');
             return request.info.acceptEncoding;
         };
 
@@ -596,11 +596,11 @@ describe('Request', () => {
 
             let errs = 0;
             let req = null;
-            server.events.on('request-error', (request, err) => {
+            server.events.on({ name: 'request', channels: 'error' }, (request, { error }) => {
 
                 errs++;
-                expect(err).to.exist();
-                expect(err.message).to.equal('boom2');
+                expect(error).to.exist();
+                expect(error.message).to.equal('boom2');
                 req = request;
             });
 
@@ -627,7 +627,7 @@ describe('Request', () => {
 
             await log;
             expect(errs).to.equal(1);
-            expect(req.getLog('error')[1].tags).to.equal(['internal', 'error']);
+            expect(req.logs[1].tags).to.equal(['internal', 'error']);
         });
 
         it('does not emit request-error when error is replaced with valid response', async () => {
@@ -635,7 +635,7 @@ describe('Request', () => {
             const server = Hapi.server({ debug: false });
 
             let errs = 0;
-            server.events.on('request-error', (request, err) => {
+            server.events.on({ name: 'request', channels: 'error' }, (request, event) => {
 
                 errs++;
             });
@@ -966,11 +966,11 @@ describe('Request', () => {
             const log = new Promise((resolve) => {
 
                 const orig = console.error;
-                console.error = function () {
+                console.error = function (...args) {
 
-                    expect(arguments[0]).to.equal('Debug:');
-                    expect(arguments[1]).to.equal('implementation');
-                    expect(arguments[2]).to.equal('\n    data');
+                    expect(args[0]).to.equal('Debug:');
+                    expect(args[1]).to.equal('implementation');
+                    expect(args[2]).to.equal('\n    data');
                     console.error = orig;
                     resolve();
                 };
@@ -987,12 +987,12 @@ describe('Request', () => {
 
             const handler = async (request) => {
 
-                const log = server.events.once('request');
+                const log = server.events.once({ name: 'request', channels: 'app' });
                 request.log(['test'], 'data');
                 const [, event, tags] = await log;
-                expect(event).to.contain(['request', 'timestamp', 'tags', 'data', 'internal']);
+                expect(event).to.contain(['request', 'timestamp', 'tags', 'data', 'channel']);
                 expect(event.data).to.equal('data');
-                expect(event.internal).to.be.false();
+                expect(event.channel).to.equal('app');
                 expect(tags).to.equal({ test: true });
                 return null;
             };
@@ -1011,12 +1011,13 @@ describe('Request', () => {
 
                 const log = server.events.once('request');
                 request.log(['test'], () => 'data');
+
                 const [, event, tags] = await log;
-                expect(event).to.contain(['request', 'timestamp', 'tags', 'data', 'internal']);
+                expect(event).to.contain(['request', 'timestamp', 'tags', 'data', 'channel']);
                 expect(event.data).to.equal('data');
-                expect(event.internal).to.be.false();
+                expect(event.channel).to.equal('app');
                 expect(tags).to.equal({ test: true });
-                expect(request.getLog('test')[0].data).to.equal('data');
+                expect(request.logs[0].data).to.equal('data');
                 return null;
             };
 
@@ -1040,11 +1041,11 @@ describe('Request', () => {
             const log = new Promise((resolve) => {
 
                 const orig = console.error;
-                console.error = function () {
+                console.error = function (...args) {
 
-                    expect(arguments[0]).to.equal('Debug:');
-                    expect(arguments[1]).to.equal('implementation');
-                    expect(arguments[2]).to.equal('');
+                    expect(args[0]).to.equal('Debug:');
+                    expect(args[1]).to.equal('implementation');
+                    expect(args[2]).to.equal('');
                     console.error = orig;
                     resolve();
                 };
@@ -1069,11 +1070,11 @@ describe('Request', () => {
             const log = new Promise((resolve) => {
 
                 const orig = console.error;
-                console.error = function () {
+                console.error = function (...args) {
 
-                    expect(arguments[0]).to.equal('Debug:');
-                    expect(arguments[1]).to.equal('implementation');
-                    expect(arguments[2]).to.contain('Error: boom');
+                    expect(args[0]).to.equal('Debug:');
+                    expect(args[1]).to.equal('implementation');
+                    expect(args[2]).to.contain('Error: boom');
                     console.error = orig;
                     resolve();
                 };
@@ -1101,11 +1102,11 @@ describe('Request', () => {
             const log = new Promise((resolve) => {
 
                 const orig = console.error;
-                console.error = function () {
+                console.error = function (...args) {
 
-                    expect(arguments[0]).to.equal('Debug:');
-                    expect(arguments[1]).to.equal('implementation');
-                    expect(arguments[2]).to.equal('\n    [Cannot display object: Converting circular structure to JSON]');
+                    expect(args[0]).to.equal('Debug:');
+                    expect(args[1]).to.equal('implementation');
+                    expect(args[2]).to.equal('\n    [Cannot display object: Converting circular structure to JSON]');
                     console.error = orig;
                     resolve();
                 };
@@ -1120,22 +1121,22 @@ describe('Request', () => {
 
             const handler = (request) => {
 
-                request.log('1', 'log event 1', Date.now());
-                request.log(['2'], 'log event 2', new Date(Date.now()));
+                request.log('1', 'log event 1');
+                request.log(['2'], 'log event 2');
                 request.log(['3', '4']);
                 request.log(['1', '4']);
                 request.log(['2', '3']);
                 request.log(['4']);
                 request.log('4');
 
-                return [request.getLog('1').length, request.getLog('4').length, request.getLog(['4']).length, request.getLog('0').length, request.getLog(['1', '2', '3', '4']).length, request.getLog().length >= 7].join('|');
+                return request.logs.map((event) => event.tags).join('|');
             };
 
             const server = Hapi.server({ routes: { log: { collect: true } } });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
-            expect(res.payload).to.equal('2|4|4|0|7|true');
+            expect(res.payload).to.equal('1|2|3,4|1,4|2,3|4|4');
         });
 
         it('does not output events when debug disabled', async () => {
@@ -1211,27 +1212,6 @@ describe('Request', () => {
             console.error('nothing');
             expect(i).to.equal(1);
             console.error = orig;
-        });
-    });
-
-    describe('getLog()', () => {
-
-        it('returns the selected logs', async () => {
-
-            const handler = (request) => {
-
-                request._log('1');
-                request._log('2');
-                request.log('1');
-
-                return [request.getLog('1').length, request.getLog('1', true).length, request.getLog('1', false).length, request.getLog(true).length, request.getLog(false).length, request.getLog().length].join('|');
-            };
-
-            const server = Hapi.server({ routes: { log: { collect: true } } });
-            server.route({ method: 'GET', path: '/', handler });
-
-            const res = await server.inject('/');
-            expect(res.payload).to.equal('2|1|1|2|1|3');
         });
     });
 

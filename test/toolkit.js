@@ -97,7 +97,7 @@ describe('Toolkit', () => {
                     throw 'this is not an error';
                 };
 
-                const server = Hapi.server();
+                const server = Hapi.server({ debug: false });
                 server.route({ method: 'GET', path: '/', handler });
                 const res = await server.inject('/');
                 expect(res.statusCode).to.equal(500);

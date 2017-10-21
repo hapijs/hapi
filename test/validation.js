@@ -493,7 +493,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                handler: (request) => request.getLog('validation')[0],
+                handler: (request) => request.logs.filter((event) => event.tags[0] === 'validation')[0],
                 config: {
                     validate: {
                         query: {
@@ -506,7 +506,7 @@ describe('validation', () => {
 
             const res = await server.inject('/?a=1');
             expect(res.statusCode).to.equal(200);
-            expect(res.result.data.output.payload.message).to.equal('Invalid request query input');
+            expect(res.result.error.output.payload.message).to.equal('Invalid request query input');
         });
 
         it('replaces error with message on invalid input', async () => {
@@ -1433,10 +1433,10 @@ describe('validation', () => {
                 }
             });
 
-            server.events.on('request-internal', (request, event, tags) => {
+            server.events.on({ name: 'request', channels: 'internal' }, (request, event, tags) => {
 
                 if (tags.validation) {
-                    expect(event.data.message).to.equal('"a" is not allowed');
+                    expect(event.error.message).to.equal('"a" is not allowed');
                 }
             });
 

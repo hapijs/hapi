@@ -1884,7 +1884,7 @@ describe('Server', () => {
                 expect(event.data).to.equal('log event 1');
             });
 
-            server.log('1', 'log event 1', Date.now());
+            server.log('1', 'log event 1');
 
             server.events.once('log', (event, tags) => {
 
@@ -1892,7 +1892,7 @@ describe('Server', () => {
                 expect(event.data).to.equal('log event 2');
             });
 
-            server.log(['2'], 'log event 2', new Date(Date.now()));
+            server.log(['2'], 'log event 2');
             await Hoek.wait(10);
             expect(count).to.equal(3);
         });
@@ -1918,11 +1918,11 @@ describe('Server', () => {
             const log = new Promise((resolve) => {
 
                 const orig = console.error;
-                console.error = function () {
+                console.error = function (...args) {
 
                     console.error = orig;
-                    expect(arguments[0]).to.equal('Debug:');
-                    expect(arguments[1]).to.equal('internal, implementation, error');
+                    expect(args[0]).to.equal('Debug:');
+                    expect(args[1]).to.equal('internal, implementation, error');
 
                     resolve();
                 };
@@ -1939,12 +1939,12 @@ describe('Server', () => {
             const log = new Promise((resolve) => {
 
                 const orig = console.error;
-                console.error = function () {
+                console.error = function (...args) {
 
                     console.error = orig;
-                    expect(arguments[0]).to.equal('Debug:');
-                    expect(arguments[1]).to.equal('implementation');
-                    expect(arguments[2]).to.equal('\n    {"data":1}');
+                    expect(args[0]).to.equal('Debug:');
+                    expect(args[1]).to.equal('implementation');
+                    expect(args[2]).to.equal('\n    {"data":1}');
 
                     resolve();
                 };
@@ -1961,12 +1961,12 @@ describe('Server', () => {
             const log = new Promise((resolve) => {
 
                 const orig = console.error;
-                console.error = function () {
+                console.error = function (...args) {
 
                     console.error = orig;
-                    expect(arguments[0]).to.equal('Debug:');
-                    expect(arguments[1]).to.equal('implementation');
-                    expect(arguments[2]).to.contain('\n    Error: test\n    at');
+                    expect(args[0]).to.equal('Debug:');
+                    expect(args[1]).to.equal('implementation');
+                    expect(args[2]).to.contain('\n    Error: test\n    at');
                     resolve();
                 };
             });
@@ -1982,12 +1982,12 @@ describe('Server', () => {
             const log = new Promise((resolve) => {
 
                 const orig = console.error;
-                console.error = function () {
+                console.error = function (...args) {
 
                     console.error = orig;
-                    expect(arguments[0]).to.equal('Debug:');
-                    expect(arguments[1]).to.equal('implementation');
-                    expect(arguments[2]).to.equal('');
+                    expect(args[0]).to.equal('Debug:');
+                    expect(args[1]).to.equal('implementation');
+                    expect(args[2]).to.equal('');
                     resolve();
                 };
             });
@@ -2080,7 +2080,7 @@ describe('Server', () => {
 
                     srv.events.on('log', (event, tags) => updates.push(event.tags));
                     srv.events.on('response', (request) => updates.push('response'));
-                    srv.events.on('request-error', (request, err) => updates.push('request-error'));
+                    srv.events.on({ name: 'request', channels: 'error' }, (request, err) => updates.push({ name: 'request', channels: 'error' }));
                 }
             };
 
@@ -2100,7 +2100,7 @@ describe('Server', () => {
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
             await Hoek.wait(10);
-            expect(updates).to.equal([['1'], 'request-error', 'response']);
+            expect(updates).to.equal([['1'], { name: 'request', channels: 'error' }, 'response']);
             await server.stop();
         });
 
@@ -2111,12 +2111,12 @@ describe('Server', () => {
             const log = new Promise((resolve) => {
 
                 const orig = console.error;
-                console.error = function () {
+                console.error = function (...args) {
 
                     console.error = orig;
-                    expect(arguments[0]).to.equal('Debug:');
-                    expect(arguments[1]).to.equal('foobar');
-                    expect(arguments[2]).to.equal('\n    {"data":1}');
+                    expect(args[0]).to.equal('Debug:');
+                    expect(args[1]).to.equal('foobar');
+                    expect(args[2]).to.equal('\n    {"data":1}');
                     resolve();
                 };
             });

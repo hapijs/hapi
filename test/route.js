@@ -181,7 +181,7 @@ describe('Route', () => {
         });
 
         let logged;
-        server.events.on('request-internal', (request, event, tags) => {
+        server.events.on({ name: 'request', channels: 'internal' }, (request, event, tags) => {
 
             if (tags.payload && tags.error) {
                 logged = event;
@@ -191,8 +191,8 @@ describe('Route', () => {
         const res = await server.inject({ method: 'POST', url: '/', payload: '{a:"abc"}' });
         expect(res.statusCode).to.equal(200);
         expect(logged).to.be.an.object();
-        expect(logged.data).to.be.an.error('Invalid request payload JSON format');
-        expect(logged.data.data).to.be.an.error(SyntaxError, /^Unexpected token a/);
+        expect(logged.error).to.be.an.error('Invalid request payload JSON format');
+        expect(logged.error.data).to.be.an.error(SyntaxError, /^Unexpected token a/);
     });
 
     it('returns payload parsing errors', async () => {

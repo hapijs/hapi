@@ -1733,14 +1733,14 @@ describe('transmission', () => {
                 // Patch writeHead to always fail on out of range headers
 
                 const origWriteHead = request.raw.res.writeHead;
-                request.raw.res.writeHead = function (statusCode) {
+                request.raw.res.writeHead = function (statusCode, ...args) {
 
                     statusCode |= 0;
                     if (statusCode < 100 || statusCode > 999) {
                         throw new RangeError(`Invalid status code: ${statusCode}`);
                     }
 
-                    return origWriteHead.apply(this, arguments);
+                    return origWriteHead.call(this, statusCode, ...args);
                 };
 
                 return h.response('ok').code(1);

@@ -547,7 +547,7 @@ describe('authentication', () => {
             server.route({ method: 'GET', path: '/', handler: (request) => request.auth.credentials.user });
 
             let logged = false;
-            server.events.on('request-internal', (request, event, tags) => {
+            server.events.on({ name: 'request', channels: 'internal' }, (request, event, tags) => {
 
                 if (tags.auth) {
                     logged = true;
@@ -1205,7 +1205,7 @@ describe('authentication', () => {
             });
 
             let logged = null;
-            server.events.on('request-internal', (request, event, tags) => {
+            server.events.on({ name: 'request', channels: 'internal' }, (request, event, tags) => {
 
                 if (tags.unauthenticated) {
                     logged = event;
@@ -1213,7 +1213,7 @@ describe('authentication', () => {
             });
 
             await server.inject('/');
-            expect(logged.data).to.equal(302);
+            expect(logged.data).to.equal({ statusCode: 302 });
         });
 
         it('passes the options.artifacts object, even with an auth filter', async () => {

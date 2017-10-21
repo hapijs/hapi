@@ -104,7 +104,7 @@ describe('payload', () => {
         setTimeout(() => req.abort(), 50);
 
         const [event] = await log;
-        expect(event.data.message).to.equal('Parse Error');
+        expect(event.error.message).to.equal('Parse Error');
         await server.stop({ timeout: 10 });
     });
 
