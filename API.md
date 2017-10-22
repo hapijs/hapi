@@ -224,6 +224,7 @@
     - [`query`](#request.query)
     - [`raw`](#request.raw)
     - [`route`](#request.route)
+      - [`route.auth.access(request)`](#request.route.auth.access())
     - [`server`](#request.server)
     - [`state`](#request.state)
     - [`url`](#request.url)
