@@ -42,7 +42,7 @@
     "inert": "5.0.0-rc8",
     "lab": "14.x.x",
     "vision": "5.0.0-rc8",
-    "wreck": "13.x.x"
+    "wreck": "14.x.x"
   },
   "scripts": {
     "test": "lab -a code -t 100 -L -m 3000",

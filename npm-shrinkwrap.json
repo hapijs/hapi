@@ -40,8 +40,8 @@
       "resolved": "https://registry.npmjs.org/cryptiles/-/cryptiles-4.0.1.tgz"
     },
     "heavy": {
-      "version": "5.0.1",
-      "resolved": "https://registry.npmjs.org/heavy/-/heavy-5.0.1.tgz"
+      "version": "5.0.2",
+      "resolved": "https://registry.npmjs.org/heavy/-/heavy-5.0.2.tgz"
     },
     "hoek": {
       "version": "5.0.0",
@@ -52,8 +52,8 @@
       "resolved": "https://registry.npmjs.org/iron/-/iron-5.0.1.tgz"
     },
     "joi": {
-      "version": "13.0.0",
-      "resolved": "https://registry.npmjs.org/joi/-/joi-13.0.0.tgz"
+      "version": "13.0.1",
+      "resolved": "https://registry.npmjs.org/joi/-/joi-13.0.1.tgz"
     },
     "mime-db": {
       "version": "1.30.0",
@@ -76,16 +76,16 @@
       "resolved": "https://registry.npmjs.org/podium/-/podium-3.1.2.tgz"
     },
     "shot": {
-      "version": "4.0.2",
-      "resolved": "https://registry.npmjs.org/shot/-/shot-4.0.2.tgz"
+      "version": "4.0.3",
+      "resolved": "https://registry.npmjs.org/shot/-/shot-4.0.3.tgz"
     },
     "statehood": {
-      "version": "6.0.1",
-      "resolved": "https://registry.npmjs.org/statehood/-/statehood-6.0.1.tgz"
+      "version": "6.0.2",
+      "resolved": "https://registry.npmjs.org/statehood/-/statehood-6.0.2.tgz"
     },
     "subtext": {
-      "version": "6.0.4",
-      "resolved": "https://registry.npmjs.org/subtext/-/subtext-6.0.4.tgz"
+      "version": "6.0.5",
+      "resolved": "https://registry.npmjs.org/subtext/-/subtext-6.0.5.tgz"
     },
     "teamwork": {
       "version": "2.1.0",
@@ -100,8 +100,8 @@
       "resolved": "https://registry.npmjs.org/vise/-/vise-3.0.0.tgz"
     },
     "wreck": {
-      "version": "13.0.3",
-      "resolved": "https://registry.npmjs.org/wreck/-/wreck-13.0.3.tgz"
+      "version": "14.0.0",
+      "resolved": "https://registry.npmjs.org/wreck/-/wreck-14.0.0.tgz"
     }
   }
 }
