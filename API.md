@@ -711,12 +711,11 @@ The internally generated events are (identified by their `tags`):
   authentication strategy (no credentials found).
 - `auth` `unauthenticated` `try` `{strategy}` - the request failed to pass the listed
   authentication strategy in `'try'` mode and will continue.
-- `auth` `scope` `error` `{strategy}` - the request authenticated but failed to meet the scope
-  requirements.
-- `auth` `entity` `user` `error` `{strategy}` - the request authenticated but included an
-  application entity when a user entity was required.
-- `auth` `entity` `app` `error` `{strategy}` - the request authenticated but included a user
-  entity when an application entity was required.
+- `auth` `scope` `error` - the request authenticated but failed to meet the scope requirements.
+- `auth` `entity` `user` `error` - the request authenticated but included an application entity
+  when a user entity was required.
+- `auth` `entity` `app` `error` - the request authenticated but included a user entity when an
+  application entity was required.
 - `handler` `error` - the route handler returned an error. Includes the execution duration and the
   error message.
 - `pre` `error` - a pre method was executed and returned an error. Includes the execution duration,
@@ -2595,8 +2594,9 @@ with a `!` character, that scope is forbidden. For example, the scope `['!a', '+
 means the incoming request credentials' `scope` must not include 'a', must include 'b', and must
 include one of 'c' or 'd'.
 
-You may also access properties on the request object (`query` and `params`) to populate a dynamic
-scope by using the '{' and '}' characters around the property name, such as `'user-{params.id}'`.
+You may also access properties on the request object (`query`, `params`, `payload`, and
+`credentials`) to populate a dynamic scope by using the '{' and '}' characters around the property
+name, such as `'user-{params.id}'`.
 
 ##### <a name="route.options.auth.access.entity" /> `entity`
 
@@ -3405,6 +3405,12 @@ the same. The following is the complete list of steps a request can go through:
 
 - _**Payload authentication**_
     - based on the route [`auth`](#route.options.auth) option.
+
+- _**onCredentials**_
+    - called only if authentication is performed.
+
+- _**Authorization**_
+    - based on the route authentication [`access`](#route.options.auth.access) option.
 
 - _**onPostAuth**_
     - called regardless if authentication is performed.
@@ -4272,6 +4278,10 @@ Authentication information:
 
 - `isAuthenticated` - `true` if the request has been successfully authenticated, otherwise `false`.
 
+- `isAuthorized` - `true` is the request has been successfully authorized against the route
+  authentication [`access`](#route.options.auth.access) configuration. If the route has not
+  access rules defined or if the request failed authorization, set to `false`.
+
 - `mode` - the route authentication mode.
 
 - `strategy` - the name of the strategy used.
@@ -4434,16 +4444,25 @@ The request route information object, where:
 - `realm` - the [active realm](#server.realm) associated with the route.
 - `settings` - the [route options](#route-options) object with all defaults applied.
 - `fingerprint` - the route internal normalized string representing the normalized path.
-- `auth` - route authentication utilities:
-    - `access(request)` - authenticates the passed `request` argument against the route's
-      authentication `access` configuration. Returns `true` if the `request` would have passed
-      the route's access requirements. Note that the route's authentication mode and strategies
-      are ignored. The only match is made between the `request.auth.credentials` scope
-      and entity information and the route `access` configuration. Also, if the route uses
-      dynamic scopes, the scopes are constructed against the `request.query` and `request.params`
-      which may or may not match between the route and the request's route. If this method is
-      called using a request that has not been authenticated (yet or at all), it will return
-      `false` if the route requires any authentication.
+
+##### <a name="request.route.auth.access()" /> `route.auth.access(request)`
+
+Validates a request against the route's authentication [`access`](#route.options.auth.access)
+configuration, where:
+
+- `request` - the [request object](#request).
+
+Return value: `true` if the `request` would have passed the route's access requirements.
+
+Note that the route's authentication mode and strategies are ignored. The only match is made
+between the `request.auth.credentials` scope and entity information and the route
+[`access`](#route.options.auth.access) configuration.
+
+If the route uses dynamic scopes, the scopes are constructed against the [`request.query`](#request.query),
+[`request.params`](#request.params), [`request.payload`](#request.payload), and
+[`request.auth.credentials`](#request.auth) which may or may not match between the route and the
+request's route. If this method is called using a request that has not been authenticated (yet or
+not at all), it will return `false` if the route requires any authentication.
 
 #### <a name="request.server" /> `server`
 

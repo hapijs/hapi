@@ -32,14 +32,22 @@ describe('authentication', () => {
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', { users: { steve: { user: 'steve' } } });
         server.auth.default('default');
-        server.route({ method: 'GET', path: '/', handler: (request) => request.auth.credentials.user });
+        server.route({ method: 'GET', path: '/', handler: (request) => request.auth });
 
         const res1 = await server.inject('/');
         expect(res1.statusCode).to.equal(401);
 
         const res2 = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
         expect(res2.statusCode).to.equal(200);
-        expect(res2.result).to.equal('steve');
+        expect(res2.result).to.equal({
+            isAuthenticated: true,
+            isAuthorized: false,
+            credentials: { user: 'steve' },
+            artifacts: undefined,
+            strategy: 'default',
+            mode: 'required',
+            error: null
+        });
     });
 
     it('disables authentication on a route', async () => {
@@ -284,15 +292,15 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', { users: { steve: { scope: 'one-test-admin' } } });
-            server.auth.default({ strategy: 'default', scope: 'one-{params.id}-{params.role}' });
+            server.auth.strategy('default', 'custom', { users: { steve: { user: 'steve', scope: 'one-test-admin-x-steve' } } });
+            server.auth.default({ strategy: 'default', scope: 'one-{params.id}-{params.role}-{payload.x}-{credentials.user}' });
             server.route({
-                method: 'GET',
+                method: 'POST',
                 path: '/{id}/{role}',
                 handler: (request) => request.auth.credentials.user
             });
 
-            const res = await server.inject({ url: '/test/admin', headers: { authorization: 'Custom steve' } });
+            const res = await server.inject({ method: 'POST', url: '/test/admin', headers: { authorization: 'Custom steve' }, payload: { x: 'x' } });
             expect(res.statusCode).to.equal(200);
         });
     });
@@ -803,6 +811,33 @@ describe('authentication', () => {
             expect(res.result.message).to.equal('Insufficient scope');
         });
 
+        it('matches modified scope', async () => {
+
+            const server = Hapi.server();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', { users: { steve: { scope: 'two' } } });
+            server.auth.default('default');
+            server.route({
+                method: 'GET',
+                path: '/',
+                config: {
+                    handler: (request) => request.auth.credentials.user,
+                    auth: {
+                        scope: 'one'
+                    }
+                }
+            });
+
+            server.ext('onCredentials', (request, h) => {
+
+                request.auth.credentials.scope = 'one';
+                return h.continue;
+            });
+
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(200);
+        });
+
         it('errors on missing scope', async () => {
 
             const server = Hapi.server();
@@ -1014,7 +1049,7 @@ describe('authentication', () => {
                 method: 'GET',
                 path: '/',
                 config: {
-                    handler: (request) => request.auth.credentials.user,
+                    handler: (request) => request.auth,
                     auth: {
                         access: {
                             scope: 'one'
@@ -1025,6 +1060,15 @@ describe('authentication', () => {
 
             const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
             expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal({
+                isAuthenticated: true,
+                isAuthorized: true,
+                credentials: { scope: ['one'], user: null },
+                artifacts: undefined,
+                strategy: 'default',
+                mode: 'required',
+                error: null
+            });
         });
 
         it('matches scope (access array)', async () => {
