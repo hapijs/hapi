@@ -1761,12 +1761,11 @@ points where:
     - `method` - (required) a function or an array of functions to be executed at a specified point
       during request processing. The required extension function signature is:
 
-        - server extension points: `function(server)` where:
+        - server extension points: `async function(server)` where:
 
             - `server` - the server object.
-            - `next` - the continuation method with signature `function(err)`.
-            - `this` - the object provided via `options.bind` or the current active context set with
-              [`server.bind()`](#server.bind()).
+            - `this` - the object provided via `options.bind` or the current active context set
+              with [`server.bind()`](#server.bind()).
 
         - request extension points: a [lifecycle method](#lifecycle-methods).
 
