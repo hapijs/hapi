@@ -3518,7 +3518,7 @@ The return value must be one of:
       (auth scheme only).
 - a promise object that resolve to any of the above values
 
-Any error thrown by a lifecycel method will be used as the reponse object. While errors and valid
+Any error thrown by a lifecycle method will be used as the reponse object. While errors and valid
 values can be returned, it is recommended to throw errors. Throwing non-error values will generate
 a Bad Implementation (500) error response.
 
