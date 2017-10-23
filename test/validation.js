@@ -1104,7 +1104,7 @@ describe('validation', () => {
             expect(res.statusCode).to.equal(204);
         });
 
-        it('throws on sample with response modify', async () => {
+        it('throws on sample with response modify', () => {
 
             const server = Hapi.server({ debug: false });
             expect(() => {
@@ -1572,7 +1572,7 @@ describe('validation', () => {
             expect(res2.payload).to.equal('true');
         });
 
-        it('throws on options.stripUnknown without modify', async () => {
+        it('throws on options.stripUnknown without modify', () => {
 
             const server = Hapi.server();
 
@@ -1594,7 +1594,7 @@ describe('validation', () => {
             }).to.throw(/"options.stripUnknown" failed to meet requirement of having peer modify set to true/);
         });
 
-        it('allows options.stripUnknown to be an object', async () => {
+        it('allows options.stripUnknown to be an object', () => {
 
             const server = Hapi.server();
 

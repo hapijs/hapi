@@ -35,13 +35,13 @@ const expect = Code.expect;
 
 describe('Core', () => {
 
-    it('sets connections defaults', async () => {
+    it('sets connections defaults', () => {
 
         const server = Hapi.server({ app: { message: 'test defaults' } });
         expect(server.settings.app.message).to.equal('test defaults');
     });
 
-    it('overrides mime settings', async () => {
+    it('overrides mime settings', () => {
 
         const options = {
             mime: {
@@ -61,7 +61,7 @@ describe('Core', () => {
         expect(server.mime.path('file.npm').source).to.equal('steve');
     });
 
-    it('allows null port and host', async () => {
+    it('allows null port and host', () => {
 
         expect(() => {
 
@@ -69,7 +69,7 @@ describe('Core', () => {
         }).to.not.throw();
     });
 
-    it('does not throw when given a default authentication strategy', async () => {
+    it('does not throw when given a default authentication strategy', () => {
 
         expect(() => {
 
@@ -77,7 +77,7 @@ describe('Core', () => {
         }).not.to.throw();
     });
 
-    it('throws when disabling autoListen and providing a port', async () => {
+    it('throws when disabling autoListen and providing a port', () => {
 
         expect(() => {
 
@@ -85,7 +85,7 @@ describe('Core', () => {
         }).to.throw('Cannot specify port when autoListen is false');
     });
 
-    it('throws when disabling autoListen and providing special host', async () => {
+    it('throws when disabling autoListen and providing special host', () => {
 
         const port = Path.join(__dirname, 'hapi-server.socket');
         expect(() => {
@@ -128,7 +128,7 @@ describe('Core', () => {
         await server.stop();
     });
 
-    it('throws on uri ending with /', async () => {
+    it('throws on uri ending with /', () => {
 
         expect(() => {
 
@@ -165,7 +165,7 @@ describe('Core', () => {
         await server.stop();
     });
 
-    it('creates an https server when passed tls options', async () => {
+    it('creates an https server when passed tls options', () => {
 
         const tlsOptions = {
             key: '-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA0UqyXDCqWDKpoNQQK/fdr0OkG4gW6DUafxdufH9GmkX/zoKz\ng/SFLrPipzSGINKWtyMvo7mPjXqqVgE10LDI3VFV8IR6fnART+AF8CW5HMBPGt/s\nfQW4W4puvBHkBxWSW1EvbecgNEIS9hTGvHXkFzm4xJ2e9DHp2xoVAjREC73B7JbF\nhc5ZGGchKw+CFmAiNysU0DmBgQcac0eg2pWoT+YGmTeQj6sRXO67n2xy/hA1DuN6\nA4WBK3wM3O4BnTG0dNbWUEbe7yAbV5gEyq57GhJIeYxRvveVDaX90LoAqM4cUH06\n6rciON0UbDHV2LP/JaH5jzBjUyCnKLLo5snlbwIDAQABAoIBAQDJm7YC3pJJUcxb\nc8x8PlHbUkJUjxzZ5MW4Zb71yLkfRYzsxrTcyQA+g+QzA4KtPY8XrZpnkgm51M8e\n+B16AcIMiBxMC6HgCF503i16LyyJiKrrDYfGy2rTK6AOJQHO3TXWJ3eT3BAGpxuS\n12K2Cq6EvQLCy79iJm7Ks+5G6EggMZPfCVdEhffRm2Epl4T7LpIAqWiUDcDfS05n\nNNfAGxxvALPn+D+kzcSF6hpmCVrFVTf9ouhvnr+0DpIIVPwSK/REAF3Ux5SQvFuL\njPmh3bGwfRtcC5d21QNrHdoBVSN2UBLmbHUpBUcOBI8FyivAWJhRfKnhTvXMFG8L\nwaXB51IZAoGBAP/E3uz6zCyN7l2j09wmbyNOi1AKvr1WSmuBJveITouwblnRSdvc\nsYm4YYE0Vb94AG4n7JIfZLKtTN0xvnCo8tYjrdwMJyGfEfMGCQQ9MpOBXAkVVZvP\ne2k4zHNNsfvSc38UNSt7K0HkVuH5BkRBQeskcsyMeu0qK4wQwdtiCoBDAoGBANF7\nFMppYxSW4ir7Jvkh0P8bP/Z7AtaSmkX7iMmUYT+gMFB5EKqFTQjNQgSJxS/uHVDE\nSC5co8WGHnRk7YH2Pp+Ty1fHfXNWyoOOzNEWvg6CFeMHW2o+/qZd4Z5Fep6qCLaa\nFvzWWC2S5YslEaaP8DQ74aAX4o+/TECrxi0z2lllAoGAdRB6qCSyRsI/k4Rkd6Lv\nw00z3lLMsoRIU6QtXaZ5rN335Awyrfr5F3vYxPZbOOOH7uM/GDJeOJmxUJxv+cia\nPQDflpPJZU4VPRJKFjKcb38JzO6C3Gm+po5kpXGuQQA19LgfDeO2DNaiHZOJFrx3\nm1R3Zr/1k491lwokcHETNVkCgYBPLjrZl6Q/8BhlLrG4kbOx+dbfj/euq5NsyHsX\n1uI7bo1Una5TBjfsD8nYdUr3pwWltcui2pl83Ak+7bdo3G8nWnIOJ/WfVzsNJzj7\n/6CvUzR6sBk5u739nJbfgFutBZBtlSkDQPHrqA7j3Ysibl3ZIJlULjMRKrnj6Ans\npCDwkQKBgQCM7gu3p7veYwCZaxqDMz5/GGFUB1My7sK0hcT7/oH61yw3O8pOekee\nuctI1R3NOudn1cs5TAy/aypgLDYTUGQTiBRILeMiZnOrvQQB9cEf7TFgDoRNCcDs\nV/ZWiegVB/WY7H0BkCekuq5bHwjgtJTpvHGqQ9YD7RhE8RSYOhdQ/Q==\n-----END RSA PRIVATE KEY-----\n',
@@ -217,7 +217,7 @@ describe('Core', () => {
         await server.stop();
     });
 
-    it('sets info.uri with default localhost when no hostname', async () => {
+    it('sets info.uri with default localhost when no hostname', () => {
 
         const orig = Os.hostname;
         Os.hostname = function () {
@@ -230,7 +230,7 @@ describe('Core', () => {
         expect(server.info.uri).to.equal('http://localhost:80');
     });
 
-    it('sets info.uri without port when 0', async () => {
+    it('sets info.uri without port when 0', () => {
 
         const server = Hapi.server({ host: 'example.com' });
         expect(server.info.uri).to.equal('http://example.com');
@@ -282,7 +282,7 @@ describe('Core', () => {
         await server.stop();
     });
 
-    it('throws on invalid config', async () => {
+    it('throws on invalid config', () => {
 
         expect(() => {
 
@@ -290,13 +290,13 @@ describe('Core', () => {
         }).to.throw(/Invalid server options/);
     });
 
-    it('combines configuration from server and defaults (cors)', async () => {
+    it('combines configuration from server and defaults (cors)', () => {
 
         const server = Hapi.server({ routes: { cors: { origin: ['example.com'] } } });
         expect(server.settings.routes.cors.origin).to.equal(['example.com']);
     });
 
-    it('combines configuration from server and defaults (security)', async () => {
+    it('combines configuration from server and defaults (security)', () => {
 
         const server = Hapi.server({ routes: { security: { hsts: 2, xss: false } } });
         expect(server.settings.routes.security.hsts).to.equal(2);
@@ -605,7 +605,7 @@ describe('Core', () => {
             await server.stop();
         });
 
-        it('sets info with defaults when missing hostname and address', async () => {
+        it('sets info with defaults when missing hostname and address', () => {
 
             const hostname = Os.hostname;
             Os.hostname = function () {
@@ -1063,7 +1063,7 @@ describe('Core', () => {
 
     describe('table()', () => {
 
-        it('returns an array of the current routes', async () => {
+        it('returns an array of the current routes', () => {
 
             const server = Hapi.server();
 
@@ -1075,7 +1075,7 @@ describe('Core', () => {
             expect(routes[0].path).to.equal('/test/');
         });
 
-        it('combines global and vhost routes', async () => {
+        it('combines global and vhost routes', () => {
 
             const server = Hapi.server();
 
@@ -1088,7 +1088,7 @@ describe('Core', () => {
             expect(routes.length).to.equal(4);
         });
 
-        it('combines global and vhost routes and filters based on host', async () => {
+        it('combines global and vhost routes and filters based on host', () => {
 
             const server = Hapi.server();
 
@@ -1101,7 +1101,7 @@ describe('Core', () => {
             expect(routes.length).to.equal(3);
         });
 
-        it('accepts a list of hosts', async () => {
+        it('accepts a list of hosts', () => {
 
             const server = Hapi.server();
 
@@ -1114,7 +1114,7 @@ describe('Core', () => {
             expect(routes.length).to.equal(4);
         });
 
-        it('ignores unknown host', async () => {
+        it('ignores unknown host', () => {
 
             const server = Hapi.server();
 
@@ -1282,7 +1282,7 @@ describe('Core', () => {
             expect(called).to.be.true();
         });
 
-        describe('onRequest', async () => {
+        describe('onRequest', () => {
 
             it('replies with custom response', async () => {
 
@@ -1323,7 +1323,7 @@ describe('Core', () => {
             });
         });
 
-        describe('onPreResponse', async () => {
+        describe('onPreResponse', () => {
 
             it('replies with custom response', async () => {
 
@@ -1605,7 +1605,7 @@ describe('Core', () => {
             expect(res5.payload).to.equal('delete');
         });
 
-        it('adds routes using single and array methods', async () => {
+        it('adds routes using single and array methods', () => {
 
             const server = Hapi.server();
             server.route([
@@ -1657,7 +1657,7 @@ describe('Core', () => {
             ]);
         });
 
-        it('throws on methods array with id', async () => {
+        it('throws on methods array with id', () => {
 
             const server = Hapi.server();
 

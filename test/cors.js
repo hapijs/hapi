@@ -328,7 +328,7 @@ describe('CORS', () => {
 
     describe('options()', () => {
 
-        it('ignores OPTIONS route', async () => {
+        it('ignores OPTIONS route', () => {
 
             const server = Hapi.server();
             server.route({

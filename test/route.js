@@ -47,7 +47,7 @@ describe('Route', () => {
         expect(res.result).to.equal(3);
     });
 
-    it('throws an error when a route is missing a path', async () => {
+    it('throws an error when a route is missing a path', () => {
 
         expect(() => {
 
@@ -56,7 +56,7 @@ describe('Route', () => {
         }).to.throw('Route missing path');
     });
 
-    it('throws an error when a route is missing a method', async () => {
+    it('throws an error when a route is missing a method', () => {
 
         expect(() => {
 
@@ -65,7 +65,7 @@ describe('Route', () => {
         }).to.throw(/"method" is required/);
     });
 
-    it('throws an error when a route has a malformed method name', async () => {
+    it('throws an error when a route has a malformed method name', () => {
 
         expect(() => {
 
@@ -74,7 +74,7 @@ describe('Route', () => {
         }).to.throw(/Invalid route options/);
     });
 
-    it('throws an error when a route uses the HEAD method', async () => {
+    it('throws an error when a route uses the HEAD method', () => {
 
         expect(() => {
 
@@ -83,7 +83,7 @@ describe('Route', () => {
         }).to.throw(/Method name not allowed/);
     });
 
-    it('throws an error when a route is missing a handler', async () => {
+    it('throws an error when a route is missing a handler', () => {
 
         expect(() => {
 
@@ -92,7 +92,7 @@ describe('Route', () => {
         }).to.throw('Missing or undefined handler: put /test');
     });
 
-    it('throws when handler is missing in config', async () => {
+    it('throws when handler is missing in config', () => {
 
         const server = Hapi.server();
         expect(() => {
@@ -101,7 +101,7 @@ describe('Route', () => {
         }).to.throw('Missing or undefined handler: GET /');
     });
 
-    it('throws when path has trailing slash and server set to strip', async () => {
+    it('throws when path has trailing slash and server set to strip', () => {
 
         const server = Hapi.server({ router: { stripTrailingSlash: true } });
         expect(() => {
@@ -110,7 +110,7 @@ describe('Route', () => {
         }).to.throw('Path cannot end with a trailing slash when configured to strip: GET /test/');
     });
 
-    it('allows / when path has trailing slash and server set to strip', async () => {
+    it('allows / when path has trailing slash and server set to strip', () => {
 
         const server = Hapi.server({ router: { stripTrailingSlash: true } });
         expect(() => {
@@ -128,7 +128,7 @@ describe('Route', () => {
         expect(res.result).to.equal('ok');
     });
 
-    it('throws when validation is set without payload parsing', async () => {
+    it('throws when validation is set without payload parsing', () => {
 
         const server = Hapi.server();
         expect(() => {
@@ -137,7 +137,7 @@ describe('Route', () => {
         }).to.throw('Route payload must be set to \'parse\' when payload validation enabled: POST /');
     });
 
-    it('throws when validation is set without path parameters', async () => {
+    it('throws when validation is set without path parameters', () => {
 
         const server = Hapi.server();
         expect(() => {
@@ -238,7 +238,7 @@ describe('Route', () => {
         expect(res.result).to.equal('This is a custom error');
     });
 
-    it('throws when validation is set on GET', async () => {
+    it('throws when validation is set on GET', () => {
 
         const server = Hapi.server();
         expect(() => {
@@ -247,7 +247,7 @@ describe('Route', () => {
         }).to.throw('Cannot validate HEAD or GET requests: GET /');
     });
 
-    it('throws when payload parsing is set on GET', async () => {
+    it('throws when payload parsing is set on GET', () => {
 
         const server = Hapi.server();
         expect(() => {
@@ -388,7 +388,7 @@ describe('Route', () => {
         expect(res.payload).to.contain('hapi');
     });
 
-    it('throws when server timeout is more then socket timeout', async () => {
+    it('throws when server timeout is more then socket timeout', () => {
 
         expect(() => {
 
@@ -396,7 +396,7 @@ describe('Route', () => {
         }).to.throw('Server timeout must be shorter than socket timeout: _special /{p*}');
     });
 
-    it('throws when server timeout is more then socket timeout (node default)', async () => {
+    it('throws when server timeout is more then socket timeout (node default)', () => {
 
         expect(() => {
 
@@ -404,7 +404,7 @@ describe('Route', () => {
         }).to.throw('Server timeout must be shorter than socket timeout: _special /{p*}');
     });
 
-    it('ignores large server timeout when socket timeout disabled', async () => {
+    it('ignores large server timeout when socket timeout disabled', () => {
 
         expect(() => {
 

@@ -882,7 +882,7 @@ describe('Server', () => {
             expect(value).to.equal('going in');
         });
 
-        it('throws when missing segment', async () => {
+        it('throws when missing segment', () => {
 
             const server = Hapi.server();
             expect(() => {
@@ -903,7 +903,7 @@ describe('Server', () => {
             expect(cache._cache.connection.settings.partition).to.equal('hapi-test-other');
         });
 
-        it('throws when allocating an invalid cache segment', async () => {
+        it('throws when allocating an invalid cache segment', () => {
 
             const server = Hapi.server();
             expect(() => {
@@ -912,7 +912,7 @@ describe('Server', () => {
             }).throws();
         });
 
-        it('allows allocating a cache segment with empty options', async () => {
+        it('allows allocating a cache segment with empty options', () => {
 
             const server = Hapi.server();
             expect(() => {
@@ -921,7 +921,7 @@ describe('Server', () => {
             }).to.not.throw();
         });
 
-        it('allows reusing the same cache segment (server)', async () => {
+        it('allows reusing the same cache segment (server)', () => {
 
             const server = Hapi.server({ cache: { engine: CatboxMemory, shared: true } });
             expect(() => {
@@ -931,7 +931,7 @@ describe('Server', () => {
             }).to.not.throw();
         });
 
-        it('allows reusing the same cache segment (cache)', async () => {
+        it('allows reusing the same cache segment (cache)', () => {
 
             const server = Hapi.server();
             expect(() => {
@@ -975,7 +975,7 @@ describe('Server', () => {
         });
     });
 
-    describe('cache.provision()', async () => {
+    describe('cache.provision()', () => {
 
         it('provisions a server cache (before initialization)', async () => {
 
@@ -1121,7 +1121,7 @@ describe('Server', () => {
             }).to.throw('Handler decoration already defined: file');
         });
 
-        it('errors on unknown handler', async () => {
+        it('errors on unknown handler', () => {
 
             const server = Hapi.server();
 
@@ -1131,7 +1131,7 @@ describe('Server', () => {
             }).to.throw('Unknown handler: test');
         });
 
-        it('errors on non-string name', async () => {
+        it('errors on non-string name', () => {
 
             const server = Hapi.server();
 
@@ -1141,7 +1141,7 @@ describe('Server', () => {
             }).to.throw('Missing decoration property name');
         });
 
-        it('errors on non-function handler', async () => {
+        it('errors on non-function handler', () => {
 
             const server = Hapi.server();
 
@@ -1151,7 +1151,7 @@ describe('Server', () => {
             }).to.throw('Handler must be a function: foo');
         });
 
-        it('throws on double toolkit decoration', async () => {
+        it('throws on double toolkit decoration', () => {
 
             const server = Hapi.server();
 
@@ -1166,7 +1166,7 @@ describe('Server', () => {
             }).to.throw('Toolkit decoration already defined: success');
         });
 
-        it('throws on internal conflict', async () => {
+        it('throws on internal conflict', () => {
 
             const server = Hapi.server();
 
@@ -1198,7 +1198,7 @@ describe('Server', () => {
             expect(res.result).to.equal('ok');
         });
 
-        it('throws on double server decoration', async () => {
+        it('throws on double server decoration', () => {
 
             const server = Hapi.server();
 
@@ -1219,7 +1219,7 @@ describe('Server', () => {
             }).to.throw('Server decoration already defined: ok');
         });
 
-        it('throws on server decoration root conflict', async () => {
+        it('throws on server decoration root conflict', () => {
 
             const server = Hapi.server();
 
@@ -1229,7 +1229,7 @@ describe('Server', () => {
             }).to.throw('Cannot override the built-in server interface method: start');
         });
 
-        it('throws on server decoration plugin conflict', async () => {
+        it('throws on server decoration plugin conflict', () => {
 
             const server = Hapi.server();
 
@@ -1239,7 +1239,7 @@ describe('Server', () => {
             }).to.throw('Cannot override the built-in server interface method: ext');
         });
 
-        it('throws on invalid decoration name', async () => {
+        it('throws on invalid decoration name', () => {
 
             const server = Hapi.server();
 
@@ -1252,14 +1252,14 @@ describe('Server', () => {
 
     describe('decorations ()', () => {
 
-        it('shows decorations on request (empty array)', async () => {
+        it('shows decorations on request (empty array)', () => {
 
             const server = Hapi.server();
 
             expect(server.decorations.request).to.be.empty();
         });
 
-        it('shows decorations on request (single)', async () => {
+        it('shows decorations on request (single)', () => {
 
             const server = Hapi.server();
 
@@ -1268,7 +1268,7 @@ describe('Server', () => {
             expect(server.decorations.request).to.equal(['a']);
         });
 
-        it('shows decorations on request (many)', async () => {
+        it('shows decorations on request (many)', () => {
 
             const server = Hapi.server();
 
@@ -1278,14 +1278,14 @@ describe('Server', () => {
             expect(server.decorations.request).to.equal(['a', 'b']);
         });
 
-        it('shows decorations on toolkit (empty array)', async () => {
+        it('shows decorations on toolkit (empty array)', () => {
 
             const server = Hapi.server();
 
             expect(server.decorations.toolkit).to.be.empty();
         });
 
-        it('shows decorations on toolkit (single)', async () => {
+        it('shows decorations on toolkit (single)', () => {
 
             const server = Hapi.server();
 
@@ -1294,7 +1294,7 @@ describe('Server', () => {
             expect(server.decorations.toolkit).to.equal(['a']);
         });
 
-        it('shows decorations on toolkit (many)', async () => {
+        it('shows decorations on toolkit (many)', () => {
 
             const server = Hapi.server();
 
@@ -1304,14 +1304,14 @@ describe('Server', () => {
             expect(server.decorations.toolkit).to.equal(['a', 'b']);
         });
 
-        it('shows decorations on server (empty array)', async () => {
+        it('shows decorations on server (empty array)', () => {
 
             const server = Hapi.server();
 
             expect(server.decorations.server).to.be.empty();
         });
 
-        it('shows decorations on server (single)', async () => {
+        it('shows decorations on server (single)', () => {
 
             const server = Hapi.server();
 
@@ -1320,7 +1320,7 @@ describe('Server', () => {
             expect(server.decorations.server).to.equal(['a']);
         });
 
-        it('shows decorations on server (many)', async () => {
+        it('shows decorations on server (many)', () => {
 
             const server = Hapi.server();
 
@@ -2016,7 +2016,7 @@ describe('Server', () => {
             await log;
         });
 
-        it('does not output events when debug disabled', async () => {
+        it('does not output events when debug disabled', () => {
 
             const server = Hapi.server({ debug: false });
 
@@ -2033,7 +2033,7 @@ describe('Server', () => {
             console.error = orig;
         });
 
-        it('does not output events when debug.log disabled', async () => {
+        it('does not output events when debug.log disabled', () => {
 
             const server = Hapi.server({ debug: { log: false } });
 
@@ -2050,7 +2050,7 @@ describe('Server', () => {
             console.error = orig;
         });
 
-        it('does not output non-implementation events by default', async () => {
+        it('does not output non-implementation events by default', () => {
 
             const server = Hapi.server();
 
@@ -2173,7 +2173,7 @@ describe('Server', () => {
 
     describe('lookup()', () => {
 
-        it('returns route based on id', async () => {
+        it('returns route based on id', () => {
 
             const server = Hapi.server();
             server.route({
@@ -2191,14 +2191,14 @@ describe('Server', () => {
             expect(root.settings.app.test).to.equal(123);
         });
 
-        it('returns null on unknown route', async () => {
+        it('returns null on unknown route', () => {
 
             const server = Hapi.server();
             const root = server.lookup('root');
             expect(root).to.be.null();
         });
 
-        it('throws on missing id', async () => {
+        it('throws on missing id', () => {
 
             const server = Hapi.server();
             expect(() => {
@@ -2210,7 +2210,7 @@ describe('Server', () => {
 
     describe('match()', () => {
 
-        it('returns route based on path', async () => {
+        it('returns route based on path', () => {
 
             const server = Hapi.server();
 
@@ -2269,7 +2269,7 @@ describe('Server', () => {
             expect(server.match('GET', '/abc', 'example.com').settings.id).to.equal('vhost');
         });
 
-        it('throws on missing method', async () => {
+        it('throws on missing method', () => {
 
             const server = Hapi.server();
             expect(() => {
@@ -2278,7 +2278,7 @@ describe('Server', () => {
             }).to.throw('Invalid method: ');
         });
 
-        it('throws on invalid method', async () => {
+        it('throws on invalid method', () => {
 
             const server = Hapi.server();
             expect(() => {
@@ -2287,7 +2287,7 @@ describe('Server', () => {
             }).to.throw('Invalid method: 5');
         });
 
-        it('throws on missing path', async () => {
+        it('throws on missing path', () => {
 
             const server = Hapi.server();
             expect(() => {
@@ -2296,7 +2296,7 @@ describe('Server', () => {
             }).to.throw('Invalid path: ');
         });
 
-        it('throws on invalid path type', async () => {
+        it('throws on invalid path type', () => {
 
             const server = Hapi.server();
             expect(() => {
@@ -2305,7 +2305,7 @@ describe('Server', () => {
             }).to.throw('Invalid path: 5');
         });
 
-        it('throws on invalid path prefix', async () => {
+        it('throws on invalid path prefix', () => {
 
             const server = Hapi.server();
             expect(() => {
@@ -2314,7 +2314,7 @@ describe('Server', () => {
             }).to.throw('Invalid path: 5');
         });
 
-        it('throws on invalid path', async () => {
+        it('throws on invalid path', () => {
 
             const server = Hapi.server();
             server.route({
@@ -2329,7 +2329,7 @@ describe('Server', () => {
             }).to.throw('Invalid path: /%p');
         });
 
-        it('throws on invalid host type', async () => {
+        it('throws on invalid host type', () => {
 
             const server = Hapi.server();
             expect(() => {

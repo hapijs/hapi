@@ -143,7 +143,7 @@ describe('authentication', () => {
             expect(res.statusCode).to.equal(500);
         });
 
-        it('throws when strategy missing scheme', async () => {
+        it('throws when strategy missing scheme', () => {
 
             const server = Hapi.server();
             expect(() => {
@@ -209,7 +209,7 @@ describe('authentication', () => {
             expect(res2.result).to.equal('<h1>xyz</h1>');
         });
 
-        it('exposes an api', async () => {
+        it('exposes an api', () => {
 
             const implementation = function (server, options) {
 
@@ -265,7 +265,7 @@ describe('authentication', () => {
             expect(res2.statusCode).to.equal(200);
         });
 
-        it('throws when setting default twice', async () => {
+        it('throws when setting default twice', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
@@ -277,7 +277,7 @@ describe('authentication', () => {
             }).to.throw('Cannot set default strategy more than once');
         });
 
-        it('throws when setting default without strategy', async () => {
+        it('throws when setting default without strategy', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
@@ -307,7 +307,7 @@ describe('authentication', () => {
 
     describe('_setupRoute()', () => {
 
-        it('throws when route refers to nonexistent strategy', async () => {
+        it('throws when route refers to nonexistent strategy', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
@@ -1410,7 +1410,7 @@ describe('authentication', () => {
             expect(res.statusCode).to.equal(200);
         });
 
-        it('throws when scheme requires payload authentication and route conflicts', async () => {
+        it('throws when scheme requires payload authentication and route conflicts', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
@@ -1431,7 +1431,7 @@ describe('authentication', () => {
             }).to.throw('Cannot set authentication payload to optional when a strategy requires payload validation in /');
         });
 
-        it('throws when strategy does not support payload authentication', async () => {
+        it('throws when strategy does not support payload authentication', () => {
 
             const server = Hapi.server();
             const implementation = function () {
@@ -1457,7 +1457,7 @@ describe('authentication', () => {
             }).to.throw('Payload validation can only be required when all strategies support it in /');
         });
 
-        it('throws when no strategy supports optional payload authentication', async () => {
+        it('throws when no strategy supports optional payload authentication', () => {
 
             const server = Hapi.server();
             const implementation = function () {

@@ -624,7 +624,7 @@ describe('handler', () => {
             expect(res.result).to.equal({ x: 'get' });
         });
 
-        it('throws on handler with invalid defaults', async () => {
+        it('throws on handler with invalid defaults', () => {
 
             const handler = function (route, options) {
 

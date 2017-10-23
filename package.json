@@ -15,7 +15,7 @@
     "web"
   ],
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=8.7.0"
   },
   "dependencies": {
     "accept": "3.x.x",
@@ -40,7 +40,7 @@
     "handlebars": "4.x.x",
     "hapitoc": "1.x.x",
     "inert": "5.0.0-rc8",
-    "lab": "14.x.x",
+    "lab": "15.x.x",
     "vision": "5.0.0-rc8",
     "wreck": "14.x.x"
   },

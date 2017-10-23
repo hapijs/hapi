@@ -532,7 +532,7 @@ describe('Request', () => {
         });
     });
 
-    describe('_finalize()', async () => {
+    describe('_finalize()', () => {
 
         it('generate response event', async () => {
 
@@ -1467,7 +1467,7 @@ describe('Request', () => {
 
             await new Promise(async (resolve) => {
 
-                const req = Http.request(options, async (res) => {
+                const req = Http.request(options, (res) => {
 
                     expect([503, 408]).to.contain(res.statusCode);
                     expect(timer.elapsed()).to.be.at.least(45);

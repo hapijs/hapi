@@ -22,7 +22,7 @@ const expect = Code.expect;
 
 describe('Methods', () => {
 
-    it('registers a method', async () => {
+    it('registers a method', () => {
 
         const add = function (a, b) {
 
@@ -36,7 +36,7 @@ describe('Methods', () => {
         expect(result).to.equal(6);
     });
 
-    it('registers a method with leading _', async () => {
+    it('registers a method with leading _', () => {
 
         const _add = function (a, b) {
 
@@ -50,7 +50,7 @@ describe('Methods', () => {
         expect(result).to.equal(6);
     });
 
-    it('registers a method with leading $', async () => {
+    it('registers a method with leading $', () => {
 
         const $add = function (a, b) {
 
@@ -64,7 +64,7 @@ describe('Methods', () => {
         expect(result).to.equal(6);
     });
 
-    it('registers a method with _', async () => {
+    it('registers a method with _', () => {
 
         const _add = function (a, b) {
 
@@ -78,7 +78,7 @@ describe('Methods', () => {
         expect(result).to.equal(6);
     });
 
-    it('registers a method with $', async () => {
+    it('registers a method with $', () => {
 
         const $add = function (a, b) {
 
@@ -106,7 +106,7 @@ describe('Methods', () => {
         expect(value).to.equal(6);
     });
 
-    it('registers a method with nested name', async () => {
+    it('registers a method with nested name', () => {
 
         const add = function (a, b) {
 
@@ -120,7 +120,7 @@ describe('Methods', () => {
         expect(result).to.equal(6);
     });
 
-    it('registers two methods with shared nested name', async () => {
+    it('registers two methods with shared nested name', () => {
 
         const add = function (a, b) {
 
@@ -142,7 +142,7 @@ describe('Methods', () => {
         expect(result2).to.equal(-4);
     });
 
-    it('throws when registering a method with nested name twice', async () => {
+    it('throws when registering a method with nested name twice', () => {
 
         const server = Hapi.server();
         server.method('tools.add', Hoek.ignore);
@@ -152,7 +152,7 @@ describe('Methods', () => {
         }).to.throw('Server method function name already exists: tools.add');
     });
 
-    it('throws when registering a method with name nested through a function', async () => {
+    it('throws when registering a method with name nested through a function', () => {
 
         const server = Hapi.server();
         server.method('add', Hoek.ignore);
@@ -162,7 +162,7 @@ describe('Methods', () => {
         }).to.throw('Invalid segment another in reach path  add.another');
     });
 
-    it('calls non cached method multiple times', async () => {
+    it('calls non cached method multiple times', () => {
 
         let gen = 0;
         const method = function (id) {
@@ -412,7 +412,7 @@ describe('Methods', () => {
         expect(server.methods.test2.cache.stats.gets).to.equal(0);
     });
 
-    it('throws an error when name is not a string', async () => {
+    it('throws an error when name is not a string', () => {
 
         expect(() => {
 
@@ -421,7 +421,7 @@ describe('Methods', () => {
         }).to.throw('name must be a string');
     });
 
-    it('throws an error when name is invalid', async () => {
+    it('throws an error when name is invalid', () => {
 
         expect(() => {
 
@@ -448,7 +448,7 @@ describe('Methods', () => {
         }).to.throw('Invalid name: .a');
     });
 
-    it('throws an error when method is not a function', async () => {
+    it('throws an error when method is not a function', () => {
 
         expect(() => {
 
@@ -457,7 +457,7 @@ describe('Methods', () => {
         }).to.throw('method must be a function');
     });
 
-    it('throws an error when options is not an object', async () => {
+    it('throws an error when options is not an object', () => {
 
         expect(() => {
 
@@ -466,7 +466,7 @@ describe('Methods', () => {
         }).to.throw(/Invalid method options \(user\)/);
     });
 
-    it('throws an error when options.generateKey is not a function', async () => {
+    it('throws an error when options.generateKey is not a function', () => {
 
         expect(() => {
 
@@ -475,7 +475,7 @@ describe('Methods', () => {
         }).to.throw(/Invalid method options \(user\)/);
     });
 
-    it('throws an error when options.cache is not valid', async () => {
+    it('throws an error when options.cache is not valid', () => {
 
         expect(() => {
 
@@ -484,7 +484,7 @@ describe('Methods', () => {
         }).to.throw(/Invalid cache policy configuration/);
     });
 
-    it('throws an error when generateTimeout is not present', async () => {
+    it('throws an error when generateTimeout is not present', () => {
 
         const server = Hapi.server();
         expect(() => {
@@ -493,7 +493,7 @@ describe('Methods', () => {
         }).to.throw('Method caching requires a timeout value in generateTimeout: test');
     });
 
-    it('allows generateTimeout to be false', async () => {
+    it('allows generateTimeout to be false', () => {
 
         const server = Hapi.server();
         expect(() => {
@@ -595,7 +595,7 @@ describe('Methods', () => {
         await expect(server.methods.user(invalid)).to.reject('Invalid method key when invoking: user');
     });
 
-    it('sets method bind without cache', async () => {
+    it('sets method bind without cache', () => {
 
         const method = function (id) {
 
@@ -654,7 +654,7 @@ describe('Methods', () => {
 
     describe('_add()', () => {
 
-        it('handles sync method', async () => {
+        it('handles sync method', () => {
 
             const add = function (a, b) {
 
@@ -667,7 +667,7 @@ describe('Methods', () => {
             expect(result).to.equal(6);
         });
 
-        it('handles sync method (direct error)', async () => {
+        it('handles sync method (direct error)', () => {
 
             const add = function (a, b) {
 
@@ -681,7 +681,7 @@ describe('Methods', () => {
             expect(result.message).to.equal('boom');
         });
 
-        it('handles sync method (direct throw)', async () => {
+        it('handles sync method (direct throw)', () => {
 
             const add = function (a, b) {
 
@@ -696,7 +696,7 @@ describe('Methods', () => {
             }).to.throw('boom');
         });
 
-        it('throws an error if unknown keys are present when making a server method using an object', async () => {
+        it('throws an error if unknown keys are present when making a server method using an object', () => {
 
             const fn = function () { };
             const server = Hapi.server();
