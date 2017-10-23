@@ -2410,10 +2410,9 @@ across multiple requests. Registers a cookie definitions where:
 
     - `autoValue` - if present and the cookie was not received from the client or explicitly set by
       the route handler, the cookie is automatically added to the response with the provided value.
-      The value can be a function with signature `function(request)` where:
+      The value can be a function with signature `async function(request)` where:
 
         - `request` - the [request object](#request-object).
-        - `next` - the continuation function using the `function(err, value)` signature.
 
     - `encoding` - encoding performs on the provided value before serialization. Options are:
 
