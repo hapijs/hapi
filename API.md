@@ -1464,16 +1464,18 @@ Used within a plugin to declare a required dependency on other [plugins](#plugin
   order for this plugin to operate. Plugins listed must be registered before the server is
   initialized or started.
 
-- `after` - (optional) an function called after all the specified dependencies have been registered
-  and before the server starts. The function is only called if the server is initialized or started. If a circular
-  dependency is detected, an exception is thrown (e.g. two plugins each has an `after` function
-  to be called after the other). The function signature is `function(server)` where:
+- `after` - (optional) a function that is called after all the specified dependencies have been
+registered and before the server starts. The function is only called if the server is initialized
+or started. The function signature is `async function(server)` where:
 
     - `server` - the server the `dependency()` method was called on.
-
+  
 Return value: none.
 
 The `after` method is identical to setting a server extension point on `'onPreStart'`.
+
+If a circular  dependency is detected, an exception is thrown (e.g. two plugins each has an `after`
+function to be called after the other). 
 
 The method does not provide version dependency which should be implemented using
 [npm peer dependencies](http://blog.nodejs.org/2013/02/07/peer-dependencies/).
