@@ -1253,13 +1253,10 @@ Provisions a cache segment within the server cache facility where:
       all cache records expire. Uses local time. Cannot be used together with `expiresIn`.
 
     - `generateFunc` - a function used to generate a new cache item if one is not found in the
-      cache when calling `get()`. The method's signature is `function(id)` where:
+      cache when calling `get()`. The method's signature is `async function(id, flags)` where:
 
           - `id` - the `id` string or object provided to the `get()` method.
-          - `next` - the method called when the new item is returned with the signature
-            `function(err, value, ttl)` where:
-              - `err` - an error condition.
-              - `value` - the new value generated.
+          - `flags` - an object used to pass back additional flags to the cache where:
               - `ttl` - the cache ttl value in milliseconds. Set to `0` to skip storing in the
                 cache. Defaults to the cache global policy.
 
