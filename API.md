@@ -1556,9 +1556,8 @@ Register custom application events where:
 
         - `tags` - if `true` and the `criteria` object passed to [`server.event.emit()`](#server.event.emit())
           includes `tags`, the tags are mapped to an object (where each tag string is the key and
-          the value is `true`) which is appended to the arguments list at the end (but before
-          the `callback` argument if `block` is set). A configuration override can be set by each
-          listener. Defaults to `false`.
+          the value is `true`) which is appended to the arguments list at the end. A configuration
+          override can be set by each listener. Defaults to `false`.
 
         - `shared` - if `true`, the same event `name` can be registered multiple times where the
           second registration is ignored. Note that if the registration config is changed between
@@ -1624,13 +1623,6 @@ Subscribe to an event where:
 
         - `name` - (required) the event name string.
 
-        - `block` - if `true`, the `listener` method receives an additional `callback` argument
-          which must be called when the method completes. No other event will be emitted until the
-          `callback` methods is called. The method signature is `function()`. If `block` is set to
-          a positive integer, the value is used to set a timeout after which any pending events
-          will be emitted, ignoring the eventual call to `callback`. Defaults to `false` (non
-          blocking).
-
         - `channels` - a string or array of strings specifying the event channels to subscribe to.
           If the event registration specified a list of allowed channels, the `channels` array must
           match the allowed channels. If `channels` are specified, event updates without any
@@ -1662,12 +1654,11 @@ Subscribe to an event where:
 
         - `tags` - if `true` and the `criteria` object passed to [`server.event.emit()`](#server.event.emit())
           includes `tags`, the tags are mapped to an object (where each tag string is the key and
-          the value is `true`) which is appended to the arguments list at the end (but before
-          the `callback` argument if `block` is set). Defaults to the event registration option
-          (which defaults to `false`).
+          the value is `true`) which is appended to the arguments list at the end. Defaults to the
+          event registration option (which defaults to `false`).
 
 - `listener` - the handler method set to receive event updates. The function signature depends on
-  the `block`, `spread`, and `tags` options.
+  the event argument, and the `spread` and `tags` options.
 
 Return value: none.
 
