@@ -330,10 +330,17 @@ assigned one or more (array):
 
 #### <a name="server.options.compression" /> `compression`
 
-Default value: `true`.
+Default value: `{ minBytes: 1024 }`.
 
 Defines server handling of content encoding requests. If `false`, response content encoding is
 disabled and no compression is performed by the server.
+
+##### <a name="server.options.compression.minBytes" /> `minBytes`
+
+Default value: '1024'.
+
+Sets the minimum response payload size in bytes that is required for content encoding compression.
+If the payload size is under the limit, no compression is performed.
 
 #### <a name="server.options.debug" /> `debug`
 
