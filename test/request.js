@@ -291,7 +291,7 @@ describe('Request', () => {
                 handler: () => null
             });
 
-            const team = new Teamwork.Team({ meetings: 1 });
+            const team = new Teamwork();
             const onRequest = (request, h) => {
 
                 request.events.once('disconnect', () => team.attend());
@@ -347,7 +347,7 @@ describe('Request', () => {
         it('does not fail on abort', async () => {
 
             const server = Hapi.server();
-            const team = new Teamwork.Team({ meetings: 1 });
+            const team = new Teamwork();
 
             const handler = async (request) => {
 
@@ -377,7 +377,7 @@ describe('Request', () => {
         it('does not fail on abort (onPreHandler)', async () => {
 
             const server = Hapi.server();
-            const team = new Teamwork.Team({ meetings: 1 });
+            const team = new Teamwork();
 
             server.route({ method: 'GET', path: '/', handler: () => null });
 
@@ -448,7 +448,7 @@ describe('Request', () => {
             server.route({
                 method: 'GET',
                 path: '/some/route',
-                config: {
+                options: {
                     isInternal: true,
                     handler: () => 'ok'
                 }
@@ -467,7 +467,7 @@ describe('Request', () => {
             server.route({
                 method: 'GET',
                 path: '/some/route',
-                config: {
+                options: {
                     isInternal: true,
                     handler: () => 'ok'
                 }
@@ -483,7 +483,7 @@ describe('Request', () => {
             server.route({
                 method: 'GET',
                 path: '/some/route',
-                config: {
+                options: {
                     isInternal: true,
                     handler: () => 'ok'
                 }
@@ -547,7 +547,7 @@ describe('Request', () => {
 
         it('closes response after server timeout', async () => {
 
-            const team = new Teamwork.Team({ meetings: 1 });
+            const team = new Teamwork();
             const handler = async (request) => {
 
                 await Hoek.wait(100);
@@ -926,7 +926,7 @@ describe('Request', () => {
 
             const server = Hapi.server();
             server.ext('onRequest', ext);
-            server.route({ method: 'POST', path: '/', config: { handler: () => null, payload: { parse: false } } });
+            server.route({ method: 'POST', path: '/', options: { handler: () => null, payload: { parse: false } } });
 
             const payload = '0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789';
             await server.inject({ method: 'POST', url: '/', payload });
@@ -943,7 +943,7 @@ describe('Request', () => {
 
             const server = Hapi.server();
             server.ext('onRequest', ext);
-            server.route({ method: 'POST', path: '/', config: { handler: () => null, payload: { parse: false } } });
+            server.route({ method: 'POST', path: '/', options: { handler: () => null, payload: { parse: false } } });
 
             const payload = '0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789';
             await server.inject({ method: 'POST', url: '/', payload });
@@ -1298,7 +1298,7 @@ describe('Request', () => {
             };
 
             const server = Hapi.server({ routes: { timeout: { server: 10 } } });
-            server.route({ method: 'GET', path: '/', config: { handler } });
+            server.route({ method: 'GET', path: '/', options: { handler } });
 
             const postHandler = (request, h) => {
 
@@ -1314,7 +1314,7 @@ describe('Request', () => {
         it('returns server error message when server timeout is short and already occurs when request executes', async () => {
 
             const server = Hapi.server({ routes: { timeout: { server: 2 } } });
-            server.route({ method: 'GET', path: '/', config: { handler: function () { } } });
+            server.route({ method: 'GET', path: '/', options: { handler: function () { } } });
             const onRequest = async (request, h) => {
 
                 await Hoek.wait(10);
@@ -1336,7 +1336,7 @@ describe('Request', () => {
             };
 
             const server = Hapi.server({ routes: { timeout: { server: 10 } } });
-            server.route({ method: 'GET', path: '/', config: { handler } });
+            server.route({ method: 'GET', path: '/', options: { handler } });
             const preResponse = (request, h) => {
 
                 return h.continue;
@@ -1357,7 +1357,7 @@ describe('Request', () => {
             };
 
             const server = Hapi.server({ routes: { timeout: { server: 50 } } });
-            server.route({ method: 'GET', path: '/slow', config: { handler: slowHandler } });
+            server.route({ method: 'GET', path: '/slow', options: { handler: slowHandler } });
 
             const timer = new Hoek.Bench();
             const res = await server.inject('/slow');
@@ -1433,7 +1433,7 @@ describe('Request', () => {
             };
 
             const server = Hapi.server({ routes: { timeout: { server: 50 } } });
-            server.route({ method: 'GET', path: '/stream', config: { handler: streamHandler } });
+            server.route({ method: 'GET', path: '/stream', options: { handler: streamHandler } });
 
             await server.start();
             const { res } = await Wreck.get(`http://localhost:${server.info.port}/stream`);
@@ -1453,7 +1453,7 @@ describe('Request', () => {
         it('handles race condition between equal client and server timeouts', async () => {
 
             const server = Hapi.server({ routes: { timeout: { server: 50 }, payload: { timeout: 50 } } });
-            server.route({ method: 'POST', path: '/timeout', config: { handler: Hoek.block } });
+            server.route({ method: 'POST', path: '/timeout', options: { handler: Hoek.block } });
 
             await server.start();
 

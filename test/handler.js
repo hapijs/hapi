@@ -93,7 +93,7 @@ describe('handler', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: function (request) {
 
                         return this.x;
@@ -114,7 +114,7 @@ describe('handler', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: (request, h) => h.context.x,
                     bind: item
                 }
@@ -174,7 +174,7 @@ describe('handler', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     pre: [
                         {
                             method: (request, h) => h.continue,
@@ -203,7 +203,7 @@ describe('handler', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     pre: [
                         { method: () => 'Hello', assign: 'p' }
                     ],
@@ -222,7 +222,7 @@ describe('handler', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     pre: [],
                     handler: () => 'Hello'
                 }
@@ -258,7 +258,7 @@ describe('handler', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     pre: [
                         [
                             { method: pre1, assign: 'm1' },
@@ -289,7 +289,7 @@ describe('handler', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     pre: [
                         [{ method: pre1, assign: 'm1' }],
                         { method: pre2, assign: 'm2' }
@@ -313,7 +313,7 @@ describe('handler', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     pre: [
                         { method: pre, assign: 'p' }
                     ],
@@ -338,7 +338,7 @@ describe('handler', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     pre: [
                         [{ method: pre1, assign: 'm1' }],
                         { method: pre2, assign: 'm2' }
@@ -357,7 +357,7 @@ describe('handler', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     pre: [
                         {
                             method: () => {
@@ -381,7 +381,7 @@ describe('handler', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     pre: [
                         {
                             method: () => {
@@ -405,7 +405,7 @@ describe('handler', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     pre: [
                         {
                             assign: 'before',
@@ -450,7 +450,7 @@ describe('handler', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     pre: [
                         {
                             assign: 'value',
@@ -480,7 +480,7 @@ describe('handler', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     pre: [
                         {
                             assign: 'value',
@@ -512,7 +512,7 @@ describe('handler', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     pre: [{
                         method: function (request) {
 
@@ -535,7 +535,7 @@ describe('handler', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: function () {
 
                         throw Boom.forbidden();

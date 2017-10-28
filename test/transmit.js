@@ -301,7 +301,7 @@ describe('transmission', () => {
         it('returns an JSONP response', async () => {
 
             const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: () => ({ some: 'value' }) } });
+            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler: () => ({ some: 'value' }) } });
 
             const res = await server.inject('/?callback=me');
             expect(res.payload).to.equal('/**/me({"some":"value"});');
@@ -312,7 +312,7 @@ describe('transmission', () => {
         it('returns an JSONP response with no payload', async () => {
 
             const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: () => null } });
+            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler: () => null } });
 
             const res = await server.inject('/?callback=me');
             expect(res.payload).to.equal('/**/me();');
@@ -323,7 +323,7 @@ describe('transmission', () => {
         it('returns an JSONP response (no charset)', async () => {
 
             const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: (request, h) => h.response({ some: 'value' }).charset('') } });
+            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler: (request, h) => h.response({ some: 'value' }).charset('') } });
 
             const res = await server.inject('/?callback=me');
             expect(res.payload).to.equal('/**/me({"some":"value"});');
@@ -334,7 +334,7 @@ describe('transmission', () => {
         it('returns a X-Content-Type-Options: nosniff header on JSONP responses', async () => {
 
             const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: () => ({ some: 'value' }) } });
+            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler: () => ({ some: 'value' }) } });
 
             const res = await server.inject('/?callback=me');
             expect(res.payload).to.equal('/**/me({"some":"value"});');
@@ -344,7 +344,7 @@ describe('transmission', () => {
         it('returns a normal response when JSONP enabled but not requested', async () => {
 
             const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: () => ({ some: 'value' }) } });
+            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler: () => ({ some: 'value' }) } });
 
             const res = await server.inject('/');
             expect(res.payload).to.equal('{"some":"value"}');
@@ -356,7 +356,7 @@ describe('transmission', () => {
             server.route({
                 method: 'GET',
                 path: '/user/{name*2}',
-                config: {
+                options: {
                     handler: (request) => {
 
                         const parts = request.params.name.split('/');
@@ -378,7 +378,7 @@ describe('transmission', () => {
         it('returns an JSONP response when response is a buffer', async () => {
 
             const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: () => new Buffer('value') } });
+            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler: () => new Buffer('value') } });
 
             const res = await server.inject('/?callback=me');
             expect(res.payload).to.equal('/**/me(value);');
@@ -388,7 +388,7 @@ describe('transmission', () => {
         it('returns response on bad JSONP parameter', async () => {
 
             const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: () => ({ some: 'value' }) } });
+            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler: () => ({ some: 'value' }) } });
 
             const res = await server.inject('/?callback=me*');
             expect(res.result).to.exist();
@@ -403,7 +403,7 @@ describe('transmission', () => {
             };
 
             const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler } });
+            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler } });
 
             const res = await server.inject('/?callback=me');
             expect(res.payload).to.equal('/**/me({"statusCode":400,"error":"Bad Request","message":"wrong"});');
@@ -413,7 +413,7 @@ describe('transmission', () => {
         it('returns an JSONP state error', async () => {
 
             const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: () => 'ok' } });
+            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler: () => 'ok' } });
 
             let validState = false;
             const preResponse = (request, h) => {
@@ -434,7 +434,7 @@ describe('transmission', () => {
 
             const server = Hapi.server();
             await server.register(Inert);
-            server.route({ method: 'GET', path: '/public/{path*}', config: { cache: { privacy: 'public', expiresIn: 24 * 60 * 60 * 1000 } }, handler: { directory: { path: __dirname, listing: false, index: false } } });
+            server.route({ method: 'GET', path: '/public/{path*}', options: { cache: { privacy: 'public', expiresIn: 24 * 60 * 60 * 1000 } }, handler: { directory: { path: __dirname, listing: false, index: false } } });
 
             const res = await server.inject('/public/transmit.js');
             expect(res.statusCode).to.equal(200);
@@ -456,7 +456,7 @@ describe('transmission', () => {
 
             const server = Hapi.server();
             await server.register(Inert);
-            server.route({ method: 'GET', path: '/public/{path*}', config: { cache: false }, handler: { directory: { path: __dirname, listing: false, index: false } } });
+            server.route({ method: 'GET', path: '/public/{path*}', options: { cache: false }, handler: { directory: { path: __dirname, listing: false, index: false } } });
 
             const res = await server.inject('/public/transmit.js');
             expect(res.statusCode).to.equal(200);
@@ -1178,7 +1178,7 @@ describe('transmission', () => {
             const server = Hapi.server();
 
             let destroyed = false;
-            const team = new Teamwork.Team({ meetings: 1 });
+            const team = new Teamwork();
             const handler = (request) => {
 
                 const stream = new Stream.Readable();
@@ -1228,7 +1228,7 @@ describe('transmission', () => {
             const server = Hapi.server({ debug: false });
 
             let destroyed = false;
-            const team = new Teamwork.Team({ meetings: 1 });
+            const team = new Teamwork();
             const handler = (request) => {
 
                 const stream = new Stream();
@@ -1293,7 +1293,7 @@ describe('transmission', () => {
         it('does not leak stream data when request timeouts before stream drains', async () => {
 
             const server = Hapi.server({ routes: { timeout: { server: 20, socket: 40 }, payload: { timeout: false } } });
-            const team = new Teamwork.Team({ meetings: 1 });
+            const team = new Teamwork();
 
             const handler = (request) => {
 
@@ -1329,7 +1329,7 @@ describe('transmission', () => {
         it('does not leak stream data when request aborts before stream is returned', async () => {
 
             const server = Hapi.server();
-            const team = new Teamwork.Team({ meetings: 1 });
+            const team = new Teamwork();
 
             const handler = async (request) => {
 
@@ -1478,7 +1478,7 @@ describe('transmission', () => {
             it('ignores range request when disabled', async () => {
 
                 const server = Hapi.server();
-                server.route({ method: 'GET', path: '/file', handler: fileStreamHandler, config: { response: { ranges: false } } });
+                server.route({ method: 'GET', path: '/file', handler: fileStreamHandler, options: { response: { ranges: false } } });
 
                 const res = await server.inject({ url: '/file', headers: { 'range': 'bytes=0-4' } });
                 expect(res.statusCode).to.equal(200);
@@ -1757,7 +1757,7 @@ describe('transmission', () => {
         it('ignores NaN content-length', async () => {
 
             const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', config: { handler: (request, h) => h.response().header('Content-Length', 'x') } });
+            server.route({ method: 'GET', path: '/', options: { handler: (request, h) => h.response().header('Content-Length', 'x') } });
 
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);

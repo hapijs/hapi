@@ -240,7 +240,7 @@ describe('Core', () => {
 
         const server = Hapi.server({ routes: { timeout: { socket: 50 }, payload: { timeout: 45 } } });
         server.route({
-            method: 'GET', path: '/', config: {
+            method: 'GET', path: '/', options: {
                 handler: async (request) => {
 
                     await internals.wai(70);
@@ -1666,7 +1666,7 @@ describe('Core', () => {
                 server.route({
                     method: ['GET', 'PUT', 'POST', 'DELETE'],
                     path: '/',
-                    config: {
+                    options: {
                         id: 'abc',
                         handler: (request) => request.route.method
                     }

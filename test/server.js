@@ -1750,7 +1750,7 @@ describe('Server', () => {
                     srv.route({
                         method: 'GET',
                         path: '/',
-                        config: {
+                        options: {
                             ext: {
                                 onPreAuth: {
                                     method: (request, h) => {
@@ -2179,7 +2179,7 @@ describe('Server', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: () => null,
                     id: 'root',
                     app: { test: 123 }
@@ -2217,7 +2217,7 @@ describe('Server', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: () => null,
                     id: 'root'
                 }
@@ -2226,7 +2226,7 @@ describe('Server', () => {
             server.route({
                 method: 'GET',
                 path: '/abc',
-                config: {
+                options: {
                     handler: () => null,
                     id: 'abc'
                 }
@@ -2235,7 +2235,7 @@ describe('Server', () => {
             server.route({
                 method: 'POST',
                 path: '/abc',
-                config: {
+                options: {
                     handler: () => null,
                     id: 'post'
                 }
@@ -2244,7 +2244,7 @@ describe('Server', () => {
             server.route({
                 method: 'GET',
                 path: '/{p}/{x}',
-                config: {
+                options: {
                     handler: () => null,
                     id: 'params'
                 }
@@ -2254,7 +2254,7 @@ describe('Server', () => {
                 method: 'GET',
                 path: '/abc',
                 vhost: 'example.com',
-                config: {
+                options: {
                     handler: () => null,
                     id: 'vhost'
                 }

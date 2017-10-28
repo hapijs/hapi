@@ -44,7 +44,7 @@ describe('Headers', () => {
                 return server.methods.profile(0);
             };
 
-            server.route({ method: 'GET', path: '/profile', config: { handler: profileHandler, cache: { expiresIn: 120000, privacy: 'private' } } });
+            server.route({ method: 'GET', path: '/profile', options: { handler: profileHandler, cache: { expiresIn: 120000, privacy: 'private' } } });
             await server.start();
 
             const res = await server.inject('/profile');
@@ -55,7 +55,7 @@ describe('Headers', () => {
         it('sets max-age value (expiresAt)', async () => {
 
             const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', config: { handler: () => null, cache: { expiresAt: '10:00' } } });
+            server.route({ method: 'GET', path: '/', options: { handler: () => null, cache: { expiresAt: '10:00' } } });
             await server.start();
 
             const res = await server.inject('/');
@@ -71,7 +71,7 @@ describe('Headers', () => {
             };
 
             const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', config: { handler, cache: { expiresIn: 120000 } } });
+            server.route({ method: 'GET', path: '/', options: { handler, cache: { expiresIn: 120000 } } });
             const res = await server.inject('/');
             expect(res.headers['cache-control']).to.equal('no-cache');
         });
@@ -84,7 +84,7 @@ describe('Headers', () => {
             };
 
             const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', config: { handler, cache: { otherwise: 'no-store' } } });
+            server.route({ method: 'GET', path: '/', options: { handler, cache: { otherwise: 'no-store' } } });
             const res = await server.inject('/');
             expect(res.headers['cache-control']).to.equal('no-store');
         });
@@ -97,7 +97,7 @@ describe('Headers', () => {
             };
 
             const server = Hapi.server({ routes: { cache: { statuses: [200, 400] } } });
-            server.route({ method: 'GET', path: '/', config: { handler, cache: { expiresIn: 120000 } } });
+            server.route({ method: 'GET', path: '/', options: { handler, cache: { expiresIn: 120000 } } });
             const res = await server.inject('/');
             expect(res.headers['cache-control']).to.equal('max-age=120, must-revalidate');
         });
@@ -105,7 +105,7 @@ describe('Headers', () => {
         it('does not return max-age value when route is not cached', async () => {
 
             const server = Hapi.server();
-            server.route({ method: 'GET', path: '/item2', config: { handler: () => ({ 'id': '55cf687663', 'name': 'Active Items' }) } });
+            server.route({ method: 'GET', path: '/item2', options: { handler: () => ({ 'id': '55cf687663', 'name': 'Active Items' }) } });
             const res = await server.inject('/item2');
             expect(res.headers['cache-control']).to.not.equal('max-age=120, must-revalidate');
         });
@@ -151,7 +151,7 @@ describe('Headers', () => {
         it('sets cache-control header from ttl with disabled policy', async () => {
 
             const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', config: { cache: false, handler: (request, h) => h.response('text').ttl(10000) } });
+            server.route({ method: 'GET', path: '/', options: { cache: false, handler: (request, h) => h.response('text').ttl(10000) } });
 
             const res = await server.inject('/');
             expect(res.headers['cache-control']).to.equal('max-age=10, must-revalidate');
@@ -171,7 +171,7 @@ describe('Headers', () => {
 
             const server = Hapi.server();
             await server.register(Inert);
-            server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' }, config: { cache: { expiresIn: 60000 } } });
+            server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' }, options: { cache: { expiresIn: 60000 } } });
 
             const res1 = await server.inject('/file');
             const res2 = await server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers['last-modified'] } });
@@ -183,7 +183,7 @@ describe('Headers', () => {
 
             const server = Hapi.server({ routes: { cache: { statuses: [400] } } });
             await server.register(Inert);
-            server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' }, config: { cache: { expiresIn: 60000 } } });
+            server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' }, options: { cache: { expiresIn: 60000 } } });
 
             const res1 = await server.inject('/file');
             const res2 = await server.inject({ url: '/file', headers: { 'if-modified-since': res1.headers['last-modified'] } });
@@ -227,7 +227,7 @@ describe('Headers', () => {
         it('does not set default security headers when the route sets security false', async () => {
 
             const server = Hapi.server({ routes: { security: true } });
-            server.route({ method: 'GET', path: '/', handler: () => 'Test', config: { security: false } });
+            server.route({ method: 'GET', path: '/', handler: () => 'Test', options: { security: false } });
 
             const res = await server.inject({ url: '/' });
             expect(res.result).to.exist();

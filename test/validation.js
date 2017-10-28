@@ -32,7 +32,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         query: {
                             a: Joi.number()
@@ -52,7 +52,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/b/{x}',
                 handler: (request, h) => h.response(request.params.x + request.query.a),
-                config: {
+                options: {
                     validate: {
                         query: {
                             a: Joi.number().integer().min(0).default(0)
@@ -76,7 +76,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/{user?}',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         query: {
                             verbose: Joi.boolean().truthy('true').when('$params.user', { is: Joi.exist(), otherwise: Joi.forbidden() })
@@ -120,7 +120,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/{user?}',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         query: {
                             me: Joi.boolean().truthy('true').when('$auth.credentials.name', { is: Joi.ref('$params.user'), otherwise: Joi.forbidden() })
@@ -152,7 +152,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         query: {
                             x: Joi.ref('$app.route.some')
@@ -178,7 +178,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         query: {
                             a: Joi.number()
@@ -198,7 +198,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         query: {
                             a: Joi.number().error(Boom.forbidden())
@@ -218,7 +218,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         query: {
                             a: Joi.number()
@@ -238,7 +238,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         query: null
                     }
@@ -256,7 +256,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/',
                 handler: (request) => request.query.a,
-                config: {
+                options: {
                     validate: {
                         query: function (value, options) {
 
@@ -294,7 +294,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         query: function (value, options) {
 
@@ -315,7 +315,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/{seq}',
                 handler: (request) => (request.params.seq + 1),
-                config: {
+                options: {
                     validate: {
                         params: {
                             seq: Joi.number()
@@ -336,7 +336,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/{seq}',
                 handler: (request) => (request.orig.params.seq + 1),
-                config: {
+                options: {
                     validate: {
                         params: {
                             seq: Joi.number()
@@ -357,7 +357,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         query: false
                     }
@@ -375,7 +375,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         query: false,
                         failAction: (request, h, err) => err            // Expose detailed error
@@ -397,7 +397,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         query: Joi.object({
                             a: Joi.string().min(2)
@@ -417,7 +417,7 @@ describe('validation', () => {
                 method: 'POST',
                 path: '/',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         payload: Joi.number()
                     }
@@ -435,7 +435,7 @@ describe('validation', () => {
                 method: 'POST',
                 path: '/',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         payload: Joi.boolean()
                     }
@@ -453,7 +453,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         query: {
                             a: Joi.string().min(2)
@@ -473,7 +473,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         query: {
                             a: Joi.string().min(2)
@@ -494,7 +494,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/',
                 handler: (request) => request.logs.filter((event) => event.tags[0] === 'validation')[0],
-                config: {
+                options: {
                     validate: {
                         query: {
                             a: Joi.string().min(2)
@@ -516,7 +516,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         query: {
                             a: Joi.string().min(2)
@@ -541,7 +541,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         query: {
                             a: Joi.string().min(2)
@@ -565,7 +565,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         query: {
                             a: Joi.string().min(2)
@@ -617,7 +617,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/other',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         query: Joi.object({
                             b: Joi.string().required()
@@ -648,7 +648,7 @@ describe('validation', () => {
                 method: 'POST',
                 path: '/',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         payload: {
                             a: Joi.string().min(8)
@@ -673,7 +673,7 @@ describe('validation', () => {
                 method: 'POST',
                 path: '/',
                 handler: (request) => request.payload,
-                config: {
+                options: {
                     validate: {
                         payload: Joi.number()
                     }
@@ -692,7 +692,7 @@ describe('validation', () => {
                 method: 'POST',
                 path: '/',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         payload: {
                             a: Joi.string().min(2)
@@ -713,7 +713,7 @@ describe('validation', () => {
                 method: 'POST',
                 path: '/',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         payload: {
                             a: Joi.string().required()
@@ -735,7 +735,7 @@ describe('validation', () => {
                 method: 'POST',
                 path: '/',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         payload: {
                             a: Joi.string().required()
@@ -760,7 +760,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         headers: {
                             host: server.info.host + ':' + server.info.port,
@@ -790,7 +790,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/',
                 handler: () => 'ok',
-                config: {
+                options: {
                     validate: {
                         headers: {
                             accept: Joi.string().valid('text/html').required(),
@@ -822,7 +822,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/{val}',
-                config: {
+                options: {
                     validate: {
                         params: function (value, options) {
 
@@ -850,7 +850,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: () => ({ a: 1 }),
                     response: {
                         sample: 50,
@@ -883,7 +883,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     response: {
                         schema: {
                             some: Joi.string()
@@ -907,7 +907,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     response: {
                         schema: Joi.object({
                             some: Joi.string(),
@@ -933,7 +933,7 @@ describe('validation', () => {
                 method: 'GET',
                 path: '/',
                 handler: (request) => request.query.x,
-                config: {
+                options: {
                     response: {
                         schema: Joi.valid(Joi.ref('$app.route.some'))
                     },
@@ -958,7 +958,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     response: {
                         status: {
                             400: {
@@ -993,7 +993,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     response: {
                         schema: true,
                         status: {
@@ -1036,7 +1036,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     response: {
                         schema: Joi.object({
                             a: Joi.number()
@@ -1058,7 +1058,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     response: {
                         status: {
                             400: {
@@ -1090,7 +1090,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     response: {
                         status: {
                             204: false
@@ -1112,7 +1112,7 @@ describe('validation', () => {
                 server.route({
                     method: 'GET',
                     path: '/',
-                    config: {
+                    options: {
                         response: {
                             schema: Joi.object({
                                 a: Joi.number()
@@ -1134,7 +1134,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     response: {
                         schema: function (value, options) {
 
@@ -1181,7 +1181,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     response: {
                         modify: true,
                         schema: function (value, options) {
@@ -1229,7 +1229,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     response: {
                         schema: function (value, options) {
 
@@ -1250,7 +1250,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: () => ({ a: 1 }),
                     response: {
                         sample: 0,
@@ -1281,7 +1281,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: () => 'ok',
                     response: {
                         sample: 0,
@@ -1304,7 +1304,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: () => ({ a: '1' }),
                     response: {
                         schema: {
@@ -1324,7 +1324,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: () => ({ a: '1' }),
                     response: {
                         schema: true
@@ -1342,7 +1342,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: () => ({ a: '1' }),
                     response: {
                         status: {}
@@ -1360,7 +1360,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: () => ({ a: '1' }),
                     response: {
                         schema: false
@@ -1378,7 +1378,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: () => {
 
                         throw Boom.badRequest();
@@ -1402,7 +1402,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: (request, h) => h.file('./package.json'),
                     response: {
                         schema: {
@@ -1422,7 +1422,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: () => ({ a: '1' }),
                     response: {
                         failAction: 'log',
@@ -1450,7 +1450,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: () => ({ a: '1' }),
                     response: {
                         failAction: function (request, h, err) {
@@ -1476,7 +1476,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: () => ({ a: '1' }),
                     response: {
                         failAction: function (request, h, err) {
@@ -1502,7 +1502,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: () => ({ a: '1' }),
                     response: {
                         failAction: function (request, h, err) {
@@ -1529,7 +1529,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     response: {
                         schema: Joi.string().min(5)
                     }
@@ -1554,7 +1554,7 @@ describe('validation', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     response: {
                         schema: Joi.boolean().truthy('on'),
                         modify: true
@@ -1582,7 +1582,7 @@ describe('validation', () => {
                     method: 'GET',
                     path: '/',
                     handler: () => 'ok',
-                    config: {
+                    options: {
                         response: {
                             schema: Joi.string(),
                             options: {
@@ -1604,7 +1604,7 @@ describe('validation', () => {
                     method: 'GET',
                     path: '/',
                     handler: () => 'ok',
-                    config: {
+                    options: {
                         response: {
                             schema: Joi.string(),
                             modify: true,

@@ -1,6 +1,6 @@
 {
   "name": "hapi",
-  "version": "17.0.0-rc9",
+  "version": "17.0.0-rc10",
   "lockfileVersion": 1,
   "dependencies": {
     "accept": {
@@ -44,8 +44,8 @@
       "resolved": "https://registry.npmjs.org/heavy/-/heavy-5.0.2.tgz"
     },
     "hoek": {
-      "version": "5.0.0",
-      "resolved": "https://registry.npmjs.org/hoek/-/hoek-5.0.0.tgz"
+      "version": "5.0.1",
+      "resolved": "https://registry.npmjs.org/hoek/-/hoek-5.0.1.tgz"
     },
     "iron": {
       "version": "5.0.1",
@@ -56,8 +56,8 @@
       "resolved": "https://registry.npmjs.org/joi/-/joi-13.0.1.tgz"
     },
     "mime-db": {
-      "version": "1.30.0",
-      "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.30.0.tgz"
+      "version": "1.31.0",
+      "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.31.0.tgz"
     },
     "mimos": {
       "version": "4.0.0",
@@ -88,8 +88,8 @@
       "resolved": "https://registry.npmjs.org/subtext/-/subtext-6.0.5.tgz"
     },
     "teamwork": {
-      "version": "2.1.0",
-      "resolved": "https://registry.npmjs.org/teamwork/-/teamwork-2.1.0.tgz"
+      "version": "3.0.1",
+      "resolved": "https://registry.npmjs.org/teamwork/-/teamwork-3.0.1.tgz"
     },
     "topo": {
       "version": "3.0.0",

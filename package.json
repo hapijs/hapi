@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "17.0.0-rc9",
+  "version": "17.0.0-rc10",
   "repository": {
     "type": "git",
     "url": "git://github.com/hapijs/hapi"
@@ -15,7 +15,7 @@
     "web"
   ],
   "engines": {
-    "node": ">=8.7.0"
+    "node": ">=8.8.0"
   },
   "dependencies": {
     "accept": "3.x.x",
@@ -32,7 +32,7 @@
     "shot": "4.x.x",
     "statehood": "6.x.x",
     "subtext": "6.x.x",
-    "teamwork": "2.x.x",
+    "teamwork": "3.x.x",
     "topo": "3.x.x"
   },
   "devDependencies": {

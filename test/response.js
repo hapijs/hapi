@@ -53,7 +53,7 @@ describe('Response', () => {
         };
 
         const server = Hapi.server({ compression: { minBytes: 1 } });
-        server.route({ method: 'GET', path: '/', config: { handler, cache: { expiresIn: 9999 } } });
+        server.route({ method: 'GET', path: '/', options: { handler, cache: { expiresIn: 9999 } } });
         server.state('sid', { encoding: 'base64' });
         server.state('always', { autoValue: 'present' });
 
@@ -1307,7 +1307,7 @@ describe('Response', () => {
         it('streams empty string', async () => {
 
             const server = Hapi.server({ compression: { minBytes: 1 } });
-            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: () => '' } });
+            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler: () => '' } });
 
             const res = await server.inject({ url: '/?callback=me', headers: { 'Accept-Encoding': 'gzip' } });
             expect(res.statusCode).to.equal(200);

@@ -2205,11 +2205,11 @@ Return value: none.
 await server.register({ plugin: require('plugin_name'), options: { message: 'hello' } });
 ```
 
-### <a name="server.route()" /> `server.route(options)`
+### <a name="server.route()" /> `server.route(route)`
 
 Adds a route where:
 
-- `options` - a route configuration object or an array of configuration objects where each object
+- `route` - a route configuration object or an array of configuration objects where each object
   contains:
 
     - `path` - (required) the absolute path used to match incoming requests (must begin with '/').
@@ -2233,7 +2233,7 @@ Adds a route where:
       handler function called to generate the response after successful authentication and
       validation.
       
-    - `config` - additional [route options](#route-options). The `config` value can be an object
+    - `options` - additional [route options](#route-options). The `options` value can be an object
       or a function that returns an object using the signature `function(server)` where `server` is
       the server the route is being added to and `this` is bound to the current
       [realm](#server.realm)'s `bind` option.

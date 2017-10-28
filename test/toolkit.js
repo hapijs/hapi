@@ -130,7 +130,7 @@ describe('Toolkit', () => {
                 server.route({
                     method: 'GET',
                     path: '/',
-                    config: {
+                    options: {
                         pre: [
                             (request, h) => {
 
@@ -259,7 +259,7 @@ describe('Toolkit', () => {
                 };
 
                 const server = Hapi.server();
-                server.route({ method: 'GET', path: '/stream', config: { handler, cache: { expiresIn: 9999 } } });
+                server.route({ method: 'GET', path: '/stream', options: { handler, cache: { expiresIn: 9999 } } });
 
                 const res1 = await server.inject('/stream');
                 expect(res1.result).to.equal('xy');
@@ -315,7 +315,7 @@ describe('Toolkit', () => {
                 };
 
                 const server = Hapi.server();
-                server.route({ method: 'GET', path: '/', handler: () => 'ok', config: { pre: [pre] } });
+                server.route({ method: 'GET', path: '/', handler: () => 'ok', options: { pre: [pre] } });
 
                 const res = await server.inject('/');
                 expect(res.result).to.equal('');
@@ -364,7 +364,7 @@ describe('Toolkit', () => {
                 server.route({
                     method: 'GET',
                     path: '/',
-                    config: {
+                    options: {
                         pre: [
                             { method: pre1, assign: 'm1' },
                             { method: pre2, assign: 'm2' },
@@ -475,7 +475,7 @@ describe('Toolkit', () => {
                 server.route({
                     method: 'GET',
                     path: '/',
-                    config: {
+                    options: {
                         cache: { expiresIn: 5000 },
                         handler: (request, h) => {
 

@@ -24,7 +24,7 @@ const expect = Code.expect;
 
 describe('Route', () => {
 
-    it('registers with config function', async () => {
+    it('registers with options function', async () => {
 
         const server = Hapi.server();
         server.bind({ a: 1 });
@@ -32,7 +32,7 @@ describe('Route', () => {
         server.route({
             method: 'GET',
             path: '/',
-            config: function (srv) {
+            options: function (srv) {
 
                 const a = this.a;
 
@@ -45,6 +45,22 @@ describe('Route', () => {
         const res = await server.inject('/');
         expect(res.statusCode).to.equal(200);
         expect(res.result).to.equal(3);
+    });
+
+    it('registers with config', async () => {
+
+        const server = Hapi.server();
+        server.route({
+            method: 'GET',
+            path: '/',
+            config: {
+                handler: () => 'ok'
+            }
+        });
+
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(200);
+        expect(res.result).to.equal('ok');
     });
 
     it('throws an error when a route is missing a path', () => {
@@ -97,7 +113,7 @@ describe('Route', () => {
         const server = Hapi.server();
         expect(() => {
 
-            server.route({ method: 'GET', path: '/', config: {} });
+            server.route({ method: 'GET', path: '/', options: {} });
         }).to.throw('Missing or undefined handler: GET /');
     });
 
@@ -123,7 +139,7 @@ describe('Route', () => {
 
         const handler = (request) => (request.route.settings.app.x + request.route.settings.plugins.x.y);
         const server = Hapi.server();
-        server.route({ method: 'GET', path: '/', config: { handler, app: { x: 'o' }, plugins: { x: { y: 'k' } } } });
+        server.route({ method: 'GET', path: '/', options: { handler, app: { x: 'o' }, plugins: { x: { y: 'k' } } } });
         const res = await server.inject('/');
         expect(res.result).to.equal('ok');
     });
@@ -133,7 +149,7 @@ describe('Route', () => {
         const server = Hapi.server();
         expect(() => {
 
-            server.route({ method: 'POST', path: '/', handler: () => null, config: { validate: { payload: {} }, payload: { parse: false } } });
+            server.route({ method: 'POST', path: '/', handler: () => null, options: { validate: { payload: {} }, payload: { parse: false } } });
         }).to.throw('Route payload must be set to \'parse\' when payload validation enabled: POST /');
     });
 
@@ -142,7 +158,7 @@ describe('Route', () => {
         const server = Hapi.server();
         expect(() => {
 
-            server.route({ method: 'POST', path: '/', handler: () => null, config: { validate: { params: {} } } });
+            server.route({ method: 'POST', path: '/', handler: () => null, options: { validate: { params: {} } } });
         }).to.throw('Cannot set path parameters validations without path parameters: POST /');
     });
 
@@ -153,7 +169,7 @@ describe('Route', () => {
             method: 'POST',
             path: '/',
             handler: () => 'ok',
-            config: {
+            options: {
                 payload: {
                     parse: true,
                     failAction: 'ignore'
@@ -172,7 +188,7 @@ describe('Route', () => {
             method: 'POST',
             path: '/',
             handler: () => 'ok',
-            config: {
+            options: {
                 payload: {
                     parse: true,
                     failAction: 'log'
@@ -202,7 +218,7 @@ describe('Route', () => {
             method: 'POST',
             path: '/',
             handler: () => 'ok',
-            config: {
+            options: {
                 payload: {
                     parse: true,
                     failAction: 'error'
@@ -222,7 +238,7 @@ describe('Route', () => {
             method: 'POST',
             path: '/',
             handler: () => 'ok',
-            config: {
+            options: {
                 payload: {
                     parse: true,
                     failAction: function (request, h, error) {
@@ -243,7 +259,7 @@ describe('Route', () => {
         const server = Hapi.server();
         expect(() => {
 
-            server.route({ method: 'GET', path: '/', handler: () => null, config: { validate: { payload: {} } } });
+            server.route({ method: 'GET', path: '/', handler: () => null, options: { validate: { payload: {} } } });
         }).to.throw('Cannot validate HEAD or GET requests: GET /');
     });
 
@@ -252,14 +268,14 @@ describe('Route', () => {
         const server = Hapi.server();
         expect(() => {
 
-            server.route({ method: 'GET', path: '/', handler: () => null, config: { payload: { parse: true } } });
+            server.route({ method: 'GET', path: '/', handler: () => null, options: { payload: { parse: true } } });
         }).to.throw('Cannot set payload settings on HEAD or GET request: GET /');
     });
 
     it('ignores validation on * route when request is GET', async () => {
 
         const server = Hapi.server();
-        server.route({ method: '*', path: '/', handler: () => null, config: { validate: { payload: { a: Joi.required() } } } });
+        server.route({ method: '*', path: '/', handler: () => null, options: { validate: { payload: { a: Joi.required() } } } });
         const res = await server.inject('/');
         expect(res.statusCode).to.equal(200);
     });
@@ -292,7 +308,7 @@ describe('Route', () => {
             return this.key + (this === context);
         };
 
-        server.route({ method: 'GET', path: '/', handler, config: { bind: context } });
+        server.route({ method: 'GET', path: '/', handler, options: { bind: context } });
         const res = await server.inject('/');
         expect(res.result).to.equal('is true');
         expect(count).to.equal(0);
@@ -382,7 +398,7 @@ describe('Route', () => {
         const server = Hapi.server();
         await server.register(Inert);
         const handler = (request, h) => h.file('./package.json');
-        server.route({ method: 'GET', path: '/file', handler, config: { files: { relativeTo: Path.join(__dirname, '../') } } });
+        server.route({ method: 'GET', path: '/file', handler, options: { files: { relativeTo: Path.join(__dirname, '../') } } });
 
         const res = await server.inject('/file');
         expect(res.payload).to.contain('hapi');
@@ -614,7 +630,7 @@ describe('Route', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     ext: {
                         onPreAuth: {
                             method: (request, h) => {

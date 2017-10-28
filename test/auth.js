@@ -56,7 +56,7 @@ describe('authentication', () => {
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', { users: { steve: {} } });
         server.auth.default('default');
-        server.route({ method: 'POST', path: '/', config: { auth: false, handler: (request) => request.auth.isAuthenticated } });
+        server.route({ method: 'POST', path: '/', options: { auth: false, handler: (request) => request.auth.isAuthenticated } });
 
         const res1 = await server.inject({ url: '/', method: 'POST' });
         expect(res1.statusCode).to.equal(200);
@@ -90,7 +90,7 @@ describe('authentication', () => {
         server.route({
             method: 'GET',
             path: '/',
-            config: {
+            options: {
                 handler: (request) => {
 
                     const credentials = request.auth.credentials;
@@ -114,9 +114,9 @@ describe('authentication', () => {
             }
         });
 
-        server.route({ method: 'GET', path: '/two', config: { id: 'two', handler: () => null, auth: { scope: 'two' } } });
-        server.route({ method: 'GET', path: '/three', config: { id: 'three', handler: () => null, auth: { scope: 'one' } } });
-        server.route({ method: 'GET', path: '/four', config: { id: 'four', handler: () => null, auth: false } });
+        server.route({ method: 'GET', path: '/two', options: { id: 'two', handler: () => null, auth: { scope: 'two' } } });
+        server.route({ method: 'GET', path: '/three', options: { id: 'three', handler: () => null, auth: { scope: 'one' } } });
+        server.route({ method: 'GET', path: '/four', options: { id: 'four', handler: () => null, auth: false } });
 
         const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
         expect(res.statusCode).to.equal(200);
@@ -179,7 +179,7 @@ describe('authentication', () => {
                     method: 'GET',
                     path: '/view',
                     handler: (request, h) => h.view('test', { message: 'steve' }),
-                    config: { auth: false }
+                    options: { auth: false }
                 });
 
                 return {
@@ -319,7 +319,7 @@ describe('authentication', () => {
                 server.route({
                     path: '/',
                     method: 'GET',
-                    config: {
+                    options: {
                         auth: {
                             strategy: 'c'
                         },
@@ -360,7 +360,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => !!request.auth.credentials,
                     auth: {
                         mode: 'optional'
@@ -403,7 +403,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.strategy,
                     auth: {
                         strategies: ['first', 'second']
@@ -474,7 +474,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         strategy: 'default'
@@ -494,7 +494,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: 'default'
                 }
@@ -602,7 +602,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         scope: 'one'
@@ -623,7 +623,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         scope: ['one', 'three']
@@ -644,7 +644,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         scope: ['one', 'three']
@@ -665,7 +665,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         scope: 'one'
@@ -686,7 +686,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/{id}',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         scope: 'one-{params.id}'
@@ -707,7 +707,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/{id}',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         scope: ['+one-{params.id}', '+{params.id}']
@@ -728,7 +728,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/{id}',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         scope: ['+one-{params.id}', '{params.id}']
@@ -749,7 +749,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/{id}/{role}',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         scope: 'one-{params.id}-{params.role}'
@@ -770,7 +770,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/{id}',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         scope: 'one-params.id}'
@@ -798,7 +798,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         scope: 'onex'
@@ -820,7 +820,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         scope: 'one'
@@ -847,7 +847,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         scope: 'b'
@@ -869,7 +869,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         scope: 'b'
@@ -898,7 +898,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         scope: ['+c', 'b']
@@ -930,7 +930,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         scope: ['!a', 'b']
@@ -965,7 +965,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         scope: ['!a', '+b', 'c', 'd']
@@ -1001,7 +1001,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         scope: ['c', 'd']
@@ -1027,7 +1027,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         scope: false
@@ -1048,7 +1048,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth,
                     auth: {
                         access: {
@@ -1080,7 +1080,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         access: [
@@ -1104,7 +1104,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         access: [
@@ -1131,7 +1131,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: () => null,
                     auth: {
                         entity: 'any'
@@ -1152,7 +1152,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: () => null,
                     auth: {
                         entity: 'user'
@@ -1173,7 +1173,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: () => null,
                     auth: {
                         entity: 'user'
@@ -1195,7 +1195,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: () => null,
                     auth: {
                         entity: 'app'
@@ -1216,7 +1216,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: () => null,
                     auth: {
                         entity: 'app'
@@ -1269,7 +1269,7 @@ describe('authentication', () => {
             server.route({
                 method: 'GET',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.artifacts,
                     auth: 'default'
                 }
@@ -1340,7 +1340,7 @@ describe('authentication', () => {
             server.route({
                 method: 'POST',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         payload: 'required'
@@ -1361,7 +1361,7 @@ describe('authentication', () => {
             server.route({
                 method: 'POST',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user
                 }
             });
@@ -1379,7 +1379,7 @@ describe('authentication', () => {
             server.route({
                 method: 'POST',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {}
                 }
@@ -1398,7 +1398,7 @@ describe('authentication', () => {
             server.route({
                 method: 'POST',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         payload: true
@@ -1421,7 +1421,7 @@ describe('authentication', () => {
                 server.route({
                     method: 'POST',
                     path: '/',
-                    config: {
+                    options: {
                         handler: (request) => request.auth.credentials.user,
                         auth: {
                             payload: 'optional'
@@ -1447,7 +1447,7 @@ describe('authentication', () => {
                 server.route({
                     method: 'POST',
                     path: '/',
-                    config: {
+                    options: {
                         handler: (request) => request.auth.credentials.user,
                         auth: {
                             payload: 'required'
@@ -1473,7 +1473,7 @@ describe('authentication', () => {
                 server.route({
                     method: 'POST',
                     path: '/',
-                    config: {
+                    options: {
                         handler: (request) => request.auth.credentials.user,
                         auth: {
                             payload: 'optional'
@@ -1499,7 +1499,7 @@ describe('authentication', () => {
             server.route({
                 method: 'POST',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         strategies: ['default1', 'default2'],
@@ -1521,7 +1521,7 @@ describe('authentication', () => {
             server.route({
                 method: 'POST',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user
                 }
             });
@@ -1539,7 +1539,7 @@ describe('authentication', () => {
             server.route({
                 method: 'POST',
                 path: '/',
-                config: {
+                options: {
                     handler: () => null,
                     auth: {
                         mode: 'try',
@@ -1561,7 +1561,7 @@ describe('authentication', () => {
             server.route({
                 method: 'POST',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         payload: 'optional'
@@ -1582,7 +1582,7 @@ describe('authentication', () => {
             server.route({
                 method: 'POST',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         payload: 'required'
@@ -1603,7 +1603,7 @@ describe('authentication', () => {
             server.route({
                 method: 'POST',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         payload: 'required'
@@ -1624,7 +1624,7 @@ describe('authentication', () => {
             server.route({
                 method: 'POST',
                 path: '/',
-                config: {
+                options: {
                     handler: (request) => request.auth.credentials.user,
                     auth: {
                         payload: 'required'
