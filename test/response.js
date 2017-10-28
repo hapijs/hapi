@@ -502,9 +502,9 @@ describe('Response', () => {
             expect(res.headers.xcustom).to.equal('some value');
         });
 
-        it('excludes connection header', async () => {
+        it('excludes connection header and connection options', async () => {
 
-            const upstreamConnectionHeader = 'some per-hop connection options';
+            const upstreamConnectionHeader = 'x-test, x-test-also';
 
             const TestStream = class extends Stream.Readable {
 
@@ -512,7 +512,11 @@ describe('Response', () => {
 
                     super();
                     this.statusCode = 200;
-                    this.headers = { connection: upstreamConnectionHeader };
+                    this.headers = {
+                        connection: upstreamConnectionHeader,
+                        'x-test': 'something',
+                        'x-test-also': 'also'
+                    };
                 }
 
                 _read(size) {
@@ -539,6 +543,8 @@ describe('Response', () => {
             expect(res.result).to.equal('x');
             expect(res.statusCode).to.equal(200);
             expect(res.headers.connection).to.not.equal(upstreamConnectionHeader);
+            expect(res.headers['x-test']).to.not.exist();
+            expect(res.headers['x-test-also']).to.not.exist();
         });
 
         it('excludes stream headers and code when passThrough is false', async () => {
