@@ -32,7 +32,7 @@ describe('Toolkit', () => {
 
             it('decorates toolkit with non function', async () => {
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
 
                 server.decorate('toolkit', 'abc', 123);
 
@@ -49,7 +49,7 @@ describe('Toolkit', () => {
 
             it('returns a file', async () => {
 
-                const server = new Hapi.Server({ routes: { files: { relativeTo: Path.join(__dirname, '../') } } });
+                const server = Hapi.server({ routes: { files: { relativeTo: Path.join(__dirname, '../') } } });
                 await server.register(Inert);
                 const handler = (request, h) => {
 
@@ -68,7 +68,7 @@ describe('Toolkit', () => {
 
             it('returns a view', async () => {
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 await server.register(Vision);
 
                 server.views({
@@ -97,7 +97,7 @@ describe('Toolkit', () => {
                     throw 'this is not an error';
                 };
 
-                const server = new Hapi.Server();
+                const server = Hapi.server({ debug: false });
                 server.route({ method: 'GET', path: '/', handler });
                 const res = await server.inject('/');
                 expect(res.statusCode).to.equal(500);
@@ -117,7 +117,7 @@ describe('Toolkit', () => {
                     return h.redirect('/elsewhere');
                 };
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({ method: 'GET', path: '/', handler });
                 const res = await server.inject('/');
                 expect(res.statusCode).to.equal(302);
@@ -126,11 +126,11 @@ describe('Toolkit', () => {
 
             it('redirects from pre', async () => {
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({
                     method: 'GET',
                     path: '/',
-                    config: {
+                    options: {
                         pre: [
                             (request, h) => {
 
@@ -151,7 +151,7 @@ describe('Toolkit', () => {
 
             it('returns null', async () => {
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({ method: 'GET', path: '/', handler: (request, h) => h.response() });
                 const res = await server.inject('/');
                 expect(res.statusCode).to.equal(200);
@@ -167,7 +167,7 @@ describe('Toolkit', () => {
                     return h.response(new Buffer('Tada1')).code(299);
                 };
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({ method: 'GET', path: '/', handler });
 
                 const res = await server.inject('/');
@@ -183,7 +183,7 @@ describe('Toolkit', () => {
                     return h.response({ a: 1, b: 2 });
                 };
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({ method: 'GET', path: '/', handler });
 
                 const res = await server.inject('/');
@@ -198,7 +198,7 @@ describe('Toolkit', () => {
                     return h.response(false);
                 };
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({ method: 'GET', path: '/', handler });
 
                 const res = await server.inject('/');
@@ -212,7 +212,7 @@ describe('Toolkit', () => {
                     return h.response(new Error('boom'));
                 };
 
-                const server = new Hapi.Server({ debug: false });
+                const server = Hapi.server({ debug: false });
                 server.route({ method: 'GET', path: '/', handler });
 
                 const res = await server.inject('/');
@@ -227,7 +227,7 @@ describe('Toolkit', () => {
                     return h.response().code(299);
                 };
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({ method: 'GET', path: '/', handler });
 
                 const res = await server.inject('/');
@@ -258,8 +258,8 @@ describe('Toolkit', () => {
                     return h.response(new TestStream()).ttl(2000);
                 };
 
-                const server = new Hapi.Server();
-                server.route({ method: 'GET', path: '/stream', config: { handler, cache: { expiresIn: 9999 } } });
+                const server = Hapi.server();
+                server.route({ method: 'GET', path: '/stream', options: { handler, cache: { expiresIn: 9999 } } });
 
                 const res1 = await server.inject('/stream');
                 expect(res1.result).to.equal('xy');
@@ -273,22 +273,25 @@ describe('Toolkit', () => {
             });
         });
 
-        describe('close', () => {
+        describe('abandon', () => {
 
-            it('returns a response with manual end', async () => {
+            it('abandon request with manual response', async () => {
 
                 const handler = (request, h) => {
 
-                    request.raw.res.end();
+                    request.raw.res.end('manual');
                     return h.abandon;
                 };
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({ method: 'GET', path: '/', handler });
 
                 const res = await server.inject('/');
-                expect(res.result).to.equal('');
+                expect(res.result).to.equal('manual');
             });
+        });
+
+        describe('close', () => {
 
             it('returns a response with auto end (handler)', async () => {
 
@@ -297,7 +300,7 @@ describe('Toolkit', () => {
                     return h.close;
                 };
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({ method: 'GET', path: '/', handler });
 
                 const res = await server.inject('/');
@@ -311,8 +314,8 @@ describe('Toolkit', () => {
                     return h.close;
                 };
 
-                const server = new Hapi.Server();
-                server.route({ method: 'GET', path: '/', handler: () => 'ok', config: { pre: [pre] } });
+                const server = Hapi.server();
+                server.route({ method: 'GET', path: '/', handler: () => 'ok', options: { pre: [pre] } });
 
                 const res = await server.inject('/');
                 expect(res.result).to.equal('');
@@ -328,7 +331,7 @@ describe('Toolkit', () => {
                     return h.continue;
                 };
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({ method: 'GET', path: '/', handler });
 
                 const res = await server.inject('/');
@@ -357,11 +360,11 @@ describe('Toolkit', () => {
                     };
                 };
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
                 server.route({
                     method: 'GET',
                     path: '/',
-                    config: {
+                    options: {
                         pre: [
                             { method: pre1, assign: 'm1' },
                             { method: pre2, assign: 'm2' },
@@ -382,7 +385,7 @@ describe('Toolkit', () => {
 
             it('overrides response in post handler extension', async () => {
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
 
                 server.ext('onPreResponse', (request, h) => {
 
@@ -424,7 +427,7 @@ describe('Toolkit', () => {
                     return h.continue('ok');
                 };
 
-                const server = new Hapi.Server({ debug: false });
+                const server = Hapi.server({ debug: false });
                 server.route({ method: 'GET', path: '/', handler });
 
                 const res = await server.inject('/');
@@ -436,7 +439,7 @@ describe('Toolkit', () => {
 
             it('returns a 304 when the request has if-modified-since', async () => {
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
 
                 let count = 0;
                 server.route({
@@ -466,13 +469,13 @@ describe('Toolkit', () => {
 
             it('returns a 304 when the request has if-none-match', async () => {
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
 
                 let count = 0;
                 server.route({
                     method: 'GET',
                     path: '/',
-                    config: {
+                    options: {
                         cache: { expiresIn: 5000 },
                         handler: (request, h) => {
 
@@ -503,7 +506,7 @@ describe('Toolkit', () => {
 
             it('leaves etag header when vary is false', async () => {
 
-                const server = new Hapi.Server({ compression: { minBytes: 1 } });
+                const server = Hapi.server({ compression: { minBytes: 1 } });
 
                 server.route({
                     method: 'GET',
@@ -527,7 +530,7 @@ describe('Toolkit', () => {
 
             it('uses last etag set', async () => {
 
-                const server = new Hapi.Server();
+                const server = Hapi.server();
 
                 server.route({
                     method: 'GET',

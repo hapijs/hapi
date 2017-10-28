@@ -52,8 +52,8 @@ describe('Response', () => {
                 .message('Super');
         };
 
-        const server = new Hapi.Server({ compression: { minBytes: 1 } });
-        server.route({ method: 'GET', path: '/', config: { handler, cache: { expiresIn: 9999 } } });
+        const server = Hapi.server({ compression: { minBytes: 1 } });
+        server.route({ method: 'GET', path: '/', options: { handler, cache: { expiresIn: 9999 } } });
         server.state('sid', { encoding: 'base64' });
         server.state('always', { autoValue: 'present' });
 
@@ -85,7 +85,7 @@ describe('Response', () => {
             return h.response('text').header('Content-Type', 'text/plain; something=something;');
         };
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.route({ method: 'GET', path: '/', handler });
 
         const res = await server.inject('/');
@@ -97,7 +97,7 @@ describe('Response', () => {
 
         it('returns an empty string response', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({
                 method: 'GET',
                 path: '/',
@@ -114,7 +114,7 @@ describe('Response', () => {
 
         it('returns a null response', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({
                 method: 'GET',
                 path: '/',
@@ -138,7 +138,7 @@ describe('Response', () => {
                 return h.response('ok').header('set-cookie', 'A').header('set-cookie', 'B', { append: true });
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
@@ -152,7 +152,7 @@ describe('Response', () => {
                 return h.response('ok').header('set-cookie', null);
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
@@ -166,7 +166,7 @@ describe('Response', () => {
                 return h.response('ok').header('set-cookie', decodeURIComponent('%E0%B4%8Aset-cookie:%20foo=bar'));
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
@@ -180,7 +180,7 @@ describe('Response', () => {
                 return h.response('ok').header(badName, 'value');
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
@@ -193,7 +193,7 @@ describe('Response', () => {
                 return h.response('ok').header('set-cookie', new Buffer(decodeURIComponent('%E0%B4%8Aset-cookie:%20foo=bar')));
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
@@ -209,7 +209,7 @@ describe('Response', () => {
                 return h.response({ a: 1 }).created('/special');
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'POST', path: '/', handler });
 
             const res = await server.inject({ method: 'POST', url: '/' });
@@ -226,7 +226,7 @@ describe('Response', () => {
                 return h.response().created('/something');
             };
 
-            const server = new Hapi.Server({ debug: false });
+            const server = Hapi.server({ debug: false });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -243,7 +243,7 @@ describe('Response', () => {
                 return h.response('text').state(';sid', 'abcdefg123456');
             };
 
-            const server = new Hapi.Server({ debug: false });
+            const server = Hapi.server({ debug: false });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -263,7 +263,7 @@ describe('Response', () => {
                 return h.response().unstate('session', { path: '/unset', isSecure: true });
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -281,7 +281,7 @@ describe('Response', () => {
                 return h.response('ok').vary('x');
             };
 
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -297,7 +297,7 @@ describe('Response', () => {
                 return h.response('ok').vary('x').vary('y');
             };
 
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -313,7 +313,7 @@ describe('Response', () => {
                 return h.response('ok').vary('*');
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -329,7 +329,7 @@ describe('Response', () => {
                 return h.response('ok').vary('*').vary('x');
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -345,7 +345,7 @@ describe('Response', () => {
                 return h.response('ok').vary('x').vary('*');
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -361,7 +361,7 @@ describe('Response', () => {
                 return h.response('ok').vary('x').vary('xyz').vary('xy').vary('x');
             };
 
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -380,7 +380,7 @@ describe('Response', () => {
                 return h.response('ok').etag('abc');
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
@@ -394,7 +394,7 @@ describe('Response', () => {
                 return h.response('ok').etag('abc', { weak: true });
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
@@ -410,7 +410,7 @@ describe('Response', () => {
                 return response;
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
@@ -424,7 +424,7 @@ describe('Response', () => {
                 return h.response('ok').etag('abc', { vary: false }).vary('x');
             };
 
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'GET', path: '/', handler });
             const res1 = await server.inject('/');
             expect(res1.statusCode).to.equal(200);
@@ -444,7 +444,7 @@ describe('Response', () => {
                 return h.response('ok').etag('abc').header('last-modified', mdate);
             };
 
-            const server = new Hapi.Server({ compression: { minBytes: 1 } });
+            const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'GET', path: '/', handler });
             const res = await server.inject({ url: '/', headers: { 'if-modified-since': mdate, 'accept-encoding': 'gzip' } });
             expect(res.statusCode).to.equal(304);
@@ -482,13 +482,52 @@ describe('Response', () => {
                 return new TestStream();
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
             expect(res.result).to.equal('x');
             expect(res.statusCode).to.equal(299);
             expect(res.headers.xcustom).to.equal('some value');
+        });
+
+        it('excludes connection header', async () => {
+
+            const upstreamConnectionHeader = 'some per-hop connection options';
+
+            const TestStream = class extends Stream.Readable {
+
+                constructor() {
+
+                    super();
+                    this.statusCode = 200;
+                    this.headers = { connection: upstreamConnectionHeader };
+                }
+
+                _read(size) {
+
+                    if (this.isDone) {
+                        return;
+                    }
+                    this.isDone = true;
+
+                    this.push('x');
+                    this.push(null);
+                }
+            };
+
+            const handler = (request) => {
+
+                return new TestStream();
+            };
+
+            const server = new Hapi.Server();
+            server.route({ method: 'GET', path: '/', handler });
+
+            const res = await server.inject('/');
+            expect(res.result).to.equal('x');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers.connection).to.not.equal(upstreamConnectionHeader);
         });
 
         it('excludes stream headers and code when passThrough is false', async () => {
@@ -519,7 +558,7 @@ describe('Response', () => {
                 return h.response(new TestStream()).passThrough(false);
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -556,7 +595,7 @@ describe('Response', () => {
                 return new TestStream();
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -592,7 +631,7 @@ describe('Response', () => {
                 return h.response(new TestStream()).header('xcustom', 'other value').state('b', '2');
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -611,7 +650,7 @@ describe('Response', () => {
                 return h.response('x').replacer(['x']);
             };
 
-            const server = new Hapi.Server({ debug: false });
+            const server = Hapi.server({ debug: false });
             server.route({ method: 'GET', path: '/', handler });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
@@ -627,7 +666,7 @@ describe('Response', () => {
                 return h.response('x').spaces(2);
             };
 
-            const server = new Hapi.Server({ debug: false });
+            const server = Hapi.server({ debug: false });
             server.route({ method: 'GET', path: '/', handler });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
@@ -643,7 +682,7 @@ describe('Response', () => {
                 return h.response('x').suffix('x');
             };
 
-            const server = new Hapi.Server({ debug: false });
+            const server = Hapi.server({ debug: false });
             server.route({ method: 'GET', path: '/', handler });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
@@ -659,7 +698,7 @@ describe('Response', () => {
                 return h.response({ x: 'x' }).escape(true);
             };
 
-            const server = new Hapi.Server({ debug: false });
+            const server = Hapi.server({ debug: false });
             server.route({ method: 'GET', path: '/', handler });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
@@ -672,7 +711,7 @@ describe('Response', () => {
                 return h.response('x').escape('x');
             };
 
-            const server = new Hapi.Server({ debug: false });
+            const server = Hapi.server({ debug: false });
             server.route({ method: 'GET', path: '/', handler });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
@@ -683,7 +722,7 @@ describe('Response', () => {
 
         it('returns a file in the response with the correct headers using custom mime type', async () => {
 
-            const server = new Hapi.Server({ routes: { files: { relativeTo: Path.join(__dirname, '../') } } });
+            const server = Hapi.server({ routes: { files: { relativeTo: Path.join(__dirname, '../') } } });
             await server.register(Inert);
             const handler = (request, h) => {
 
@@ -706,7 +745,7 @@ describe('Response', () => {
                 return h.response('text').charset('abc');
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -722,7 +761,7 @@ describe('Response', () => {
                 return h.continue;
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.ext('onPreResponse', onPreResponse);
 
             server.route({ method: 'GET', path: '/', handler: () => 'text' });
@@ -754,7 +793,7 @@ describe('Response', () => {
                 return h.continue;
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.ext('onPreResponse', onPreResponse);
 
             server.route({ method: 'GET', path: '/', handler });
@@ -774,7 +813,7 @@ describe('Response', () => {
                 return h.response('Please wait while we send your elsewhere').redirect('/example');
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('http://example.org/');
@@ -790,7 +829,7 @@ describe('Response', () => {
                 return h.response('We moved!').redirect().location('/examplex');
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -807,7 +846,7 @@ describe('Response', () => {
                 return h.response().redirect('example').permanent().rewritable();
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -821,7 +860,7 @@ describe('Response', () => {
                 return h.response().redirect('example').temporary().rewritable();
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -835,7 +874,7 @@ describe('Response', () => {
                 return h.response().redirect('example').temporary().rewritable(false);
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -849,7 +888,7 @@ describe('Response', () => {
                 return h.response().redirect('example').permanent().rewritable(false);
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -863,7 +902,7 @@ describe('Response', () => {
                 return h.response().redirect('example').rewritable().permanent();
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -877,7 +916,7 @@ describe('Response', () => {
                 return h.response().redirect('example').rewritable().temporary();
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -891,7 +930,7 @@ describe('Response', () => {
                 return h.response().redirect('example').rewritable(false).temporary();
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -905,7 +944,7 @@ describe('Response', () => {
                 return h.response().redirect('example').rewritable(false).permanent();
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -919,7 +958,7 @@ describe('Response', () => {
                 return h.response().redirect('example').permanent().temporary();
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -931,7 +970,7 @@ describe('Response', () => {
 
         it('emits request-error when view file for handler not found', async () => {
 
-            const server = new Hapi.Server({ debug: false });
+            const server = Hapi.server({ debug: false });
             await server.register(Vision);
 
             server.views({
@@ -939,7 +978,7 @@ describe('Response', () => {
                 path: __dirname
             });
 
-            const log = server.events.once('request-error');
+            const log = server.events.once({ name: 'request', channels: 'error' });
 
             server.route({ method: 'GET', path: '/{param}', handler: { view: 'templates/invalid' } });
 
@@ -948,8 +987,8 @@ describe('Response', () => {
             expect(res.result).to.exist();
             expect(res.result.message).to.equal('An internal server error occurred');
 
-            const [, err] = await log;
-            expect(err.message).to.contain('The partial x could not be found: The partial x could not be found');
+            const [, event] = await log;
+            expect(event.error.message).to.contain('The partial x could not be found: The partial x could not be found');
         });
 
         it('returns a formatted response', async () => {
@@ -959,7 +998,7 @@ describe('Response', () => {
                 return { a: 1, b: 2, '<': '&' };
             };
 
-            const server = new Hapi.Server({ routes: { json: { replacer: ['a', '<'], space: 4, suffix: '\n', escape: true } } });
+            const server = Hapi.server({ routes: { json: { replacer: ['a', '<'], space: 4, suffix: '\n', escape: true } } });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -973,7 +1012,7 @@ describe('Response', () => {
                 return h.response({ a: 1, b: 2, '<': '&' }).type('application/x-test').spaces(2).replacer(['a']).suffix('\n').escape(false);
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -988,7 +1027,7 @@ describe('Response', () => {
                 return h.response({ a: 1, b: 2, '<': '&' }).type('application/x-test').escape(false).replacer(['a']).suffix('\n').spaces(2);
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -1005,7 +1044,7 @@ describe('Response', () => {
                 return obj;
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -1030,14 +1069,14 @@ describe('Response', () => {
                 return h.response(writable);
             };
 
-            const server = new Hapi.Server({ debug: false });
+            const server = Hapi.server({ debug: false });
             server.route({ method: 'GET', path: '/stream', handler: streamHandler });
             server.route({ method: 'GET', path: '/writable', handler: writableHandler });
 
             let updates = 0;
-            server.events.on('request-error', (request, err) => {
+            server.events.on({ name: 'request', channels: 'error' }, (request, event) => {
 
-                expect(err).to.be.an.error('Stream must have a streams2 readable interface');
+                expect(event.error).to.be.an.error('Stream must have a streams2 readable interface');
                 ++updates;
             });
 
@@ -1064,7 +1103,7 @@ describe('Response', () => {
                 return h.response(Http.get(request.server.info + '/'));
             };
 
-            const server = new Hapi.Server({ debug: false });
+            const server = Hapi.server({ debug: false });
             server.route({ method: 'GET', path: '/', handler });
             server.route({ method: 'GET', path: '/stream', handler: streamHandler });
 
@@ -1100,7 +1139,7 @@ describe('Response', () => {
                 return h.response(new TestStream());
             };
 
-            const server = new Hapi.Server({ debug: false });
+            const server = Hapi.server({ debug: false });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -1137,7 +1176,7 @@ describe('Response', () => {
 
         it('peeks into the response stream', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
 
             let output = '';
             server.route({
@@ -1181,7 +1220,7 @@ describe('Response', () => {
                 return request.generateResponse(null, { close });
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             await server.inject('/');
@@ -1268,7 +1307,7 @@ describe('Response', () => {
         it('streams empty string', async () => {
 
             const server = Hapi.server({ compression: { minBytes: 1 } });
-            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: () => '' } });
+            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler: () => '' } });
 
             const res = await server.inject({ url: '/?callback=me', headers: { 'Accept-Encoding': 'gzip' } });
             expect(res.statusCode).to.equal(200);

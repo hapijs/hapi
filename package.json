@@ -2,7 +2,7 @@
   "name": "hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
-  "version": "17.0.0-rc6",
+  "version": "17.0.0-rc10",
   "repository": {
     "type": "git",
     "url": "git://github.com/hapijs/hapi"
@@ -15,38 +15,40 @@
     "web"
   ],
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=8.8.0"
   },
   "dependencies": {
     "accept": "3.x.x",
     "ammo": "3.x.x",
     "boom": "6.x.x",
     "call": "5.x.x",
-    "catbox": "8.x.x",
+    "catbox": "9.x.x",
     "catbox-memory": "3.x.x",
     "heavy": "5.x.x",
     "hoek": "5.x.x",
-    "joi": "11.x.x",
+    "joi": "13.x.x",
     "mimos": "4.x.x",
     "podium": "3.x.x",
     "shot": "4.x.x",
     "statehood": "6.x.x",
     "subtext": "6.x.x",
-    "teamwork": "2.x.x",
+    "teamwork": "3.x.x",
     "topo": "3.x.x"
   },
   "devDependencies": {
     "code": "5.x.x",
     "handlebars": "4.x.x",
-    "inert": "^5.0.0-rc5",
-    "lab": "14.x.x",
-    "vision": "^5.0.0-rc5",
-    "wreck": "13.x.x"
+    "hapitoc": "1.x.x",
+    "inert": "5.0.0-rc8",
+    "lab": "15.x.x",
+    "vision": "5.0.0-rc8",
+    "wreck": "14.x.x"
   },
   "scripts": {
     "test": "lab -a code -t 100 -L -m 3000",
     "test-tap": "lab -a code -r tap -o tests.tap -m 3000",
-    "test-cov-html": "lab -a code -r html -o coverage.html -m 3000"
+    "test-cov-html": "lab -a code -r html -o coverage.html -m 3000",
+    "toc": "hapitoc"
   },
   "license": "BSD-3-Clause"
 }

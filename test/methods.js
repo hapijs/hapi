@@ -22,70 +22,70 @@ const expect = Code.expect;
 
 describe('Methods', () => {
 
-    it('registers a method', async () => {
+    it('registers a method', () => {
 
         const add = function (a, b) {
 
             return a + b;
         };
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.method('add', add);
 
         const result = server.methods.add(1, 5);
         expect(result).to.equal(6);
     });
 
-    it('registers a method with leading _', async () => {
+    it('registers a method with leading _', () => {
 
         const _add = function (a, b) {
 
             return a + b;
         };
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.method('_add', _add);
 
         const result = server.methods._add(1, 5);
         expect(result).to.equal(6);
     });
 
-    it('registers a method with leading $', async () => {
+    it('registers a method with leading $', () => {
 
         const $add = function (a, b) {
 
             return a + b;
         };
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.method('$add', $add);
 
         const result = server.methods.$add(1, 5);
         expect(result).to.equal(6);
     });
 
-    it('registers a method with _', async () => {
+    it('registers a method with _', () => {
 
         const _add = function (a, b) {
 
             return a + b;
         };
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.method('add_._that', _add);
 
         const result = server.methods.add_._that(1, 5);
         expect(result).to.equal(6);
     });
 
-    it('registers a method with $', async () => {
+    it('registers a method with $', () => {
 
         const $add = function (a, b) {
 
             return a + b;
         };
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.method('add$.$that', $add);
 
         const result = server.methods.add$.$that(1, 5);
@@ -99,28 +99,28 @@ describe('Methods', () => {
             return new Promise((resolve) => resolve(a + b));
         };
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.method('add', add);
 
         const value = await server.methods.add(1, 5);
         expect(value).to.equal(6);
     });
 
-    it('registers a method with nested name', async () => {
+    it('registers a method with nested name', () => {
 
         const add = function (a, b) {
 
             return a + b;
         };
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.method('tools.add', add);
 
         const result = server.methods.tools.add(1, 5);
         expect(result).to.equal(6);
     });
 
-    it('registers two methods with shared nested name', async () => {
+    it('registers two methods with shared nested name', () => {
 
         const add = function (a, b) {
 
@@ -132,7 +132,7 @@ describe('Methods', () => {
             return a - b;
         };
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.method('tools.add', add);
         server.method('tools.sub', sub);
 
@@ -142,9 +142,9 @@ describe('Methods', () => {
         expect(result2).to.equal(-4);
     });
 
-    it('throws when registering a method with nested name twice', async () => {
+    it('throws when registering a method with nested name twice', () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.method('tools.add', Hoek.ignore);
         expect(() => {
 
@@ -152,9 +152,9 @@ describe('Methods', () => {
         }).to.throw('Server method function name already exists: tools.add');
     });
 
-    it('throws when registering a method with name nested through a function', async () => {
+    it('throws when registering a method with name nested through a function', () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.method('add', Hoek.ignore);
         expect(() => {
 
@@ -162,7 +162,7 @@ describe('Methods', () => {
         }).to.throw('Invalid segment another in reach path  add.another');
     });
 
-    it('calls non cached method multiple times', async () => {
+    it('calls non cached method multiple times', () => {
 
         let gen = 0;
         const method = function (id) {
@@ -170,7 +170,7 @@ describe('Methods', () => {
             return { id, gen: gen++ };
         };
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.method('test', method);
 
         const result1 = server.methods.test(1);
@@ -188,15 +188,15 @@ describe('Methods', () => {
             return { id, gen: gen++ };
         };
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
         await server.initialize();
 
-        const { value: result1 } = await server.methods.test(1);
+        const result1 = await server.methods.test(1);
         expect(result1.gen).to.equal(0);
 
-        const { value: result2 } = await server.methods.test(1);
+        const result2 = await server.methods.test(1);
         expect(result2.gen).to.equal(0);
     });
 
@@ -209,15 +209,15 @@ describe('Methods', () => {
             return { id, gen: gen++ };
         };
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
         await server.initialize();
 
-        const { value: result1 } = await server.methods.test(1);
+        const result1 = await server.methods.test(1);
         expect(result1.gen).to.equal(0);
 
-        const { value: result2 } = await server.methods.test(1);
+        const result2 = await server.methods.test(1);
         expect(result2.gen).to.equal(0);
     });
 
@@ -236,8 +236,30 @@ describe('Methods', () => {
             });
         };
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
+
+        await server.initialize();
+
+        const result1 = await server.methods.test(1);
+        expect(result1.gen).to.equal(0);
+
+        const result2 = await server.methods.test(1);
+        expect(result2.gen).to.equal(0);
+
+        await expect(server.methods.test(2)).to.reject('boom');
+    });
+
+    it('caches method value (decorated)', async () => {
+
+        let gen = 0;
+        const method = function (id) {
+
+            return { id, gen: gen++ };
+        };
+
+        const server = Hapi.server();
+        server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10, getDecoratedValue: true } });
 
         await server.initialize();
 
@@ -246,8 +268,6 @@ describe('Methods', () => {
 
         const { value: result2 } = await server.methods.test(1);
         expect(result2.gen).to.equal(0);
-
-        await expect(server.methods.test(2)).to.reject('boom');
     });
 
     it('reuses cached method value with custom key function', async () => {
@@ -258,7 +278,7 @@ describe('Methods', () => {
             return { id, gen: gen++ };
         };
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
 
         const generateKey = function (id) {
 
@@ -269,10 +289,10 @@ describe('Methods', () => {
 
         await server.initialize();
 
-        const { value: result1 } = await server.methods.test(1);
+        const result1 = await server.methods.test(1);
         expect(result1.gen).to.equal(0);
 
-        const { value: result2 } = await server.methods.test(1);
+        const result2 = await server.methods.test(1);
         expect(result2.gen).to.equal(0);
     });
 
@@ -283,7 +303,7 @@ describe('Methods', () => {
             return { id };
         };
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
 
         const generateKey = function (id) {
 
@@ -303,7 +323,7 @@ describe('Methods', () => {
             return { id };
         };
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
 
         const generateKey = function (id) {
 
@@ -325,15 +345,15 @@ describe('Methods', () => {
             return { id, gen: gen++ };
         };
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
         await server.initialize();
 
-        const { value: result1 } = await server.methods.test(1);
+        const result1 = await server.methods.test(1);
         expect(result1.gen).to.equal(0);
 
-        const { value: result2 } = await server.methods.test(1);
+        const result2 = await server.methods.test(1);
         expect(result2.gen).to.equal(1);
     });
 
@@ -345,15 +365,15 @@ describe('Methods', () => {
             return { id, gen: gen++ };
         };
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.method('dropTest', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
         await server.initialize();
 
-        const { value: result1 } = await server.methods.dropTest(2);
+        const result1 = await server.methods.dropTest(2);
         expect(result1.gen).to.equal(0);
         await server.methods.dropTest.cache.drop(2);
-        const { value: result2 } = await server.methods.dropTest(2);
+        const result2 = await server.methods.dropTest(2);
         expect(result2.gen).to.equal(1);
     });
 
@@ -365,7 +385,7 @@ describe('Methods', () => {
             return { id, gen: gen++ };
         };
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.method('dropErrTest', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
         await server.initialize();
@@ -381,7 +401,7 @@ describe('Methods', () => {
             return { id };
         };
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.method('test', method, { cache: { generateTimeout: 10 } });
         server.method('test2', method, { cache: { generateTimeout: 10 } });
 
@@ -392,90 +412,90 @@ describe('Methods', () => {
         expect(server.methods.test2.cache.stats.gets).to.equal(0);
     });
 
-    it('throws an error when name is not a string', async () => {
+    it('throws an error when name is not a string', () => {
 
         expect(() => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.method(0, () => { });
         }).to.throw('name must be a string');
     });
 
-    it('throws an error when name is invalid', async () => {
+    it('throws an error when name is invalid', () => {
 
         expect(() => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.method('0', () => { });
         }).to.throw('Invalid name: 0');
 
         expect(() => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.method('a..', () => { });
         }).to.throw('Invalid name: a..');
 
         expect(() => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.method('a.0', () => { });
         }).to.throw('Invalid name: a.0');
 
         expect(() => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.method('.a', () => { });
         }).to.throw('Invalid name: .a');
     });
 
-    it('throws an error when method is not a function', async () => {
+    it('throws an error when method is not a function', () => {
 
         expect(() => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.method('user', 'function');
         }).to.throw('method must be a function');
     });
 
-    it('throws an error when options is not an object', async () => {
+    it('throws an error when options is not an object', () => {
 
         expect(() => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.method('user', () => { }, 'options');
         }).to.throw(/Invalid method options \(user\)/);
     });
 
-    it('throws an error when options.generateKey is not a function', async () => {
+    it('throws an error when options.generateKey is not a function', () => {
 
         expect(() => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.method('user', () => { }, { generateKey: 'function' });
         }).to.throw(/Invalid method options \(user\)/);
     });
 
-    it('throws an error when options.cache is not valid', async () => {
+    it('throws an error when options.cache is not valid', () => {
 
         expect(() => {
 
-            const server = new Hapi.Server({ cache: CatboxMemory });
+            const server = Hapi.server({ cache: CatboxMemory });
             server.method('user', () => { }, { cache: { x: 'y', generateTimeout: 10 } });
         }).to.throw(/Invalid cache policy configuration/);
     });
 
-    it('throws an error when generateTimeout is not present', async () => {
+    it('throws an error when generateTimeout is not present', () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         expect(() => {
 
             server.method('test', () => { }, { cache: {} });
         }).to.throw('Method caching requires a timeout value in generateTimeout: test');
     });
 
-    it('allows generateTimeout to be false', async () => {
+    it('allows generateTimeout to be false', () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         expect(() => {
 
             server.method('test', () => { }, { cache: { generateTimeout: false } });
@@ -484,7 +504,7 @@ describe('Methods', () => {
 
     it('returns timeout when method taking too long using the cache', async () => {
 
-        const server = new Hapi.Server({ cache: CatboxMemory });
+        const server = Hapi.server({ cache: CatboxMemory });
 
         let gen = 0;
         const method = async function (id) {
@@ -503,14 +523,14 @@ describe('Methods', () => {
 
         await Hoek.wait(3);
 
-        const { value: result2 } = await server.methods.user(id);
+        const result2 = await server.methods.user(id);
         expect(result2.id).to.equal(id);
         expect(result2.gen).to.equal(1);
     });
 
     it('supports empty key method', async () => {
 
-        const server = new Hapi.Server({ cache: CatboxMemory });
+        const server = Hapi.server({ cache: CatboxMemory });
 
         let gen = 0;
         const terms = 'I agree to give my house';
@@ -523,18 +543,18 @@ describe('Methods', () => {
 
         await server.initialize();
 
-        const { value: result1 } = await server.methods.tos();
+        const result1 = await server.methods.tos();
         expect(result1.terms).to.equal(terms);
         expect(result1.gen).to.equal(0);
 
-        const { value: result2 } = await server.methods.tos();
+        const result2 = await server.methods.tos();
         expect(result2.terms).to.equal(terms);
         expect(result2.gen).to.equal(0);
     });
 
     it('returns valid results when calling a method (with different keys) using the cache', async () => {
 
-        const server = new Hapi.Server({ cache: CatboxMemory });
+        const server = Hapi.server({ cache: CatboxMemory });
         let gen = 0;
         const method = function (id) {
 
@@ -545,19 +565,19 @@ describe('Methods', () => {
         await server.initialize();
 
         const id1 = Math.random();
-        const { value: result1 } = await server.methods.user(id1);
+        const result1 = await server.methods.user(id1);
         expect(result1.id).to.equal(id1);
         expect(result1.gen).to.equal(1);
 
         const id2 = Math.random();
-        const { value: result2 } = await server.methods.user(id2);
+        const result2 = await server.methods.user(id2);
         expect(result2.id).to.equal(id2);
         expect(result2.gen).to.equal(2);
     });
 
     it('errors when key generation fails', async () => {
 
-        const server = new Hapi.Server({ cache: CatboxMemory });
+        const server = Hapi.server({ cache: CatboxMemory });
 
         const method = function (id) {
 
@@ -568,21 +588,21 @@ describe('Methods', () => {
 
         await server.initialize();
 
-        const { value: result1 } = await server.methods.user(1);
+        const result1 = await server.methods.user(1);
         expect(result1.id).to.equal(1);
 
         const invalid = function () { };
         await expect(server.methods.user(invalid)).to.reject('Invalid method key when invoking: user');
     });
 
-    it('sets method bind without cache', async () => {
+    it('sets method bind without cache', () => {
 
         const method = function (id) {
 
             return { id, gen: this.gen++ };
         };
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.method('test', method, { bind: { gen: 7 } });
 
         const result1 = server.methods.test(1);
@@ -599,15 +619,15 @@ describe('Methods', () => {
             return { id, gen: this.gen++ };
         };
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.method('test', method, { bind: { gen: 7 }, cache: { expiresIn: 1000, generateTimeout: 10 } });
 
         await server.initialize();
 
-        const { value: result1 } = await server.methods.test(1);
+        const result1 = await server.methods.test(1);
         expect(result1.gen).to.equal(7);
 
-        const { value: result2 } = await server.methods.test(1);
+        const result2 = await server.methods.test(1);
         expect(result2.gen).to.equal(7);
     });
 
@@ -619,56 +639,56 @@ describe('Methods', () => {
             return { id, gen: this.gen++, bound: this === bind };
         };
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.method('test', method, { bind, cache: { expiresIn: 1000, generateTimeout: 10 } });
 
         await server.initialize();
 
-        const { value: result1 } = await server.methods.test(1);
+        const result1 = await server.methods.test(1);
         expect(result1.gen).to.equal(7);
         expect(result1.bound).to.equal(true);
 
-        const { value: result2 } = await server.methods.test(1);
+        const result2 = await server.methods.test(1);
         expect(result2.gen).to.equal(7);
     });
 
     describe('_add()', () => {
 
-        it('handles sync method', async () => {
+        it('handles sync method', () => {
 
             const add = function (a, b) {
 
                 return a + b;
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.method('add', add);
             const result = server.methods.add(1, 5);
             expect(result).to.equal(6);
         });
 
-        it('handles sync method (direct error)', async () => {
+        it('handles sync method (direct error)', () => {
 
             const add = function (a, b) {
 
                 return new Error('boom');
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.method('add', add);
             const result = server.methods.add(1, 5);
             expect(result).to.be.instanceof(Error);
             expect(result.message).to.equal('boom');
         });
 
-        it('handles sync method (direct throw)', async () => {
+        it('handles sync method (direct throw)', () => {
 
             const add = function (a, b) {
 
                 throw new Error('boom');
             };
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.method('add', add);
             expect(() => {
 
@@ -676,10 +696,10 @@ describe('Methods', () => {
             }).to.throw('boom');
         });
 
-        it('throws an error if unknown keys are present when making a server method using an object', async () => {
+        it('throws an error if unknown keys are present when making a server method using an object', () => {
 
             const fn = function () { };
-            const server = new Hapi.Server();
+            const server = Hapi.server();
 
             expect(() => {
 
@@ -697,29 +717,29 @@ describe('Methods', () => {
         it('handles string argument type', async () => {
 
             const method = (id) => id;
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
             await server.initialize();
-            const { value } = await server.methods.test('x');
+            const value = await server.methods.test('x');
             expect(value).to.equal('x');
         });
 
         it('handles multiple arguments', async () => {
 
             const method = (a, b, c) => a + b + c;
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
             await server.initialize();
-            const { value } = await server.methods.test('a', 'b', 'c');
+            const value = await server.methods.test('a', 'b', 'c');
             expect(value).to.equal('abc');
         });
 
         it('errors on invalid argument type', async () => {
 
             const method = (id) => id;
-            const server = new Hapi.Server();
+            const server = Hapi.server();
             server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
 
             await server.initialize();

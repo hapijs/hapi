@@ -22,7 +22,7 @@ describe('state', () => {
 
     it('parses cookies', async () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.route({ method: 'GET', path: '/', handler: (request) => request.state });
         const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'v=a' } });
         expect(res.statusCode).to.equal(200);
@@ -31,7 +31,7 @@ describe('state', () => {
 
     it('sets a cookie value to a base64json string representation of an object', async () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.state('data', { encoding: 'base64json' });
         server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('ok').state('data', { b: 3 }) });
 
@@ -42,7 +42,7 @@ describe('state', () => {
 
     it('parses base64json cookies', async () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.state('data', { encoding: 'base64json' });
         server.route({ method: 'GET', path: '/', handler: (request) => request.state });
         const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'data=eyJiIjozfQ==' } });
@@ -52,7 +52,7 @@ describe('state', () => {
 
     it('skips parsing cookies', async () => {
 
-        const server = new Hapi.Server({ routes: { state: { parse: false } } });
+        const server = Hapi.server({ routes: { state: { parse: false } } });
         server.route({ method: 'GET', path: '/', handler: (request) => (request.state === null) });
         const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'v=a' } });
         expect(res.statusCode).to.equal(200);
@@ -61,7 +61,7 @@ describe('state', () => {
 
     it('does not clear invalid cookie if cannot parse', async () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.state('vab', { encoding: 'base64json', clearInvalid: true });
         server.route({ method: 'GET', path: '/', handler: (request) => request.state });
         const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'vab' } });
@@ -71,9 +71,9 @@ describe('state', () => {
 
     it('ignores invalid cookies (state level config)', async () => {
 
-        const server = new Hapi.Server({ routes: { log: { collect: true } } });
+        const server = Hapi.server({ routes: { log: { collect: true } } });
         server.state('a', { ignoreErrors: true, encoding: 'base64json' });
-        server.route({ path: '/', method: 'GET', handler: (request) => request.getLog('state').length });
+        server.route({ path: '/', method: 'GET', handler: (request) => request.logs.filter((event) => event.tags[0] === 'state').length });
         const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x' } });
         expect(res.statusCode).to.equal(200);
         expect(res.result).to.equal(0);
@@ -81,8 +81,8 @@ describe('state', () => {
 
     it('ignores invalid cookies (header)', async () => {
 
-        const server = new Hapi.Server({ routes: { state: { failAction: 'ignore' }, log: { collect: true } } });
-        server.route({ path: '/', method: 'GET', handler: (request) => request.getLog('state').length });
+        const server = Hapi.server({ routes: { state: { failAction: 'ignore' }, log: { collect: true } } });
+        server.route({ path: '/', method: 'GET', handler: (request) => request.logs.filter((event) => event.tags[0] === 'state').length });
         const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x;;' } });
         expect(res.statusCode).to.equal(200);
         expect(res.result).to.equal(0);
@@ -90,9 +90,9 @@ describe('state', () => {
 
     it('ignores invalid cookie using server.state() (header)', async () => {
 
-        const server = new Hapi.Server({ routes: { log: { collect: true } } });
+        const server = Hapi.server({ routes: { log: { collect: true } } });
         server.state('a', { strictHeader: false });
-        server.route({ path: '/', method: 'GET', handler: (request) => request.getLog('state').length });
+        server.route({ path: '/', method: 'GET', handler: (request) => request.logs.filter((event) => event.tags[0] === 'state').length });
         const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x y;' } });
         expect(res.statusCode).to.equal(200);
         expect(res.result).to.equal(0);
@@ -100,9 +100,9 @@ describe('state', () => {
 
     it('logs invalid cookie (value)', async () => {
 
-        const server = new Hapi.Server({ routes: { state: { failAction: 'log' }, log: { collect: true } } });
+        const server = Hapi.server({ routes: { state: { failAction: 'log' }, log: { collect: true } } });
         server.state('a', { encoding: 'base64json', clearInvalid: true });
-        server.route({ path: '/', method: 'GET', handler: (request) => request.getLog('state').length });
+        server.route({ path: '/', method: 'GET', handler: (request) => request.logs.filter((event) => event.tags[0] === 'state').length });
         const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x' } });
         expect(res.statusCode).to.equal(200);
         expect(res.result).to.equal(1);
@@ -110,7 +110,7 @@ describe('state', () => {
 
     it('clears invalid cookies (state level config)', async () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.state('a', { ignoreErrors: true, encoding: 'base64json', clearInvalid: true });
         server.route({ path: '/', method: 'GET', handler: () => null });
         const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x' } });
@@ -120,7 +120,7 @@ describe('state', () => {
 
     it('sets cookie value automatically', async () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.route({ method: 'GET', path: '/', handler: () => 'ok' });
         server.state('always', { autoValue: 'present' });
 
@@ -131,7 +131,7 @@ describe('state', () => {
 
     it('appends handler set-cookie to server state', async () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.route({ method: 'GET', path: '/', handler: (request, h) => h.response().header('set-cookie', ['onecookie=yes', 'twocookie=no']) });
         server.state('always', { autoValue: 'present' });
 
@@ -142,7 +142,7 @@ describe('state', () => {
 
     it('sets cookie value automatically using function', async () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.route({ method: 'GET', path: '/{x}', handler: () => 'ok' });
         server.state('always', { autoValue: (request) => request.params.x });
 
@@ -158,7 +158,7 @@ describe('state', () => {
             throw new Error();
         };
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.route({ method: 'GET', path: '/', handler: () => 'ok' });
         server.state('always', { autoValue: present });
 
@@ -169,7 +169,7 @@ describe('state', () => {
 
     it('sets cookie value with null ttl', async () => {
 
-        const server = new Hapi.Server();
+        const server = Hapi.server();
         server.state('a', { ttl: null });
         server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('ok').state('a', 'b') });
 
