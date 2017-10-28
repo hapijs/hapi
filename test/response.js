@@ -108,7 +108,7 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(200);
             expect(res.headers['content-length']).to.equal(0);
             expect(res.headers['content-type']).to.not.exist();
-            expect(res.result).to.equal(null);
+            expect(res.result).to.equal('');
             expect(res.payload).to.equal('');
         });
 
