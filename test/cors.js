@@ -280,7 +280,7 @@ describe('CORS', () => {
                 return h.response('Tada').header('vary', 'x-test');
             };
 
-            const server = new Hapi.Server({ compression: { minBytes: 1 }, routes: { cors: { origin: ['*'], wildcardIgnoresOrigin: true } } });
+            const server = Hapi.server({ compression: { minBytes: 1 }, routes: { cors: { origin: 'ignore' } } });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject({ url: '/', headers: { origin: 'http://www.example.com' } });
@@ -413,7 +413,7 @@ describe('CORS', () => {
 
         it('matches a wildcard origin if origin is ignored and present', async () => {
 
-            const server = new Hapi.Server({ routes: { cors: { wildcardIgnoresOrigin: true } } });
+            const server = Hapi.server({ routes: { cors: { origin: 'ignore' } } });
             server.route({ method: 'GET', path: '/', handler: () => 'ok' });
 
             const res = await server.inject({
@@ -433,7 +433,7 @@ describe('CORS', () => {
 
         it('matches a wildcard origin if origin is ignored and missing', async () => {
 
-            const server = new Hapi.Server({ routes: { cors: { wildcardIgnoresOrigin: true } } });
+            const server = Hapi.server({ routes: { cors: { origin: 'ignore' } } });
             server.route({ method: 'GET', path: '/', handler: () => 'ok' });
 
             const res = await server.inject({
@@ -447,7 +447,6 @@ describe('CORS', () => {
 
             expect(res.statusCode).to.equal(200);
             expect(res.headers['access-control-allow-origin']).to.equal('*');
-
         });
 
         it('matches allowed headers', async () => {
@@ -594,7 +593,7 @@ describe('CORS', () => {
 
         it('uses CORS when missing origin header and wildcard ignores origin', async () => {
 
-            const server = new Hapi.Server({ routes: { cors: { origin: ['*'], wildcardIgnoresOrigin: true } } });
+            const server = Hapi.server({ routes: { cors: { origin: 'ignore' } } });
             server.route({
                 method: 'GET',
                 path: '/',

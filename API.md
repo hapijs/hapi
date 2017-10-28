@@ -2700,7 +2700,9 @@ object with the following options:
 
 - `origin` - an array of allowed origin servers strings ('Access-Control-Allow-Origin'). The array
   can contain any combination of fully qualified origins along with origin strings containing a
-  wildcard `'*'` character, or a single `'*'` origin string. Defaults to any origin `['*']`.
+  wildcard `'*'` character, or a single `'*'` origin string. If set to `'ignore'`, any incoming
+  Origin header is ignored (present or not) and the 'Access-Control-Allow-Origin' header is set to
+  `'*'`. Defaults to any origin `['*']`.
 
 - `maxAge` - number of seconds the browser should cache the CORS response
   ('Access-Control-Max-Age'). The greater the value, the longer it will take before the browser
