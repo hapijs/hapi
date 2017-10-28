@@ -129,6 +129,17 @@ describe('Response', () => {
         });
     });
 
+    describe('code()', () => {
+
+        it('sets manual code regardless of emptyStatusCode override', async () => {
+
+            const server = Hapi.server({ routes: { response: { emptyStatusCode: 204 } } });
+            server.route({ method: 'GET', path: '/', handler: (request, h) => h.response().code(200) });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+        });
+    });
+
     describe('header()', () => {
 
         it('appends to set-cookie header', async () => {
