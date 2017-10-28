@@ -1123,7 +1123,29 @@ describe('validation', () => {
                     },
                     handler: () => ({ a: 1, b: 2 })
                 });
-            }).to.throw(/"modify" conflict with forbidden peer "sample"/);
+            }).to.throw(/"sample" is not allowed/);
+        });
+
+        it('do not throws on sample with false response modify', () => {
+
+            const server = Hapi.server({ debug: false });
+            expect(() => {
+
+                server.route({
+                    method: 'GET',
+                    path: '/',
+                    config: {
+                        response: {
+                            schema: Joi.object({
+                                a: Joi.number()
+                            }).options({ stripUnknown: true }),
+                            modify: false,
+                            sample: 90
+                        }
+                    },
+                    handler: () => ({ a: 1, b: 2 })
+                });
+            }).to.not.throw();
         });
 
         it('validates response using custom validation function', async () => {
