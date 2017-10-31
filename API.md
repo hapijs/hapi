@@ -1639,7 +1639,7 @@ Subscribe to an event where:
 
         - `count` - a positive integer indicating the number of times the `listener` can be called
           after which the subscription is automatically removed. A count of `1` is the same as
-          calling `server.once()`. Defaults to no limit.
+          calling `server.events.once()`. Defaults to no limit.
 
         - `filter` - the event tags (if present) to subscribe to which can be one of:
 
@@ -1686,9 +1686,9 @@ const Hapi = require('hapi');
 const server = Hapi.server({ port: 80 });
 
 server.event('test');
-server.once('test', (update) => console.log(update));
-await server.emit('test', 'hello');
-await server.emit('test', 'hello');       // Ignored
+server.events.once('test', (update) => console.log(update));
+await server.events.emit('test', 'hello');
+await server.events.emit('test', 'hello');       // Ignored
 ```
 
 ### <a name="server.events.once.await()" /> `await server.events.once(criteria)`
@@ -1702,8 +1702,8 @@ const Hapi = require('hapi');
 const server = Hapi.server({ port: 80 });
 
 server.event('test');
-const pending = server.once('test');
-await server.emit('test', 'hello');
+const pending = server.events.once('test');
+await server.events.emit('test', 'hello');
 const update = await pending;
 ```
 
