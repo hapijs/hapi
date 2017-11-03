@@ -1294,7 +1294,7 @@ describe('authentication', () => {
                 return { authenticate: (request, h) => h.authenticated() };
             };
 
-            const server = Hapi.server();
+            const server = Hapi.server({ debug: false });
             server.auth.scheme('custom', scheme);
             server.auth.strategy('default', 'custom');
             server.auth.default('default');

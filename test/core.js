@@ -243,7 +243,7 @@ describe('Core', () => {
             method: 'GET', path: '/', options: {
                 handler: async (request) => {
 
-                    await internals.wai(70);
+                    await Hoek.wait(70);
                     return 'too late';
                 }
             }
