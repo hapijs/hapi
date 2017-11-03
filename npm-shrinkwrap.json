@@ -44,8 +44,8 @@
       "resolved": "https://registry.npmjs.org/content/-/content-4.0.3.tgz"
     },
     "cryptiles": {
-      "version": "4.0.2",
-      "resolved": "https://registry.npmjs.org/cryptiles/-/cryptiles-4.0.2.tgz"
+      "version": "4.1.0",
+      "resolved": "https://registry.npmjs.org/cryptiles/-/cryptiles-4.1.0.tgz"
     },
     "heavy": {
       "version": "6.0.0",
@@ -56,8 +56,8 @@
       "resolved": "https://registry.npmjs.org/hoek/-/hoek-5.0.2.tgz"
     },
     "iron": {
-      "version": "5.0.3",
-      "resolved": "https://registry.npmjs.org/iron/-/iron-5.0.3.tgz"
+      "version": "5.0.4",
+      "resolved": "https://registry.npmjs.org/iron/-/iron-5.0.4.tgz"
     },
     "joi": {
       "version": "13.0.1",
@@ -88,8 +88,8 @@
       "resolved": "https://registry.npmjs.org/shot/-/shot-4.0.3.tgz"
     },
     "statehood": {
-      "version": "6.0.4",
-      "resolved": "https://registry.npmjs.org/statehood/-/statehood-6.0.4.tgz"
+      "version": "6.0.5",
+      "resolved": "https://registry.npmjs.org/statehood/-/statehood-6.0.5.tgz"
     },
     "subtext": {
       "version": "6.0.7",

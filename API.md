@@ -10,6 +10,7 @@
     - [`autoListen`](#server.options.autolisten)
     - [`cache`](#server.options.cache)
     - [`compression`](#server.options.compression)
+      - [`minBytes`](#server.options.compression.minBytes)
     - [`debug`](#server.options.debug)
     - [`host`](#server.options.host)
     - [`listener`](#server.options.listener)
@@ -28,12 +29,12 @@
     - [`server.auth.settings.default`](#server.auth.settings.default)
     - [`server.decorations`](#server.decorations)
     - [`server.events`](#server.events)
-      - [`'log'`](#server.events.log)
-      - [`'request'`](#server.events.request)
-      - [`'response'`](#server.events.response)
-      - [`'route'`](#server.events.route)
-      - [`'start'`](#server.events.start)
-      - [`'stop'`](#server.events.stop)
+      - [`'log'` Event](#server.events.log)
+      - [`'request'` Event](#server.events.request)
+      - [`'response'` Event](#server.events.response)
+      - [`'route'` Event](#server.events.route)
+      - [`'start'` Event](#server.events.start)
+      - [`'stop'` Event](#server.events.stop)
     - [`server.info`](#server.info)
     - [`server.load`](#server.load)
     - [`server.listener`](#server.listener)
@@ -74,7 +75,7 @@
   - [`server.method(methods)`](#server.method.array())
   - [`server.path(relativeTo)`](#server.path())
   - [`await server.register(plugins, [options])`](#server.register())
-  - [`server.route(options)`](#server.route())
+  - [`server.route(route)`](#server.route())
     - [Path parameters](#path-parameters)
     - [Path matching order](#path-matching-order)
     - [Catch all route](#catch-all-route)
@@ -83,67 +84,67 @@
   - [`await server.stop([options])`](#server.stop())
   - [`server.table([host])`](#server.table())
 - [Route options](#route-options)
-  - [`app`](#route.options.app)
-  - [`auth`](#route.options.auth)
+  - [`route.options.app`](#route.options.app)
+  - [`route.options.auth`](#route.options.auth)
     - [Authentication options](#authentication-options)
-      - [`access`](#route.options.auth.access)
-      - [`scope`](#route.options.auth.access.scope)
-      - [`entity`](#route.options.auth.access.entity)
-      - [`mode`](#route.options.auth.mode)
-      - [`payload`](#route.options.auth.payload)
-      - [`strategies`](#route.options.auth.strategies)
-      - [`strategy`](#route.options.auth.strategy)
-  - [`bind`](#route.options.bind)
-  - [`cache`](#route.options.cache)
-  - [`compression`](#route.options.compression)
-  - [`cors`](#route.options.cors)
-  - [`description`](#route.options.description)
-  - [`ext`](#route.options.ext)
-  - [`files`](#route.options.files)
-  - [`handler`](#route.options.handler)
-  - [`id`](#route.options.id)
-  - [`isInternal`](#route.options.isInternal)
-  - [`json`](#route.options.json)
-  - [`jsonp`](#route.options.jsonp)
-  - [`log`](#route.options.log)
-  - [`notes`](#route.options.notes)
-  - [`payload`](#route.options.payload)
-    - [`allow`](#route.options.payload.allow)
-    - [`compression`](#route.options.payload.compression)
-    - [`defaultContentType`](#route.options.payload.defaultContentType)
-    - [`failAction`](#route.options.payload.failAction)
-    - [`maxBytes`](#route.options.payload.maxBytes)
-    - [`multipart`](#route.options.payload.multipart)
-    - [`output`](#route.options.payload.output)
-    - [`override`](#route.options.payload.override)
-    - [`parse`](#route.options.payload.parse)
-    - [`timeout`](#route.options.payload.timeout)
-    - [`uploads`](#route.options.payload.uploads)
-  - [`plugins`](#route.options.plugins)
-  - [`pre`](#route.options.pre)
-  - [`response`](#route.options.response)
-    - [`emptyStatusCode`](#route.options.response.emptyStatusCode)
-    - [`failAction`](#route.options.response.failAction)
-    - [`modify`](#route.options.response.modify)
-    - [`options`](#route.options.response.options)
-    - [`ranges`](#route.options.response.ranges)
-    - [`sample`](#route.options.response.sample)
-    - [`schema`](#route.options.response.schema)
-    - [`status`](#route.options.response.status)
-  - [`security`](#route.options.security)
-  - [`state`](#route.options.state)
-  - [`tags`](#route.options.tags)
-  - [`timeout`](#route.options.timeout)
-    - [`server`](#route.options.timeout.server)
-    - [`socket`](#route.options.timeout.socket)
-  - [`validate`](#route.options.validate)
-    - [`errorFields`](#route.options.validate.errorFields)
-    - [`failAction`](#route.options.validate.failAction)
-    - [`headers`](#route.options.validate.headers)
-    - [`options`](#route.options.validate.options)
-    - [`params`](#route.options.validate.params)
-    - [`payload`](#route.options.validate.payload)
-    - [`query`](#route.options.validate.query)
+      - [`route.options.access`](#route.options.auth.access)
+      - [`route.options.access.scope`](#route.options.auth.access.scope)
+      - [`route.options.access.entity`](#route.options.auth.access.entity)
+      - [`route.options.access.mode`](#route.options.auth.mode)
+      - [`route.options.access.payload`](#route.options.auth.payload)
+      - [`route.options.access.strategies`](#route.options.auth.strategies)
+      - [`route.options.access.strategy`](#route.options.auth.strategy)
+  - [`route.options.bind`](#route.options.bind)
+  - [`route.options.cache`](#route.options.cache)
+  - [`route.options.compression`](#route.options.compression)
+  - [`route.options.cors`](#route.options.cors)
+  - [`route.options.description`](#route.options.description)
+  - [`route.options.ext`](#route.options.ext)
+  - [`route.options.files`](#route.options.files)
+  - [`route.options.handler`](#route.options.handler)
+  - [`route.options.id`](#route.options.id)
+  - [`route.options.isInternal`](#route.options.isInternal)
+  - [`route.options.json`](#route.options.json)
+  - [`route.options.jsonp`](#route.options.jsonp)
+  - [`route.options.log`](#route.options.log)
+  - [`route.options.notes`](#route.options.notes)
+  - [`route.options.payload`](#route.options.payload)
+    - [`route.options.payload.allow`](#route.options.payload.allow)
+    - [`route.options.payload.compression`](#route.options.payload.compression)
+    - [`route.options.payload.defaultContentType`](#route.options.payload.defaultContentType)
+    - [`route.options.payload.failAction`](#route.options.payload.failAction)
+    - [`route.options.payload.maxBytes`](#route.options.payload.maxBytes)
+    - [`route.options.payload.multipart`](#route.options.payload.multipart)
+    - [`route.options.payload.output`](#route.options.payload.output)
+    - [`route.options.payload.override`](#route.options.payload.override)
+    - [`route.options.payload.parse`](#route.options.payload.parse)
+    - [`route.options.payload.timeout`](#route.options.payload.timeout)
+    - [`route.options.payload.uploads`](#route.options.payload.uploads)
+  - [`route.options.plugins`](#route.options.plugins)
+  - [`route.options.pre`](#route.options.pre)
+  - [`route.options.response`](#route.options.response)
+    - [`route.options.response.emptyStatusCode`](#route.options.response.emptyStatusCode)
+    - [`route.options.response.failAction`](#route.options.response.failAction)
+    - [`route.options.response.modify`](#route.options.response.modify)
+    - [`route.options.response.options`](#route.options.response.options)
+    - [`route.options.response.ranges`](#route.options.response.ranges)
+    - [`route.options.response.sample`](#route.options.response.sample)
+    - [`route.options.response.schema`](#route.options.response.schema)
+    - [`route.options.response.status`](#route.options.response.status)
+  - [`route.options.security`](#route.options.security)
+  - [`route.options.state`](#route.options.state)
+  - [`route.options.tags`](#route.options.tags)
+  - [`route.options.timeout`](#route.options.timeout)
+    - [`route.options.timeout.server`](#route.options.timeout.server)
+    - [`route.options.timeout.socket`](#route.options.timeout.socket)
+  - [`route.options.validate`](#route.options.validate)
+    - [`route.options.validate.errorFields`](#route.options.validate.errorFields)
+    - [`route.options.validate.failAction`](#route.options.validate.failAction)
+    - [`route.options.validate.headers`](#route.options.validate.headers)
+    - [`route.options.validate.options`](#route.options.validate.options)
+    - [`route.options.validate.params`](#route.options.validate.params)
+    - [`route.options.validate.payload`](#route.options.validate.payload)
+    - [`route.options.validate.query`](#route.options.validate.query)
 - [Request lifecycle](#request-lifecycle)
   - [Lifecycle methods](#lifecycle-methods)
     - [Lifecycle workflow](#lifecycle-workflow)
@@ -168,68 +169,68 @@
     - [`h.unstate(name, [options])`](#h.unstate())
   - [Response object](#response-object)
     - [Response properties](#response-properties)
-      - [`app`](#response.app)
-      - [`events`](#response.events)
-      - [`headers`](#response.headers)
-      - [`plugins`](#response.plugins)
-      - [`settings`](#response.settings)
-        - [`passThrough`](#response.settings.passThrough)
-        - [`stringify`](#response.settings.stringify)
-        - [`ttl`](#response.settings.ttl)
-        - [`varyEtag`](#response.settings.varyEtag)
-      - [`source`](#response.source)
-      - [`statusCode`](#response.statusCode)
-      - [`variety`](#response.variety)
-    - [`bytes(length)`](#response.bytes())
-    - [`charset(charset)`](#response.charset())
-    - [`code(statusCode)`](#response.code())
-    - [`message(httpMessage)`](#response.message())
-    - [`created(uri)`](#response.created())
-    - [`encoding(encoding)`](#response.encoding())
-    - [`etag(tag, options)`](#response.etag())
-    - [`header(name, value, options)`](#response.header())
-    - [`location(uri)`](#response.location())
-    - [`redirect(uri)`](#response.redirect())
-    - [`replacer(method)`](#response.replacer())
-    - [`spaces(count)`](#response.spaces())
-    - [`state(name, value, [options])`](#response.state())
-    - [`suffix(suffix)`](#response.suffix())
-    - [`ttl(msec)`](#response.ttl())
-    - [`type(mimeType)`](#response.type())
-    - [`unstate(name, [options])`](#response.unstate())
-    - [`vary(header)`](#response.vary())
-    - [`takeover()`](#response.takeover())
-    - [`temporary(isTemporary)`](#response.temporary())
-    - [`permanent(isPermanent)`](#response.permanent())
-    - [`rewritable(isRewritable)`](#response.rewritable())
+      - [`response.app`](#response.app)
+      - [`response.events`](#response.events)
+      - [`response.headers`](#response.headers)
+      - [`response.plugins`](#response.plugins)
+      - [`response.settings`](#response.settings)
+        - [`response.settings.passThrough`](#response.settings.passThrough)
+        - [`response.settings.stringify`](#response.settings.stringify)
+        - [`response.settings.ttl`](#response.settings.ttl)
+        - [`response.settings.varyEtag`](#response.settings.varyEtag)
+      - [`response.source`](#response.source)
+      - [`response.statusCode`](#response.statusCode)
+      - [`response.variety`](#response.variety)
+    - [`response.bytes(length)`](#response.bytes())
+    - [`response.charset(charset)`](#response.charset())
+    - [`response.code(statusCode)`](#response.code())
+    - [`response.message(httpMessage)`](#response.message())
+    - [`response.created(uri)`](#response.created())
+    - [`response.encoding(encoding)`](#response.encoding())
+    - [`response.etag(tag, options)`](#response.etag())
+    - [`response.header(name, value, options)`](#response.header())
+    - [`response.location(uri)`](#response.location())
+    - [`response.redirect(uri)`](#response.redirect())
+    - [`response.replacer(method)`](#response.replacer())
+    - [`response.spaces(count)`](#response.spaces())
+    - [`response.state(name, value, [options])`](#response.state())
+    - [`response.suffix(suffix)`](#response.suffix())
+    - [`response.ttl(msec)`](#response.ttl())
+    - [`response.type(mimeType)`](#response.type())
+    - [`response.unstate(name, [options])`](#response.unstate())
+    - [`response.vary(header)`](#response.vary())
+    - [`response.takeover()`](#response.takeover())
+    - [`response.temporary(isTemporary)`](#response.temporary())
+    - [`response.permanent(isPermanent)`](#response.permanent())
+    - [`response.rewritable(isRewritable)`](#response.rewritable())
 - [Request](#request)
   - [Request properties](#request-properties)
-    - [`app`](#request.app)
-    - [`auth`](#request.auth)
-    - [`events`](#request.events)
-    - [`headers`](#request.headers)
-    - [`info`](#request.info)
-    - [`logs`](#request.logs)
-    - [`method`](#request.method)
-    - [`mime`](#request.mime)
-    - [`orig`](#request.orig)
-    - [`params`](#request.params)
-    - [`paramsArray`](#request.paramsArray)
-    - [`path`](#request.path)
-    - [`payload`](#request.payload)
-    - [`plugins`](#request.plugins)
-    - [`pre`](#request.pre)
-    - [`response`](#request.response)
-    - [`preResponses`](#request.preResponses)
-    - [`query`](#request.query)
-    - [`raw`](#request.raw)
-    - [`route`](#request.route)
-      - [`route.auth.access(request)`](#request.route.auth.access())
-    - [`server`](#request.server)
-    - [`state`](#request.state)
-    - [`url`](#request.url)
+    - [`request.app`](#request.app)
+    - [`request.auth`](#request.auth)
+    - [`request.events`](#request.events)
+    - [`request.headers`](#request.headers)
+    - [`request.info`](#request.info)
+    - [`request.logs`](#request.logs)
+    - [`request.method`](#request.method)
+    - [`request.mime`](#request.mime)
+    - [`request.orig`](#request.orig)
+    - [`request.params`](#request.params)
+    - [`request.paramsArray`](#request.paramsArray)
+    - [`request.path`](#request.path)
+    - [`request.payload`](#request.payload)
+    - [`request.plugins`](#request.plugins)
+    - [`request.pre`](#request.pre)
+    - [`request.response`](#request.response)
+    - [`request.preResponses`](#request.preResponses)
+    - [`request.query`](#request.query)
+    - [`request.raw`](#request.raw)
+    - [`request.route`](#request.route)
+    - [`request.server`](#request.server)
+    - [`request.state`](#request.state)
+    - [`request.url`](#request.url)
   - [`request.generateResponse(source, [options])`](#request.generateResponse())
   - [`request.log(tags, [data])`](#request.log())
+  - [`request.route.auth.access(request)`](#request.route.auth.access())
   - [`request.setMethod(method)`](#request.setMethod())
   - [`request.setUrl(url, [stripTrailingSlash]`](#request.setUrl())
 - [Plugins](#plugins)
@@ -534,6 +535,8 @@ server [`server.info.uri`](#server.info), otherwise constructed from the server 
 
 #### <a name="server.app" /> `server.app`
 
+Access: read / write.
+
 Provides a safe place to store server-specific run-time application data without potential
 conflicts with the framework internals. The data can be accessed whenever the server is
 accessible. Initialized with an empty object.
@@ -550,6 +553,8 @@ const handler = function (request, h) {
 ```
 
 #### <a name="server.auth.api" /> `server.auth.api`
+
+Access: authentication strategy specific.
 
 An object where each key is an authentication strategy name and the value is the exposed strategy
 API. Available only when the authentication scheme exposes an API by returning an `api` key in the
@@ -586,10 +591,14 @@ console.log(server.auth.api.default.settings.x);    // 5
 
 #### <a name="server.auth.settings.default" /> `server.auth.settings.default`
 
+Access: read only.
+
 Contains the default authentication configuration is a default strategy was set via
 [`server.auth.default()`](#server.auth.default()).
 
 #### <a name="server.decorations" /> `server.decorations`
+
+Access: read only.
 
 Provides access to the decorations already applied to various framework interfaces. The object must
 not be modified directly, but only through [`server.decorate`](#server.decorate()).
@@ -614,6 +623,8 @@ console.log(server.decorations.toolkit);            // ['success']
 
 #### <a name="server.events" /> `server.events`
 
+Access: **podium** public interface.
+
 The server events emitter. Utilizes the [**podium**](https://github.com/hapijs/podium) with support
 for event criteria validation, channels, and filters.
 
@@ -627,7 +638,7 @@ Use the following methods to interact with `server.events`:
 Other methods include: `server.events.removeListener(name, listener)`,
 `server.events.removeAllListeners(name)`, and `server.events.hasListeners(name)`.
 
-##### <a name="server.events.log" /> `'log'`
+##### <a name="server.events.log" /> `'log'` Event
 
 The `'log'` event type emits internal server events generated by the framework as well as
 application events logged with [`server.log()`](#server.log()).
@@ -664,7 +675,7 @@ The internally generated events are (identified by their `tags`):
 - `connection` `client` `error` - a `clientError` event was received from the HTTP or HTTPS
   listener. The event data is the error object received.
 
-##### <a name="server.events.request" /> `'request'`
+##### <a name="server.events.request" /> `'request'` Event
 
 The `'request'` event type emits internal request events generated by the framework as well as
 application events logged with [`request.log()`](#request.log()).
@@ -749,7 +760,7 @@ The internally generated events are (identified by their `tags`):
   Includes the error.
 - `validation` `response` `error` - response validation failed. Includes the error message.
 
-##### <a name="server.events.response" /> `'response'`
+##### <a name="server.events.response" /> `'response'` Event
 
 The `'response'` event type is emitted after the response is sent back to the client (or when the
 client connection closed and no response sent, in which case [`request.response`](#request.response)
@@ -765,7 +776,7 @@ server.events.on('response', (request) => {
 });
 ```
 
-##### <a name="server.events.route" /> `'route'`
+##### <a name="server.events.route" /> `'route'` Event
 
 The `'route'` event type is emitted when a route is added via [`server.route()`](#server.route()). 
 The `'route'` event handler uses the function signature `function(route)` where:
@@ -779,7 +790,7 @@ server.events.on('route', (route) => {
 });
 ```
 
-##### <a name="server.events.start" /> `'start'`
+##### <a name="server.events.start" /> `'start'` Event
 
 The `'start'` event type is emitted when the server is started using [`server.start()`](#server.start()).
 The `'start'` event handler uses the function signature `function()`.
@@ -791,7 +802,7 @@ server.events.on('start', (route) => {
 });
 ```
 
-##### <a name="server.events.stop" /> `'stop'`
+##### <a name="server.events.stop" /> `'stop'` Event
 
 The `'stop'` event type is emitted when the server is stopped using [`server.stop()`](#server.stop()).
 The `'stop'` event handler uses the function signature `function()`.
@@ -804,6 +815,8 @@ server.events.on('stop', (route) => {
 ```
 
 #### <a name="server.info" /> `server.info`
+
+Access: read only.
 
 An object containing information about the server where:
 
@@ -845,6 +858,8 @@ console.log(server.info.port);            // 80
 
 #### <a name="server.load" /> `server.load`
 
+Access: read only.
+
 An object containing the process load metrics (when [`load.sampleInterval`](#server.options.load)
 is enabled):
 
@@ -860,6 +875,8 @@ console.log(server.load.rss);
 ```
 
 #### <a name="server.listener" /> `server.listener`
+
+Access: read only and listener public interface.
 
 The node HTTP server object.
 
@@ -878,6 +895,8 @@ io.sockets.on('connection', (socket) => {
 
 #### <a name="server.methods" /> `server.methods`
 
+Access: read only.
+
 Server methods are functions registered with the server and used throughout the application as a
 common utility. Their advantage is in the ability to configure them to use the built-in cache and
 share across multiple request handlers without having to create a common module.
@@ -895,6 +914,8 @@ const result = server.methods.add(1, 2);    // 3
 ```
 
 #### <a name="server.mime" /> `server.mime`
+
+Access: read only and **mimos** public interface.
 
 Provides access to the server MIME database used for setting content-type information. The object
 must not be modified directly but only through the [`mime`](#server.options.mime) server setting.
@@ -922,6 +943,8 @@ console.log(server.mime.path('file.npm').type)        // 'node/module'
 
 #### <a name="server.plugins" /> `server.plugins`
 
+Access: read / write.
+
 An object containing the values exposed by each registered plugin where each key is a plugin name
 and the values are the exposed properties by each plugin using
 [`server.expose()`](#server.expose()). Plugins may set the value of the
@@ -942,6 +965,8 @@ exports.plugin = {
 ```
 
 #### <a name="server.realm" /> `server.realm`
+
+Access: read only.
 
 The realm object contains sandboxed server settings specific to each plugin or authentication
 strategy. When registering a plugin or an authentication scheme, a `server` object reference is
@@ -994,6 +1019,8 @@ exports.register = function (server, options) {
 
 #### <a name="server.registrations" /> `server.registrations`
 
+Access: read only.
+
 An object of the currently registered plugins where each key is a registered plugin name and the
 value is an object containing:
 
@@ -1002,6 +1029,8 @@ value is an object containing:
 - `options` - (optional) options passed to the plugin during registration.
 
 #### <a name="server.settings" /> `server.settings`
+
+Access: read only.
 
 The server configuration object after defaults applied.
 
@@ -1017,6 +1046,8 @@ console.log(server.settings.app);   // { key: 'value' }
 ```
 
 #### <a name="server.version" /> `server.version`
+
+Access: read only.
 
 The **hapi** module version number.
 
@@ -2550,12 +2581,12 @@ const table = server.table();
 
 Each route can be customized to change the default behavior of the request lifecycle.
 
-### <a name="route.options.app" /> `app`
+### <a name="route.options.app" /> `route.options.app`
 
 Application-specific route configuration state. Should not be used by [plugins](#plugins) which
 should use `options.plugins[name]` instead.
 
-### <a name="route.options.auth" /> `auth`
+### <a name="route.options.auth" /> `route.options.auth`
 
 Route authentication configuration. Value can be:
 
@@ -2569,7 +2600,7 @@ Route authentication configuration. Value can be:
 
 #### Authentication options
 
-##### <a name="route.options.auth.access" /> `access`
+##### <a name="route.options.auth.access" /> `route.options.access`
 
 Default value: none.
 
@@ -2578,7 +2609,7 @@ incoming request and access is granted if at least one of the rules matches. Eac
 include at least one of [`scope`](#route.options.auth.access.scope) or
 [`entity`](#route.options.auth.access.entity).
 
-##### <a name="route.options.auth.access.scope" /> `scope`
+##### <a name="route.options.auth.access.scope" /> `route.options.access.scope`
 
 Default value: `false` (no scope requirements).
 
@@ -2595,7 +2626,7 @@ You may also access properties on the request object (`query`, `params`, `payloa
 `credentials`) to populate a dynamic scope by using the '{' and '}' characters around the property
 name, such as `'user-{params.id}'`.
 
-##### <a name="route.options.auth.access.entity" /> `entity`
+##### <a name="route.options.auth.access.entity" /> `route.options.access.entity`
 
 Default value: `'any'`.
 
@@ -2609,7 +2640,7 @@ authenticated credentials. Available values:
   of presence of a `user` attribute in the `credentials` object returned by the authentication
   strategy.
 
-##### <a name="route.options.auth.mode" /> `mode`
+##### <a name="route.options.auth.mode" /> `route.options.access.mode`
 
 Default value: `'required'`.
 
@@ -2621,7 +2652,7 @@ The authentication mode. Available values:
 - `'try'` - similar to `'optional'`, any request credentials are attempted authentication, but if
   the credentials are invalid, the request proceeds regardless of the authentication error.
 
-##### <a name="route.options.auth.payload" /> `payload`
+##### <a name="route.options.auth.payload" /> `route.options.access.payload`
 
 Default value: `false`, unless the scheme requires payload authentication.
 
@@ -2637,27 +2668,27 @@ Available values:
 - `'optional'` - payload authentication performed only when the client includes payload
   authentication information (e.g. `hash` attribute in Hawk).
 
-##### <a name="route.options.auth.strategies" /> `strategies`
+##### <a name="route.options.auth.strategies" /> `route.options.access.strategies`
 
 Default value: the default strategy set via [`server.auth.default()`](#server.auth.default()).
 
 An array of string strategy names in the order they should be attempted. Cannot be used together
 with [`strategy`](#route.options.auth.strategy).
 
-##### <a name="route.options.auth.strategy" /> `strategy`
+##### <a name="route.options.auth.strategy" /> `route.options.access.strategy`
 
 Default value: the default strategy set via [`server.auth.default()`](#server.auth.default()).
 
 A string strategy names. Cannot be used together with [`strategies`](#route.options.auth.strategies).
 
-### <a name="route.options.bind" /> `bind`
+### <a name="route.options.bind" /> `route.options.bind`
 
 Default value: `null`.
 
 An object passed back to the provided `handler` (via `this`) when called. Ignored if the method is
 an arrow function.
 
-### <a name="route.options.cache" /> `cache`
+### <a name="route.options.cache" /> `route.options.cache`
 
 Default value: `{ privacy: 'default', statuses: [200], otherwise: 'no-cache' }`.
 
@@ -2684,12 +2715,12 @@ response. Caching can be customized using an object with the following options:
 
 The default `Cache-Control: no-cache` header can be disabled by setting `cache` to `false`.
 
-### <a name="route.options.compression" /> `compression`
+### <a name="route.options.compression" /> `route.options.compression`
 
 An object where each key is a content-encoding name and each value is an object with the desired
 encoder settings. Note that decoder settings are set in [`compression`](#route.options.payload.compression).
 
-### <a name="route.options.cors" /> `cors`
+### <a name="route.options.cors" /> `route.options.cors`
 
 Default value: `false` (no CORS headers).
 
@@ -2723,7 +2754,7 @@ object with the following options:
 - `credentials` - if `true`, allows user credentials to be sent
   ('Access-Control-Allow-Credentials'). Defaults to `false`.
 
-### <a name="route.options.description" /> `description`
+### <a name="route.options.description" /> `route.options.description`
 
 Default value: none.
 
@@ -2732,7 +2763,7 @@ Route description used for generating documentation (string).
 This setting is not available when setting server route defaults using
 [`server.options.routes`](#server.options.routes).
 
-### <a name="route.options.ext" /> `ext`
+### <a name="route.options.ext" /> `route.options.ext`
 
 Default value: none.
 
@@ -2740,7 +2771,7 @@ Route-level [request extension points](#request-lifecycle) by setting the option
 a key for each of the desired extension points (`'onRequest'` is not allowed), and the value is the
 same as the [`server.ext(events)`](#server.ext()) `event` argument.
 
-### <a name="route.options.files" /> `files`
+### <a name="route.options.files" /> `route.options.files`
 
 Default value: `{ relativeTo: '.' }`.
 
@@ -2748,7 +2779,7 @@ Defines the behavior for accessing files:
 
 - `relativeTo` - determines the folder relative paths are resolved against.
 
-### <a name="route.options.handler" /> `handler`
+### <a name="route.options.handler" /> `route.options.handler`
 
 Default value: none.
 
@@ -2771,14 +2802,14 @@ const handler = function (request, h) {
 Note: handlers using a fat arrow style function cannot be bound to any `bind` property. Instead,
 the bound context is available under [`h.context`](#h.context).
 
-### <a name="route.options.id" /> `id`
+### <a name="route.options.id" /> `route.options.id`
 
 Default value: none.
 
 An optional unique identifier used to look up the route using [`server.lookup()`](#server.lookup()).
 Cannot be assigned to routes added with an array of methods.
 
-### <a name="route.options.isInternal" /> `isInternal`
+### <a name="route.options.isInternal" /> `route.options.isInternal`
 
 Default value: `false`.
 
@@ -2786,7 +2817,7 @@ If `true`, the route cannot be accessed through the HTTP listener but only throu
 [`server.inject()`](#server.inject()) interface with the `allowInternals` option set to `true`.
 Used for internal routes that should not be accessible to the outside world.
 
-### <a name="route.options.json" /> `json`
+### <a name="route.options.json" /> `route.options.json`
 
 Default value: none.
 
@@ -2802,7 +2833,7 @@ string payload or escaping it after stringification. Supports the following:
 - `escape` - calls [`Hoek.jsonEscape()`](https://github.com/hapijs/hoek/blob/master/API.md#escapejsonstring)
   after conversion to JSON string. Defaults to `false`.
 
-### <a name="route.options.jsonp" /> `jsonp`
+### <a name="route.options.jsonp" /> `route.options.jsonp`
 
 Default value: none.
 
@@ -2817,7 +2848,7 @@ The 'Content-Type' response header is set to `'text/javascript'` and the 'X-Cont
 response header is set to `'nosniff'`, and will override those headers even if explicitly set by
 [`response.type()`](#response.type()).
 
-### <a name="route.options.log" /> `log`
+### <a name="route.options.log" /> `route.options.log`
 
 Default value: `{ collect: false }`.
 
@@ -2826,7 +2857,7 @@ Request logging options:
 - `collect` - if `true`, request-level logs (both internal and application) are collected and
   accessible via [`request.logs`](#request.logs).
 
-### <a name="route.options.notes" /> `notes`
+### <a name="route.options.notes" /> `route.options.notes`
 
 Default value: none.
 
@@ -2835,11 +2866,11 @@ Route notes used for generating documentation (string or array of strings).
 This setting is not available when setting server route defaults using
 [`server.options.routes`](#server.options.routes).
 
-### <a name="route.options.payload" /> `payload`
+### <a name="route.options.payload" /> `route.options.payload`
 
 Determines how the request payload is processed.
 
-#### <a name="route.options.payload.allow" /> `allow`
+#### <a name="route.options.payload.allow" /> `route.options.payload.allow`
 
 Default value: allows parsing of the following mime types:
 - application/json
@@ -2854,34 +2885,34 @@ limit the set of allowed mime types. Note that allowing additional mime types no
 not enable them to be parsed, and if [`parse`](#route.options.payload.parse) is `true`, the request
 will result in an error response.
 
-#### <a name="route.options.payload.compression" /> `compression`
+#### <a name="route.options.payload.compression" /> `route.options.payload.compression`
 
 Default value: none.
 
 An object where each key is a content-encoding name and each value is an object with the desired
 decoder settings. Note that encoder settings are set in [`compression`](#server.options.compression).
 
-#### <a name="route.options.payload.defaultContentType" /> `defaultContentType`
+#### <a name="route.options.payload.defaultContentType" /> `route.options.payload.defaultContentType`
 
 Default value: `'application/json'`.
 
 The default content type if the 'Content-Type' request header is missing.
 
-#### <a name="route.options.payload.failAction" /> `failAction`
+#### <a name="route.options.payload.failAction" /> `route.options.payload.failAction`
 
 Default value: `'error'` (return a Bad Request (400) error response).
 
 A [`failAction` value](#lifecycle-failAction) which determines how to handle payload parsing
 errors.
 
-#### <a name="route.options.payload.maxBytes" /> `maxBytes`
+#### <a name="route.options.payload.maxBytes" /> `route.options.payload.maxBytes`
 
 Default value: `1048576` (1MB).
 
 Limits the size of incoming payloads to the specified byte count. Allowing very large payloads may
 cause the server to run out of memory.
 
-#### <a name="route.options.payload.multipart" /> `multipart`
+#### <a name="route.options.payload.multipart" /> `route.options.payload.multipart`
 
 Default value: none.
 
@@ -2899,7 +2930,7 @@ Overrides payload processing for multipart requests. Value can be one of:
             - `filename` - the part file name.
             - `payload` - the processed part payload.
 
-#### <a name="route.options.payload.output" /> `output`
+#### <a name="route.options.payload.output" /> `route.options.payload.output`
 
 Default value: `'data'`.
 
@@ -2926,13 +2957,13 @@ The processed payload format. The value must be one of:
   using the `request.app` object), and listening to the server `'response'` event to perform
   cleanup.
 
-#### <a name="route.options.payload.override" /> `override`
+#### <a name="route.options.payload.override" /> `route.options.payload.override`
 
 Default value: none.
 
 A mime type string overriding the 'Content-Type' header value received.
 
-#### <a name="route.options.payload.parse" /> `parse`
+#### <a name="route.options.payload.parse" /> `route.options.payload.parse`
 
 Default value: `true`.
 
@@ -2947,7 +2978,7 @@ Determines if the incoming payload is processed or presented raw. Available valu
 
 - `'gunzip'` - the raw payload is returned unmodified after any known content encoding is decoded.
 
-#### <a name="route.options.payload.timeout" /> `timeout`
+#### <a name="route.options.payload.timeout" /> `route.options.payload.timeout`
 
 Default value: to `10000` (10 seconds).
 
@@ -2957,20 +2988,20 @@ response.
 
 Set to `false` to disable.
 
-#### <a name="route.options.payload.uploads" /> `uploads`
+#### <a name="route.options.payload.uploads" /> `route.options.payload.uploads`
 
 Default value: `os.tmpdir()`.
 
 The directory used for writing file uploads.
 
-### <a name="route.options.plugins" /> `plugins`
+### <a name="route.options.plugins" /> `route.options.plugins`
 
 Default value: `{}`.
 
 Plugin-specific configuration. `plugins` is an object where each key is a plugin name and the value
 is the plugin configuration.
 
-### <a name="route.options.pre" /> `pre`
+### <a name="route.options.pre" /> `route.options.pre`
 
 Default value: none.
 
@@ -3045,11 +3076,11 @@ server.route({
 });
 ```
 
-### <a name="route.options.response" /> `response`
+### <a name="route.options.response" /> `route.options.response`
 
 Processing rules for the outgoing response.
 
-#### <a name="route.options.response.emptyStatusCode" /> `emptyStatusCode`
+#### <a name="route.options.response.emptyStatusCode" /> `route.options.response.emptyStatusCode`
 
  Default value: `200`.
 
@@ -3057,20 +3088,20 @@ The default HTTP status code when the payload is considered empty. Value can be 
 Note that a `200` status code is converted to a `204` only at the time of response transmission
 (the response status code will remain `200` throughout the request lifecycle unless manually set).
 
-#### <a name="route.options.response.failAction" /> `failAction`
+#### <a name="route.options.response.failAction" /> `route.options.response.failAction`
 
 Default value: `'error'` (return an Internal Server Error (500) error response).
 
 A [`failAction` value](#lifecycle-failAction) which defines what to do when a response fails
 payload validation.
 
-#### <a name="route.options.response.modify" /> `modify`
+#### <a name="route.options.response.modify" /> `route.options.response.modify`
 
 Default value: `false`.
 
 If `true`, applies the validation rule changes to the response payload.
 
-#### <a name="route.options.response.options" /> `options`
+#### <a name="route.options.response.options" /> `route.options.response.options`
 
 Default value: none.
 
@@ -3081,19 +3112,19 @@ If a custom validation function is defined via [`schema`](#route.options.respons
 [`status`](#route.options.response.status) then `options` can an arbitrary object that will be
 passed to this function as the second argument.
 
-#### <a name="route.options.response.ranges" /> `ranges`
+#### <a name="route.options.response.ranges" /> `route.options.response.ranges`
 
 Default value: `true`.
 
 If `false`, payload [range](https://tools.ietf.org/html/rfc7233#section-3) support is disabled.
 
-#### <a name="route.options.response.sample" /> `sample`
+#### <a name="route.options.response.sample" /> `route.options.response.sample`
 
 Default value: `100` (all responses).
 
 The percent of response payloads validated (0 - 100). Set to `0` to disable all validation.
 
-#### <a name="route.options.response.schema" /> `schema`
+#### <a name="route.options.response.schema" /> `route.options.response.schema`
 
 Default value: `true` (no validation).
 
@@ -3118,7 +3149,7 @@ The default response payload validation rules (for all non-error responses) expr
       value is used to override the original error `output.payload`. If an error is thrown, the
       error is processed according to [`failAction`](#route.options.response.failAction).
 
-#### <a name="route.options.response.status" /> `status`
+#### <a name="route.options.response.status" /> `route.options.response.status`
 
 Default value: none.
 
@@ -3128,7 +3159,7 @@ listed status codes are validated using the default [`schema`](#route.options.re
 `status` is set to an object where each key is a 3 digit HTTP status code and the value has the
 same definition as [`schema`](#route.options.response.schema).
 
-### <a name="route.options.security" /> `security`
+### <a name="route.options.security" /> `route.options.security`
 
 Default value: `false` (security headers disabled).
 
@@ -3177,7 +3208,7 @@ following options:
 - `noSniff` - boolean controlling the 'X-Content-Type-Options' header. Defaults to `true` setting
   the header to its only and default option, `'nosniff'`.
 
-### <a name="route.options.state" /> `state`
+### <a name="route.options.state" /> `route.options.state`
 
 Default value: `{ parse: true, failAction: 'error' }`.
 
@@ -3191,7 +3222,7 @@ back to the server with every request (as defined in [RFC 6265](https://tools.ie
 - `failAction` - A [`failAction` value](#lifecycle-failAction) which determines how to handle
   cookie parsing errors. Defaults to `'error'` (return a Bad Request (400) error response).
 
-### <a name="route.options.tags" /> `tags`
+### <a name="route.options.tags" /> `route.options.tags`
 
 Default value: none.
 
@@ -3200,39 +3231,39 @@ Route tags used for generating documentation (array of strings).
 This setting is not available when setting server route defaults using
 [`server.options.routes`](#server.options.routes).
 
-### <a name="route.options.timeout" /> `timeout`
+### <a name="route.options.timeout" /> `route.options.timeout`
 
 Default value: `{ server: false }`.
 
 Timeouts for processing durations.
 
-#### <a name="route.options.timeout.server" /> `server`
+#### <a name="route.options.timeout.server" /> `route.options.timeout.server`
 
 Default value: `false`.
 
 Response timeout in milliseconds. Sets the maximum time allowed for the server to respond to an
 incoming request before giving up and responding with a Service Unavailable (503) error response.
 
-#### <a name="route.options.timeout.socket" /> `socket`
+#### <a name="route.options.timeout.socket" /> `route.options.timeout.socket`
 
 Default value: none (use node default of 2 minutes).
 
 By default, node sockets automatically timeout after 2 minutes. Use this option to override this
 behavior. Set to `false` to disable socket timeouts.
 
-### <a name="route.options.validate" /> `validate`
+### <a name="route.options.validate" /> `route.options.validate`
 
 Default value: `{ headers: true, params: true, query: true, payload: true, failAction: 'error' }`.
 
 Request input validation rules for various request components.
 
-#### <a name="route.options.validate.errorFields" /> `errorFields`
+#### <a name="route.options.validate.errorFields" /> `route.options.validate.errorFields`
 
 Default value: none.
 
 An optional object with error fields copied into every validation error response.
 
-#### <a name="route.options.validate.failAction" /> `failAction`
+#### <a name="route.options.validate.failAction" /> `route.options.validate.failAction`
 
 Default value: `'error'` (return a Bad Request (400) error response).
 
@@ -3240,7 +3271,7 @@ A [`failAction` value](#lifecycle-failAction) which determines how to handle fai
 When set to a function, the `err` argument includes the type of validation error under
 `err.output.payload.validation.source`.
 
-#### <a name="route.options.validate.headers" /> `headers`
+#### <a name="route.options.validate.headers" /> `route.options.validate.headers`
 
 Default value: `true` (no validation).
 
@@ -3261,7 +3292,7 @@ Validation rules for incoming request headers:
 
 Note that all header field names must be in lowercase to match the headers normalized by node.
 
-#### <a name="route.options.validate.options" /> `options`
+#### <a name="route.options.validate.options" /> `route.options.validate.options`
 
 Default value: none.
 
@@ -3285,7 +3316,7 @@ If the validation rules for `headers`, `params`, `query`, and `payload` are defi
 server [`routes`](#server.options.routes) level and at the route level, the individual route
 settings override the routes defaults (the rules are not merged).
 
-#### <a name="route.options.validate.params" /> `params`
+#### <a name="route.options.validate.params" /> `route.options.validate.params`
 
 Default value: `true` (no validation).
 
@@ -3309,7 +3340,7 @@ extracting any parameters, and storing them in [`request.params`](#request.param
 Note that failing to match the validation rules to the route path parameters definition will cause
 all requests to fail.
 
-#### <a name="route.options.validate.payload" /> `payload`
+#### <a name="route.options.validate.payload" /> `route.options.validate.payload`
 
 Default value: `true` (no validation).
 
@@ -3338,7 +3369,7 @@ Note that validating large payloads and modifying them will cause memory duplica
 (since the original is kept), as well as the significant performance cost of validating large
 amounts of data.
 
-#### <a name="route.options.validate.query" /> `query`
+#### <a name="route.options.validate.query" /> `route.options.validate.query`
 
 Default value: `true` (no validation).
 
@@ -3719,9 +3750,20 @@ server.ext('onPreResponse', preResponse);
 
 ### Response Toolkit
 
+Access: read only.
+
+The response toolkit is a collection of properties and utilities passed to every
+[lifecycle method](#lifecycle-methods). It is somewhat hard to define as it provides both
+utilities for manipulating responses as well as other information. Since the toolkit is passed
+as a function argument, developers can name it whatever they want. For the purpose of this document
+the `h` notation is used. It is named in the spirit of the RethinkDB `r` method, with `h` for
+**h**api.
+
 #### Toolkit properties
 
 ##### <a name="h.abandon" /> `h.abandon`
+
+Access: read only.
 
 A response symbol. When returned by a lifecycle method, the request lifecycle skips to the
 finalizing step without further interaction with the node response stream. It is the developer's
@@ -3729,25 +3771,35 @@ responsibility to write and end the response directly via [`request.raw.res`](#r
 
 ##### <a name="h.close" /> `h.close`
 
+Access: read only.
+
 A response symbol. When returned by a lifecycle method, the request lifecycle skips to the
 finalizing step after calling `request.raw.res.end())` to close the the node response stream.
 
 ##### <a name="h.context" /> `h.context`
+
+Access: read / write (will impact the shared context if the object is modified).
 
 A response symbol. Provides access to the route or server context set via the route
 [`bind`](#route.options.bind) option or [`server.bind()`](#server.bind()).
 
 ##### <a name="h.continue" /> `h.continue`
 
+Access: read only.
+
 A response symbol. When returned by a lifecycle method, the request lifecycle continues without
 changing the response.
 
 ##### <a name="h.realm" /> `h.realm`
 
+Access: read only.
+
 The [server realm](#server.realm) associated with the matching route. Defaults to the root server
 realm in the _**onRequest**_ step.
 
 ##### <a name="h.request" /> `h.request`
+
+Access: read only and public request interface.
 
 The [request] object. This is a duplication of the `request` lifecycle method argument used by
 [toolkit decorations](#server.decorate()) to access the current request.
@@ -3904,7 +3956,9 @@ before it is returned, the [`h.response()`](#h.response()) method is provided.
 
 #### Response properties
 
-##### <a name="response.app" /> `app`
+##### <a name="response.app" /> `response.app`
+
+Access: read / write.
 
 Default value: `{}`.
 
@@ -3912,7 +3966,9 @@ Application-specific state. Provides a safe place to store application data with
 conflicts with the framework. Should not be used by [plugins](#plugins) which should use
 [`plugins[name]`](#response.plugins).
 
-##### <a name="response.events" /> `events`
+##### <a name="response.events" /> `response.events`
+
+Access: read only and the public **podium** interface.
 
 The `response.events` object supports the following events:
 
@@ -3951,7 +4007,9 @@ const preResponse = function (request, h) {
 server.ext('onPreResponse', preResponse);
 ```
 
-##### <a name="response.headers" /> `headers`
+##### <a name="response.headers" /> `response.headers`
+
+Access: read only.
 
 Default value: `{}`.
 
@@ -3961,56 +4019,72 @@ the string header value or array of string.
 Note that this is an incomplete list of headers to be included with the response. Additional
 headers will be added once the response is prepared for transmission.
 
-##### <a name="response.plugins" /> `plugins`
+##### <a name="response.plugins" /> `response.plugins`
+
+Access: read / write.
 
 Default value: `{}`.
 
 Plugin-specific state. Provides a place to store and pass request-level plugin data. `plugins` is
 an object where each key is a plugin name and the value is the state.
 
-##### <a name="response.settings" /> `settings`
+##### <a name="response.settings" /> `response.settings`
+
+Access: read only.
 
 Object containing the response handling flags.
 
-###### <a name="response.settings.passThrough" /> `passThrough`
+###### <a name="response.settings.passThrough" /> `response.settings.passThrough`
+
+Access: read only.
 
 Defaults value: `true`.
 
 If `true` and [`source`](#response.source) is a `Stream`, copies the `statusCode` and `headers`
 properties of the stream object to the outbound response.
 
-###### <a name="response.settings.stringify" /> `stringify`
+###### <a name="response.settings.stringify" /> `response.settings.stringify`
+
+Access: read only.
 
 Default value: `null` (use route defaults).
 
 Override the route [`json`](#route.options.json) options used when [`source`](#response.source)
 value requires stringification.
 
-###### <a name="response.settings.ttl" /> `ttl`
+###### <a name="response.settings.ttl" /> `response.settings.ttl`
+
+Access: read only.
 
 Default value: `null` (use route defaults).
 
 If set, overrides the route [`cache`](#route.options.cache) with an expiration value in
 milliseconds.
 
-###### <a name="response.settings.varyEtag" /> `varyEtag`
+###### <a name="response.settings.varyEtag" /> `response.settings.varyEtag`
 
 Default value: `false`.
 
 If `true`, a suffix will be automatically added to the 'ETag' header at transmission time
 (separated by a `'-'` character) when the HTTP 'Vary' header is present.
 
-##### <a name="response.source" /> `source`
+##### <a name="response.source" /> `response.source`
+
+Access: read only.
 
 The raw value returned by the [lifecycle method](#lifecycle-methods).
 
-##### <a name="response.statusCode" /> `statusCode`
+##### <a name="response.statusCode" /> `response.statusCode`
+
+Access: read only.
 
 Default value: `200`.
 
 The HTTP response status code.
 
-##### <a name="response.variety" /> `variety`
+##### <a name="response.variety" /> `response.variety`
+
+Access: read only.
 
 A string indicating the type of [`source`](#response.source) with available values:
 
@@ -4018,7 +4092,7 @@ A string indicating the type of [`source`](#response.source) with available valu
 - `'buffer'` - a `Buffer`.
 - `'stream'` - a `Stream`.
 
-#### <a name="response.bytes()" /> `bytes(length)`
+#### <a name="response.bytes()" /> `response.bytes(length)`
 
 Sets the HTTP 'Content-Length' header (to avoid chunked transfer encoding) where:
 
@@ -4026,7 +4100,7 @@ Sets the HTTP 'Content-Length' header (to avoid chunked transfer encoding) where
 
 Return value: the current response object.
 
-#### <a name="response.charset()" /> `charset(charset)`
+#### <a name="response.charset()" /> `response.charset(charset)`
 
 Sets the 'Content-Type' HTTP header 'charset' property where:
 
@@ -4034,7 +4108,7 @@ Sets the 'Content-Type' HTTP header 'charset' property where:
 
 Return value: the current response object.
 
-#### <a name="response.code()" /> `code(statusCode)`
+#### <a name="response.code()" /> `response.code(statusCode)`
 
 Sets the HTTP status code where:
 
@@ -4042,7 +4116,7 @@ Sets the HTTP status code where:
 
 Return value: the current response object.
 
-#### <a name="response.message()" /> `message(httpMessage)`
+#### <a name="response.message()" /> `response.message(httpMessage)`
 
 Sets the HTTP status message where:
 
@@ -4050,7 +4124,7 @@ Sets the HTTP status message where:
 
 Return value: the current response object.
 
-#### <a name="response.created()" /> `created(uri)`
+#### <a name="response.created()" /> `response.created(uri)`
 
 Sets the HTTP status code to Created (201) and the HTTP 'Location' header where:
 
@@ -4058,14 +4132,14 @@ Sets the HTTP status code to Created (201) and the HTTP 'Location' header where:
 
 Return value: the current response object.
 
-#### <a name="response.encoding()" /> `encoding(encoding)`
+#### <a name="response.encoding()" /> `response.encoding(encoding)`
 
 Sets the string encoding scheme used to serial data into the HTTP payload where:
 - `encoding` - the encoding property value (see [node Buffer encoding](http://nodejs.org/api/buffer.html#buffer_buffer)).
 
 Return value: the current response object.
 
-#### <a name="response.etag()" /> `etag(tag, options)`
+#### <a name="response.etag()" /> `response.etag(tag, options)`
 
 Sets the representation [entity tag](http://tools.ietf.org/html/rfc7232#section-2.3) where:
 
@@ -4083,7 +4157,7 @@ Sets the representation [entity tag](http://tools.ietf.org/html/rfc7232#section-
 
 Return value: the current response object.
 
-#### <a name="response.header()" /> `header(name, value, options)`
+#### <a name="response.header()" /> `response.header(name, value, options)`
 
 Sets an HTTP header where:
 
@@ -4107,7 +4181,7 @@ Sets an HTTP header where:
 
 Return value: the current response object.
 
-#### <a name="response.location()" /> `location(uri)`
+#### <a name="response.location()" /> `response.location(uri)`
 
 Sets the HTTP 'Location' header where:
 
@@ -4115,7 +4189,7 @@ Sets the HTTP 'Location' header where:
 
 Return value: the current response object.
 
-#### <a name="response.redirect()" /> `redirect(uri)`
+#### <a name="response.redirect()" /> `response.redirect(uri)`
 
 Sets an HTTP redirection response (302) and decorates the response with additional methods, where:
 
@@ -4132,7 +4206,7 @@ methods to easily change the default redirection code (302).
 | Rewritable     | 301        | 302       |
 | Non-rewritable | 308        | 307       |
 
-#### <a name="response.replacer()" /> `replacer(method)`
+#### <a name="response.replacer()" /> `response.replacer(method)`
 
 Sets the `JSON.stringify()` `replacer` argument where:
 
@@ -4140,7 +4214,7 @@ Sets the `JSON.stringify()` `replacer` argument where:
 
 Return value: the current response object.
 
-#### <a name="response.spaces()" /> `spaces(count)`
+#### <a name="response.spaces()" /> `response.spaces(count)`
 
 Sets the `JSON.stringify()` `space` argument where:
 
@@ -4148,7 +4222,7 @@ Sets the `JSON.stringify()` `space` argument where:
 
 Return value: the current response object.
 
-#### <a name="response.state()" /> `state(name, value, [options])`
+#### <a name="response.state()" /> `response.state(name, value, [options])`
 
 Sets an HTTP cookie where:
 
@@ -4163,7 +4237,7 @@ Sets an HTTP cookie where:
 
 Return value: the current response object.
 
-#### <a name="response.suffix()" /> `suffix(suffix)`
+#### <a name="response.suffix()" /> `response.suffix(suffix)`
 
 Sets a string suffix when the response is process via `JSON.stringify()` where:
 
@@ -4171,7 +4245,7 @@ Sets a string suffix when the response is process via `JSON.stringify()` where:
 
 Return value: the current response object.
 
-#### <a name="response.ttl()" /> `ttl(msec)`
+#### <a name="response.ttl()" /> `response.ttl(msec)`
 
 Overrides the default route cache expiration rule for this response instance where:
 
@@ -4179,7 +4253,7 @@ Overrides the default route cache expiration rule for this response instance whe
 
 Return value: the current response object.
 
-#### <a name="response.type()" /> `type(mimeType)`
+#### <a name="response.type()" /> `response.type(mimeType)`
 
 Sets the HTTP 'Content-Type' header where:
 
@@ -4189,7 +4263,7 @@ Return value: the current response object.
 
 Should only be used to override the built-in default for each response type.
 
-#### <a name="response.unstate()" /> `unstate(name, [options])`
+#### <a name="response.unstate()" /> `response.unstate(name, [options])`
 
 Clears the HTTP cookie by setting an expired value where:
 - `name` - the cookie name.
@@ -4199,7 +4273,7 @@ Clears the HTTP cookie by setting an expired value where:
 
 Return value: the current response object.
 
-#### <a name="response.vary()" /> `vary(header)`
+#### <a name="response.vary()" /> `response.vary(header)`
 
 Adds the provided header to the list of inputs affected the response generation via the HTTP 'Vary'
 header where:
@@ -4208,13 +4282,13 @@ header where:
 
 Return value: the current response object.
 
-#### <a name="response.takeover()" /> `takeover()`
+#### <a name="response.takeover()" /> `response.takeover()`
 
 Marks the response object as a [takeover response](#takeover-response).
 
 Return value: the current response object.
 
-#### <a name="response.temporary()" /> `temporary(isTemporary)`
+#### <a name="response.temporary()" /> `response.temporary(isTemporary)`
 
 Sets the status code to `302` or `307` (based on the [`response.rewritable()`](#response.rewriteable())
 setting) where:
@@ -4225,7 +4299,7 @@ Return value: the current response object.
 
 Only available after calling the [`response.redirect()`](#response.redirect()) method.
 
-#### <a name="response.permanent()" /> `permanent(isPermanent)`
+#### <a name="response.permanent()" /> `response.permanent(isPermanent)`
 
 Sets the status code to `301` or `308` (based on the [`response.rewritable()`](#response.rewritable())
 setting) where:
@@ -4236,7 +4310,7 @@ Return value: the current response object.
 
 Only available after calling the [`response.redirect()`](#response.redirect()) method.
 
-#### <a name="response.rewritable()" /> `rewritable(isRewritable)`
+#### <a name="response.rewritable()" /> `response.rewritable(isRewritable)`
 
 Sets the status code to `301`/`302` for rewritable (allows changing the request method from 'POST'
 to 'GET') or `307`/`308` for non-rewritable (does not allow changing the request method from 'POST'
@@ -4257,13 +4331,17 @@ The request properties change throughout the [request lifecycle](#request-lifecy
 
 ### Request properties
 
-#### <a name="request.app" /> `app`
+#### <a name="request.app" /> `request.app`
+
+Access: read / write.
 
 Application-specific state. Provides a safe place to store application data without potential
 conflicts with the framework. Should not be used by [plugins](#plugins) which should use
 `plugins[name]`.
 
-#### <a name="request.auth" /> `auth`
+#### <a name="request.auth" /> `request.auth`
+
+Access: read only.
 
 Authentication information:
 
@@ -4285,7 +4363,9 @@ Authentication information:
 
 - `strategy` - the name of the strategy used.
 
-#### <a name="request.events" /> `events`
+#### <a name="request.events" /> `request.events`
+
+Access: read only and the public **podium** interface.
 
 The `request.events` supports the following events:
 
@@ -4326,11 +4406,15 @@ const onRequest = function (request, h) {
 server.ext('onRequest', onRequest);
 ```
 
-#### <a name="request.headers" /> `headers`
+#### <a name="request.headers" /> `request.headers`
+
+Access: read only.
 
 The raw request headers (references `request.raw.req.headers`).
 
-#### <a name="request.info" /> `info`
+#### <a name="request.info" /> `request.info`
+
+Access: read only.
 
 Request information:
 
@@ -4361,80 +4445,110 @@ Request information:
 
 Note that the `request.info` object is not meant to be modified.
 
-#### <a name="request.logs" /> `logs`
+#### <a name="request.logs" /> `request.logs`
+
+Access: read only.
 
 An array containing the logged request events.
 
 Note that this array will be empty if route [`log.collect`](#route.options.log) is set to `false`.
 
-#### <a name="request.method" /> `method`
+#### <a name="request.method" /> `request.method`
+
+Access: read only.
 
 The request method in lower case (e.g. `'get'`, `'post'`).
 
-#### <a name="request.mime" /> `mime`
+#### <a name="request.mime" /> `request.mime`
+
+Access: read only.
 
 The parsed content-type header. Only available when payload parsing enabled and no
   payload error occurred.
 
-#### <a name="request.orig" /> `orig`
+#### <a name="request.orig" /> `request.orig`
+
+Access: read only.
 
 An object containing the values of `params`, `query`, and `payload` before any validation
 modifications made. Only set when input validation is performed.
 
-#### <a name="request.params" /> `params`
+#### <a name="request.params" /> `request.params`
+
+Access: read only.
 
 An object where each key is a path parameter name with matching value as described in
 [Path parameters](#path-parameters).
 
-#### <a name="request.paramsArray" /> `paramsArray`
+#### <a name="request.paramsArray" /> `request.paramsArray`
+
+Access: read only.
 
 An array containing all the path `params` values in the order they appeared in the path.
 
-#### <a name="request.path" /> `path`
+#### <a name="request.path" /> `request.path`
+
+Access: read only.
 
 The request URI's [pathname](https://nodejs.org/api/url.html#url_urlobject_pathname) component.
 
-#### <a name="request.payload" /> `payload`
+#### <a name="request.payload" /> `request.payload`
+
+Access: read only.
 
 The request payload based on the route `payload.output` and `payload.parse` settings.
 
-#### <a name="request.plugins" /> `plugins`
+#### <a name="request.plugins" /> `request.plugins`
+
+Access: read / write.
 
 Plugin-specific state. Provides a place to store and pass request-level plugin data. The `plugins`
 is an object where each key is a plugin name and the value is the state.
 
-#### <a name="request.pre" /> `pre`
+#### <a name="request.pre" /> `request.pre`
+
+Access: read only.
 
 An object where each key is the name assigned by a [route pre-handler methods](#route.options.pre)
 function. The values are the raw values provided to the continuation function as argument. For the
 wrapped response object, use `responses`.
 
-#### <a name="request.response" /> `response`
+#### <a name="request.response" /> `request.response`
+
+Access: read / write (see limitations below).
 
 The response object when set. The object can be modified but must not be assigned another object.
 To replace the response with another from within an [extension point](#server.ext()),
 use `reply(response)` to override with a different response. Contains `null` when no response has
 been set (e.g. when a request terminates prematurely when the client disconnects).
 
-#### <a name="request.preResponses" /> `preResponses`
+#### <a name="request.preResponses" /> `request.preResponses`
+
+Access: read only.
 
 Same as `pre` but represented as the response object created by the pre method.
 
-#### <a name="request.query" /> `query`
+#### <a name="request.query" /> `request.query`
+
+Access: read only.
 
 By default the object outputted from [node's URL parse()](https://nodejs.org/docs/latest/api/url.html#url_urlobject_query)
 method.  Might also be set indirectly via [request.setUrl](#request.setUrl())
 in which case it may be a `string` (if `url` is set to an object with the `query` attribute as an
 unparsed string).
 
-#### <a name="request.raw" /> `raw`
+#### <a name="request.raw" /> `request.raw`
+
+Access: read only.
 
 An object containing the Node HTTP server objects. **Direct interaction with these raw objects is
 not recommended.**
 - `req` - the node request object.
 - `res` - the node response object.
 
-#### <a name="request.route" /> `route`
+#### <a name="request.route" /> `request.route`
+
+Access: read only.
 
 The request route information object, where:
 - `method` - the route HTTP method.
@@ -4444,35 +4558,22 @@ The request route information object, where:
 - `settings` - the [route options](#route-options) object with all defaults applied.
 - `fingerprint` - the route internal normalized string representing the normalized path.
 
-##### <a name="request.route.auth.access()" /> `route.auth.access(request)`
+#### <a name="request.server" /> `request.server`
 
-Validates a request against the route's authentication [`access`](#route.options.auth.access)
-configuration, where:
-
-- `request` - the [request object](#request).
-
-Return value: `true` if the `request` would have passed the route's access requirements.
-
-Note that the route's authentication mode and strategies are ignored. The only match is made
-between the `request.auth.credentials` scope and entity information and the route
-[`access`](#route.options.auth.access) configuration.
-
-If the route uses dynamic scopes, the scopes are constructed against the [`request.query`](#request.query),
-[`request.params`](#request.params), [`request.payload`](#request.payload), and
-[`request.auth.credentials`](#request.auth) which may or may not match between the route and the
-request's route. If this method is called using a request that has not been authenticated (yet or
-not at all), it will return `false` if the route requires any authentication.
-
-#### <a name="request.server" /> `server`
+Access: read only and the public server interface.
 
 The server object.
 
-#### <a name="request.state" /> `state`
+#### <a name="request.state" /> `request.state`
+
+Access: read only.
 
 An object containing parsed HTTP state information (cookies) where each key is the cookie name and
 value is the matching cookie content after processing using any registered cookie definition.
 
-#### <a name="request.url" /> `url`
+#### <a name="request.url" /> `request.url`
+
+Access: read only.
 
 The parsed request URI.
 
@@ -4513,6 +4614,25 @@ const handler = function (request, h) {
     return null;
 };
 ```
+
+### <a name="request.route.auth.access()" /> `request.route.auth.access(request)`
+
+Validates a request against the route's authentication [`access`](#route.options.auth.access)
+configuration, where:
+
+- `request` - the [request object](#request).
+
+Return value: `true` if the `request` would have passed the route's access requirements.
+
+Note that the route's authentication mode and strategies are ignored. The only match is made
+between the `request.auth.credentials` scope and entity information and the route
+[`access`](#route.options.auth.access) configuration.
+
+If the route uses dynamic scopes, the scopes are constructed against the [`request.query`](#request.query),
+[`request.params`](#request.params), [`request.payload`](#request.payload), and
+[`request.auth.credentials`](#request.auth) which may or may not match between the route and the
+request's route. If this method is called using a request that has not been authenticated (yet or
+not at all), it will return `false` if the route requires any authentication.
 
 ### <a name="request.setMethod()" /> `request.setMethod(method)`
 
