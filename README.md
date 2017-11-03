@@ -14,13 +14,13 @@ Development version: **17.0.x** ([release notes](https://github.com/hapijs/hapi/
 For the latest updates, [change log](http://hapijs.com/updates), and release information visit [hapijs.com](http://hapijs.com) and follow [@hapijs](https://twitter.com/hapijs) on twitter. If you have questions, please open an issue in the
 [discussion forum](https://github.com/hapijs/discuss).
 
-### Sponsorship
+# Sponsorship
 
 Development of the **hapi** core module generously supported by contributions from [individuals and corporations](https://github.com/hapijs/hapi/blob/master/SPONSORS.md).
 If you are benefiting from **hapi** and would like to help keep the project financially sustainable, please visit
 Eran Hammer's [Patreon page](https://www.patreon.com/eranhammer) or contact him [via email](mailto:eran@hammer.io).
 
-# Features Sponsors
+## Features Sponsors
 
 The v17 release would not have been possible without the generous financial support of the following
 **Featured Sponsors** who have gone above and beyond to make this work successful and sustainable.
@@ -42,7 +42,7 @@ I am extremely grateful for their support.
 
 [**Condé Nast Technology**](http://bit.ly/cn-rn) powers many of the world's most iconic brands like WIRED, Vogue, Vanity Fair, GQ. **hapi** is a core part of the company's digital stack and drives just about every web request to their sites. I've had a long relationship with the team which includes some of my closest friends. Want to be hapi-er? Check out their [Careers page](http://bit.ly/cnc-rn).
 
-#### Active Supporters
+## Active Supporters
 
 - **Lob**
 - **Auth0**
@@ -51,7 +51,7 @@ I am extremely grateful for their support.
 - The product development team at **Creative Artists Agency**
 - **Condé Nast Technology**
 
-#### Legacy Supporters
+## Legacy Supporters
 
 Past major financial support for the project was provided by:
 - Benjamin Flesch and [StriveWire](https://strivewire.com/)
