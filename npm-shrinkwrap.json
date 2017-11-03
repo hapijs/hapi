@@ -1,115 +1,142 @@
 {
-  "name": "hapi",
-  "version": "17.0.0",
-  "lockfileVersion": 1,
-  "dependencies": {
-    "accept": {
-      "version": "3.0.2",
-      "resolved": "https://registry.npmjs.org/accept/-/accept-3.0.2.tgz"
-    },
-    "ammo": {
-      "version": "3.0.0",
-      "resolved": "https://registry.npmjs.org/ammo/-/ammo-3.0.0.tgz"
-    },
-    "b64": {
-      "version": "4.0.0",
-      "resolved": "https://registry.npmjs.org/b64/-/b64-4.0.0.tgz"
-    },
-    "big-time": {
-      "version": "2.0.0",
-      "resolved": "https://registry.npmjs.org/boom/-/big-time-2.0.0.tgz"
-    },
-    "boom": {
-      "version": "7.1.1",
-      "resolved": "https://registry.npmjs.org/boom/-/boom-7.1.1.tgz"
-    },
-    "bounce": {
-      "version": "1.0.3",
-      "resolved": "https://registry.npmjs.org/bounce/-/bounce-1.0.3.tgz"
-    },
-    "call": {
-      "version": "5.0.1",
-      "resolved": "https://registry.npmjs.org/call/-/call-5.0.1.tgz"
-    },
-    "catbox": {
-      "version": "10.0.2",
-      "resolved": "https://registry.npmjs.org/catbox/-/catbox-10.0.2.tgz"
-    },
-    "catbox-memory": {
-      "version": "3.1.1",
-      "resolved": "https://registry.npmjs.org/catbox-memory/-/catbox-memory-3.1.1.tgz"
-    },
-    "content": {
-      "version": "4.0.3",
-      "resolved": "https://registry.npmjs.org/content/-/content-4.0.3.tgz"
-    },
-    "cryptiles": {
-      "version": "4.1.0",
-      "resolved": "https://registry.npmjs.org/cryptiles/-/cryptiles-4.1.0.tgz"
-    },
-    "heavy": {
-      "version": "6.0.0",
-      "resolved": "https://registry.npmjs.org/heavy/-/heavy-6.0.0.tgz"
-    },
-    "hoek": {
-      "version": "5.0.2",
-      "resolved": "https://registry.npmjs.org/hoek/-/hoek-5.0.2.tgz"
-    },
-    "iron": {
-      "version": "5.0.4",
-      "resolved": "https://registry.npmjs.org/iron/-/iron-5.0.4.tgz"
-    },
-    "joi": {
-      "version": "13.0.1",
-      "resolved": "https://registry.npmjs.org/joi/-/joi-13.0.1.tgz"
-    },
-    "mime-db": {
-      "version": "1.31.0",
-      "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.31.0.tgz"
-    },
-    "mimos": {
-      "version": "4.0.0",
-      "resolved": "https://registry.npmjs.org/mimos/-/mimos-4.0.0.tgz"
-    },
-    "nigel": {
-      "version": "3.0.0",
-      "resolved": "https://registry.npmjs.org/nigel/-/nigel-3.0.0.tgz"
-    },
-    "pez": {
-      "version": "4.0.1",
-      "resolved": "https://registry.npmjs.org/pez/-/pez-4.0.1.tgz"
-    },
-    "podium": {
-      "version": "3.1.2",
-      "resolved": "https://registry.npmjs.org/podium/-/podium-3.1.2.tgz"
-    },
-    "shot": {
-      "version": "4.0.3",
-      "resolved": "https://registry.npmjs.org/shot/-/shot-4.0.3.tgz"
-    },
-    "statehood": {
-      "version": "6.0.5",
-      "resolved": "https://registry.npmjs.org/statehood/-/statehood-6.0.5.tgz"
-    },
-    "subtext": {
-      "version": "6.0.7",
-      "resolved": "https://registry.npmjs.org/subtext/-/subtext-6.0.7.tgz"
-    },
-    "teamwork": {
-      "version": "3.0.1",
-      "resolved": "https://registry.npmjs.org/teamwork/-/teamwork-3.0.1.tgz"
-    },
-    "topo": {
-      "version": "3.0.0",
-      "resolved": "https://registry.npmjs.org/topo/-/topo-3.0.0.tgz"
-    },
-    "vise": {
-      "version": "3.0.0",
-      "resolved": "https://registry.npmjs.org/vise/-/vise-3.0.0.tgz"
-    },
-    "wreck": {
-      "version": "14.0.2",
-      "resolved": "https://registry.npmjs.org/wreck/-/wreck-14.0.2.tgz"
+    "name": "hapi",
+    "version": "17.0.0",
+    "lockfileVersion": 1,
+    "dependencies": {
+        "accept": {
+            "version": "3.0.2",
+            "resolved": "https://registry.npmjs.org/accept/-/accept-3.0.2.tgz",
+            "integrity": "sha1-g+Qc7H4RSfP9R0iAQjhz22xsyaw="
+        },
+        "ammo": {
+            "version": "3.0.0",
+            "resolved": "https://registry.npmjs.org/ammo/-/ammo-3.0.0.tgz",
+            "integrity": "sha1-MPMi9woJBOruF4j00mxb4dctoYE="
+        },
+        "b64": {
+            "version": "4.0.0",
+            "resolved": "https://registry.npmjs.org/b64/-/b64-4.0.0.tgz",
+            "integrity": "sha1-w39Yfwo4PHAZ6CESDow/WPDSJ3I="
+        },
+        "big-time": {
+            "version": "2.0.0",
+            "resolved": "https://registry.npmjs.org/boom/-/big-time-2.0.0.tgz",
+            "integrity": "sha1-cBk7YPr/cslu1SMxtVVJDmBNfMw="
+        },
+        "boom": {
+            "version": "7.1.1",
+            "resolved": "https://registry.npmjs.org/boom/-/boom-7.1.1.tgz",
+            "integrity": "sha1-UDkqTjQX6XHxrShiLCDoMidSYLs="
+        },
+        "bounce": {
+            "version": "1.0.3",
+            "resolved": "https://registry.npmjs.org/bounce/-/bounce-1.0.3.tgz",
+            "integrity": "sha1-IfG31SlBnYIZBEYTJaJ3RNlaVhE="
+        },
+        "call": {
+            "version": "5.0.1",
+            "resolved": "https://registry.npmjs.org/call/-/call-5.0.1.tgz",
+            "integrity": "sha1-rBtcEG2e3CoXrypKT3TdTwwG6RA="
+        },
+        "catbox": {
+            "version": "10.0.2",
+            "resolved": "https://registry.npmjs.org/catbox/-/catbox-10.0.2.tgz",
+            "integrity": "sha1-5qwfNRAtGpvQeRW4LlCNErUKi/o="
+        },
+        "catbox-memory": {
+            "version": "3.1.1",
+            "resolved": "https://registry.npmjs.org/catbox-memory/-/catbox-memory-3.1.1.tgz",
+            "integrity": "sha1-TzmINaPY9ZksMd3uJDeEZ0mKnJo="
+        },
+        "content": {
+            "version": "4.0.3",
+            "resolved": "https://registry.npmjs.org/content/-/content-4.0.3.tgz",
+            "integrity": "sha1-IiTgRJ5CWGF7xff7TcLxfzIdIfw="
+        },
+        "cryptiles": {
+            "version": "4.1.0",
+            "resolved": "https://registry.npmjs.org/cryptiles/-/cryptiles-4.1.0.tgz",
+            "integrity": "sha1-pq0M7S10RVz1h3B9zg4xnrQP32s="
+        },
+        "heavy": {
+            "version": "6.0.0",
+            "resolved": "https://registry.npmjs.org/heavy/-/heavy-6.0.0.tgz",
+            "integrity": "sha1-W/13pn+O3HzNinTypq82BWBqRCo="
+        },
+        "hoek": {
+            "version": "5.0.2",
+            "resolved": "https://registry.npmjs.org/hoek/-/hoek-5.0.2.tgz",
+            "integrity": "sha1-0vLJXTb+cYnPiqjCN6vBlQ7KE3g="
+        },
+        "iron": {
+            "version": "5.0.4",
+            "resolved": "https://registry.npmjs.org/iron/-/iron-5.0.4.tgz",
+            "integrity": "sha1-AD7YIvZW8HwrYnYoFfXeOUcyaGc="
+        },
+        "joi": {
+            "version": "13.0.1",
+            "resolved": "https://registry.npmjs.org/joi/-/joi-13.0.1.tgz",
+            "integrity": "sha1-l98oVFDj/1vE257M9Aoc1c8+wYk="
+        },
+        "mime-db": {
+            "version": "1.31.0",
+            "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.31.0.tgz",
+            "integrity": "sha1-pJzY8+vz7RpIK2BWHZEFrUDKdMs="
+        },
+        "mimos": {
+            "version": "4.0.0",
+            "resolved": "https://registry.npmjs.org/mimos/-/mimos-4.0.0.tgz",
+            "integrity": "sha1-duPScShDHLZIL9FbIEdXGa1ialo="
+        },
+        "nigel": {
+            "version": "3.0.0",
+            "resolved": "https://registry.npmjs.org/nigel/-/nigel-3.0.0.tgz",
+            "integrity": "sha1-puM3ioo0KB51uhZB6IakFdS+k60="
+        },
+        "pez": {
+            "version": "4.0.1",
+            "resolved": "https://registry.npmjs.org/pez/-/pez-4.0.1.tgz",
+            "integrity": "sha1-1pjs+aFGyRiNdKvlzve1y3Hes7U="
+        },
+        "podium": {
+            "version": "3.1.2",
+            "resolved": "https://registry.npmjs.org/podium/-/podium-3.1.2.tgz",
+            "integrity": "sha1-twFClznPa93mswFa5rSNQAgXzp4="
+        },
+        "shot": {
+            "version": "4.0.3",
+            "resolved": "https://registry.npmjs.org/shot/-/shot-4.0.3.tgz",
+            "integrity": "sha1-sRPdaUghKciGakOIiB2cfkPpzZ8="
+        },
+        "statehood": {
+            "version": "6.0.5",
+            "resolved": "https://registry.npmjs.org/statehood/-/statehood-6.0.5.tgz",
+            "integrity": "sha1-u83LOkOm+4b0vQTtSKkwm2z8Gxg="
+        },
+        "subtext": {
+            "version": "6.0.7",
+            "resolved": "https://registry.npmjs.org/subtext/-/subtext-6.0.7.tgz",
+            "integrity": "sha1-jkCmeQGnNNWYFCZlyQ45g2m4hfk="
+        },
+        "teamwork": {
+            "version": "3.0.1",
+            "resolved": "https://registry.npmjs.org/teamwork/-/teamwork-3.0.1.tgz",
+            "integrity": "sha1-/zjHFh9B+AcLeBNxbrYVQDbs4ZY="
+        },
+        "topo": {
+            "version": "3.0.0",
+            "resolved": "https://registry.npmjs.org/topo/-/topo-3.0.0.tgz",
+            "integrity": "sha1-N+SMMw7+rHhFOOCs0+YspeIx/no="
+        },
+        "vise": {
+            "version": "3.0.0",
+            "resolved": "https://registry.npmjs.org/vise/-/vise-3.0.0.tgz",
+            "integrity": "sha1-dq0UqzFmnFD7sIF7wOcv7cuzv0w="
+        },
+        "wreck": {
+            "version": "14.0.2",
+            "resolved": "https://registry.npmjs.org/wreck/-/wreck-14.0.2.tgz",
+            "integrity": "sha1-icF6kGHHRe0cOuvLZuoYHbqrRUw="
+        }
     }
-  }
 }
