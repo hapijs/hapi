@@ -1,6 +1,6 @@
 {
   "name": "hapi",
-  "version": "17.0.0-rc10",
+  "version": "17.0.0",
   "lockfileVersion": 1,
   "dependencies": {
     "accept": {
@@ -20,8 +20,8 @@
       "resolved": "https://registry.npmjs.org/boom/-/big-time-2.0.0.tgz"
     },
     "boom": {
-      "version": "7.1.0",
-      "resolved": "https://registry.npmjs.org/boom/-/boom-7.1.0.tgz"
+      "version": "7.1.1",
+      "resolved": "https://registry.npmjs.org/boom/-/boom-7.1.1.tgz"
     },
     "bounce": {
       "version": "1.0.3",
@@ -36,8 +36,8 @@
       "resolved": "https://registry.npmjs.org/catbox/-/catbox-10.0.1.tgz"
     },
     "catbox-memory": {
-      "version": "3.1.0",
-      "resolved": "https://registry.npmjs.org/catbox-memory/-/catbox-memory-3.1.0.tgz"
+      "version": "3.1.1",
+      "resolved": "https://registry.npmjs.org/catbox-memory/-/catbox-memory-3.1.1.tgz"
     },
     "content": {
       "version": "4.0.2",
@@ -56,8 +56,8 @@
       "resolved": "https://registry.npmjs.org/hoek/-/hoek-5.0.2.tgz"
     },
     "iron": {
-      "version": "5.0.2",
-      "resolved": "https://registry.npmjs.org/iron/-/iron-5.0.2.tgz"
+      "version": "5.0.3",
+      "resolved": "https://registry.npmjs.org/iron/-/iron-5.0.3.tgz"
     },
     "joi": {
       "version": "13.0.1",
@@ -108,8 +108,8 @@
       "resolved": "https://registry.npmjs.org/vise/-/vise-3.0.0.tgz"
     },
     "wreck": {
-      "version": "14.0.1",
-      "resolved": "https://registry.npmjs.org/wreck/-/wreck-14.0.1.tgz"
+      "version": "14.0.2",
+      "resolved": "https://registry.npmjs.org/wreck/-/wreck-14.0.2.tgz"
     }
   }
 }
