@@ -396,9 +396,9 @@ describe('Core', () => {
 
             const cache = {
                 engine: {
-                    start: function (callback) {
+                    start: function () {
 
-                        return callback(new Error('oops'));
+                        throw new Error('oops');
                     },
                     stop: function () { }
                 }

@@ -15,16 +15,17 @@
     "web"
   ],
   "engines": {
-    "node": ">=8.8.0"
+    "node": ">=8.9.0"
   },
   "dependencies": {
     "accept": "3.x.x",
     "ammo": "3.x.x",
-    "boom": "6.x.x",
+    "boom": "7.x.x",
+    "bounce": "1.x.x",
     "call": "5.x.x",
-    "catbox": "9.x.x",
+    "catbox": "10.x.x",
     "catbox-memory": "3.x.x",
-    "heavy": "5.x.x",
+    "heavy": "6.x.x",
     "hoek": "5.x.x",
     "joi": "13.x.x",
     "mimos": "4.x.x",
