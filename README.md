@@ -30,9 +30,13 @@ I am extremely grateful for their support.
 
 [**Lob**](http://bit.ly/lobh-rn) enables you to seamlessly print and mail documents, postcards, checks, and more via an API. They have been an early **hapi** adopters and vocal supporters. If you are looking to take your **hapi** and JS skills to the next level, check out their [career page](http://bit.ly/lobc-rn) for exciting opportunities.
 
+#
+
 <img src="https://user-images.githubusercontent.com/56631/31878562-5c64483a-b78f-11e7-92da-5a991ebb302d.png" />
 
 [**Auth0**](http://bit.ly/auth0h-rn) is the new way to solve identity. You can add authentication to your app or API by writing just a few lines of code. I have been consistently impressed by their products (which I have used for client work) as well as their talented team. If you are looking for a new opportunity, [Auth0 is hiring](http://bit.ly/auth0c-rn) for a variety of positions.
+
+#
 
 <img src="https://user-images.githubusercontent.com/56631/32398027-e2027480-c0a9-11e7-9077-c5ecca7bc39c.png" />
 
