@@ -40,9 +40,9 @@
     "code": "5.x.x",
     "handlebars": "4.x.x",
     "hapitoc": "1.x.x",
-    "inert": "5.0.0-rc8",
+    "inert": "5.x.x",
     "lab": "15.x.x",
-    "vision": "5.0.0-rc8",
+    "vision": "5.0.0",
     "wreck": "14.x.x"
   },
   "scripts": {
