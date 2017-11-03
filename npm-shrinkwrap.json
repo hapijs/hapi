@@ -32,16 +32,16 @@
       "resolved": "https://registry.npmjs.org/call/-/call-5.0.1.tgz"
     },
     "catbox": {
-      "version": "10.0.1",
-      "resolved": "https://registry.npmjs.org/catbox/-/catbox-10.0.1.tgz"
+      "version": "10.0.2",
+      "resolved": "https://registry.npmjs.org/catbox/-/catbox-10.0.2.tgz"
     },
     "catbox-memory": {
       "version": "3.1.1",
       "resolved": "https://registry.npmjs.org/catbox-memory/-/catbox-memory-3.1.1.tgz"
     },
     "content": {
-      "version": "4.0.2",
-      "resolved": "https://registry.npmjs.org/content/-/content-4.0.2.tgz"
+      "version": "4.0.3",
+      "resolved": "https://registry.npmjs.org/content/-/content-4.0.3.tgz"
     },
     "cryptiles": {
       "version": "4.0.2",
@@ -88,12 +88,12 @@
       "resolved": "https://registry.npmjs.org/shot/-/shot-4.0.3.tgz"
     },
     "statehood": {
-      "version": "6.0.3",
-      "resolved": "https://registry.npmjs.org/statehood/-/statehood-6.0.3.tgz"
+      "version": "6.0.4",
+      "resolved": "https://registry.npmjs.org/statehood/-/statehood-6.0.4.tgz"
     },
     "subtext": {
-      "version": "6.0.6",
-      "resolved": "https://registry.npmjs.org/subtext/-/subtext-6.0.6.tgz"
+      "version": "6.0.7",
+      "resolved": "https://registry.npmjs.org/subtext/-/subtext-6.0.7.tgz"
     },
     "teamwork": {
       "version": "3.0.1",
