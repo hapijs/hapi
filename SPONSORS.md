@@ -13,6 +13,7 @@
 - Lob
 - Jeremy Whitbred
 - Srikanth Minnam
+- Condé Nast Technology
 
 
 # Supporters
