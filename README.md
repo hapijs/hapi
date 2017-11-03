@@ -30,8 +30,7 @@ I am extremely grateful for their support.
 
 [**Lob**](http://bit.ly/lobh-rn) enables you to seamlessly print and mail documents, postcards, checks, and more via an API. They have been an early **hapi** adopters and vocal supporters. If you are looking to take your **hapi** and JS skills to the next level, check out their [career page](http://bit.ly/lobc-rn) for exciting opportunities.
 
-<p></p>
-
+&nbsp;
 #
 
 <img src="https://user-images.githubusercontent.com/56631/31878562-5c64483a-b78f-11e7-92da-5a991ebb302d.png" align="left" />
