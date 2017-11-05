@@ -1329,6 +1329,35 @@ describe('authentication', () => {
         });
     });
 
+    describe('access()', () => {
+
+        it('skips access when unauthenticated and mode is not required', async () => {
+
+            const server = Hapi.server();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', { users: { steve: { scope: ['one'] } } });
+            server.auth.default('default');
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    handler: (request) => request.auth,
+                    auth: {
+                        mode: 'optional',
+                        access: {
+                            scope: 'one'
+                        }
+                    }
+                }
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result.isAuthenticated).to.be.false();
+            expect(res.result.isAuthorized).to.be.false();
+        });
+    });
+
     describe('payload()', () => {
 
         it('authenticates request payload', async () => {
