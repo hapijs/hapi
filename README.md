@@ -20,7 +20,7 @@ Development of the **hapi** core module generously supported by contributions fr
 If you are benefiting from **hapi** and would like to help keep the project financially sustainable, please visit
 Eran Hammer's [Patreon page](https://www.patreon.com/eranhammer) or contact him [via email](mailto:eran@hammer.io).
 
-## Features Sponsors
+## Featured Sponsors
 
 The v17 release would not have been possible without the generous financial support of the following
 **Featured Sponsors** who have gone above and beyond to make this work successful and sustainable.
