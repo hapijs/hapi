@@ -606,7 +606,7 @@ Contains:
 
 - `request` - decorations on the [request object](#request-object).
 - `toolkit` - decorations on the [response toolkit](#response-toolkit).
-- `server' - decorations on the [server](#server) object.
+- `server` - decorations on the [server](#server) object.
 
 ```js
 const Hapi = require('hapi');
