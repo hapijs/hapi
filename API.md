@@ -2783,7 +2783,7 @@ Defines the behavior for accessing files:
 
 Default value: none.
 
-The route handler function performs the main business logic of the route and sets the respons.
+The route handler function performs the main business logic of the route and sets the response.
 `handler` can be assigned:
 
 - a [lifecycle method](#lifecycle-methods). 
