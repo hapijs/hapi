@@ -633,7 +633,7 @@ Use the following methods to interact with `server.events`:
 - [`server.event(events)`](#server.event()) - register application events.
 - [`server.events.emit(criteria, data)`](#server.events.emit()) - emit server events.
 - [`server.events.on(criteria, listener)`](#server.events.on()) - subscribe to all events.
-- [`server.events.once(criteria, listener)`](#server.events.once()) - subscribe to 
+- [`server.events.once(criteria, listener)`](#server.events.once()) - subscribe to
 
 Other methods include: `server.events.removeListener(name, listener)`,
 `server.events.removeAllListeners(name)`, and `server.events.hasListeners(name)`.
@@ -778,7 +778,7 @@ server.events.on('response', (request) => {
 
 ##### <a name="server.events.route" /> `'route'` Event
 
-The `'route'` event type is emitted when a route is added via [`server.route()`](#server.route()). 
+The `'route'` event type is emitted when a route is added via [`server.route()`](#server.route()).
 The `'route'` event handler uses the function signature `function(route)` where:
 
 - `route` - the [route information](#request.route). The `route` object must not be modified.
@@ -1109,7 +1109,7 @@ Registers an authentication scheme where:
 - `name` - the scheme name.
 - `scheme` - the method implementing the scheme with signature `function(server, options)` where:
     - `server` - a reference to the server object the scheme is added to.
-    - `options` - (optional) the scheme `options` argument passed to 
+    - `options` - (optional) the scheme `options` argument passed to
       [`server.auth.strategy()`](#server.auth.strategy()) when instantiation a strategy.
 
 Return value: none.
@@ -1127,8 +1127,8 @@ An authentication scheme is an object with the following properties:
   called for each incoming request configured with the authentication scheme. The method is
   provided with two special toolkit methods for returning an authenticated or an unauthenticate
   result:
-    - [`h.authenticated()`](#h.authenticated()) - indicate request autheticated successfully.
-    - [`h.unauthenticated()`](#h.unauthenticated()) - indicate request failed to autheticate.
+    - [`h.authenticated()`](#h.authenticated()) - indicate request authenticated successfully.
+    - [`h.unauthenticated()`](#h.unauthenticated()) - indicate request failed to authenticate.
 
 - `async payload(request, h)` - (optional) a [lifecycle method](#lifecycle-methods) to authenticate
   the request payload.
@@ -1504,13 +1504,13 @@ registered and before the server starts. The function is only called if the serv
 or started. The function signature is `async function(server)` where:
 
     - `server` - the server the `dependency()` method was called on.
-  
+
 Return value: none.
 
 The `after` method is identical to setting a server extension point on `'onPreStart'`.
 
 If a circular  dependency is detected, an exception is thrown (e.g. two plugins each has an `after`
-function to be called after the other). 
+function to be called after the other).
 
 The method does not provide version dependency which should be implemented using
 [npm peer dependencies](http://blog.nodejs.org/2013/02/07/peer-dependencies/).
@@ -1725,7 +1725,7 @@ await server.events.emit('test', 'hello');       // Ignored
 ### <a name="server.events.once.await()" /> `await server.events.once(criteria)`
 
 Same as calling [`server.events.on()`](#server.events.on()) with the `count` option set to `1`.
- 
+
  Return value: a promise that resolves when the event is emitted.
 
 ```js
@@ -1748,7 +1748,7 @@ Used within a plugin to expose a property via [`server.plugins[name]`](#server.p
 Return value: none.
 
 ```js
-exports.plugin = 
+exports.plugin =
     name: 'example',
     register: function (server, options) {
 
@@ -2263,7 +2263,7 @@ Adds a route where:
     - `handler` - (required when [`handler`](#route.options.handler) is not set) the route
       handler function called to generate the response after successful authentication and
       validation.
-      
+
     - `options` - additional [route options](#route-options). The `options` value can be an object
       or a function that returns an object using the signature `function(server)` where `server` is
       the server the route is being added to and `this` is bound to the current
@@ -2786,9 +2786,9 @@ Default value: none.
 The route handler function performs the main business logic of the route and sets the response.
 `handler` can be assigned:
 
-- a [lifecycle method](#lifecycle-methods). 
+- a [lifecycle method](#lifecycle-methods).
 
-- an object with a single property using the name of a handler type registred with the 
+- an object with a single property using the name of a handler type registred with the
   [`server.handler()`](#server.handler()) method. The matching property value is passed
   as options to the registered handler generator.
 
@@ -3545,9 +3545,9 @@ The return value must be one of:
 - a toolkit method response:
     - [`h.response()`](#h.response()) - wraps a plain response in a [response object](#response-object).
     - [`h.redirect()`](#h.redirect()) - wraps a plain response with a redirection directive.
-    - [`h.authenticated()`](#h.authenticated()) - indicate request autheticated successfully
+    - [`h.authenticated()`](#h.authenticated()) - indicate request authenticated successfully
       (auth scheme only).
-    - [`h.unauthenticated()`](#h.unauthenticated()) - indicate request failed to autheticate
+    - [`h.unauthenticated()`](#h.unauthenticated()) - indicate request failed to authenticate
       (auth scheme only).
 - a promise object that resolve to any of the above values
 
@@ -3600,8 +3600,8 @@ follows:
     - cannot be returned from any step prior to the _**Pre-handler methods**_ step.
 
 The [`authenticate()`](#authentication-scheme) method has access to two additional return values:
-    - [`h.authenticated()`](#h.authenticated()) - indicate request autheticated successfully.
-    - [`h.unauthenticated()`](#h.unauthenticated()) - indicate request failed to autheticate.
+    - [`h.authenticated()`](#h.authenticated()) - indicate request authenticated successfully.
+    - [`h.unauthenticated()`](#h.unauthenticated()) - indicate request failed to authenticate.
 
 Note that these rules are apply somewhat differently when used in a [pre-handler method](#route.options.pre).
 
@@ -3876,7 +3876,7 @@ const handler = function (request, h) {
 
 #### <a name="h.response()" /> `h.response([value])`
 
-Wraps the provided value and returns a [`response`](#response-object) object which allows 
+Wraps the provided value and returns a [`response`](#response-object) object which allows
 customizing the response (e.g. setting the HTTP status code, custom headers, etc.), where:
 
 - `value` - (optional) return value. Defaults to `null`.
@@ -4232,7 +4232,7 @@ Sets an HTTP cookie where:
   [`server.state()`](#server.state()) for supported `encoding` values.
 
 - `options` - (optional) configuration. If the state was previously registered with the server
-  using [`server.state()`](#server.state()), the specified keys in `options` are merged with the 
+  using [`server.state()`](#server.state()), the specified keys in `options` are merged with the
   default server definition.
 
 Return value: the current response object.
