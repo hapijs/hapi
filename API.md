@@ -2789,7 +2789,7 @@ The route handler function performs the main business logic of the route and set
 - a [lifecycle method](#lifecycle-methods).
 
 - an object with a single property using the name of a handler type registred with the
-  [`server.handler()`](#server.handler()) method. The matching property value is passed
+  [`server.decorate()`](#server.decorate()) method. The matching property value is passed
   as options to the registered handler generator.
 
 ```js
