@@ -604,7 +604,7 @@ Provides access to the decorations already applied to various framework interfac
 not be modified directly, but only through [`server.decorate`](#server.decorate()).
 Contains:
 
-- `request` - decorations on the [request object](#request-object).
+- `request` - decorations on the [request object](#request).
 - `toolkit` - decorations on the [response toolkit](#response-toolkit).
 - `server` - decorations on the [server](#server) object.
 
@@ -682,7 +682,7 @@ application events logged with [`request.log()`](#request.log()).
 
 The `'request'` event handler uses the function signature `function(request, event, tags)` where:
 
-- `request` - the [request object](#request-object).
+- `request` - the [request object](#request).
 
 - `event` - an object with the following properties:
     - `timestamp` - the event timestamp.
@@ -767,7 +767,7 @@ client connection closed and no response sent, in which case [`request.response`
 is `null`). A single event is emitted per request. The `'response'` event handler uses the function
 signature `function(request)` where:
 
-- `request` - the [request object](#request-object).
+- `request` - the [request object](#request).
 
 ```js
 server.events.on('response', (request) => {
@@ -1212,7 +1212,7 @@ server.route({
 Tests a request against an authentication strategy where:
 
 - `strategy` - the strategy name registered with [`server.auth.strategy()`](#server.auth.strategy()).
-- `request` - the [request object](#request-object).
+- `request` - the [request object](#request).
 
 Return value: the authentication credentials object if authentication was successful, otherwise
 throws an error.
@@ -1395,7 +1395,7 @@ Extends various framework interfaces with custom methods where:
 - `type` - the interface being decorated. Supported types:
 
     - `'handler'` - adds a new handler type to be used in [routes handlers](#route.options.handler).
-    - `'request'` - adds methods to the [Request object](#request-object).
+    - `'request'` - adds methods to the [Request object](#request).
     - `'server'` - adds methods to the [Server](#server) object.
     - `'toolkit'` - adds methods to the [response toolkit](#response-toolkit).
 
@@ -1974,7 +1974,7 @@ Return value: a response object with the following properties:
     inspection and reuse of the internal objects returned (instead of parsing the response
     string).
 
-- `request` - the [request object](#request-object).
+- `request` - the [request object](#request).
 
 ```js
 const Hapi = require('hapi');
@@ -2449,7 +2449,7 @@ across multiple requests. Registers a cookie definitions where:
       the route handler, the cookie is automatically added to the response with the provided value.
       The value can be a function with signature `async function(request)` where:
 
-        - `request` - the [request object](#request-object).
+        - `request` - the [request object](#request).
 
     - `encoding` - encoding performs on the provided value before serialization. Options are:
 
@@ -3504,7 +3504,7 @@ lifecycle steps: [extensions](#server.ext()), [authentication](#authentication-s
 developer and executed by the framework.
 
 Each lifecycle method is a function with the signature `await function(request, h, [err])` where:
-- `request` - the [request object](#request-object).
+- `request` - the [request object](#request).
 - `h` - the [response toolkit](#response-toolkit) the handler must call to set a response and
   return control back to the framework.
 - `err` - an error object availble only when the method is used as a
@@ -3625,7 +3625,7 @@ values:
 
 - a [lifecycle method](#lifecycle-methods) with the signature `async function(request, h, err)`
   where:
-    - `request` - the [request object](#request-object).
+    - `request` - the [request object](#request).
     - `h` - the [response toolkit](#tookit-interface).
     - `err` - the error object.
 
