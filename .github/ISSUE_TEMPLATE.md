@@ -1,3 +1,5 @@
+** DO NOT ERASE THESE INSTRUCTIONS WITHOUT READING THEM FIRST! **
+
 Please read this entire template before posting any issue. If you ignore these instructions
 and post an issue here that does not follow the instructions, your issue will be closed and
 locked without explanation.
