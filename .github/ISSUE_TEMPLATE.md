@@ -1,14 +1,18 @@
 ** DO NOT ERASE THESE INSTRUCTIONS WITHOUT READING THEM FIRST! **
 
 Please read this entire template before posting any issue. If you ignore these instructions
-and post an issue here that does not follow the instructions, your issue will be closed and
-locked without explanation.
+and post an issue here that does not follow the instructions, your issue will be closed,
+locked, and assigned the `missing discussion` label.
 
 #### Are you sure this is an issue with the hapi core module or are you just looking for some help?
 
 Issues should only be posted in this repository after you have been able to reproduce
-them and confirm that they are either a missing functionality, a bug, or incorrect/mising
-information in the API.md file.
+them and confirm that they are a bug or incorrect/mising information in the API.md file. If you
+are not sure, please first raise the question in the [discussion repository](https://github.com/hapijs/discuss).
+
+For new feature requests, please post your use case in the [discussion repository](https://github.com/hapijs/discuss)
+first to find out if there is an existing way to accomplish it and get community feedback. If a new
+feature is needed, post the request here with a link to the previous discussion.
 
 For all other questions, requests, help resolving an issue, or if you are not sure if this is
 the right place, please do not open an issue here. Instead, open an issue in the [discussion repository](https://github.com/hapijs/discuss).
