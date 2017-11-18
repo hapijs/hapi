@@ -79,7 +79,7 @@
     - [Path parameters](#path-parameters)
     - [Path matching order](#path-matching-order)
     - [Catch all route](#catch-all-route)
-  - [`await server.start([callback])`](#server.start())
+  - [`await server.start()`](#server.start())
   - [`server.state(name, [options])`](#server.state())
   - [`await server.stop([options])`](#server.stop())
   - [`server.table([host])`](#server.table())
@@ -2394,7 +2394,7 @@ const handler = function (request, h) {
 server.route({ method: '*', path: '/{p*}', handler });
 ```
 
-### <a name="server.start()" /> `await server.start([callback])`
+### <a name="server.start()" /> `await server.start()`
 
 Starts the server by listening for incoming requests on the configured port (unless the connection
 was configured with [`autoListen`](#server.options.autoListen) set to `false`).
