@@ -1459,7 +1459,7 @@ server.route({
     handler: { test: { msg: 'test' } }
 });
 
-await server.start();
+server.start();
 ```
 
 The `method` function can have a `defaults` object or function property. If the property is set to
@@ -1841,7 +1841,7 @@ server.ext({
 });
 
 server.route({ method: 'GET', path: '/test', handler: () => 'ok' });
-await server.start();
+server.start();
 
 // All requests will get routed to '/test'
 ```
@@ -1866,7 +1866,7 @@ server.ext('onRequest', function (request, h) {
 });
 
 server.route({ method: 'GET', path: '/test', handler: () => 'ok' });
-await server.start();
+server.start();
 
 // All requests will get routed to '/test'
 ```
@@ -2415,7 +2415,7 @@ will be emitted and no extension points invoked.
 const Hapi = require('hapi');
 const server = Hapi.server({ port: 80 });
 
-await server.start();
+server.start();
 console.log('Server started at: ' + server.info.uri);
 ```
 
