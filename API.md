@@ -2459,10 +2459,19 @@ will be emitted and no extension points invoked.
 
 ```js
 const Hapi = require('hapi');
-const server = Hapi.server({ port: 80 });
 
-server.start();
-console.log('Server started at: ' + server.info.uri);
+const internals = {};
+
+internals.start = async () => {
+  
+  const server = Hapi.server({ port: 8000 });
+
+  await server.start();
+  return server;
+}
+
+internals.start()
+  .then((server) => console.log('Server started at: ' + server.info.uri));
 ```
 
 ### <a name="server.state()" /> `server.state(name, [options])`
