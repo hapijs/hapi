@@ -267,7 +267,7 @@ internals.start()
 
         console.error(err);
         process.exit(1);
-    })
+    });
 ```
 
 ### <a name="server.options" /> Server options
@@ -2471,7 +2471,12 @@ internals.start = async () => {
 }
 
 internals.start()
-  .then((server) => console.log('Server started at: ' + server.info.uri));
+  .then((server) => console.log('Server started at: ' + server.info.uri))
+  .catch(err => {
+
+        console.error(err);
+        process.exit(1);
+  });
 ```
 
 ### <a name="server.state()" /> `server.state(name, [options])`
