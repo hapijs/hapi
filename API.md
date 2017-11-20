@@ -251,7 +251,23 @@ Creates a new server object where:
 ```js
 const Hapi = require('hapi');
 
-const server = Hapi.server({ load: { sampleInterval: 1000 } });
+const internals = {};
+
+internals.start = async () => {
+
+    const server = Hapi.server({ port: 8000, load: { sampleInterval: 1000 } });
+    
+    await server.start();
+    return server;
+}
+
+internals.start()
+    .then((server) => console.log(`Server listening on ${server.info.uri}`))
+    .catch(err => {
+
+        console.error(err);
+        process.exit(1);
+    });
 ```
 
 ### <a name="server.options" /> Server options
@@ -1439,27 +1455,37 @@ When registering a handler decoration, the `method` must be a function using the
 
 ```js
 const Hapi = require('hapi');
-const server = Hapi.server({ host: 'localhost', port: 8000 });
 
-// Defines new handler for routes on this server
+const internals = {};
 
-const handler = function (route, options) {
+internals.start = async () => {
 
-    return function (request, h) {
+    const server = Hapi.server({ host: 'localhost', port: 8000 });
 
-        return 'new handler: ' + options.msg;
-    }
-};
+    // Defines new handler for routes on this server
 
-server.decorate('handler', 'test', handler);
+    const handler = function (route, options) {
 
-server.route({
-    method: 'GET',
-    path: '/',
-    handler: { test: { msg: 'test' } }
-});
+        return function (request, h) {
 
-await server.start();
+            return 'new handler: ' + options.msg;
+        }
+    };
+
+    server.decorate('handler', 'test', handler);
+
+    server.route({
+        method: 'GET',
+        path: '/',
+        handler: { test: { msg: 'test' } }
+    });
+    
+    await server.start();
+    
+    return server;
+}
+
+internals.start();
 ```
 
 The `method` function can have a `defaults` object or function property. If the property is set to
@@ -1827,21 +1853,31 @@ Return value: none.
 
 ```js
 const Hapi = require('hapi');
-const server = Hapi.server({ port: 80 });
 
-server.ext({
-    type: 'onRequest',
-    method: function (request, h) {
+const internals = {};
 
-        // Change all requests to '/test'
+internals.start = async () => {
+    const server = Hapi.server({ port: 8000 });
 
-        request.setUrl('/test');
-        return h.continue;
-    }
-});
+    server.ext({
+        type: 'onRequest',
+        method: function (request, h) {
 
-server.route({ method: 'GET', path: '/test', handler: () => 'ok' });
-await server.start();
+            // Change all requests to '/test'
+
+            request.setUrl('/test');
+            return h.continue;
+        }
+    });
+
+    server.route({ method: 'GET', path: '/test', handler: () => 'ok' });
+    await server.start();
+    
+    return server;
+}
+
+internals.start();
+
 
 // All requests will get routed to '/test'
 ```
@@ -1855,18 +1891,28 @@ Return value: none.
 
 ```js
 const Hapi = require('hapi');
-const server = Hapi.server({ port: 80 });
 
-server.ext('onRequest', function (request, h) {
+const internals = {};
 
-    // Change all requests to '/test'
+internals.start = async () => {
+    
+    const server = Hapi.server({ port: 8000 });
 
-    request.setUrl('/test');
-    return h.continue;
-});
+    server.ext('onRequest', function (request, h) {
 
-server.route({ method: 'GET', path: '/test', handler: () => 'ok' });
-await server.start();
+        // Change all requests to '/test'
+
+        request.setUrl('/test');
+        return h.continue;
+    });
+
+    server.route({ method: 'GET', path: '/test', handler: () => 'ok' });
+    await server.start();
+    
+    return server;
+}
+
+internals.start();
 
 // All requests will get routed to '/test'
 ```
@@ -2413,10 +2459,24 @@ will be emitted and no extension points invoked.
 
 ```js
 const Hapi = require('hapi');
-const server = Hapi.server({ port: 80 });
 
-await server.start();
-console.log('Server started at: ' + server.info.uri);
+const internals = {};
+
+internals.start = async () => {
+  
+  const server = Hapi.server({ port: 8000 });
+
+  await server.start();
+  return server;
+}
+
+internals.start()
+  .then((server) => console.log('Server started at: ' + server.info.uri))
+  .catch(err => {
+
+        console.error(err);
+        process.exit(1);
+  });
 ```
 
 ### <a name="server.state()" /> `server.state(name, [options])`
