@@ -1231,7 +1231,7 @@ server.auth.strategy('default', 'custom');
 server.route({
     method: 'GET',
     path: '/',
-    handler: function (request, h) {
+    handler: async function (request, h) {
 
         try {
             const credentials = await request.server.auth.test('default', request);
@@ -1336,11 +1336,14 @@ Provisions a cache segment within the server cache facility where:
 
 ```js
 const Hapi = require('hapi');
-const server = Hapi.server({ port: 80 });
 
-const cache = server.cache({ segment: 'countries', expiresIn: 60 * 60 * 1000 });
-await cache.set('norway', { capital: 'oslo' });
-const value = await cache.get('norway');
+async function example() {
+
+    const server = Hapi.server({ port: 80 });
+    const cache = server.cache({ segment: 'countries', expiresIn: 60 * 60 * 1000 });
+    await cache.set('norway', { capital: 'oslo' });
+    const value = await cache.get('norway');
+}
 ```
 
 ### <a name="server.cache.provision()" /> `await server.cache.provision(options)`
@@ -1356,14 +1359,17 @@ to match the state of any other provisioned server cache.
 
 ```js
 const Hapi = require('hapi');
-const server = Hapi.server({ port: 80 });
 
-await server.initialize();
-await server.cache.provision({ engine: require('catbox-memory'), name: 'countries' });
+async function example() {
 
-const cache = server.cache({ cache: 'countries', expiresIn: 60 * 60 * 1000 });
-await cache.set('norway', { capital: 'oslo' });
-const value = await cache.get('norway');
+    const server = Hapi.server({ port: 80 });
+    await server.initialize();
+    await server.cache.provision({ engine: require('catbox-memory'), name: 'countries' });
+
+    const cache = server.cache({ cache: 'countries', expiresIn: 60 * 60 * 1000 });
+    await cache.set('norway', { capital: 'oslo' });
+    const value = await cache.get('norway');
+}
 ```
 
 ### <a name="server.decoder()" /> `server.decoder(encoding, decoder)`
@@ -1439,27 +1445,31 @@ When registering a handler decoration, the `method` must be a function using the
 
 ```js
 const Hapi = require('hapi');
-const server = Hapi.server({ host: 'localhost', port: 8000 });
 
-// Defines new handler for routes on this server
+async function example() {
 
-const handler = function (route, options) {
+    const server = Hapi.server({ host: 'localhost', port: 8000 });
 
-    return function (request, h) {
+    // Defines new handler for routes on this server
 
-        return 'new handler: ' + options.msg;
-    }
-};
+    const handler = function (route, options) {
 
-server.decorate('handler', 'test', handler);
+        return function (request, h) {
 
-server.route({
-    method: 'GET',
-    path: '/',
-    handler: { test: { msg: 'test' } }
-});
+            return 'new handler: ' + options.msg;
+        }
+    };
 
-await server.start();
+    server.decorate('handler', 'test', handler);
+
+    server.route({
+        method: 'GET',
+        path: '/',
+        handler: { test: { msg: 'test' } }
+    });
+
+    await server.start();
+}
 ```
 
 The `method` function can have a `defaults` object or function property. If the property is set to
@@ -1607,11 +1617,14 @@ Return value: none.
 
 ```js
 const Hapi = require('hapi');
-const server = Hapi.server({ port: 80 });
 
-server.event('test');
-server.events.on('test', (update) => console.log(update));
-await server.events.emit('test', 'hello');
+async function example() {
+
+    const server = Hapi.server({ port: 80 });
+    server.event('test');
+    server.events.on('test', (update) => console.log(update));
+    await server.events.emit('test', 'hello');
+}
 ```
 
 ### <a name="server.events.emit()" /> `await server.events.emit(criteria, data)`
@@ -1638,11 +1651,14 @@ invalid event activities.
 
 ```js
 const Hapi = require('hapi');
-const server = Hapi.server({ port: 80 });
 
-server.event('test');
-server.on('test', (update) => console.log(update));
-await server.emit('test', 'hello');         // await is optional
+async function example() {
+
+    const server = Hapi.server({ port: 80 });
+    server.event('test');
+    server.events.on('test', (update) => console.log(update));
+    await server.events.emit('test', 'hello');          // await is optional
+}
 ```
 
 ### <a name="server.events.on()" /> `server.events.on(criteria, listener)`
@@ -1699,11 +1715,14 @@ Return value: none.
 
 ```js
 const Hapi = require('hapi');
-const server = Hapi.server({ port: 80 });
 
-server.event('test');
-server.events.on('test', (update) => console.log(update));
-await server.events.emit('test', 'hello');
+async function example() {
+
+    const server = Hapi.server({ port: 80 });
+    server.event('test');
+    server.events.on('test', (update) => console.log(update));
+    await server.events.emit('test', 'hello');
+}
 ```
 
 ### <a name="server.events.once()" /> `server.events.once(criteria, listener)`
@@ -1714,12 +1733,15 @@ Return value: none.
 
 ```js
 const Hapi = require('hapi');
-const server = Hapi.server({ port: 80 });
 
-server.event('test');
-server.events.once('test', (update) => console.log(update));
-await server.events.emit('test', 'hello');
-await server.events.emit('test', 'hello');       // Ignored
+async function example() {
+
+    const server = Hapi.server({ port: 80 });
+    server.event('test');
+    server.events.once('test', (update) => console.log(update));
+    await server.events.emit('test', 'hello');
+    await server.events.emit('test', 'hello');       // Ignored
+}
 ```
 
 ### <a name="server.events.once.await()" /> `await server.events.once(criteria)`
@@ -1730,12 +1752,15 @@ Same as calling [`server.events.on()`](#server.events.on()) with the `count` opt
 
 ```js
 const Hapi = require('hapi');
-const server = Hapi.server({ port: 80 });
 
-server.event('test');
-const pending = server.events.once('test');
-await server.events.emit('test', 'hello');
-const update = await pending;
+async function example() {
+
+    const server = Hapi.server({ port: 80 });
+    server.event('test');
+    const pending = server.events.once('test');
+    await server.events.emit('test', 'hello');
+    const update = await pending;
+}
 ```
 
 ### <a name="server.expose()" /> `server.expose(key, value)`
@@ -1827,23 +1852,27 @@ Return value: none.
 
 ```js
 const Hapi = require('hapi');
-const server = Hapi.server({ port: 80 });
 
-server.ext({
-    type: 'onRequest',
-    method: function (request, h) {
+async function example() {
 
-        // Change all requests to '/test'
+    const server = Hapi.server({ port: 80 });
 
-        request.setUrl('/test');
-        return h.continue;
-    }
-});
+    server.ext({
+        type: 'onRequest',
+        method: function (request, h) {
 
-server.route({ method: 'GET', path: '/test', handler: () => 'ok' });
-await server.start();
+            // Change all requests to '/test'
 
-// All requests will get routed to '/test'
+            request.setUrl('/test');
+            return h.continue;
+        }
+    });
+
+    server.route({ method: 'GET', path: '/test', handler: () => 'ok' });
+    await server.start();
+
+    // All requests will get routed to '/test'
+}
 ```
 
 ### <a name="server.ext.args()" /> `server.ext(event, method, [options])`
@@ -1855,20 +1884,24 @@ Return value: none.
 
 ```js
 const Hapi = require('hapi');
-const server = Hapi.server({ port: 80 });
 
-server.ext('onRequest', function (request, h) {
+async function example() {
 
-    // Change all requests to '/test'
+    const server = Hapi.server({ port: 80 });
 
-    request.setUrl('/test');
-    return h.continue;
-});
+    server.ext('onRequest', function (request, h) {
 
-server.route({ method: 'GET', path: '/test', handler: () => 'ok' });
-await server.start();
+        // Change all requests to '/test'
 
-// All requests will get routed to '/test'
+        request.setUrl('/test');
+        return h.continue;
+    });
+
+    server.route({ method: 'GET', path: '/test', handler: () => 'ok' });
+    await server.start();
+
+    // All requests will get routed to '/test'
+}
 ```
 
 ### <a name="server.initialize()" /> `await server.initialize()`
@@ -1888,9 +1921,12 @@ the process when the server fails to start properly. If you must try to resume a
 ```js
 const Hapi = require('hapi');
 const Hoek = require('hoek');
-const server = Hapi.server({ port: 80 });
 
-await server.initialize();
+async function example() {
+
+    const server = Hapi.server({ port: 80 });
+    await server.initialize();
+}
 ```
 
 ### <a name="server.inject()" /> `await server.inject(options)`
@@ -1978,12 +2014,15 @@ Return value: a response object with the following properties:
 
 ```js
 const Hapi = require('hapi');
-const server = Hapi.server({ port: 80 });
 
-server.route({ method: 'GET', path: '/', handler: () => 'Success!' });
+async function example() {
 
-const res = await server.inject('/');
-console.log(res.result);                // 'Success!'
+    const server = Hapi.server({ port: 80 });
+    server.route({ method: 'GET', path: '/', handler: () => 'Success!' });
+
+    const res = await server.inject('/');
+    console.log(res.result);                // 'Success!'
+}
 ```
 
 ### <a name="server.log()" /> `server.log(tags, [data, [timestamp]])`
@@ -2105,43 +2144,51 @@ following properties and methods:
     - `await drop(...args)` - a function that can be used to clear the cache for a given key.
     - `stats` - an object with cache statistics, see **catbox** for stats documentation.
 
+Simple arguments example:
+
 ```js
 const Hapi = require('hapi');
-const server = Hapi.server({ port: 80 });
 
-// Simple arguments
+async function example() {
 
-const add = function (a, b) {
+    const server = Hapi.server({ port: 80 });
 
-    return a + b;
-};
+    const add = (a, b) => (a + b);
+    server.method('sum', add, { cache: { expiresIn: 2000, generateTimeout: 100 } });
 
-server.method('sum', add, { cache: { expiresIn: 2000, generateTimeout: 100 } });
+    console.log(await server.methods.sum(4, 5));          // 9
+}
+```
 
-console.log(await server.methods.sum(4, 5));          // 9
+Object argument example:
 
-// Object argument
+```js
+const Hapi = require('hapi');
 
-const addArray = function (array) {
+async function example() {
 
-    let sum = 0;
-    array.forEach((item) => {
+    const server = Hapi.server({ port: 80 });
 
-        sum += item;
-    });
+    const addArray = function (array) {
 
-    return sum;
-};
+        let sum = 0;
+        array.forEach((item) => {
 
-server.method('sumObj', addArray, {
-    cache: { expiresIn: 2000, generateTimeout: 100 },
-    generateKey: function (array) {
+            sum += item;
+        });
 
-        return array.join(',');
-    }
-});
+        return sum;
+    };
 
-console.log(await server.methods.sumObj([5, 6]));     // 11
+    const options = {
+        cache: { expiresIn: 2000, generateTimeout: 100 },
+        generateKey: (array) => array.join(',')
+    };
+
+    server.method('sumObj', addArray, );
+
+    console.log(await server.methods.sumObj([5, 6]));     // 11
+}
 ```
 
 ### <a name="server.method.array()" /> `server.method(methods)`
@@ -2233,7 +2280,10 @@ Registers a plugin where:
 Return value: none.
 
 ```js
-await server.register({ plugin: require('plugin_name'), options: { message: 'hello' } });
+async function example() {
+
+    await server.register({ plugin: require('plugin_name'), options: { message: 'hello' } });
+}
 ```
 
 ### <a name="server.route()" /> `server.route(route)`
@@ -2413,10 +2463,13 @@ will be emitted and no extension points invoked.
 
 ```js
 const Hapi = require('hapi');
-const server = Hapi.server({ port: 80 });
 
-await server.start();
-console.log('Server started at: ' + server.info.uri);
+async function example() {
+
+    const server = Hapi.server({ port: 80 });
+    await server.start();
+    console.log('Server started at: ' + server.info.uri);
+}
 ```
 
 ### <a name="server.state()" /> `server.state(name, [options])`
@@ -2551,10 +2604,14 @@ Return value: none.
 
 ```js
 const Hapi = require('hapi');
-const server = Hapi.server({ port: 80 });
 
-await server.stop({ timeout: 60 * 1000 });
-console.log('Server stopped');
+async function example() {
+
+    const server = Hapi.server({ port: 80 });
+    await server.start();
+    await server.stop({ timeout: 60 * 1000 });
+    console.log('Server stopped');
+}
 ```
 
 ### <a name="server.table()" /> `server.table([host])`
@@ -4601,7 +4658,7 @@ channel and will include the `event.internal` flag set to `true`.
 const Hapi = require('hapi');
 const server = Hapi.server({ port: 80, routes: { log: true } });
 
-server.on('request', (request, event, tags) => {
+server.events.on('request', (request, event, tags) => {
 
     if (tags.error) {
         console.log(event);
