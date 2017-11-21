@@ -36,8 +36,8 @@
       - [`'start'` Event](#server.events.start)
       - [`'stop'` Event](#server.events.stop)
     - [`server.info`](#server.info)
-    - [`server.load`](#server.load)
     - [`server.listener`](#server.listener)
+    - [`server.load`](#server.load)
     - [`server.methods`](#server.methods)
     - [`server.mime`](#server.mime)
     - [`server.plugins`](#server.plugins)
@@ -756,6 +756,7 @@ The internally generated events are (identified by their `tags`):
   connection.
 - `response` `error` `aborted` - failed writing the response to the client due to prematurely
   aborted connection.
+- `response` `error` `cleanup` - failed freeing response resources.
 - `validation` `error` `{input}` - input (i.e. payload, query, params, headers) validation failed.
   Includes the error.
 - `validation` `response` `error` - response validation failed. Includes the error message.
@@ -856,24 +857,6 @@ const server = Hapi.server(({ port: 80 });
 console.log(server.info.port);            // 80
 ```
 
-#### <a name="server.load" /> `server.load`
-
-Access: read only.
-
-An object containing the process load metrics (when [`load.sampleInterval`](#server.options.load)
-is enabled):
-
-- `eventLoopDelay` - event loop delay milliseconds.
-- `heapUsed` - V8 heap usage.
-- `rss` - RSS memory usage.
-
-```js
-const Hapi = require('hapi');
-const server = Hapi.server({ load: { sampleInterval: 1000 } });
-
-console.log(server.load.rss);
-```
-
 #### <a name="server.listener" /> `server.listener`
 
 Access: read only and listener public interface.
@@ -891,6 +874,24 @@ io.sockets.on('connection', (socket) => {
 
     socket.emit({ msg: 'welcome' });
 });
+```
+
+#### <a name="server.load" /> `server.load`
+
+Access: read only.
+
+An object containing the process load metrics (when [`load.sampleInterval`](#server.options.load)
+is enabled):
+
+- `eventLoopDelay` - event loop delay milliseconds.
+- `heapUsed` - V8 heap usage.
+- `rss` - RSS memory usage.
+
+```js
+const Hapi = require('hapi');
+const server = Hapi.server({ load: { sampleInterval: 1000 } });
+
+console.log(server.load.rss);
 ```
 
 #### <a name="server.methods" /> `server.methods`
@@ -1044,6 +1045,40 @@ const server = Hapi.server({
 
 console.log(server.settings.app);   // { key: 'value' }
 ```
+
+#### <a name="server.states" /> `server.states`
+
+Access: read only and **statehood** public interface.
+
+The server cookies manager.
+
+#### <a name="server.states.settings" /> `server.states.settings`
+
+Access: read only.
+
+The server cookies manager settings. The settings are based on the values configured in
+[`server.options.state`](#server.options.state).
+
+#### <a name="server.states.cookies" /> `server.states.cookies`
+
+Access: read only.
+
+An object containing the configuration of each cookie added via [`server.state()`](#server.state())
+where each key is the cookie name and value is the configuration object.
+
+#### <a name="server.states.names" /> `server.states.names`
+
+Access: read only.
+
+An array containing the names of all configued cookies.
+
+#### <a name="server.type" /> `server.type`
+
+Access: read only.
+
+A string indicating the listener type where:
+- `'socket'` - UNIX domain socket or Windows named pipe.
+- `'tcp'` - an HTTP listener.
 
 #### <a name="server.version" /> `server.version`
 
@@ -2589,6 +2624,38 @@ server.events.on('request-internal', (request, event, tags) => {
     }
 });
 ```
+
+### <a name="server.states.add()" /> `server.states.add(name, [options])`
+
+Access: read only.
+
+Same as calling [`server.state()`](#server.state()).
+
+### <a name="server.states.format()" /> `async server.states.format(cookies)`
+
+Formats an HTTP 'Set-Cookie' header based on the [`server.options.state`](#server.options.state)
+where:
+
+- `cookies` - a single object or an array of object where each contains:
+    - `name` - the cookie name.
+    - `value` - the cookie value.
+    - `options` - cookie configuration to override the server settings. 
+
+Return value: a header string.
+
+Note that this utility uses the server configuration but does not change the server state. It is
+provided for manual cookie formating (e.g. when headers are set manually).
+
+### <a name="server.states.parse()" /> `async server.states.parse(header)`
+
+Parses an HTTP 'Cookies' header based on the [`server.options.state`](#server.options.state) where:
+
+- `header` - the HTTP header.
+
+Return value: an object where each key is a cookie name and value is the parsed cookie.
+
+Note that this utility uses the server configuration but does not change the server state. It is
+provided for manual cookie parsing (e.g. when server parsing is disabled).
 
 ### <a name="server.stop()" /> `await server.stop([options])`
 
@@ -4638,7 +4705,24 @@ The parsed request URI.
 
 Returns a [`response`](#response-object) which you can pass into the [reply interface](#response-toolkit) where:
 - `source` - the value to set as the source of the [reply interface](#response-toolkit), optional.
-- `options` - options for the method, optional.
+- `options` - optional object with the following optioal properties:
+    - `variety` - a sting name of the response type (e.g. `'file'`).
+    - `prepare` - a function with the signature `async function(response)` used to prepare the
+      response after it is returned by a [lifecycle method](#lifecycle-methods) such as setting a
+      file descriptor, where:
+        - `response` - the response object being prepared.
+        - must return the prepared response object (new object or `response`).
+        - may throw an error which is used as the prepared response.
+    - `marshal` - a function with the signature `async function(response)` used to repare the
+      response for transmission to the client before it is sent, where:
+        - `response` - the response object being marshaled.
+        - must return the prepared value (not as response object) which can be any value accepted
+          by the [`h.response()`](#h.response()) `value` argument.
+        - may throw an error which is used as the marhsaled value.
+    - `close` - a function with the signature `function(response)` used to close the resources
+      opened by the response object (e.g. file handlers), where:
+        - `response` - the response object being marshaled.
+        - should not throw errors (which are logged but otherwise ignored).
 
 ### <a name="request.log()" /> `request.log(tags, [data])`
 

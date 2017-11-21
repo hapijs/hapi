@@ -1243,6 +1243,28 @@ describe('Response', () => {
             await server.inject('/');
             expect(closed).to.be.true();
         });
+
+        it('logs custom close processor error', async () => {
+
+            const close = function (response) {
+
+                throw new Error('oops');
+            };
+
+            const handler = (request) => {
+
+                return request.generateResponse(null, { close });
+            };
+
+            const server = Hapi.server();
+            const log = server.events.once('request');
+            server.route({ method: 'GET', path: '/', handler });
+
+            await server.inject('/');
+            const [, event] = await log;
+            expect(event.tags).to.equal(['response', 'cleanup', 'error']);
+            expect(event.error).to.be.an.error('oops');
+        });
     });
 
     describe('Peek', () => {
