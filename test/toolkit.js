@@ -10,6 +10,7 @@ const Handlebars = require('handlebars');
 const Hapi = require('..');
 const Inert = require('inert');
 const Lab = require('lab');
+const Teamwork = require('teamwork');
 const Vision = require('vision');
 
 
@@ -103,6 +104,24 @@ describe('Toolkit', () => {
                 expect(res.statusCode).to.equal(500);
             });
 
+            it('includes method name when method missing return', async () => {
+
+                const team = new Teamwork();
+                const myErrorHandler = () => {};
+
+                const server = Hapi.server({ debug: false });
+                server.route({ method: 'GET', path: '/', handler: myErrorHandler });
+
+                server.events.on({ name: 'request', channels: 'error' }, (request, err) => {
+
+                    team.attend(err);
+                });
+
+                const res = await server.inject('/');
+                expect(res.statusCode).to.equal(500);
+                const err = await team.work;
+                expect(err.error.message).to.contain('myErrorHandler');
+            });
         });
     });
 
