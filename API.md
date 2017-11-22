@@ -610,7 +610,7 @@ Contains:
 
 ```js
 const Hapi = require('hapi');
-const server = Hapi.server(({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 const success = function () {
 
@@ -852,7 +852,7 @@ An object containing information about the server where:
 
 ```js
 const Hapi = require('hapi');
-const server = Hapi.server(({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 console.log(server.info.port);            // 80
 ```
