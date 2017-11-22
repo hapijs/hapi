@@ -1,4 +1,4 @@
-# v17.0.x API Reference
+# v17.1.x API Reference
 
 <!-- toc -->
 
@@ -1448,6 +1448,11 @@ Extends various framework interfaces with custom methods where:
     - `apply` - when the `type` is `'request'`, if `true`, the `method` function is invoked using
       the signature `function(request)` where `request` is the current request object and the
       returned value is assigned as the decoration.
+    - `extend` - if `true`, overrides an existing decoration. The `method` must be a function with
+      the signature `function(existing)` where:
+        - `existing` - is the previously set decoration method value.
+        - must return the new decoration function or value.
+        - cannot be used to extend handler decorations.
 
 Return value: none.
 

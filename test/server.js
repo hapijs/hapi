@@ -1046,6 +1046,67 @@ describe('Server', () => {
             const server = Hapi.server();
 
             server.decorate('request', 'uri', (request) => request.server.info.uri, { apply: true });
+            server.decorate('request', 'type', (request) => request.server.type, { apply: true });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: (request) => (request.uri + ':' + request.type)
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal(server.info.uri + ':tcp');
+        });
+
+        it('decorates request (extend)', async () => {
+
+            const server = Hapi.server();
+
+            const getId = function () {
+
+                return this.info.id;
+            };
+
+            server.decorate('request', 'getId', getId);
+
+            const getIdExtended = function (existing) {
+
+                return function () {
+
+                    return existing.call(this) + '!';
+                };
+            };
+
+            server.decorate('request', 'getId', getIdExtended, { extend: true });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: (request) => request.getId()
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.match(/^.*\:.*\:.*\:.*\:.*!$/);
+        });
+
+        it('decorates request (apply + extend)', async () => {
+
+            const server = Hapi.server();
+
+            server.decorate('request', 'uri', (request) => request.server.info.uri, { apply: true });
+
+            const extended = function (existing) {
+
+                return function (request) {
+
+                    const base = existing(request);
+                    return base + '!';
+                };
+            };
+
+            server.decorate('request', 'uri', extended, { apply: true, extend: true });
 
             server.route({
                 method: 'GET',
@@ -1055,7 +1116,7 @@ describe('Server', () => {
 
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal(server.info.uri);
+            expect(res.result).to.equal(server.info.uri + '!');
         });
 
         it('decorates toolkit', async () => {
