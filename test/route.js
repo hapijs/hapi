@@ -701,6 +701,178 @@ describe('Route', () => {
         });
     });
 
+    describe('rules', () => {
+
+        it('compiles rules into config', async () => {
+
+            const server = Hapi.server();
+
+            const processor = (rules) => {
+
+                if (!rules) {
+                    return null;
+                }
+
+                return { validate: { query: { x: rules.x } } };
+            };
+
+            server.rules(processor);
+
+            server.route({ path: '/1', method: 'GET', handler: () => null, rules: { x: 1 } });
+            server.route({ path: '/2', method: 'GET', handler: () => null, rules: { x: 2 } });
+            server.route({ path: '/3', method: 'GET', handler: () => null });
+
+            expect((await server.inject('/1?x=1')).statusCode).to.equal(200);
+            expect((await server.inject('/1?x=2')).statusCode).to.equal(400);
+            expect((await server.inject('/2?x=1')).statusCode).to.equal(400);
+            expect((await server.inject('/2?x=2')).statusCode).to.equal(200);
+            expect((await server.inject('/3?x=1')).statusCode).to.equal(200);
+            expect((await server.inject('/3?x=2')).statusCode).to.equal(200);
+        });
+
+        it('compiles rules into config (route info)', async () => {
+
+            const server = Hapi.server();
+
+            const processor = (rules, { method, path }) => {
+
+                return { app: { method, path, x: rules.x } };
+            };
+
+            server.rules(processor);
+
+            server.route({ path: '/1', method: 'GET', handler: (request) => request.route.settings.app, rules: { x: 1 } });
+
+            expect((await server.inject('/1')).result).to.equal({ x: 1, path: '/1', method: 'get' });
+        });
+
+        it('compiles rules into config (validate)', () => {
+
+            const server = Hapi.server();
+
+            const processor = (rules) => {
+
+                return { validate: { query: { x: rules.x } } };
+            };
+
+            server.rules(processor, { validate: { schema: { x: Joi.number().required() } } });
+
+            server.route({ path: '/1', method: 'GET', handler: () => null, rules: { x: 1 } });
+            expect(() => server.route({ path: '/2', method: 'GET', handler: () => null, rules: { x: 'y' } })).to.throw(/must be a number/);
+        });
+
+        it('compiles rules into config (validate + options)', () => {
+
+            const server = Hapi.server();
+
+            const processor = (rules) => {
+
+                return { validate: { query: { x: rules.x } } };
+            };
+
+            server.rules(processor, { validate: { schema: { x: Joi.number().required() }, options: { allowUnknown: false } } });
+
+            server.route({ path: '/1', method: 'GET', handler: () => null, rules: { x: 1 } });
+            expect(() => server.route({ path: '/2', method: 'GET', handler: () => null, rules: { x: 1, y: 2 } })).to.throw(/is not allowed/);
+        });
+
+        it('cascades rules into configs', async () => {
+
+            const handler = (request) => {
+
+                return request.route.settings.app.x + ':' + Object.keys(request.route.settings.app).join('').slice(0, -1);
+            };
+
+            const p1 = {
+                name: 'p1',
+                register: async (srv) => {
+
+                    const processor = (rules) => {
+
+                        return { app: { x: '1+' + rules.x, 1: true } };
+                    };
+
+                    srv.rules(processor);
+                    await srv.register(p3);
+                    srv.route({ path: '/1', method: 'GET', handler, rules: { x: 1 } });
+                }
+            };
+
+            const p2 = {
+                name: 'p2',
+                register: (srv) => {
+
+                    const processor = (rules) => {
+
+                        return { app: { x: '2+' + rules.x, 2: true } };
+                    };
+
+                    srv.rules(processor);
+                    srv.route({ path: '/2', method: 'GET', handler, rules: { x: 2 } });
+                }
+            };
+
+            const p3 = {
+                name: 'p3',
+                register: async (srv) => {
+
+                    const processor = (rules) => {
+
+                        return { app: { x: '3+' + rules.x, 3: true } };
+                    };
+
+                    srv.rules(processor);
+                    await srv.register(p4);
+                    srv.route({ path: '/3', method: 'GET', handler, rules: { x: 3 } });
+                }
+            };
+
+            const p4 = {
+                name: 'p4',
+                register: async (srv) => {
+
+                    await srv.register(p5);
+                    srv.route({ path: '/4', method: 'GET', handler, rules: { x: 4 } });
+                }
+            };
+
+            const p5 = {
+                name: 'p5',
+                register: (srv) => {
+
+                    const processor = (rules) => {
+
+                        return { app: { x: '5+' + rules.x, 5: true } };
+                    };
+
+                    srv.rules(processor);
+                    srv.route({ path: '/5', method: 'GET', handler, rules: { x: 5 } });
+                    srv.route({ path: '/6', method: 'GET', handler, rules: { x: 6 }, config: { app: { x: '7' } } });
+                }
+            };
+
+            const server = Hapi.server();
+
+            const processor0 = (rules) => {
+
+                return { app: { x: '0+' + rules.x, 0: true } };
+            };
+
+            server.rules(processor0);
+            await server.register([p1, p2]);
+
+            server.route({ path: '/0', method: 'GET', handler, rules: { x: 0 } });
+
+            expect((await server.inject('/0')).result).to.equal('0+0:0');
+            expect((await server.inject('/1')).result).to.equal('1+1:01');
+            expect((await server.inject('/2')).result).to.equal('2+2:02');
+            expect((await server.inject('/3')).result).to.equal('3+3:013');
+            expect((await server.inject('/4')).result).to.equal('3+4:013');
+            expect((await server.inject('/5')).result).to.equal('5+5:0135');
+            expect((await server.inject('/6')).result).to.equal('7:0135');
+        });
+    });
+
     describe('drain()', () => {
 
         it('drains the request payload on 404', async () => {
