@@ -69,7 +69,7 @@ describe('Route', () => {
 
             const server = Hapi.server();
             server.route({ method: 'GET', handler: () => null });
-        }).to.throw('Route missing path');
+        }).to.throw(/"path" is required/);
     });
 
     it('throws an error when a route is missing a method', () => {
