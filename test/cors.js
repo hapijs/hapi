@@ -166,6 +166,18 @@ describe('CORS', () => {
         expect(res4.headers['access-control-allow-origin']).to.not.exist();
     });
 
+    it('handles request without origin header', async () => {
+
+        const server = Hapi.server({ port: 8080, routes: { cors: { origin: ['http://*.domain.com'] } } });
+        server.route({ method: 'GET', path: '/test', handler: () => null });
+
+        const res1 = await server.inject('/');
+        expect(res1.statusCode).to.equal(404);
+
+        const res2 = await server.inject('/test');
+        expect(res2.statusCode).to.equal(200);
+    });
+
     describe('headers()', () => {
 
         it('returns CORS origin (route level)', async () => {
