@@ -304,6 +304,39 @@ describe('Core', () => {
         expect(server.settings.routes.security.xframe).to.equal('deny');
     });
 
+    describe('_debug()', () => {
+
+        it('outputs 500 on ext exception', async () => {
+
+            const server = Hapi.server();
+
+            const ext = async (request) => {
+
+                await Hoek.wait(0);
+                const not = null;
+                not.here;
+            };
+
+            server.ext('onPreHandler', ext);
+            server.route({ method: 'GET', path: '/', handler: () => null });
+            const log = server.events.once({ name: 'request', channels: 'error' });
+
+            const orig = console.error;
+            console.error = function (...args) {
+
+                console.error = orig;
+                expect(args[0]).to.equal('Debug:');
+                expect(args[1]).to.equal('internal, implementation, error');
+            };
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+
+            const [, event] = await log;
+            expect(event.error.message).to.equal('Cannot read property \'here\' of null');
+        });
+    });
+
     describe('start()', () => {
 
         it('starts and stops', async () => {
