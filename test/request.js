@@ -190,7 +190,7 @@ describe('Request', () => {
             expect(res.statusCode).to.equal(400);
         });
 
-        it('returns error response on ext error', async () => {
+        it('returns boom response on ext error', async () => {
 
             const server = Hapi.server();
 
@@ -204,6 +204,22 @@ describe('Request', () => {
 
             const res = await server.inject('/');
             expect(res.result.statusCode).to.equal(400);
+        });
+
+        it('returns error response on ext error', async () => {
+
+            const server = Hapi.server();
+
+            const ext = (request) => {
+
+                throw new Error('oops');
+            };
+
+            server.ext('onPostHandler', ext);
+            server.route({ method: 'GET', path: '/', handler: () => 'OK' });
+
+            const res = await server.inject('/');
+            expect(res.result.statusCode).to.equal(500);
         });
 
         it('handles aborted requests (during response)', async () => {
@@ -271,7 +287,7 @@ describe('Request', () => {
                         setTimeout(check, 100);
                     }
                     else {
-                        expect(disconnected).to.equal(4);       // Each connection sents two HTTP requests
+                        expect(disconnected).to.equal(4);       // Each connection sends two HTTP requests
                         resolve();
                     }
                 };

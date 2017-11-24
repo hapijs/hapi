@@ -2549,9 +2549,9 @@ describe('Server', () => {
                 path: __dirname + '/templates'
             });
 
-            const rendered = await server.render('test', { title: 'test', message: 'Hapi' });
+            const rendered = await server.render('test', { title: 'test', message: 'hapi' });
             expect(rendered).to.exist();
-            expect(rendered).to.contain('Hapi');
+            expect(rendered).to.contain('hapi');
         });
     });
 
