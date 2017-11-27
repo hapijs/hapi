@@ -95,14 +95,13 @@
 - [Route options](#route-options)
   - [`route.options.app`](#route.options.app)
   - [`route.options.auth`](#route.options.auth)
-    - [Authentication options](#authentication-options)
-      - [`route.options.access`](#route.options.auth.access)
-      - [`route.options.access.scope`](#route.options.auth.access.scope)
-      - [`route.options.access.entity`](#route.options.auth.access.entity)
-      - [`route.options.access.mode`](#route.options.auth.mode)
-      - [`route.options.access.payload`](#route.options.auth.payload)
-      - [`route.options.access.strategies`](#route.options.auth.strategies)
-      - [`route.options.access.strategy`](#route.options.auth.strategy)
+    - [`route.options.auth.access`](#route.options.auth.access)
+    - [`route.options.auth.access.scope`](#route.options.auth.access.scope)
+    - [`route.options.auth.access.entity`](#route.options.auth.access.entity)
+    - [`route.options.auth.mode`](#route.options.auth.mode)
+    - [`route.options.auth.payload`](#route.options.auth.payload)
+    - [`route.options.auth.strategies`](#route.options.auth.strategies)
+    - [`route.options.auth.strategy`](#route.options.auth.strategy)
   - [`route.options.bind`](#route.options.bind)
   - [`route.options.cache`](#route.options.cache)
   - [`route.options.compression`](#route.options.compression)
@@ -2764,9 +2763,7 @@ Route authentication configuration. Value can be:
 
 - an [authentication configuration object](#authentication-options).
 
-#### Authentication options
-
-##### <a name="route.options.auth.access" /> `route.options.access`
+#### <a name="route.options.auth.access" /> `route.options.auth.access`
 
 Default value: none.
 
@@ -2775,7 +2772,7 @@ incoming request and access is granted if at least one of the rules matches. Eac
 include at least one of [`scope`](#route.options.auth.access.scope) or
 [`entity`](#route.options.auth.access.entity).
 
-##### <a name="route.options.auth.access.scope" /> `route.options.access.scope`
+#### <a name="route.options.auth.access.scope" /> `route.options.auth.access.scope`
 
 Default value: `false` (no scope requirements).
 
@@ -2792,7 +2789,7 @@ You may also access properties on the request object (`query`, `params`, `payloa
 `credentials`) to populate a dynamic scope by using the '{' and '}' characters around the property
 name, such as `'user-{params.id}'`.
 
-##### <a name="route.options.auth.access.entity" /> `route.options.access.entity`
+#### <a name="route.options.auth.access.entity" /> `route.options.auth.access.entity`
 
 Default value: `'any'`.
 
@@ -2806,7 +2803,7 @@ authenticated credentials. Available values:
   of presence of a `user` attribute in the `credentials` object returned by the authentication
   strategy.
 
-##### <a name="route.options.auth.mode" /> `route.options.access.mode`
+#### <a name="route.options.auth.mode" /> `route.options.auth.mode`
 
 Default value: `'required'`.
 
@@ -2818,7 +2815,7 @@ The authentication mode. Available values:
 - `'try'` - similar to `'optional'`, any request credentials are attempted authentication, but if
   the credentials are invalid, the request proceeds regardless of the authentication error.
 
-##### <a name="route.options.auth.payload" /> `route.options.access.payload`
+#### <a name="route.options.auth.payload" /> `route.options.auth.payload`
 
 Default value: `false`, unless the scheme requires payload authentication.
 
@@ -2834,14 +2831,14 @@ Available values:
 - `'optional'` - payload authentication performed only when the client includes payload
   authentication information (e.g. `hash` attribute in Hawk).
 
-##### <a name="route.options.auth.strategies" /> `route.options.access.strategies`
+#### <a name="route.options.auth.strategies" /> `route.options.auth.strategies`
 
 Default value: the default strategy set via [`server.auth.default()`](#server.auth.default()).
 
 An array of string strategy names in the order they should be attempted. Cannot be used together
 with [`strategy`](#route.options.auth.strategy).
 
-##### <a name="route.options.auth.strategy" /> `route.options.access.strategy`
+#### <a name="route.options.auth.strategy" /> `route.options.auth.strategy`
 
 Default value: the default strategy set via [`server.auth.default()`](#server.auth.default()).
 
