@@ -92,6 +92,30 @@ describe('Methods', () => {
         expect(result).to.equal(6);
     });
 
+    it('registers a method using an object argument (no options)', () => {
+
+        const server = Hapi.server();
+        server.method({ name: 'add', method: (a, b) => a + b });
+
+        const result = server.methods.add(1, 5);
+        expect(result).to.equal(6);
+    });
+
+    it('registers a method using an array argument (no options)', () => {
+
+        const server = Hapi.server();
+        server.method([
+            { name: 'add', method: (a, b) => a + b },
+            { name: 'subtract', method: (a, b) => a - b }
+        ]);
+
+        const addResult = server.methods.add(1, 5);
+        expect(addResult).to.equal(6);
+
+        const subtractResult = server.methods.subtract(1, 5);
+        expect(subtractResult).to.equal(-4);
+    });
+
     it('registers a method (promise)', async () => {
 
         const add = function (a, b) {
