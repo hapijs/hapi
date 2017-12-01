@@ -4738,7 +4738,7 @@ A plugin is an object with the following properties:
 const plugin = {
     name: 'test',
     version: '1.0.0',
-    register: function (server, options) {
+    register: async function (server, options) {
 
         server.route({
             method: 'GET',
@@ -4758,7 +4758,7 @@ Alternatively, the `name` and `version` can be included via the `pkg` property c
 ```js
 const plugin = {
     pkg: require('./package.json'),
-    register: function (server, options) {
+    register: async function (server, options) {
 
         server.route({
             method: 'GET',
