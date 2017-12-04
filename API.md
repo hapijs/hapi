@@ -4785,7 +4785,7 @@ channel and will include the `event.internal` flag set to `true`.
 
 ```js
 const Hapi = require('hapi');
-const server = Hapi.server({ port: 80, routes: { log: true } });
+const server = Hapi.server({ port: 80, routes: { log: { collect: true } } });
 
 server.events.on('request', (request, event, tags) => {
 
