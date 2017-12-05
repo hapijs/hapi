@@ -4102,7 +4102,7 @@ request included expired credentials, it allows the method to pass back the user
 (combined with a `'try'` authentication [`mode`](#route.options.auth.mode)) for error customization.
 
 There is no difference between throwing the error or passing it with the `h.unauthenticated()`
-method is no credentials are passed, but it might still be helpful for code clarity.
+method if no credentials are passed, but it might still be helpful for code clarity.
 
 #### <a name="h.unstate()" /> `h.unstate(name, [options])`
 
@@ -4785,7 +4785,7 @@ channel and will include the `event.internal` flag set to `true`.
 
 ```js
 const Hapi = require('hapi');
-const server = Hapi.server({ port: 80, routes: { log: true } });
+const server = Hapi.server({ port: 80, routes: { log: { collect: true } } });
 
 server.events.on('request', (request, event, tags) => {
 
