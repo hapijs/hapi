@@ -8,6 +8,8 @@ Lead Maintainer: [Eran Hammer](https://github.com/hueniverse)
 authentication, and other essential facilities for building web and services applications. **hapi** enables
 developers to focus on writing reusable application logic in a highly modular and prescriptive approach. 
 
+Version 17.x only supports node v8.9.0 and over. For older version of node please use version 16.x.
+
 Development version: **17.1.x** ([release notes](https://github.com/hapijs/hapi/issues?labels=release+notes&page=1&state=closed)) 
 [![Build Status](https://secure.travis-ci.org/hapijs/hapi.svg?branch=master)](http://travis-ci.org/hapijs/hapi)
 
