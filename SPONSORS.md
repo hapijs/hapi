@@ -15,6 +15,8 @@
 - Srikanth Minnam
 - Condé Nast Technology
 - Manny Pamintuan
+- Dave Hyndman
+- Umut Şirin
 
 
 # Supporters
