@@ -47,12 +47,9 @@ I am extremely grateful for their support.
 
 ## Active Supporters
 
-- **Lob**
-- **Auth0**
 - **CNN Digital**
 - **Contentful**
 - The product development team at **Creative Artists Agency**
-- **Condé Nast Technology**
 
 ## Legacy Supporters
 
