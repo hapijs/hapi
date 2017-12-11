@@ -14,6 +14,7 @@
 - Jeremy Whitbred
 - Srikanth Minnam
 - Condé Nast Technology
+- Manny Pamintuan
 
 
 # Supporters
