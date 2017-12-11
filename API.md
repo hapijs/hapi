@@ -3170,7 +3170,7 @@ Default value: none.
 
 The `pre` option allows defining methods for performing actions before the handler is called. These
 methods allow breaking the handler logic into smaller, reusable components that can be shared
-ascross routes, as well as provide a cleaner error handling of prerequisite operations (e.g. load
+across routes, as well as provide a cleaner error handling of prerequisite operations (e.g. load
 required reference data from a database).
 
 `pre` is assigned an ordered array of methods which are called serially in order. If the `pre`
