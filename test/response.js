@@ -1220,6 +1220,60 @@ describe('Response', () => {
             await server.inject('/');
             expect(output).to.equal('1234567890!');
         });
+
+        it('peeks into the response stream (empty)', async () => {
+
+            const server = Hapi.server();
+
+            let output = '';
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: (request, h) => {
+
+                    const response = h.response(null);
+
+                    response.events.on('peek', (chunk, encoding) => { });
+
+                    response.events.once('finish', () => {
+
+                        output += '!';
+                    });
+
+                    return response;
+                }
+            });
+
+            await server.inject('/');
+            expect(output).to.equal('!');
+        });
+
+        it('peeks into the response stream (empty 304)', async () => {
+
+            const server = Hapi.server();
+
+            let output = '';
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: (request, h) => {
+
+                    const response = h.response(null).code(304);
+
+                    response.events.on('peek', (chunk, encoding) => { });
+
+                    response.events.once('finish', () => {
+
+                        output += '!';
+                    });
+
+                    return response;
+                }
+            });
+
+            await server.inject('/');
+            expect(output).to.equal('!');
+        });
     });
 
     describe('_close()', () => {
