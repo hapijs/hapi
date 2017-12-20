@@ -49,9 +49,11 @@ describe('payload', () => {
 
     it('handles request socket error', async () => {
 
+        let called = false;
         const handler = function () {
 
-            throw new Error('never called');
+            called = true;
+            return null;
         };
 
         const server = Hapi.server();
@@ -60,6 +62,7 @@ describe('payload', () => {
         const res = await server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { error: true, end: false } });
         expect(res.result).to.exist();
         expect(res.result.statusCode).to.equal(500);
+        expect(called).to.be.false();
     });
 
     it('handles request socket close', async () => {
@@ -76,7 +79,7 @@ describe('payload', () => {
 
         server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { close: true, end: false } });
         const [request] = await log;
-        expect(request._isBailed).to.equal(true);
+        expect(request._isReplied).to.equal(true);
     });
 
     it('handles aborted request', async () => {

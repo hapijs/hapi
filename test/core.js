@@ -1758,6 +1758,51 @@ describe('Core', () => {
             expect(server.load.rss).to.be.above(1024 * 1024);
             await server.stop();
         });
+
+        it('bypasses queue when disabled', () => {
+
+            const server = Hapi.server({ load: { concurrent: 0 } });
+
+            const handler = async () => {
+
+                await Hoek.wait(100);
+                return null;
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+            server.inject('/');
+            expect(server._core.queue.active).to.equal(0);
+        });
+
+        it('bypasses queue when disabled (default)', () => {
+
+            const server = Hapi.server();
+
+            const handler = async () => {
+
+                await Hoek.wait(100);
+                return null;
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+            server.inject('/');
+            expect(server._core.queue.active).to.equal(0);
+        });
+
+        it('queues requests', () => {
+
+            const server = Hapi.server({ load: { concurrent: 100 } });
+
+            const handler = async () => {
+
+                await Hoek.wait(100);
+                return null;
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+            server.inject('/');
+            expect(server._core.queue.active).to.equal(1);
+        });
     });
 });
 

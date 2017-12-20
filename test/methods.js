@@ -36,6 +36,20 @@ describe('Methods', () => {
         expect(result).to.equal(6);
     });
 
+    it('registers a method (object)', () => {
+
+        const add = function (a, b) {
+
+            return a + b;
+        };
+
+        const server = Hapi.server();
+        server.method({ name: 'add', method: add });
+
+        const result = server.methods.add(1, 5);
+        expect(result).to.equal(6);
+    });
+
     it('registers a method with leading _', () => {
 
         const _add = function (a, b) {
@@ -708,7 +722,7 @@ describe('Methods', () => {
                     method: fn,
                     cache: {}
                 });
-            }).to.throw();
+            }).to.throw(/^Invalid methodObject options/);
         });
     });
 
