@@ -1,4 +1,4 @@
-# v17.1.x API Reference
+# v17.2.x API Reference
 
 <!-- toc -->
 
@@ -398,7 +398,7 @@ If the `listener` uses TLS, set [`tls`](#server.options.tls) to `true`.
 
 #### <a name="server.options.load" /> `server.options.load`
 
-Default value: `{ sampleInterval: 0 }`.
+Default value: `{ sampleInterval: 0, concurrent: 0 }`.
 
 Server excessive load handling limits where:
 
@@ -413,6 +413,14 @@ Server excessive load handling limits where:
 
 - `maxEventLoopDelay` - maximum event loop delay duration in milliseconds over which incoming
   requests are rejected with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
+
+- `concurrent` - maximum number of requests to execute in parallel. This is useful to reduce
+  garbage collection costs on high load deployment where the actual handler computation load is
+  low. For example, a handler that mostly waits for upstream data will allow many incoming requests
+  to queue up all the way to the handler lifecycle step. This will trigger heavy garbage collection
+  load trying to sort out the many pending objects. Reducing the number of concurrent requests
+  being processed can help. There is no recommended value - you need to test what works best for
+  your specific deployment. Defaults to `0` (no queue).
 
 #### <a name="server.options.mime" /> `server.options.mime`
 
@@ -2615,8 +2623,8 @@ across multiple requests. Registers a cookie definitions where:
 
 Return value: none.
 
-State defaults can be modified via the [server default](#server.options.routes)
-[`state`](#route.options.state) configuration option.
+State defaults can be modified via the [server.options.state](#server.options.state) configuration
+option.
 
 ```js
 const Hapi = require('hapi');
