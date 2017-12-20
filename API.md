@@ -1937,7 +1937,7 @@ across multiple requests. Registers a cookie definitions where:
       violation of [RFC 6265](https://tools.ietf.org/html/rfc6265). Defaults to `true`.
     - `passThrough` - used by proxy plugins (e.g. [**h2o2**](https://github.com/hapijs/h2o2)).
 
-State defaults can be modified via the server `connections.routes.state` configuration option.
+State defaults can be modified via the server `connections.state` configuration option.
 
 ```js
 const Hapi = require('hapi');
