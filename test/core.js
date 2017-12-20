@@ -423,6 +423,8 @@ describe('Core', () => {
             server.ext('onPostStart', postStart);
 
             await expect(server.start()).to.reject('boom');
+            await server.stop();
+            expect(server.info.started).to.equal(0);
         });
 
         it('errors on bad cache start', async () => {
