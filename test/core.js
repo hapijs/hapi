@@ -531,6 +531,23 @@ describe('Core', () => {
             await expect(server.stop()).to.reject('Cannot stop server while in stopping phase');
             await stopping;
         });
+
+        it('errors on bad cache stop', async () => {
+
+            const cache = {
+                engine: {
+                    start: function () { },
+                    stop: function () {
+
+                        throw new Error('oops');
+                    }
+                }
+            };
+
+            const server = Hapi.server({ cache });
+            await server.start();
+            await expect(server.stop()).to.reject('oops');
+        });
     });
 
     describe('_init()', () => {
