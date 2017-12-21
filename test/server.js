@@ -1503,7 +1503,7 @@ describe('Server', () => {
 
     describe('encoder()', () => {
 
-        it('adds custom encoder', async () => {
+        it('adds custom encoder with higher priority than built in encoders', async () => {
 
             const data = '{"test":"true"}';
 
@@ -1521,7 +1521,7 @@ describe('Server', () => {
 
             const uri = 'http://localhost:' + server.info.port;
             const zipped = await new Promise((resolve) => Zlib.gzip(new Buffer(data), (ignoreErr, compressed) => resolve(compressed)));
-            const { res, payload } = await Wreck.post(uri, { headers: { 'accept-encoding': 'test' }, payload: data });
+            const { res, payload } = await Wreck.post(uri, { headers: { 'accept-encoding': 'gzip, deflate, test' }, payload: data });
             expect(res.headers['content-encoding']).to.equal('test');
             expect(payload.toString()).to.equal(zipped.toString());
             await server.stop();
