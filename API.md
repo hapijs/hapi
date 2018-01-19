@@ -814,7 +814,7 @@ The `'start'` event type is emitted when the server is started using [`server.st
 The `'start'` event handler uses the function signature `function()`.
 
 ```js
-server.events.on('start', (route) => {
+server.events.on('start', () => {
 
     console.log('Server started');
 });
@@ -826,7 +826,7 @@ The `'stop'` event type is emitted when the server is stopped using [`server.sto
 The `'stop'` event handler uses the function signature `function()`.
 
 ```js
-server.events.on('stop', (route) => {
+server.events.on('stop', () => {
 
     console.log('Server stopped');
 });
