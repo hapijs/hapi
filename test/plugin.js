@@ -3152,7 +3152,7 @@ describe('Plugin', () => {
 
     describe('encoder()', () => {
 
-        it('adds custom encoder', (done) => {
+        it('adds custom encoder with higher priority than built in encoders', (done) => {
 
             const data = '{"test":"true"}';
 
@@ -3183,7 +3183,7 @@ describe('Plugin', () => {
 
                     expect(err).to.not.exist();
 
-                    Wreck.post(uri, { headers: { 'accept-encoding': 'test' }, payload: data }, (err, res, body) => {
+                    Wreck.post(uri, { headers: { 'accept-encoding': 'gzip, deflate, test' }, payload: data }, (err, res, body) => {
 
                         expect(err).to.not.exist();
                         expect(res.headers['content-encoding']).to.equal('test');
