@@ -2242,7 +2242,7 @@ async function example() {
         generateKey: (array) => array.join(',')
     };
 
-    server.method('sumObj', addArray, );
+    server.method('sumObj', addArray, options);
 
     console.log(await server.methods.sumObj([5, 6]));     // 11
 }
