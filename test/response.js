@@ -201,7 +201,7 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.response('ok').header('set-cookie', new Buffer(decodeURIComponent('%E0%B4%8Aset-cookie:%20foo=bar')));
+                return h.response('ok').header('set-cookie', Buffer.from(decodeURIComponent('%E0%B4%8Aset-cookie:%20foo=bar')));
             };
 
             const server = Hapi.server();

@@ -378,7 +378,7 @@ describe('transmission', () => {
         it('returns an JSONP response when response is a buffer', async () => {
 
             const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler: () => new Buffer('value') } });
+            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler: () => Buffer.from('value') } });
 
             const res = await server.inject('/?callback=me');
             expect(res.payload).to.equal('/**/me(value);');
@@ -752,7 +752,7 @@ describe('transmission', () => {
             await server.start();
 
             const uri = 'http://localhost:' + server.info.port;
-            const zipped = await internals.compress('gzip', new Buffer(data));
+            const zipped = await internals.compress('gzip', Buffer.from(data));
 
             const { payload } = await Wreck.post(uri, { headers: { 'accept-encoding': 'gzip' }, payload: data });
             expect(payload.toString()).to.equal(zipped.toString());
@@ -768,7 +768,7 @@ describe('transmission', () => {
             await server.start();
 
             const uri = 'http://localhost:' + server.info.port;
-            const zipped = await internals.compress('gzip', new Buffer(data));
+            const zipped = await internals.compress('gzip', Buffer.from(data));
             const { payload } = await Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } });
             expect(payload.toString()).to.equal(zipped.toString());
             await server.stop();
@@ -809,7 +809,7 @@ describe('transmission', () => {
             await server.start();
 
             const uri = 'http://localhost:' + server.info.port;
-            const deflated = await internals.compress('deflate', new Buffer(data));
+            const deflated = await internals.compress('deflate', Buffer.from(data));
             const { payload } = await Wreck.post(uri, { headers: { 'accept-encoding': 'deflate' }, payload: data });
             expect(payload.toString()).to.equal(deflated.toString());
             await server.stop();
@@ -823,7 +823,7 @@ describe('transmission', () => {
             await server.start();
 
             const uri = 'http://localhost:' + server.info.port;
-            const deflated = await internals.compress('deflate', new Buffer(data));
+            const deflated = await internals.compress('deflate', Buffer.from(data));
             const { payload } = await Wreck.get(uri, { headers: { 'accept-encoding': 'deflate' } });
             expect(payload.toString()).to.equal(deflated.toString());
             await server.stop();
@@ -837,7 +837,7 @@ describe('transmission', () => {
             await server.start();
 
             const uri = 'http://localhost:' + server.info.port;
-            const zipped = await internals.compress('gzip', new Buffer(data));
+            const zipped = await internals.compress('gzip', Buffer.from(data));
             const { payload } = await Wreck.post(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5' }, payload: data });
             expect(payload.toString()).to.equal(zipped.toString());
             await server.stop();
@@ -851,7 +851,7 @@ describe('transmission', () => {
             await server.start();
 
             const uri = 'http://localhost:' + server.info.port;
-            const zipped = await internals.compress('gzip', new Buffer(data));
+            const zipped = await internals.compress('gzip', Buffer.from(data));
             const { payload } = await Wreck.get(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5' } });
             expect(payload.toString()).to.equal(zipped.toString());
             await server.stop();
@@ -865,7 +865,7 @@ describe('transmission', () => {
             await server.start();
 
             const uri = 'http://localhost:' + server.info.port;
-            const deflated = await internals.compress('deflate', new Buffer(data));
+            const deflated = await internals.compress('deflate', Buffer.from(data));
             const { payload } = await Wreck.post(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5' }, payload: data });
             expect(payload.toString()).to.equal(deflated.toString());
             await server.stop();
@@ -879,7 +879,7 @@ describe('transmission', () => {
             await server.start();
 
             const uri = 'http://localhost:' + server.info.port;
-            const deflated = await internals.compress('deflate', new Buffer(data));
+            const deflated = await internals.compress('deflate', Buffer.from(data));
             const { payload } = await Wreck.get(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5' } });
             expect(payload.toString()).to.equal(deflated.toString());
             await server.stop();
@@ -893,7 +893,7 @@ describe('transmission', () => {
             await server.start();
 
             const uri = 'http://localhost:' + server.info.port;
-            const zipped = await internals.compress('gzip', new Buffer(data));
+            const zipped = await internals.compress('gzip', Buffer.from(data));
             const { payload } = await Wreck.post(uri, { headers: { 'accept-encoding': 'deflate, gzip' }, payload: data });
             expect(payload.toString()).to.equal(zipped.toString());
             await server.stop();
@@ -907,7 +907,7 @@ describe('transmission', () => {
             await server.start();
 
             const uri = 'http://localhost:' + server.info.port;
-            const zipped = await internals.compress('gzip', new Buffer(data));
+            const zipped = await internals.compress('gzip', Buffer.from(data));
             const { payload } = await Wreck.get(uri, { headers: { 'accept-encoding': 'deflate, gzip' } });
             expect(payload.toString()).to.equal(zipped.toString());
             await server.stop();
@@ -928,7 +928,7 @@ describe('transmission', () => {
             await server.start();
 
             const uri = 'http://localhost:' + server.info.port;
-            const zipped = await internals.compress('gzip', new Buffer(data));
+            const zipped = await internals.compress('gzip', Buffer.from(data));
             const err1 = await expect(Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } })).to.reject();
             expect(err1.data.payload.toString()).to.equal(zipped.toString());
 
@@ -953,7 +953,7 @@ describe('transmission', () => {
             await server.start();
 
             const uri = 'http://localhost:' + server.info.port;
-            const zipped = await internals.compress('gzip', new Buffer(data));
+            const zipped = await internals.compress('gzip', Buffer.from(data));
             const err1 = await expect(Wreck.get(uri, { headers: { 'accept-encoding': 'gzip' } })).to.reject();
             expect(err1.data.payload.toString()).to.equal(zipped.toString());
 
@@ -998,7 +998,7 @@ describe('transmission', () => {
         it('returns a gzip response when forced by the handler', async () => {
 
             const data = '{"test":"true"}';
-            const zipped = await internals.compress('gzip', new Buffer(data));
+            const zipped = await internals.compress('gzip', Buffer.from(data));
             const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'POST', path: '/', handler: (request, h) => h.response(zipped).type('text/plain').header('content-encoding', 'gzip') });
             await server.start();

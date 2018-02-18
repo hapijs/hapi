@@ -822,7 +822,7 @@ describe('Server', () => {
             const res1 = await server.inject('/');
             expect(res1.statusCode).to.equal(401);
 
-            const res2 = await server.inject({ method: 'GET', url: '/', headers: { authorization: 'Basic ' + (new Buffer('john:12345', 'utf8')).toString('base64') } });
+            const res2 = await server.inject({ method: 'GET', url: '/', headers: { authorization: 'Basic ' + (Buffer.from('john:12345', 'utf8')).toString('base64') } });
             expect(res2.statusCode).to.equal(200);
             expect(res2.result).to.equal('authenticated!');
         });
@@ -1520,7 +1520,7 @@ describe('Server', () => {
             await server.start();
 
             const uri = 'http://localhost:' + server.info.port;
-            const zipped = await new Promise((resolve) => Zlib.gzip(new Buffer(data), (ignoreErr, compressed) => resolve(compressed)));
+            const zipped = await new Promise((resolve) => Zlib.gzip(Buffer.from(data), (ignoreErr, compressed) => resolve(compressed)));
             const { res, payload } = await Wreck.post(uri, { headers: { 'accept-encoding': 'gzip, deflate, test' }, payload: data });
             expect(res.headers['content-encoding']).to.equal('test');
             expect(payload.toString()).to.equal(zipped.toString());
@@ -2654,7 +2654,7 @@ internals.plugins = {
                             throw Boom.badRequest('Bad HTTP authentication header format', 'Basic');
                         }
 
-                        const credentialsParts = new Buffer(parts[1], 'base64').toString().split(':');
+                        const credentialsParts = Buffer.from(parts[1], 'base64').toString().split(':');
                         if (credentialsParts.length !== 2) {
                             throw Boom.badRequest('Bad header internal syntax', 'Basic');
                         }
