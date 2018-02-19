@@ -12,6 +12,7 @@ const Path = require('path');
 const TLS = require('tls');
 
 const Boom = require('boom');
+const Bounce = require('bounce');
 const Code = require('code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
@@ -1489,6 +1490,13 @@ describe('Core', () => {
 
                     const cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
                     let lsof = '';
+
+                    cmd.on('error', (err) => {
+
+                        // Allow the test to pass on platforms with no lsof
+                        Bounce.ignore(err, { errno: 'ENOENT' });
+                    });
+
                     cmd.stdout.on('data', (buffer) => {
 
                         lsof += buffer.toString();

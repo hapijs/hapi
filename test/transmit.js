@@ -10,6 +10,7 @@ const Stream = require('stream');
 const Zlib = require('zlib');
 
 const Boom = require('boom');
+const Bounce = require('bounce');
 const Code = require('code');
 const Hapi = require('..');
 const Hoek = require('hoek');
@@ -78,6 +79,13 @@ describe('transmission', () => {
 
                 const cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
                 let lsof = '';
+
+                cmd.on('error', (err) => {
+
+                    // Allow the test to pass on platforms with no lsof
+                    Bounce.ignore(err, { errno: 'ENOENT' });
+                });
+
                 cmd.stdout.on('data', (buffer) => {
 
                     lsof += buffer.toString();
@@ -112,6 +120,13 @@ describe('transmission', () => {
 
                 const cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
                 let lsof = '';
+
+                cmd.on('error', (err) => {
+
+                    // Allow the test to pass on platforms with no lsof
+                    Bounce.ignore(err, { errno: 'ENOENT' });
+                });
+
                 cmd.stdout.on('data', (buffer) => {
 
                     lsof += buffer.toString();
