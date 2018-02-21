@@ -1,132 +1,1345 @@
 {
   "name": "hapi",
-  "version": "16.6.1",
-  "lockfileVersion": 1,
+  "version": "16.6.2",
   "dependencies": {
     "accept": {
       "version": "2.1.4",
-      "resolved": "https://registry.npmjs.org/accept/-/accept-2.1.4.tgz",
-      "integrity": "sha1-iHr1TO7lx/RDBGGXHsQAxh0JrLs="
+      "from": "accept@https://registry.npmjs.org/accept/-/accept-2.1.4.tgz",
+      "resolved": "https://registry.npmjs.org/accept/-/accept-2.1.4.tgz"
+    },
+    "acorn": {
+      "version": "5.4.1",
+      "from": "acorn@>=5.4.0 <6.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/acorn/-/acorn-5.4.1.tgz",
+      "dev": true
+    },
+    "acorn-jsx": {
+      "version": "3.0.1",
+      "from": "acorn-jsx@>=3.0.0 <4.0.0",
+      "resolved": "https://registry.npmjs.org/acorn-jsx/-/acorn-jsx-3.0.1.tgz",
+      "dev": true,
+      "dependencies": {
+        "acorn": {
+          "version": "3.3.0",
+          "from": "acorn@>=3.0.4 <4.0.0",
+          "resolved": "https://registry.npmjs.org/acorn/-/acorn-3.3.0.tgz",
+          "dev": true
+        }
+      }
+    },
+    "ajv": {
+      "version": "5.5.2",
+      "from": "ajv@>=5.2.0 <6.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/ajv/-/ajv-5.5.2.tgz",
+      "dev": true
+    },
+    "ajv-keywords": {
+      "version": "2.1.1",
+      "from": "ajv-keywords@>=2.1.0 <3.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/ajv-keywords/-/ajv-keywords-2.1.1.tgz",
+      "dev": true
+    },
+    "align-text": {
+      "version": "0.1.4",
+      "from": "align-text@>=0.1.3 <0.2.0",
+      "resolved": "https://registry.npmjs.org/align-text/-/align-text-0.1.4.tgz",
+      "dev": true
+    },
+    "amdefine": {
+      "version": "1.0.1",
+      "from": "amdefine@>=0.0.4",
+      "resolved": "https://registry.npmjs.org/amdefine/-/amdefine-1.0.1.tgz",
+      "dev": true
     },
     "ammo": {
       "version": "2.0.4",
-      "resolved": "https://registry.npmjs.org/ammo/-/ammo-2.0.4.tgz",
-      "integrity": "sha1-v4CqshFpjqePY+9efxE91dnokX8="
+      "from": "ammo@https://registry.npmjs.org/ammo/-/ammo-2.0.4.tgz",
+      "resolved": "https://registry.npmjs.org/ammo/-/ammo-2.0.4.tgz"
+    },
+    "ansi-escapes": {
+      "version": "3.0.0",
+      "from": "ansi-escapes@>=3.0.0 <4.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/ansi-escapes/-/ansi-escapes-3.0.0.tgz",
+      "dev": true
+    },
+    "ansi-regex": {
+      "version": "2.1.1",
+      "from": "ansi-regex@>=2.0.0 <3.0.0",
+      "resolved": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-2.1.1.tgz",
+      "dev": true
+    },
+    "ansi-styles": {
+      "version": "2.2.1",
+      "from": "ansi-styles@>=2.2.1 <3.0.0",
+      "resolved": "https://registry.npmjs.org/ansi-styles/-/ansi-styles-2.2.1.tgz",
+      "dev": true
+    },
+    "argparse": {
+      "version": "1.0.10",
+      "from": "argparse@>=1.0.7 <2.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/argparse/-/argparse-1.0.10.tgz",
+      "dev": true
+    },
+    "array-union": {
+      "version": "1.0.2",
+      "from": "array-union@>=1.0.1 <2.0.0",
+      "resolved": "https://registry.npmjs.org/array-union/-/array-union-1.0.2.tgz",
+      "dev": true
+    },
+    "array-uniq": {
+      "version": "1.0.3",
+      "from": "array-uniq@>=1.0.1 <2.0.0",
+      "resolved": "https://registry.npmjs.org/array-uniq/-/array-uniq-1.0.3.tgz",
+      "dev": true
+    },
+    "arrify": {
+      "version": "1.0.1",
+      "from": "arrify@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/arrify/-/arrify-1.0.1.tgz",
+      "dev": true
+    },
+    "async": {
+      "version": "1.5.2",
+      "from": "async@>=1.4.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/async/-/async-1.5.2.tgz",
+      "dev": true
     },
     "b64": {
       "version": "3.0.2",
-      "resolved": "https://registry.npmjs.org/b64/-/b64-3.0.2.tgz",
-      "integrity": "sha1-ep1gRmrfe43hFMvfZRpf38yQiU0="
+      "from": "b64@https://registry.npmjs.org/b64/-/b64-3.0.2.tgz",
+      "resolved": "https://registry.npmjs.org/b64/-/b64-3.0.2.tgz"
+    },
+    "babel-code-frame": {
+      "version": "6.26.0",
+      "from": "babel-code-frame@>=6.22.0 <7.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/babel-code-frame/-/babel-code-frame-6.26.0.tgz",
+      "dev": true,
+      "dependencies": {
+        "chalk": {
+          "version": "1.1.3",
+          "from": "chalk@>=1.1.3 <2.0.0",
+          "resolved": "https://registry.npmjs.org/chalk/-/chalk-1.1.3.tgz",
+          "dev": true
+        },
+        "strip-ansi": {
+          "version": "3.0.1",
+          "from": "strip-ansi@>=3.0.0 <4.0.0",
+          "resolved": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-3.0.1.tgz",
+          "dev": true
+        },
+        "supports-color": {
+          "version": "2.0.0",
+          "from": "supports-color@>=2.0.0 <3.0.0",
+          "resolved": "https://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
+          "dev": true
+        }
+      }
+    },
+    "balanced-match": {
+      "version": "1.0.0",
+      "from": "balanced-match@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.0.tgz",
+      "dev": true
     },
     "boom": {
       "version": "5.2.0",
-      "resolved": "https://registry.npmjs.org/boom/-/boom-5.2.0.tgz",
-      "integrity": "sha1-XdnabuOl8wIHdDYpDLcX0/SlTgI="
+      "from": "boom@https://registry.npmjs.org/boom/-/boom-5.2.0.tgz",
+      "resolved": "https://registry.npmjs.org/boom/-/boom-5.2.0.tgz"
+    },
+    "bossy": {
+      "version": "3.0.4",
+      "from": "bossy@>=3.0.0 <4.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/bossy/-/bossy-3.0.4.tgz",
+      "dev": true,
+      "dependencies": {
+        "joi": {
+          "version": "10.6.0",
+          "from": "joi@10.x.x",
+          "resolved": "https://repository.cars.com/artifactory/api/npm/npm/joi/-/joi-10.6.0.tgz",
+          "dev": true
+        }
+      }
+    },
+    "brace-expansion": {
+      "version": "1.1.11",
+      "from": "brace-expansion@>=1.1.7 <2.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/brace-expansion/-/brace-expansion-1.1.11.tgz",
+      "dev": true
     },
     "call": {
       "version": "4.0.2",
-      "resolved": "https://registry.npmjs.org/call/-/call-4.0.2.tgz",
-      "integrity": "sha1-33b19R7o3Ui4VqyEAPfmnm1zmcQ="
+      "from": "call@https://registry.npmjs.org/call/-/call-4.0.2.tgz",
+      "resolved": "https://registry.npmjs.org/call/-/call-4.0.2.tgz"
+    },
+    "caller-path": {
+      "version": "0.1.0",
+      "from": "caller-path@>=0.1.0 <0.2.0",
+      "resolved": "https://registry.npmjs.org/caller-path/-/caller-path-0.1.0.tgz",
+      "dev": true
+    },
+    "callsites": {
+      "version": "0.2.0",
+      "from": "callsites@>=0.2.0 <0.3.0",
+      "resolved": "https://registry.npmjs.org/callsites/-/callsites-0.2.0.tgz",
+      "dev": true
+    },
+    "camelcase": {
+      "version": "1.2.1",
+      "from": "camelcase@>=1.0.2 <2.0.0",
+      "resolved": "https://registry.npmjs.org/camelcase/-/camelcase-1.2.1.tgz",
+      "dev": true,
+      "optional": true
     },
     "catbox": {
       "version": "7.1.5",
+      "from": "catbox@https://registry.npmjs.org/catbox/-/catbox-7.1.5.tgz",
       "resolved": "https://registry.npmjs.org/catbox/-/catbox-7.1.5.tgz",
-      "integrity": "sha1-xW9+jpVV0nwNwDipbvc+V9GGux8="
+      "dependencies": {
+        "joi": {
+          "version": "10.6.0",
+          "from": "joi@>=10.0.0 <11.0.0",
+          "resolved": "https://repository.cars.com/artifactory/api/npm/npm/joi/-/joi-10.6.0.tgz"
+        }
+      }
     },
     "catbox-memory": {
       "version": "2.0.4",
-      "resolved": "https://registry.npmjs.org/catbox-memory/-/catbox-memory-2.0.4.tgz",
-      "integrity": "sha1-Qz4lWQLK9UIz0ShkKcj03xToItU="
+      "from": "catbox-memory@https://registry.npmjs.org/catbox-memory/-/catbox-memory-2.0.4.tgz",
+      "resolved": "https://registry.npmjs.org/catbox-memory/-/catbox-memory-2.0.4.tgz"
+    },
+    "center-align": {
+      "version": "0.1.3",
+      "from": "center-align@>=0.1.1 <0.2.0",
+      "resolved": "https://registry.npmjs.org/center-align/-/center-align-0.1.3.tgz",
+      "dev": true,
+      "optional": true
+    },
+    "chalk": {
+      "version": "2.3.1",
+      "from": "chalk@>=2.1.0 <3.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/chalk/-/chalk-2.3.1.tgz",
+      "dev": true,
+      "dependencies": {
+        "ansi-styles": {
+          "version": "3.2.0",
+          "from": "ansi-styles@>=3.2.0 <4.0.0",
+          "resolved": "https://repository.cars.com/artifactory/api/npm/npm/ansi-styles/-/ansi-styles-3.2.0.tgz",
+          "dev": true
+        },
+        "supports-color": {
+          "version": "5.2.0",
+          "from": "supports-color@>=5.2.0 <6.0.0",
+          "resolved": "https://repository.cars.com/artifactory/api/npm/npm/supports-color/-/supports-color-5.2.0.tgz",
+          "dev": true
+        }
+      }
+    },
+    "chardet": {
+      "version": "0.4.2",
+      "from": "chardet@>=0.4.0 <0.5.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/chardet/-/chardet-0.4.2.tgz",
+      "dev": true
+    },
+    "circular-json": {
+      "version": "0.3.3",
+      "from": "circular-json@>=0.3.1 <0.4.0",
+      "resolved": "https://registry.npmjs.org/circular-json/-/circular-json-0.3.3.tgz",
+      "dev": true
+    },
+    "cli-cursor": {
+      "version": "2.1.0",
+      "from": "cli-cursor@>=2.1.0 <3.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/cli-cursor/-/cli-cursor-2.1.0.tgz",
+      "dev": true
+    },
+    "cli-width": {
+      "version": "2.2.0",
+      "from": "cli-width@>=2.0.0 <3.0.0",
+      "resolved": "https://registry.npmjs.org/cli-width/-/cli-width-2.2.0.tgz",
+      "dev": true
+    },
+    "cliui": {
+      "version": "2.1.0",
+      "from": "cliui@>=2.1.0 <3.0.0",
+      "resolved": "https://registry.npmjs.org/cliui/-/cliui-2.1.0.tgz",
+      "dev": true,
+      "optional": true,
+      "dependencies": {
+        "wordwrap": {
+          "version": "0.0.2",
+          "from": "wordwrap@0.0.2",
+          "resolved": "https://registry.npmjs.org/wordwrap/-/wordwrap-0.0.2.tgz",
+          "dev": true,
+          "optional": true
+        }
+      }
+    },
+    "co": {
+      "version": "4.6.0",
+      "from": "co@>=4.6.0 <5.0.0",
+      "resolved": "https://registry.npmjs.org/co/-/co-4.6.0.tgz",
+      "dev": true
+    },
+    "code": {
+      "version": "4.1.0",
+      "from": "code@>=4.0.0 <5.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/code/-/code-4.1.0.tgz",
+      "dev": true
+    },
+    "color-convert": {
+      "version": "1.9.1",
+      "from": "color-convert@>=1.9.0 <2.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/color-convert/-/color-convert-1.9.1.tgz",
+      "dev": true
+    },
+    "color-name": {
+      "version": "1.1.3",
+      "from": "color-name@>=1.1.1 <2.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/color-name/-/color-name-1.1.3.tgz",
+      "dev": true
+    },
+    "concat-map": {
+      "version": "0.0.1",
+      "from": "concat-map@0.0.1",
+      "resolved": "https://registry.npmjs.org/concat-map/-/concat-map-0.0.1.tgz",
+      "dev": true
+    },
+    "concat-stream": {
+      "version": "1.6.0",
+      "from": "concat-stream@>=1.6.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/concat-stream/-/concat-stream-1.6.0.tgz",
+      "dev": true
     },
     "content": {
       "version": "3.0.6",
-      "resolved": "https://registry.npmjs.org/content/-/content-3.0.6.tgz",
-      "integrity": "sha1-nC4wHprlFe1lpLh314qlZZuxuAk="
+      "from": "content@https://registry.npmjs.org/content/-/content-3.0.6.tgz",
+      "resolved": "https://registry.npmjs.org/content/-/content-3.0.6.tgz"
+    },
+    "core-util-is": {
+      "version": "1.0.2",
+      "from": "core-util-is@>=1.0.0 <1.1.0",
+      "resolved": "https://registry.npmjs.org/core-util-is/-/core-util-is-1.0.2.tgz",
+      "dev": true
+    },
+    "cross-spawn": {
+      "version": "5.1.0",
+      "from": "cross-spawn@>=5.1.0 <6.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/cross-spawn/-/cross-spawn-5.1.0.tgz",
+      "dev": true
     },
     "cryptiles": {
       "version": "3.1.2",
-      "resolved": "https://registry.npmjs.org/cryptiles/-/cryptiles-3.1.2.tgz",
-      "integrity": "sha1-qJ+7Ig9c4l7FboxKqKT9e1sNKf4="
+      "from": "cryptiles@https://registry.npmjs.org/cryptiles/-/cryptiles-3.1.2.tgz",
+      "resolved": "https://registry.npmjs.org/cryptiles/-/cryptiles-3.1.2.tgz"
+    },
+    "debug": {
+      "version": "3.1.0",
+      "from": "debug@>=3.0.1 <4.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/debug/-/debug-3.1.0.tgz",
+      "dev": true
+    },
+    "decamelize": {
+      "version": "1.2.0",
+      "from": "decamelize@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/decamelize/-/decamelize-1.2.0.tgz",
+      "dev": true,
+      "optional": true
+    },
+    "deep-is": {
+      "version": "0.1.3",
+      "from": "deep-is@>=0.1.3 <0.2.0",
+      "resolved": "https://registry.npmjs.org/deep-is/-/deep-is-0.1.3.tgz",
+      "dev": true
+    },
+    "del": {
+      "version": "2.2.2",
+      "from": "del@>=2.0.2 <3.0.0",
+      "resolved": "https://registry.npmjs.org/del/-/del-2.2.2.tgz",
+      "dev": true
+    },
+    "diff": {
+      "version": "3.3.1",
+      "from": "diff@>=3.3.0 <3.4.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/diff/-/diff-3.3.1.tgz",
+      "dev": true
+    },
+    "doctrine": {
+      "version": "2.1.0",
+      "from": "doctrine@>=2.0.0 <3.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/doctrine/-/doctrine-2.1.0.tgz",
+      "dev": true
+    },
+    "escape-string-regexp": {
+      "version": "1.0.5",
+      "from": "escape-string-regexp@>=1.0.2 <2.0.0",
+      "resolved": "https://registry.npmjs.org/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz",
+      "dev": true
+    },
+    "eslint": {
+      "version": "4.7.2",
+      "from": "eslint@>=4.7.0 <4.8.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/eslint/-/eslint-4.7.2.tgz",
+      "dev": true
+    },
+    "eslint-config-hapi": {
+      "version": "10.1.0",
+      "from": "eslint-config-hapi@>=10.0.0 <11.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/eslint-config-hapi/-/eslint-config-hapi-10.1.0.tgz",
+      "dev": true
+    },
+    "eslint-plugin-hapi": {
+      "version": "4.1.0",
+      "from": "eslint-plugin-hapi@>=4.0.0 <5.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/eslint-plugin-hapi/-/eslint-plugin-hapi-4.1.0.tgz",
+      "dev": true
+    },
+    "eslint-scope": {
+      "version": "3.7.1",
+      "from": "eslint-scope@>=3.7.1 <4.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/eslint-scope/-/eslint-scope-3.7.1.tgz",
+      "dev": true
+    },
+    "espree": {
+      "version": "3.5.3",
+      "from": "espree@>=3.5.0 <3.6.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/espree/-/espree-3.5.3.tgz",
+      "dev": true
+    },
+    "esprima": {
+      "version": "4.0.0",
+      "from": "esprima@>=4.0.0 <5.0.0",
+      "resolved": "https://registry.npmjs.org/esprima/-/esprima-4.0.0.tgz",
+      "dev": true
+    },
+    "esquery": {
+      "version": "1.0.0",
+      "from": "esquery@>=1.0.0 <2.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/esquery/-/esquery-1.0.0.tgz",
+      "dev": true
+    },
+    "esrecurse": {
+      "version": "4.2.0",
+      "from": "esrecurse@>=4.1.0 <5.0.0",
+      "resolved": "https://registry.npmjs.org/esrecurse/-/esrecurse-4.2.0.tgz",
+      "dev": true
+    },
+    "estraverse": {
+      "version": "4.2.0",
+      "from": "estraverse@>=4.2.0 <5.0.0",
+      "resolved": "https://registry.npmjs.org/estraverse/-/estraverse-4.2.0.tgz",
+      "dev": true
+    },
+    "esutils": {
+      "version": "2.0.2",
+      "from": "esutils@>=2.0.2 <3.0.0",
+      "resolved": "https://registry.npmjs.org/esutils/-/esutils-2.0.2.tgz",
+      "dev": true
+    },
+    "external-editor": {
+      "version": "2.1.0",
+      "from": "external-editor@>=2.0.4 <3.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/external-editor/-/external-editor-2.1.0.tgz",
+      "dev": true
+    },
+    "fast-deep-equal": {
+      "version": "1.0.0",
+      "from": "fast-deep-equal@>=1.0.0 <2.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/fast-deep-equal/-/fast-deep-equal-1.0.0.tgz",
+      "dev": true
+    },
+    "fast-json-stable-stringify": {
+      "version": "2.0.0",
+      "from": "fast-json-stable-stringify@>=2.0.0 <3.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/fast-json-stable-stringify/-/fast-json-stable-stringify-2.0.0.tgz",
+      "dev": true
+    },
+    "fast-levenshtein": {
+      "version": "2.0.6",
+      "from": "fast-levenshtein@>=2.0.4 <2.1.0",
+      "resolved": "https://registry.npmjs.org/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz",
+      "dev": true
+    },
+    "figures": {
+      "version": "2.0.0",
+      "from": "figures@>=2.0.0 <3.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/figures/-/figures-2.0.0.tgz",
+      "dev": true
+    },
+    "file-entry-cache": {
+      "version": "2.0.0",
+      "from": "file-entry-cache@>=2.0.0 <3.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/file-entry-cache/-/file-entry-cache-2.0.0.tgz",
+      "dev": true
+    },
+    "find-rc": {
+      "version": "3.0.1",
+      "from": "find-rc@>=3.0.0 <3.1.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/find-rc/-/find-rc-3.0.1.tgz",
+      "dev": true
+    },
+    "flat-cache": {
+      "version": "1.3.0",
+      "from": "flat-cache@>=1.2.1 <2.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/flat-cache/-/flat-cache-1.3.0.tgz",
+      "dev": true
+    },
+    "fs.realpath": {
+      "version": "1.0.0",
+      "from": "fs.realpath@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/fs.realpath/-/fs.realpath-1.0.0.tgz",
+      "dev": true
+    },
+    "functional-red-black-tree": {
+      "version": "1.0.1",
+      "from": "functional-red-black-tree@>=1.0.1 <2.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/functional-red-black-tree/-/functional-red-black-tree-1.0.1.tgz",
+      "dev": true
+    },
+    "glob": {
+      "version": "7.1.2",
+      "from": "glob@>=7.1.2 <8.0.0",
+      "resolved": "https://registry.npmjs.org/glob/-/glob-7.1.2.tgz",
+      "dev": true
+    },
+    "globals": {
+      "version": "9.18.0",
+      "from": "globals@>=9.17.0 <10.0.0",
+      "resolved": "https://registry.npmjs.org/globals/-/globals-9.18.0.tgz",
+      "dev": true
+    },
+    "globby": {
+      "version": "5.0.0",
+      "from": "globby@>=5.0.0 <6.0.0",
+      "resolved": "https://registry.npmjs.org/globby/-/globby-5.0.0.tgz",
+      "dev": true
+    },
+    "graceful-fs": {
+      "version": "4.1.11",
+      "from": "graceful-fs@>=4.1.2 <5.0.0",
+      "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.1.11.tgz",
+      "dev": true
+    },
+    "handlebars": {
+      "version": "4.0.11",
+      "from": "handlebars@>=4.0.0 <5.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/handlebars/-/handlebars-4.0.11.tgz",
+      "dev": true
+    },
+    "hapi-capitalize-modules": {
+      "version": "1.1.6",
+      "from": "hapi-capitalize-modules@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/hapi-capitalize-modules/-/hapi-capitalize-modules-1.1.6.tgz",
+      "dev": true
+    },
+    "hapi-for-you": {
+      "version": "1.0.0",
+      "from": "hapi-for-you@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/hapi-for-you/-/hapi-for-you-1.0.0.tgz",
+      "dev": true
+    },
+    "hapi-no-var": {
+      "version": "1.0.1",
+      "from": "hapi-no-var@>=1.0.0 <2.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/hapi-no-var/-/hapi-no-var-1.0.1.tgz",
+      "dev": true
+    },
+    "hapi-scope-start": {
+      "version": "2.1.1",
+      "from": "hapi-scope-start@>=2.0.0 <3.0.0",
+      "resolved": "https://registry.npmjs.org/hapi-scope-start/-/hapi-scope-start-2.1.1.tgz",
+      "dev": true
+    },
+    "has-ansi": {
+      "version": "2.0.0",
+      "from": "has-ansi@>=2.0.0 <3.0.0",
+      "resolved": "https://registry.npmjs.org/has-ansi/-/has-ansi-2.0.0.tgz",
+      "dev": true
+    },
+    "has-flag": {
+      "version": "3.0.0",
+      "from": "has-flag@>=3.0.0 <4.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/has-flag/-/has-flag-3.0.0.tgz",
+      "dev": true
     },
     "heavy": {
       "version": "4.0.4",
+      "from": "heavy@https://registry.npmjs.org/heavy/-/heavy-4.0.4.tgz",
       "resolved": "https://registry.npmjs.org/heavy/-/heavy-4.0.4.tgz",
-      "integrity": "sha1-NskTNsAMz+hSyqTRUwhjNc0vAOk="
+      "dependencies": {
+        "joi": {
+          "version": "10.6.0",
+          "from": "joi@10.x.x",
+          "resolved": "https://repository.cars.com/artifactory/api/npm/npm/joi/-/joi-10.6.0.tgz"
+        }
+      }
     },
     "hoek": {
-      "version": "4.2.0",
-      "resolved": "https://registry.npmjs.org/hoek/-/hoek-4.2.0.tgz",
-      "integrity": "sha1-ctnQdU9/4lyi0BrY+PmpRJqJUm0="
+      "version": "4.2.1",
+      "from": "hoek@4.2.1",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/hoek/-/hoek-4.2.1.tgz"
+    },
+    "iconv-lite": {
+      "version": "0.4.19",
+      "from": "iconv-lite@>=0.4.17 <0.5.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/iconv-lite/-/iconv-lite-0.4.19.tgz",
+      "dev": true
+    },
+    "ignore": {
+      "version": "3.3.7",
+      "from": "ignore@>=3.3.3 <4.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/ignore/-/ignore-3.3.7.tgz",
+      "dev": true
+    },
+    "imurmurhash": {
+      "version": "0.1.4",
+      "from": "imurmurhash@>=0.1.4 <0.2.0",
+      "resolved": "https://registry.npmjs.org/imurmurhash/-/imurmurhash-0.1.4.tgz",
+      "dev": true
+    },
+    "inert": {
+      "version": "4.2.1",
+      "from": "inert@>=4.0.0 <5.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/inert/-/inert-4.2.1.tgz",
+      "dev": true,
+      "dependencies": {
+        "joi": {
+          "version": "10.6.0",
+          "from": "joi@10.x.x",
+          "resolved": "https://repository.cars.com/artifactory/api/npm/npm/joi/-/joi-10.6.0.tgz",
+          "dev": true
+        }
+      }
+    },
+    "inflight": {
+      "version": "1.0.6",
+      "from": "inflight@>=1.0.4 <2.0.0",
+      "resolved": "https://registry.npmjs.org/inflight/-/inflight-1.0.6.tgz",
+      "dev": true
+    },
+    "inherits": {
+      "version": "2.0.3",
+      "from": "inherits@>=2.0.3 <3.0.0",
+      "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.3.tgz",
+      "dev": true
+    },
+    "inquirer": {
+      "version": "3.3.0",
+      "from": "inquirer@>=3.0.6 <4.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/inquirer/-/inquirer-3.3.0.tgz",
+      "dev": true
     },
     "iron": {
       "version": "4.0.5",
-      "resolved": "https://registry.npmjs.org/iron/-/iron-4.0.5.tgz",
-      "integrity": "sha1-TwQszri5c480a1mqc0yDqJvDFCg="
+      "from": "iron@https://registry.npmjs.org/iron/-/iron-4.0.5.tgz",
+      "resolved": "https://registry.npmjs.org/iron/-/iron-4.0.5.tgz"
+    },
+    "is-buffer": {
+      "version": "1.1.6",
+      "from": "is-buffer@>=1.1.5 <2.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/is-buffer/-/is-buffer-1.1.6.tgz",
+      "dev": true
+    },
+    "is-fullwidth-code-point": {
+      "version": "2.0.0",
+      "from": "is-fullwidth-code-point@>=2.0.0 <3.0.0",
+      "resolved": "https://registry.npmjs.org/is-fullwidth-code-point/-/is-fullwidth-code-point-2.0.0.tgz",
+      "dev": true
+    },
+    "is-path-cwd": {
+      "version": "1.0.0",
+      "from": "is-path-cwd@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/is-path-cwd/-/is-path-cwd-1.0.0.tgz",
+      "dev": true
+    },
+    "is-path-in-cwd": {
+      "version": "1.0.0",
+      "from": "is-path-in-cwd@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/is-path-in-cwd/-/is-path-in-cwd-1.0.0.tgz",
+      "dev": true
+    },
+    "is-path-inside": {
+      "version": "1.0.1",
+      "from": "is-path-inside@>=1.0.0 <2.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/is-path-inside/-/is-path-inside-1.0.1.tgz",
+      "dev": true
+    },
+    "is-promise": {
+      "version": "2.1.0",
+      "from": "is-promise@>=2.1.0 <3.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/is-promise/-/is-promise-2.1.0.tgz",
+      "dev": true
+    },
+    "is-resolvable": {
+      "version": "1.1.0",
+      "from": "is-resolvable@>=1.0.0 <2.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/is-resolvable/-/is-resolvable-1.1.0.tgz",
+      "dev": true
+    },
+    "isarray": {
+      "version": "1.0.0",
+      "from": "isarray@>=1.0.0 <1.1.0",
+      "resolved": "https://registry.npmjs.org/isarray/-/isarray-1.0.0.tgz",
+      "dev": true
+    },
+    "isemail": {
+      "version": "2.2.1",
+      "from": "isemail@>=2.0.0 <3.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/isemail/-/isemail-2.2.1.tgz"
+    },
+    "isexe": {
+      "version": "2.0.0",
+      "from": "isexe@>=2.0.0 <3.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/isexe/-/isexe-2.0.0.tgz",
+      "dev": true
     },
     "items": {
       "version": "2.1.1",
-      "resolved": "https://registry.npmjs.org/items/-/items-2.1.1.tgz",
-      "integrity": "sha1-i9FtnIOxlSneWuoyGsqtp4NkoZg="
+      "from": "items@https://registry.npmjs.org/items/-/items-2.1.1.tgz",
+      "resolved": "https://registry.npmjs.org/items/-/items-2.1.1.tgz"
     },
     "joi": {
       "version": "11.1.0",
+      "from": "joi@https://registry.npmjs.org/joi/-/joi-11.1.0.tgz",
       "resolved": "https://registry.npmjs.org/joi/-/joi-11.1.0.tgz",
-      "integrity": "sha1-Orz+PuFANv6VVMPSa1RXB1w9wmc="
+      "dependencies": {
+        "isemail": {
+          "version": "3.1.1",
+          "from": "isemail@>=3.0.0 <4.0.0",
+          "resolved": "https://repository.cars.com/artifactory/api/npm/npm/isemail/-/isemail-3.1.1.tgz"
+        }
+      }
+    },
+    "js-tokens": {
+      "version": "3.0.2",
+      "from": "js-tokens@>=3.0.2 <4.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/js-tokens/-/js-tokens-3.0.2.tgz",
+      "dev": true
+    },
+    "js-yaml": {
+      "version": "3.10.0",
+      "from": "js-yaml@>=3.9.1 <4.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/js-yaml/-/js-yaml-3.10.0.tgz",
+      "dev": true
+    },
+    "json-schema-traverse": {
+      "version": "0.3.1",
+      "from": "json-schema-traverse@>=0.3.0 <0.4.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/json-schema-traverse/-/json-schema-traverse-0.3.1.tgz",
+      "dev": true
+    },
+    "json-stable-stringify": {
+      "version": "1.0.1",
+      "from": "json-stable-stringify@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/json-stable-stringify/-/json-stable-stringify-1.0.1.tgz",
+      "dev": true
+    },
+    "json-stringify-safe": {
+      "version": "5.0.1",
+      "from": "json-stringify-safe@>=5.0.0 <6.0.0",
+      "resolved": "https://registry.npmjs.org/json-stringify-safe/-/json-stringify-safe-5.0.1.tgz",
+      "dev": true
+    },
+    "jsonify": {
+      "version": "0.0.0",
+      "from": "jsonify@>=0.0.0 <0.1.0",
+      "resolved": "https://registry.npmjs.org/jsonify/-/jsonify-0.0.0.tgz",
+      "dev": true
+    },
+    "kind-of": {
+      "version": "3.2.2",
+      "from": "kind-of@>=3.0.2 <4.0.0",
+      "resolved": "https://registry.npmjs.org/kind-of/-/kind-of-3.2.2.tgz",
+      "dev": true
+    },
+    "lab": {
+      "version": "14.3.2",
+      "from": "lab@>=14.0.0 <15.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/lab/-/lab-14.3.2.tgz",
+      "dev": true,
+      "dependencies": {
+        "source-map": {
+          "version": "0.6.1",
+          "from": "source-map@>=0.6.0 <0.7.0",
+          "resolved": "https://repository.cars.com/artifactory/api/npm/npm/source-map/-/source-map-0.6.1.tgz",
+          "dev": true
+        }
+      }
+    },
+    "lazy-cache": {
+      "version": "1.0.4",
+      "from": "lazy-cache@>=1.0.3 <2.0.0",
+      "resolved": "https://registry.npmjs.org/lazy-cache/-/lazy-cache-1.0.4.tgz",
+      "dev": true,
+      "optional": true
+    },
+    "levn": {
+      "version": "0.3.0",
+      "from": "levn@>=0.3.0 <0.4.0",
+      "resolved": "https://registry.npmjs.org/levn/-/levn-0.3.0.tgz",
+      "dev": true
+    },
+    "lodash": {
+      "version": "4.17.5",
+      "from": "lodash@>=4.17.4 <5.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/lodash/-/lodash-4.17.5.tgz",
+      "dev": true
+    },
+    "longest": {
+      "version": "1.0.1",
+      "from": "longest@>=1.0.1 <2.0.0",
+      "resolved": "https://registry.npmjs.org/longest/-/longest-1.0.1.tgz",
+      "dev": true
+    },
+    "lru-cache": {
+      "version": "4.1.1",
+      "from": "lru-cache@>=4.1.0 <4.2.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/lru-cache/-/lru-cache-4.1.1.tgz",
+      "dev": true
     },
     "mime-db": {
       "version": "1.29.0",
-      "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.29.0.tgz",
-      "integrity": "sha1-SNJtI1WJZRcErFkWygYAGRQmaHg="
+      "from": "mime-db@https://registry.npmjs.org/mime-db/-/mime-db-1.29.0.tgz",
+      "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.29.0.tgz"
+    },
+    "mimic-fn": {
+      "version": "1.2.0",
+      "from": "mimic-fn@>=1.0.0 <2.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/mimic-fn/-/mimic-fn-1.2.0.tgz",
+      "dev": true
     },
     "mimos": {
       "version": "3.0.3",
-      "resolved": "https://registry.npmjs.org/mimos/-/mimos-3.0.3.tgz",
-      "integrity": "sha1-uRCQcq03jCty9qAQHEPd+ys2ZB8="
+      "from": "mimos@https://registry.npmjs.org/mimos/-/mimos-3.0.3.tgz",
+      "resolved": "https://registry.npmjs.org/mimos/-/mimos-3.0.3.tgz"
+    },
+    "minimatch": {
+      "version": "3.0.4",
+      "from": "minimatch@>=3.0.2 <4.0.0",
+      "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-3.0.4.tgz",
+      "dev": true
+    },
+    "minimist": {
+      "version": "0.0.10",
+      "from": "minimist@>=0.0.1 <0.1.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/minimist/-/minimist-0.0.10.tgz",
+      "dev": true
+    },
+    "mkdirp": {
+      "version": "0.5.1",
+      "from": "mkdirp@>=0.5.0 <0.6.0",
+      "resolved": "https://registry.npmjs.org/mkdirp/-/mkdirp-0.5.1.tgz",
+      "dev": true,
+      "dependencies": {
+        "minimist": {
+          "version": "0.0.8",
+          "from": "minimist@0.0.8",
+          "resolved": "https://registry.npmjs.org/minimist/-/minimist-0.0.8.tgz",
+          "dev": true
+        }
+      }
+    },
+    "ms": {
+      "version": "2.0.0",
+      "from": "ms@2.0.0",
+      "resolved": "https://registry.npmjs.org/ms/-/ms-2.0.0.tgz",
+      "dev": true
+    },
+    "mute-stream": {
+      "version": "0.0.7",
+      "from": "mute-stream@0.0.7",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/mute-stream/-/mute-stream-0.0.7.tgz",
+      "dev": true
+    },
+    "natural-compare": {
+      "version": "1.4.0",
+      "from": "natural-compare@>=1.4.0 <2.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/natural-compare/-/natural-compare-1.4.0.tgz",
+      "dev": true
     },
     "nigel": {
       "version": "2.0.2",
-      "resolved": "https://registry.npmjs.org/nigel/-/nigel-2.0.2.tgz",
-      "integrity": "sha1-k6GGb7DFLYc5CqdeKxYfS1x15bE="
+      "from": "nigel@https://registry.npmjs.org/nigel/-/nigel-2.0.2.tgz",
+      "resolved": "https://registry.npmjs.org/nigel/-/nigel-2.0.2.tgz"
+    },
+    "no-arrowception": {
+      "version": "1.0.0",
+      "from": "no-arrowception@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/no-arrowception/-/no-arrowception-1.0.0.tgz",
+      "dev": true
+    },
+    "object-assign": {
+      "version": "4.1.1",
+      "from": "object-assign@>=4.0.1 <5.0.0",
+      "resolved": "https://registry.npmjs.org/object-assign/-/object-assign-4.1.1.tgz",
+      "dev": true
+    },
+    "once": {
+      "version": "1.4.0",
+      "from": "once@>=1.3.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/once/-/once-1.4.0.tgz",
+      "dev": true
+    },
+    "onetime": {
+      "version": "2.0.1",
+      "from": "onetime@>=2.0.0 <3.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/onetime/-/onetime-2.0.1.tgz",
+      "dev": true
+    },
+    "optimist": {
+      "version": "0.6.1",
+      "from": "optimist@>=0.6.1 <0.7.0",
+      "resolved": "https://registry.npmjs.org/optimist/-/optimist-0.6.1.tgz",
+      "dev": true
+    },
+    "optionator": {
+      "version": "0.8.2",
+      "from": "optionator@>=0.8.2 <0.9.0",
+      "resolved": "https://registry.npmjs.org/optionator/-/optionator-0.8.2.tgz",
+      "dev": true,
+      "dependencies": {
+        "wordwrap": {
+          "version": "1.0.0",
+          "from": "wordwrap@>=1.0.0 <1.1.0",
+          "resolved": "https://registry.npmjs.org/wordwrap/-/wordwrap-1.0.0.tgz",
+          "dev": true
+        }
+      }
+    },
+    "os-tmpdir": {
+      "version": "1.0.2",
+      "from": "os-tmpdir@>=1.0.2 <1.1.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/os-tmpdir/-/os-tmpdir-1.0.2.tgz",
+      "dev": true
+    },
+    "path-is-absolute": {
+      "version": "1.0.1",
+      "from": "path-is-absolute@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/path-is-absolute/-/path-is-absolute-1.0.1.tgz",
+      "dev": true
+    },
+    "path-is-inside": {
+      "version": "1.0.2",
+      "from": "path-is-inside@>=1.0.2 <2.0.0",
+      "resolved": "https://registry.npmjs.org/path-is-inside/-/path-is-inside-1.0.2.tgz",
+      "dev": true
     },
     "pez": {
       "version": "2.1.5",
-      "resolved": "https://registry.npmjs.org/pez/-/pez-2.1.5.tgz",
-      "integrity": "sha1-XsLMYlAMw+tCNtSkFM9aF7XrUAc="
+      "from": "pez@https://registry.npmjs.org/pez/-/pez-2.1.5.tgz",
+      "resolved": "https://registry.npmjs.org/pez/-/pez-2.1.5.tgz"
+    },
+    "pify": {
+      "version": "2.3.0",
+      "from": "pify@>=2.0.0 <3.0.0",
+      "resolved": "https://registry.npmjs.org/pify/-/pify-2.3.0.tgz",
+      "dev": true
+    },
+    "pinkie": {
+      "version": "2.0.4",
+      "from": "pinkie@>=2.0.0 <3.0.0",
+      "resolved": "https://registry.npmjs.org/pinkie/-/pinkie-2.0.4.tgz",
+      "dev": true
+    },
+    "pinkie-promise": {
+      "version": "2.0.1",
+      "from": "pinkie-promise@>=2.0.0 <3.0.0",
+      "resolved": "https://registry.npmjs.org/pinkie-promise/-/pinkie-promise-2.0.1.tgz",
+      "dev": true
+    },
+    "pluralize": {
+      "version": "7.0.0",
+      "from": "pluralize@>=7.0.0 <8.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/pluralize/-/pluralize-7.0.0.tgz",
+      "dev": true
     },
     "podium": {
       "version": "1.3.0",
+      "from": "podium@https://registry.npmjs.org/podium/-/podium-1.3.0.tgz",
       "resolved": "https://registry.npmjs.org/podium/-/podium-1.3.0.tgz",
-      "integrity": "sha1-PEkPVNFvEPUmDL6YZB8ctzOohRw="
+      "dependencies": {
+        "joi": {
+          "version": "10.6.0",
+          "from": "joi@10.x.x",
+          "resolved": "https://repository.cars.com/artifactory/api/npm/npm/joi/-/joi-10.6.0.tgz"
+        }
+      }
+    },
+    "prelude-ls": {
+      "version": "1.1.2",
+      "from": "prelude-ls@>=1.1.2 <1.2.0",
+      "resolved": "https://registry.npmjs.org/prelude-ls/-/prelude-ls-1.1.2.tgz",
+      "dev": true
+    },
+    "process-nextick-args": {
+      "version": "2.0.0",
+      "from": "process-nextick-args@>=2.0.0 <2.1.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/process-nextick-args/-/process-nextick-args-2.0.0.tgz",
+      "dev": true
+    },
+    "progress": {
+      "version": "2.0.0",
+      "from": "progress@>=2.0.0 <3.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/progress/-/progress-2.0.0.tgz",
+      "dev": true
+    },
+    "pseudomap": {
+      "version": "1.0.2",
+      "from": "pseudomap@>=1.0.2 <2.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/pseudomap/-/pseudomap-1.0.2.tgz",
+      "dev": true
+    },
+    "punycode": {
+      "version": "2.1.0",
+      "from": "punycode@>=2.0.0 <3.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/punycode/-/punycode-2.1.0.tgz"
+    },
+    "readable-stream": {
+      "version": "2.3.4",
+      "from": "readable-stream@>=2.2.2 <3.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/readable-stream/-/readable-stream-2.3.4.tgz",
+      "dev": true
+    },
+    "repeat-string": {
+      "version": "1.6.1",
+      "from": "repeat-string@>=1.5.2 <2.0.0",
+      "resolved": "https://registry.npmjs.org/repeat-string/-/repeat-string-1.6.1.tgz",
+      "dev": true
+    },
+    "require-uncached": {
+      "version": "1.0.3",
+      "from": "require-uncached@>=1.0.3 <2.0.0",
+      "resolved": "https://registry.npmjs.org/require-uncached/-/require-uncached-1.0.3.tgz",
+      "dev": true
+    },
+    "resolve-from": {
+      "version": "1.0.1",
+      "from": "resolve-from@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/resolve-from/-/resolve-from-1.0.1.tgz",
+      "dev": true
+    },
+    "restore-cursor": {
+      "version": "2.0.0",
+      "from": "restore-cursor@>=2.0.0 <3.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/restore-cursor/-/restore-cursor-2.0.0.tgz",
+      "dev": true
+    },
+    "right-align": {
+      "version": "0.1.3",
+      "from": "right-align@>=0.1.1 <0.2.0",
+      "resolved": "https://registry.npmjs.org/right-align/-/right-align-0.1.3.tgz",
+      "dev": true,
+      "optional": true
+    },
+    "rimraf": {
+      "version": "2.6.2",
+      "from": "rimraf@>=2.2.8 <3.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/rimraf/-/rimraf-2.6.2.tgz",
+      "dev": true
+    },
+    "run-async": {
+      "version": "2.3.0",
+      "from": "run-async@>=2.2.0 <3.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/run-async/-/run-async-2.3.0.tgz",
+      "dev": true
+    },
+    "rx-lite": {
+      "version": "4.0.8",
+      "from": "rx-lite@>=4.0.8 <5.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/rx-lite/-/rx-lite-4.0.8.tgz",
+      "dev": true
+    },
+    "rx-lite-aggregates": {
+      "version": "4.0.8",
+      "from": "rx-lite-aggregates@>=4.0.8 <5.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/rx-lite-aggregates/-/rx-lite-aggregates-4.0.8.tgz",
+      "dev": true
+    },
+    "safe-buffer": {
+      "version": "5.1.1",
+      "from": "safe-buffer@>=5.1.1 <5.2.0",
+      "resolved": "https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.1.1.tgz",
+      "dev": true
+    },
+    "seedrandom": {
+      "version": "2.4.3",
+      "from": "seedrandom@>=2.4.0 <2.5.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/seedrandom/-/seedrandom-2.4.3.tgz",
+      "dev": true
+    },
+    "semver": {
+      "version": "5.5.0",
+      "from": "semver@>=5.3.0 <6.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/semver/-/semver-5.5.0.tgz",
+      "dev": true
+    },
+    "shebang-command": {
+      "version": "1.2.0",
+      "from": "shebang-command@>=1.2.0 <2.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/shebang-command/-/shebang-command-1.2.0.tgz",
+      "dev": true
+    },
+    "shebang-regex": {
+      "version": "1.0.0",
+      "from": "shebang-regex@>=1.0.0 <2.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/shebang-regex/-/shebang-regex-1.0.0.tgz",
+      "dev": true
     },
     "shot": {
       "version": "3.4.2",
+      "from": "shot@https://registry.npmjs.org/shot/-/shot-3.4.2.tgz",
       "resolved": "https://registry.npmjs.org/shot/-/shot-3.4.2.tgz",
-      "integrity": "sha1-Hlw/bysmZJrcQvfrNQIUpaApHWc="
+      "dependencies": {
+        "joi": {
+          "version": "10.6.0",
+          "from": "joi@10.x.x",
+          "resolved": "https://repository.cars.com/artifactory/api/npm/npm/joi/-/joi-10.6.0.tgz"
+        }
+      }
+    },
+    "signal-exit": {
+      "version": "3.0.2",
+      "from": "signal-exit@>=3.0.2 <4.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/signal-exit/-/signal-exit-3.0.2.tgz",
+      "dev": true
+    },
+    "slice-ansi": {
+      "version": "1.0.0",
+      "from": "slice-ansi@1.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/slice-ansi/-/slice-ansi-1.0.0.tgz",
+      "dev": true
+    },
+    "source-map": {
+      "version": "0.4.4",
+      "from": "source-map@>=0.4.4 <0.5.0",
+      "resolved": "https://registry.npmjs.org/source-map/-/source-map-0.4.4.tgz",
+      "dev": true
+    },
+    "source-map-support": {
+      "version": "0.4.18",
+      "from": "source-map-support@>=0.4.0 <0.5.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/source-map-support/-/source-map-support-0.4.18.tgz",
+      "dev": true,
+      "dependencies": {
+        "source-map": {
+          "version": "0.5.7",
+          "from": "source-map@>=0.5.6 <0.6.0",
+          "resolved": "https://registry.npmjs.org/source-map/-/source-map-0.5.7.tgz",
+          "dev": true
+        }
+      }
+    },
+    "sprintf-js": {
+      "version": "1.0.3",
+      "from": "sprintf-js@>=1.0.2 <1.1.0",
+      "resolved": "https://registry.npmjs.org/sprintf-js/-/sprintf-js-1.0.3.tgz",
+      "dev": true
     },
     "statehood": {
       "version": "5.0.3",
+      "from": "statehood@https://registry.npmjs.org/statehood/-/statehood-5.0.3.tgz",
       "resolved": "https://registry.npmjs.org/statehood/-/statehood-5.0.3.tgz",
-      "integrity": "sha1-wHp1Yg21N5tg0u3Uf1OAAqisfdY="
+      "dependencies": {
+        "joi": {
+          "version": "10.6.0",
+          "from": "joi@10.x.x",
+          "resolved": "https://repository.cars.com/artifactory/api/npm/npm/joi/-/joi-10.6.0.tgz"
+        }
+      }
+    },
+    "string_decoder": {
+      "version": "1.0.3",
+      "from": "string_decoder@>=1.0.3 <1.1.0",
+      "resolved": "https://registry.npmjs.org/string_decoder/-/string_decoder-1.0.3.tgz",
+      "dev": true
+    },
+    "string-width": {
+      "version": "2.1.1",
+      "from": "string-width@>=2.1.0 <3.0.0",
+      "resolved": "https://registry.npmjs.org/string-width/-/string-width-2.1.1.tgz",
+      "dev": true
+    },
+    "strip-ansi": {
+      "version": "4.0.0",
+      "from": "strip-ansi@>=4.0.0 <5.0.0",
+      "resolved": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-4.0.0.tgz",
+      "dev": true,
+      "dependencies": {
+        "ansi-regex": {
+          "version": "3.0.0",
+          "from": "ansi-regex@>=3.0.0 <4.0.0",
+          "resolved": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-3.0.0.tgz",
+          "dev": true
+        }
+      }
+    },
+    "strip-json-comments": {
+      "version": "2.0.1",
+      "from": "strip-json-comments@>=2.0.1 <2.1.0",
+      "resolved": "https://registry.npmjs.org/strip-json-comments/-/strip-json-comments-2.0.1.tgz",
+      "dev": true
     },
     "subtext": {
       "version": "5.0.0",
-      "resolved": "https://registry.npmjs.org/subtext/-/subtext-5.0.0.tgz",
-      "integrity": "sha1-nD8IMBi7FYaxZ62M/YcIP1zN/g8="
+      "from": "subtext@https://registry.npmjs.org/subtext/-/subtext-5.0.0.tgz",
+      "resolved": "https://registry.npmjs.org/subtext/-/subtext-5.0.0.tgz"
+    },
+    "supports-color": {
+      "version": "4.4.0",
+      "from": "supports-color@>=4.4.0 <4.5.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/supports-color/-/supports-color-4.4.0.tgz",
+      "dev": true,
+      "dependencies": {
+        "has-flag": {
+          "version": "2.0.0",
+          "from": "has-flag@>=2.0.0 <3.0.0",
+          "resolved": "https://repository.cars.com/artifactory/api/npm/npm/has-flag/-/has-flag-2.0.0.tgz",
+          "dev": true
+        }
+      }
+    },
+    "table": {
+      "version": "4.0.2",
+      "from": "table@>=4.0.1 <5.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/table/-/table-4.0.2.tgz",
+      "dev": true
+    },
+    "text-table": {
+      "version": "0.2.0",
+      "from": "text-table@>=0.2.0 <0.3.0",
+      "resolved": "https://registry.npmjs.org/text-table/-/text-table-0.2.0.tgz",
+      "dev": true
+    },
+    "through": {
+      "version": "2.3.8",
+      "from": "through@>=2.3.6 <3.0.0",
+      "resolved": "https://registry.npmjs.org/through/-/through-2.3.8.tgz",
+      "dev": true
+    },
+    "tmp": {
+      "version": "0.0.33",
+      "from": "tmp@>=0.0.33 <0.0.34",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/tmp/-/tmp-0.0.33.tgz",
+      "dev": true
     },
     "topo": {
       "version": "2.0.2",
-      "resolved": "https://registry.npmjs.org/topo/-/topo-2.0.2.tgz",
-      "integrity": "sha1-zVYVdSU5BXwNwEkaYhw7xvvh0YI="
+      "from": "topo@https://registry.npmjs.org/topo/-/topo-2.0.2.tgz",
+      "resolved": "https://registry.npmjs.org/topo/-/topo-2.0.2.tgz"
+    },
+    "type-check": {
+      "version": "0.3.2",
+      "from": "type-check@>=0.3.2 <0.4.0",
+      "resolved": "https://registry.npmjs.org/type-check/-/type-check-0.3.2.tgz",
+      "dev": true
+    },
+    "typedarray": {
+      "version": "0.0.6",
+      "from": "typedarray@>=0.0.6 <0.0.7",
+      "resolved": "https://registry.npmjs.org/typedarray/-/typedarray-0.0.6.tgz",
+      "dev": true
+    },
+    "uglify-js": {
+      "version": "2.8.29",
+      "from": "uglify-js@>=2.6.0 <3.0.0",
+      "resolved": "https://registry.npmjs.org/uglify-js/-/uglify-js-2.8.29.tgz",
+      "dev": true,
+      "optional": true,
+      "dependencies": {
+        "source-map": {
+          "version": "0.5.7",
+          "from": "source-map@>=0.5.1 <0.6.0",
+          "resolved": "https://registry.npmjs.org/source-map/-/source-map-0.5.7.tgz",
+          "dev": true,
+          "optional": true
+        }
+      }
+    },
+    "uglify-to-browserify": {
+      "version": "1.0.2",
+      "from": "uglify-to-browserify@>=1.0.0 <1.1.0",
+      "resolved": "https://registry.npmjs.org/uglify-to-browserify/-/uglify-to-browserify-1.0.2.tgz",
+      "dev": true,
+      "optional": true
+    },
+    "util-deprecate": {
+      "version": "1.0.2",
+      "from": "util-deprecate@>=1.0.1 <1.1.0",
+      "resolved": "https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz",
+      "dev": true
     },
     "vise": {
       "version": "2.0.2",
-      "resolved": "https://registry.npmjs.org/vise/-/vise-2.0.2.tgz",
-      "integrity": "sha1-awjo+0y3bjpQzW3Q7DczjoEaDTk="
+      "from": "vise@https://registry.npmjs.org/vise/-/vise-2.0.2.tgz",
+      "resolved": "https://registry.npmjs.org/vise/-/vise-2.0.2.tgz"
+    },
+    "vision": {
+      "version": "4.1.1",
+      "from": "vision@>=4.0.0 <5.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/vision/-/vision-4.1.1.tgz",
+      "dev": true,
+      "dependencies": {
+        "boom": {
+          "version": "4.3.1",
+          "from": "boom@>=4.0.0 <5.0.0",
+          "resolved": "https://repository.cars.com/artifactory/api/npm/npm/boom/-/boom-4.3.1.tgz",
+          "dev": true
+        },
+        "joi": {
+          "version": "10.6.0",
+          "from": "joi@10.x.x",
+          "resolved": "https://repository.cars.com/artifactory/api/npm/npm/joi/-/joi-10.6.0.tgz",
+          "dev": true
+        }
+      }
+    },
+    "which": {
+      "version": "1.3.0",
+      "from": "which@>=1.2.9 <2.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/which/-/which-1.3.0.tgz",
+      "dev": true
+    },
+    "window-size": {
+      "version": "0.1.0",
+      "from": "window-size@0.1.0",
+      "resolved": "https://registry.npmjs.org/window-size/-/window-size-0.1.0.tgz",
+      "dev": true,
+      "optional": true
+    },
+    "wordwrap": {
+      "version": "0.0.3",
+      "from": "wordwrap@>=0.0.2 <0.1.0",
+      "resolved": "https://registry.npmjs.org/wordwrap/-/wordwrap-0.0.3.tgz",
+      "dev": true
+    },
+    "wrappy": {
+      "version": "1.0.2",
+      "from": "wrappy@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/wrappy/-/wrappy-1.0.2.tgz",
+      "dev": true
     },
     "wreck": {
       "version": "12.2.2",
-      "resolved": "https://registry.npmjs.org/wreck/-/wreck-12.2.2.tgz",
-      "integrity": "sha1-4hgj00w21nIATu+jR66MT2BQ49s="
+      "from": "wreck@https://registry.npmjs.org/wreck/-/wreck-12.2.2.tgz",
+      "resolved": "https://registry.npmjs.org/wreck/-/wreck-12.2.2.tgz"
+    },
+    "write": {
+      "version": "0.2.1",
+      "from": "write@>=0.2.1 <0.3.0",
+      "resolved": "https://registry.npmjs.org/write/-/write-0.2.1.tgz",
+      "dev": true
+    },
+    "yallist": {
+      "version": "2.1.2",
+      "from": "yallist@>=2.1.2 <3.0.0",
+      "resolved": "https://repository.cars.com/artifactory/api/npm/npm/yallist/-/yallist-2.1.2.tgz",
+      "dev": true
+    },
+    "yargs": {
+      "version": "3.10.0",
+      "from": "yargs@>=3.10.0 <3.11.0",
+      "resolved": "https://registry.npmjs.org/yargs/-/yargs-3.10.0.tgz",
+      "dev": true,
+      "optional": true
     }
   }
 }

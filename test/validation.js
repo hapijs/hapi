@@ -649,6 +649,40 @@ describe('validation', () => {
         });
     });
 
+    it('fails on invalid input (with joi 11 error and path string)', (done) => {
+        // Fake the joi 11 format
+        const joiFakeError = new Error();
+        joiFakeError.details = [{ path: 'foo' }];
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
+            config: {
+                validate: {
+                    query: {
+                        a: Joi.number().error(joiFakeError)
+                    }
+                }
+            }
+        });
+
+        server.inject('/?a=abc', (res) => {
+
+            expect(res.statusCode).to.equal(400);
+            expect(res.result.validation).to.equal({
+                source: 'query',
+                keys: ['foo']
+            });
+            done();
+        });
+    });
+
     it('ignores invalid input', (done) => {
 
         const server = new Hapi.Server();
