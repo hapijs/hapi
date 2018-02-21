@@ -595,7 +595,7 @@ const scheme = function (server, options) {
                 throw Boom.unauthorized(null, 'Custom');
             }
 
-            return h.authenticated{ credentials: { user: 'john' } });
+            return h.authenticated({ credentials: { user: 'john' } });
         }
     };
 };
