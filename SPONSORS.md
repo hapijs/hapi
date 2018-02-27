@@ -58,3 +58,4 @@
 - Sheridan Tighe
 - Troy Whiteley
 - Viswanadha Pratap Kondoju
+- CodePilot.ai
