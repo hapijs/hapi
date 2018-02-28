@@ -24,10 +24,6 @@ Eran Hammer's [Patreon page](https://www.patreon.com/eranhammer) or contact him 
 
 ## Featured Sponsors
 
-The v17 release would not have been possible without the generous financial support of the following
-**Featured Sponsors** who have gone above and beyond to make this work successful and sustainable.
-I am extremely grateful for their support.
-
 <img src="https://user-images.githubusercontent.com/56631/32082980-4fd9b342-ba74-11e7-872a-42b0a414fcb2.png" align="left"  />
 
 [**Lob**](http://bit.ly/lobh-rn) enables you to seamlessly print and mail documents, postcards, checks, and more via an API. They have been an early **hapi** adopters and vocal supporters. If you are looking to take your **hapi** and JS skills to the next level, check out their [career page](http://bit.ly/lobc-rn) for exciting opportunities.
@@ -36,20 +32,19 @@ I am extremely grateful for their support.
 #
 
 <img src="https://user-images.githubusercontent.com/56631/31878562-5c64483a-b78f-11e7-92da-5a991ebb302d.png" align="left" />
-
-[**Auth0**](http://bit.ly/auth0h-rn) is the new way to solve identity. You can add authentication to your app or API by writing just a few lines of code. I have been consistently impressed by their products (which I have used for client work) as well as their talented team. If you are looking for a new opportunity, [Auth0 is hiring](http://bit.ly/auth0c-rn) for a variety of positions.
+[**Auth0**](http://bit.ly/auth0h-rn)
 
 #
 
 <img src="https://user-images.githubusercontent.com/56631/32398027-e2027480-c0a9-11e7-9077-c5ecca7bc39c.png" align="left"  />
-
-[**Condé Nast Technology**](http://bit.ly/cn-rn) powers many of the world's most iconic brands like WIRED, Vogue, Vanity Fair, GQ. **hapi** is a core part of the company's digital stack and drives just about every web request to their sites. I've had a long relationship with the team which includes some of my closest friends. Want to be hapi-er? Check out their [Careers page](http://bit.ly/cnc-rn).
+[**Condé Nast Technology**](http://bit.ly/cn-rn)
 
 ## Active Supporters
 
 - **CNN Digital**
-- **Contentful**
+- **[Contentful](https://www.contentful.com/)**
 - The product development team at **Creative Artists Agency**
+- **[First + Third](http://firstandthird.com)**
 
 ## Legacy Supporters
 
