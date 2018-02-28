@@ -88,8 +88,8 @@
   - [`await server.start()`](#server.start())
   - [`server.state(name, [options])`](#server.state())
   - [`server.states.add(name, [options])`](#server.states.add())
-  - [`async server.states.format(cookies)`](#server.states.format())
-  - [`async server.states.parse(header)`](#server.states.parse())
+  - [`await server.states.format(cookies)`](#server.states.format())
+  - [`await server.states.parse(header)`](#server.states.parse())
   - [`await server.stop([options])`](#server.stop())
   - [`server.table([host])`](#server.table())
 - [Route options](#route-options)
@@ -2680,7 +2680,7 @@ Access: read only.
 
 Same as calling [`server.state()`](#server.state()).
 
-### <a name="server.states.format()" /> `async server.states.format(cookies)`
+### <a name="server.states.format()" /> `await server.states.format(cookies)`
 
 Formats an HTTP 'Set-Cookie' header based on the [`server.options.state`](#server.options.state)
 where:
@@ -2695,7 +2695,7 @@ Return value: a header string.
 Note that this utility uses the server configuration but does not change the server state. It is
 provided for manual cookie formating (e.g. when headers are set manually).
 
-### <a name="server.states.parse()" /> `async server.states.parse(header)`
+### <a name="server.states.parse()" /> `await server.states.parse(header)`
 
 Parses an HTTP 'Cookies' header based on the [`server.options.state`](#server.options.state) where:
 
