@@ -808,6 +808,36 @@ describe('Core', () => {
             expect(timer.elapsed()).to.be.at.most(20);
         });
 
+        it('waits to stop until connections close by themselves when cleanStop is disabled', async () => {
+
+            const server = Hapi.server({ operations: { cleanStop: false } });
+            server.route({ method: 'GET', path: '/', handler: (request, h) => h.abandon });
+            await server.start();
+
+            const socket = await internals.socket(server);
+            socket.write('GET / HTTP/1.0\nHost: test\n\n');
+            await Hoek.wait(10);
+
+            const count1 = await internals.countConnections(server);
+            expect(count1).to.equal(1);
+
+            setTimeout(() => socket.end(), 50);
+
+            const stop = server.stop();
+
+            await Hoek.wait(20);
+
+            const count2 = await internals.countConnections(server);
+            expect(count2).to.equal(1);
+
+            await Hoek.wait(40);
+
+            const count3 = await internals.countConnections(server);
+            expect(count3).to.equal(0);
+
+            await stop;
+        });
+
         it('refuses to handle new incoming requests on persistent connections', async () => {
 
             const server = Hapi.server();
