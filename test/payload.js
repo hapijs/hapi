@@ -132,7 +132,7 @@ describe('payload', () => {
 
     it('returns 413 with response when payload is not consumed', async () => {
 
-        const payload = new Buffer(10 * 1024 * 1024).toString();
+        const payload = Buffer.alloc(10 * 1024 * 1024).toString();
 
         const server = Hapi.server();
         server.route({ method: 'POST', path: '/', options: { handler: () => null, payload: { maxBytes: 1024 * 1024 } } });
@@ -487,7 +487,7 @@ describe('payload', () => {
 
     it('signals connection close when payload is unconsumed', async () => {
 
-        const payload = new Buffer(1024);
+        const payload = Buffer.alloc(1024);
         const server = Hapi.server();
         server.route({ method: 'POST', path: '/', options: { handler: () => 'ok', payload: { maxBytes: 1024, output: 'stream', parse: false } } });
 
