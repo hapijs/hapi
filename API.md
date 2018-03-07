@@ -299,7 +299,7 @@ Used to disable the automatic initialization of the [`listener`](#server.options
 `false`, indicates that the [`listener`](#server.options.listener) will be started manually outside
 the framework.
 
-Cannot be set to `true` along with a [`port`](#server.options.port) value.
+Cannot be set to `false` along with a [`port`](#server.options.port) value.
 
 #### <a name="server.options.cache" /> `server.options.cache`
 
