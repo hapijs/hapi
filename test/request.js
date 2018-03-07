@@ -1019,7 +1019,7 @@ describe('Request', () => {
             expect(res.statusCode).to.equal(200);
         });
 
-        it('emits a request event (function data)', async () => {
+        it('emits a request event (function data + collect)', async () => {
 
             const server = Hapi.server({ routes: { log: { collect: true } } });
 
@@ -1034,6 +1034,29 @@ describe('Request', () => {
                 expect(event.channel).to.equal('app');
                 expect(tags).to.equal({ test: true });
                 expect(request.logs[0].data).to.equal('data');
+                return null;
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+        });
+
+        it('emits a request event (function data)', async () => {
+
+            const server = Hapi.server();
+
+            const handler = async (request) => {
+
+                const log = server.events.once('request');
+                request.log(['test'], () => 'data');
+
+                const [, event, tags] = await log;
+                expect(event).to.contain(['request', 'timestamp', 'tags', 'data', 'channel']);
+                expect(event.data).to.equal('data');
+                expect(event.channel).to.equal('app');
+                expect(tags).to.equal({ test: true });
                 return null;
             };
 
