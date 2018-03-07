@@ -183,7 +183,7 @@ describe('Toolkit', () => {
 
                 const handler = (request, h) => {
 
-                    return h.response(new Buffer('Tada1')).code(299);
+                    return h.response(Buffer.from('Tada1')).code(299);
                 };
 
                 const server = Hapi.server();
