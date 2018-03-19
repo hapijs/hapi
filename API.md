@@ -3890,7 +3890,8 @@ const handler = function (request, h) {
 
 When a different error representation is desired, such as an HTML page or a different payload
 format, the `'onPreResponse'` extension point may be used to identify errors and replace them with
-a different response object.
+a different response object, as in this example using [Vision's](https://github.com/hapijs/vision) 
+`.view()` [response toolkit](#response-toolkit) property.
 
 ```js
 const Hapi = require('hapi');
