@@ -248,13 +248,13 @@ describe('Response', () => {
             
             const handler = (request, h) => {
 
-                return h.response().created('/something');
+                return h.response({ a: 1 }).created();
             };
-
-            const server = Hapi.server({ debug: false });
+            const server = Hapi.server();
             server.route({ method: 'PUT', path: '/', handler });
 
-            const res = await server.inject('/');
+            const res = await server.inject({ method: 'PUT', url: '/' });
+            expect(res.result).to.equal({ a: 1 });
             expect(res.statusCode).to.equal(201);
         });
         
@@ -262,13 +262,13 @@ describe('Response', () => {
             
             const handler = (request, h) => {
 
-                return h.response().created('/something');
+                return h.response({ a: 1 }).created();
             };
-
-            const server = Hapi.server({ debug: false });
+            const server = Hapi.server();
             server.route({ method: 'PATCH', path: '/', handler });
 
-            const res = await server.inject('/');
+            const res = await server.inject({ method: 'PUT', url: '/' });
+            expect(res.result).to.equal({ a: 1 });
             expect(res.statusCode).to.equal(201);
         });
     });
