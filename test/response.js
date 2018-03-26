@@ -267,7 +267,7 @@ describe('Response', () => {
             const server = Hapi.server();
             server.route({ method: 'PATCH', path: '/', handler });
 
-            const res = await server.inject({ method: 'PUT', url: '/' });
+            const res = await server.inject({ method: 'PATCH', url: '/' });
             expect(res.result).to.equal({ a: 1 });
             expect(res.statusCode).to.equal(201);
         });
