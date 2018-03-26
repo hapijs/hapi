@@ -243,9 +243,9 @@ describe('Response', () => {
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
         });
-        
-        it("doesn't return an error on created with PUT", async () => {
-            
+
+        it('doesn\'t return an error on created with PUT', async () => {
+
             const handler = (request, h) => {
 
                 return h.response({ a: 1 }).created();
@@ -257,9 +257,9 @@ describe('Response', () => {
             expect(res.result).to.equal({ a: 1 });
             expect(res.statusCode).to.equal(201);
         });
-        
-        it("doesn't return an error on created with PATCH", async () => {
-            
+
+        it('doesn\'t return an error on created with PATCH', async () => {
+
             const handler = (request, h) => {
 
                 return h.response({ a: 1 }).created();
