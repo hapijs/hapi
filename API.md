@@ -1,4 +1,4 @@
-# v17.2.x API Reference
+# v17.3.x API Reference
 
 <!-- toc -->
 
@@ -58,6 +58,7 @@
   - [`server.bind(context)`](#server.bind())
   - [`server.cache(options)`](#server.cache())
   - [`await server.cache.provision(options)`](#server.cache.provision())
+  - [`server.control(server)`](#server.control())
   - [`server.decoder(encoding, decoder)`](#server.decoder())
   - [`server.decorate(type, property, method, [options])`](#server.decorate())
   - [`server.dependency(dependencies, [after])`](#server.dependency())
@@ -1423,6 +1424,14 @@ async function example() {
     const value = await cache.get('norway');
 }
 ```
+
+### <a name="server.control()" /> `server.control(server)`
+
+Links another server to the initialize/start/stop state of the current server by calling the
+controlled server `initialize()`/`start()`/`stop()` methods whenever the current server methods
+are called, where:
+
+- `server` - the **hapi** server object to be controlled.
 
 ### <a name="server.decoder()" /> `server.decoder(encoding, decoder)`
 

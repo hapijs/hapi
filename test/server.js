@@ -30,782 +30,6 @@ const expect = Code.expect;
 
 describe('Server', () => {
 
-    describe('register()', () => {
-
-        it('registers plugin with options', async () => {
-
-            const server = Hapi.server();
-
-            const test = {
-                name: 'test',
-
-                register: function (srv, options) {
-
-                    expect(options.something).to.be.true();
-                    expect(srv.realm.pluginOptions).to.equal(options);
-                }
-            };
-
-            await server.register({ plugin: test, options: { something: true } });
-        });
-
-        it('registers a required plugin', async () => {
-
-            const server = Hapi.server();
-
-            const test = {
-                plugin: {
-                    name: 'test',
-                    register: function (srv, options) {
-
-                        expect(options.something).to.be.true();
-                    }
-                }
-            };
-
-            await server.register({ plugin: test, options: { something: true } });
-        });
-
-        it('rejects on bad plugin (missing name)', async () => {
-
-            const plugin = {
-                register: Hoek.ignore
-            };
-
-            const server = Hapi.server();
-            await expect(server.register(plugin)).to.reject();
-        });
-
-        it('rejects on bad plugin (empty pkg)', async () => {
-
-            const plugin = {
-                pkg: {},
-                register: Hoek.ignore
-            };
-
-            const server = Hapi.server();
-            await expect(server.register(plugin)).to.reject();
-        });
-
-        it('returns plugin error', async () => {
-
-            const test = {
-                name: 'test',
-                register: function (srv, options) {
-
-                    throw new Error('from plugin');
-                }
-            };
-
-            const server = Hapi.server();
-            await expect(server.register(test)).to.reject('from plugin');
-        });
-
-        it('sets version to 0.0.0 if missing', async () => {
-
-            const test = {
-                pkg: {
-                    name: 'steve'
-                },
-                register: function (srv, options) {
-
-                    srv.route({
-                        method: 'GET',
-                        path: '/',
-                        handler: () => srv.version
-                    });
-                }
-            };
-
-            const server = Hapi.server();
-            await server.register(test);
-            expect(server.registrations.steve.version).to.equal('0.0.0');
-
-            const res = await server.inject('/');
-            expect(res.result).to.equal(require('../package.json').version);
-        });
-
-        it('exposes plugin registration information', async () => {
-
-            const test = {
-                multiple: true,
-                pkg: {
-                    name: 'bob',
-                    version: '1.2.3'
-                },
-                register: function (srv, options) {
-
-                    srv.route({ method: 'GET', path: '/', handler: () => srv.version });
-                }
-            };
-
-            const server = Hapi.server();
-
-            await server.register({ plugin: test, options: { foo: 'bar' } });
-            const bob = server.registrations.bob;
-            expect(bob).to.exist();
-            expect(bob).to.be.an.object();
-            expect(bob.version).to.equal('1.2.3');
-            expect(bob.options.foo).to.equal('bar');
-
-            const res = await server.inject('/');
-            expect(res.result).to.equal(require('../package.json').version);
-        });
-
-        it('prevents plugin from multiple registrations', async () => {
-
-            const test = {
-                name: 'test',
-                register: function (srv, options) {
-
-                    srv.route({ method: 'GET', path: '/a', handler: () => 'a' });
-                }
-            };
-
-            const server = Hapi.server({ host: 'example.com' });
-            await server.register(test);
-            await expect(server.register(test)).to.reject('Plugin test already registered');
-        });
-
-        it('allows plugin multiple registrations (plugin)', async () => {
-
-            const test = {
-                name: 'test',
-                multiple: true,
-                register: function (srv, options) {
-
-                    srv.app.x = srv.app.x ? srv.app.x + 1 : 1;
-                }
-            };
-
-            const server = Hapi.server();
-            await server.register(test);
-            await server.register(test);
-            expect(server.app.x).to.equal(2);
-        });
-
-        it('registers multiple plugins', async () => {
-
-            const server = Hapi.server();
-            let log = null;
-            server.events.once('log', (event, tags) => {
-
-                log = [event, tags];
-            });
-
-            await server.register([internals.plugins.test1, internals.plugins.test2]);
-            expect(internals.routesList(server)).to.equal(['/test1', '/test2']);
-            expect(log[1].test).to.equal(true);
-            expect(log[0].data).to.equal('abc');
-        });
-
-        it('registers multiple plugins (verbose)', async () => {
-
-            const server = Hapi.server();
-            let log = null;
-            server.events.once('log', (event, tags) => {
-
-                log = [event, tags];
-            });
-
-            await server.register([{ plugin: internals.plugins.test1 }, { plugin: internals.plugins.test2 }]);
-            expect(internals.routesList(server)).to.equal(['/test1', '/test2']);
-            expect(log[1].test).to.equal(true);
-            expect(log[0].data).to.equal('abc');
-        });
-
-        it('registers a child plugin', async () => {
-
-            const server = Hapi.server();
-            await server.register(internals.plugins.child);
-            const res = await server.inject('/test1');
-            expect(res.result).to.equal('testing123');
-        });
-
-        it('registers a plugin with routes path prefix', async () => {
-
-            const server = Hapi.server();
-            await server.register(internals.plugins.test1, { routes: { prefix: '/xyz' } });
-
-            expect(server.plugins.test1.prefix).to.equal('/xyz');
-            const res = await server.inject('/xyz/test1');
-            expect(res.result).to.equal('testing123');
-        });
-
-        it('registers a plugin with routes path prefix (plugin options)', async () => {
-
-            const server = Hapi.server();
-            await server.register({ plugin: internals.plugins.test1, routes: { prefix: '/abc' } }, { routes: { prefix: '/xyz' } });
-
-            expect(server.plugins.test1.prefix).to.equal('/abc');
-            const res = await server.inject('/abc/test1');
-            expect(res.result).to.equal('testing123');
-        });
-
-        it('register a plugin once (plugin options)', async () => {
-
-            let count = 0;
-            const b = {
-                name: 'b',
-                register: function (srv, options) {
-
-                    ++count;
-                }
-            };
-
-            const a = {
-                name: 'a',
-                register: async function (srv, options) {
-
-                    await srv.register({ plugin: b, once: true });
-                }
-            };
-
-            const server = Hapi.server();
-            await server.register(b);
-            await server.register(a);
-            await server.initialize();
-            expect(count).to.equal(1);
-        });
-
-        it('registers plugins and adds options to realm that routes can access', async () => {
-
-            const server = Hapi.server();
-
-            const foo = {
-                name: 'foo',
-                register: function (srv, options) {
-
-                    expect(options.something).to.be.true();
-                    expect(srv.realm.pluginOptions).to.equal(options);
-
-                    srv.route({
-                        method: 'GET', path: '/foo', handler: (request, h) => {
-
-                            expect(request.route.realm.pluginOptions).to.equal(options);
-                            expect(h.realm.pluginOptions).to.equal(options);
-                            return 'foo';
-                        }
-                    });
-                }
-            };
-
-            const bar = {
-                name: 'bar',
-                register: function (srv, options) {
-
-                    expect(options.something).to.be.false();
-                    expect(srv.realm.pluginOptions).to.equal(options);
-
-                    srv.route({
-                        method: 'GET', path: '/bar', handler: (request, h) => {
-
-                            expect(request.route.realm.pluginOptions).to.equal(options);
-                            expect(h.realm.pluginOptions).to.equal(options);
-                            return 'bar';
-                        }
-                    });
-                }
-            };
-
-            const plugins = [
-                { plugin: foo, options: { something: true } },
-                { plugin: bar, options: { something: false } }
-            ];
-
-            await server.register(plugins);
-
-            const res1 = await server.inject('/foo');
-            expect(res1.result).to.equal('foo');
-
-            const res2 = await server.inject('/bar');
-            expect(res2.result).to.equal('bar');
-        });
-
-        it('registers a plugin with routes path prefix and plugin root route', async () => {
-
-            const test = {
-                name: 'test',
-                register: function (srv, options) {
-
-                    srv.route({
-                        method: 'GET',
-                        path: '/',
-                        handler: () => 'ok'
-                    });
-                }
-            };
-
-            const server = Hapi.server();
-            await server.register(test, { routes: { prefix: '/xyz' } });
-
-            const res = await server.inject('/xyz');
-            expect(res.result).to.equal('ok');
-        });
-
-        it('ignores the type of the plugin value', async () => {
-
-            const a = function () { };
-            a.plugin = {
-                name: 'a',
-                register: function (srv, options) {
-
-                    srv.route({
-                        method: 'GET',
-                        path: '/',
-                        handler: () => 'ok'
-                    });
-                }
-            };
-
-            const server = Hapi.server();
-            await server.register(a, { routes: { prefix: '/xyz' } });
-
-            const res = await server.inject('/xyz');
-            expect(res.result).to.equal('ok');
-        });
-
-        it('ignores unknown plugin properties', async () => {
-
-            const a = {
-                name: 'a',
-                register: function (srv, options) {
-
-                    srv.route({
-                        method: 'GET',
-                        path: '/',
-                        handler: () => 'ok'
-                    });
-                },
-                other: {}
-            };
-
-            const server = Hapi.server();
-            await server.register(a);
-        });
-
-        it('ignores unknown plugin properties (with options)', async () => {
-
-            const a = {
-                name: 'a',
-                register: function (srv, options) {
-
-                    srv.route({
-                        method: 'GET',
-                        path: '/',
-                        handler: () => 'ok'
-                    });
-                },
-                other: {}
-            };
-
-            const server = Hapi.server();
-            await server.register({ plugin: a });
-        });
-
-        it('registers a child plugin with parent routes path prefix', async () => {
-
-            const server = Hapi.server();
-            await server.register(internals.plugins.child, { routes: { prefix: '/xyz' } });
-
-            const res = await server.inject('/xyz/test1');
-            expect(res.result).to.equal('testing123');
-        });
-
-        it('registers a child plugin with parent routes vhost prefix', async () => {
-
-            const server = Hapi.server();
-            await server.register(internals.plugins.child, { routes: { vhost: 'example.com' } });
-
-            const res = await server.inject({ url: '/test1', headers: { host: 'example.com' } });
-            expect(res.result).to.equal('testing123');
-        });
-
-        it('registers a child plugin with parent routes path prefix and inner register prefix', async () => {
-
-            const server = Hapi.server();
-            await server.register({ plugin: internals.plugins.child, options: { routes: { prefix: '/inner' } } }, { routes: { prefix: '/xyz' } });
-
-            const res = await server.inject('/xyz/inner/test1');
-            expect(res.result).to.equal('testing123');
-        });
-
-        it('registers a child plugin with parent routes vhost prefix and inner register vhost', async () => {
-
-            const server = Hapi.server();
-            await server.register({ plugin: internals.plugins.child, options: { routes: { vhost: 'example.net' } } }, { routes: { vhost: 'example.com' } });
-
-            const res = await server.inject({ url: '/test1', headers: { host: 'example.com' } });
-            expect(res.result).to.equal('testing123');
-        });
-
-        it('registers a plugin with routes vhost', async () => {
-
-            const server = Hapi.server();
-            await server.register(internals.plugins.test1, { routes: { vhost: 'example.com' } });
-
-            const res1 = await server.inject('/test1');
-            expect(res1.statusCode).to.equal(404);
-
-            const res2 = await server.inject({ url: '/test1', headers: { host: 'example.com' } });
-            expect(res2.result).to.equal('testing123');
-        });
-
-        it('registers a plugin with routes vhost (plugin options)', async () => {
-
-            const server = Hapi.server();
-            await server.register({ plugin: internals.plugins.test1, routes: { vhost: 'example.org' } }, { routes: { vhost: 'example.com' } });
-
-            const res1 = await server.inject('/test1');
-            expect(res1.statusCode).to.equal(404);
-
-            const res2 = await server.inject({ url: '/test1', headers: { host: 'example.org' } });
-            expect(res2.result).to.equal('testing123');
-        });
-
-        it('sets multiple dependencies in one statement', async () => {
-
-            const a = {
-                name: 'a',
-                register: function (srv, options) {
-
-                    srv.dependency(['b', 'c']);
-                }
-            };
-
-            const b = {
-                name: 'b',
-                register: Hoek.ignore
-            };
-
-            const c = {
-                name: 'c',
-                register: Hoek.ignore
-            };
-
-            const server = Hapi.server();
-            await server.register(b);
-            await server.register(c);
-            await server.register(a);
-            await server.initialize();
-        });
-
-        it('sets multiple dependencies in plugin', async () => {
-
-            const a = {
-                name: 'a',
-                dependencies: ['b', 'c'],
-                register: Hoek.ignore
-            };
-
-            const b = {
-                name: 'b',
-                register: Hoek.ignore
-            };
-
-            const c = {
-                name: 'c',
-                register: Hoek.ignore
-            };
-
-            const server = Hapi.server();
-            await server.register(b);
-            await server.register(c);
-            await server.register(a);
-            await server.initialize();
-        });
-
-        it('sets multiple dependencies in multiple statements', async () => {
-
-            const a = {
-                name: 'a',
-                register: function (srv, options) {
-
-                    srv.dependency('b');
-                    srv.dependency('c');
-                }
-            };
-
-            const b = {
-                name: 'b',
-                register: Hoek.ignore
-            };
-
-            const c = {
-                name: 'c',
-                register: Hoek.ignore
-            };
-
-            const server = Hapi.server();
-            await server.register(b);
-            await server.register(c);
-            await server.register(a);
-            await server.initialize();
-        });
-
-        it('sets multiple dependencies in multiple locations', async () => {
-
-            const a = {
-                name: 'a',
-                dependencies: 'c',
-                register: function (srv, options) {
-
-                    srv.dependency('b');
-                }
-            };
-
-            const b = {
-                name: 'b',
-                register: Hoek.ignore
-            };
-
-            const c = {
-                name: 'c',
-                register: Hoek.ignore
-            };
-
-            const server = Hapi.server();
-            await server.register(b);
-            await server.register(c);
-            await server.register(a);
-            await server.initialize();
-        });
-
-        it('register a plugin once per server', async () => {
-
-            let count = 0;
-            const b = {
-                name: 'b',
-                register: function (srv, options) {
-
-                    ++count;
-                }
-            };
-
-            const a = {
-                name: 'a',
-                register: function (srv, options) {
-
-                    return srv.register(b, { once: true });
-                }
-            };
-
-            const server = Hapi.server();
-            await server.register(b);
-            await server.register(a);
-            await server.initialize();
-            expect(count).to.equal(1);
-        });
-
-        it('register a plugin once (plugin)', async () => {
-
-            let count = 0;
-            const b = {
-                name: 'b',
-                once: true,
-                register: function (srv, options) {
-
-                    ++count;
-                }
-            };
-
-            const a = {
-                name: 'a',
-                register: function (srv, options) {
-
-                    return srv.register(b);
-                }
-            };
-
-            const server = Hapi.server();
-            await server.register(b);
-            await server.register(a);
-            await server.initialize();
-            expect(count).to.equal(1);
-        });
-
-        it('throws when once used with plugin options', async () => {
-
-            const a = {
-                name: 'a',
-                register: Hoek.ignore
-            };
-
-            const server = Hapi.server();
-            await expect(server.register({ plugin: a, options: {}, once: true })).to.reject();
-        });
-
-        it('throws when once is false', async () => {
-
-            const b = {
-                name: 'b',
-                register: Hoek.ignore
-            };
-
-            const a = {
-                name: 'a',
-                register: function (srv, options) {
-
-                    return srv.register(b);
-                }
-            };
-
-            const server = Hapi.server();
-            await server.register(b);
-            await expect(server.register(a)).to.reject(Error, 'Plugin b already registered');
-        });
-
-        it('throws when dependencies is an object', async () => {
-
-            const a = {
-                name: 'a',
-                dependencies: { b: true },
-                register: Hoek.ignore
-            };
-
-            const server = Hapi.server();
-            await expect(server.register(a)).to.reject();
-        });
-
-        it('throws when dependencies contain something else than a string', async () => {
-
-            const a = {
-                name: 'a',
-                dependencies: [true],
-                register: Hoek.ignore
-            };
-
-            const server = Hapi.server();
-            await expect(server.register(a)).to.reject();
-        });
-
-        it('exposes server decorations to next register', async () => {
-
-            const server = Hapi.server();
-
-            const b = {
-                name: 'b',
-                register: function (srv, options) {
-
-                    if (typeof srv.a !== 'function') {
-                        throw new Error('Missing decoration');
-                    }
-                }
-            };
-
-            const a = {
-                name: 'a',
-                register: function (srv, options) {
-
-                    srv.decorate('server', 'a', () => {
-
-                        return 'a';
-                    });
-                }
-            };
-
-            await server.register([a, b]);
-            await server.initialize();
-        });
-
-        it('exposes server decorations to dependency (dependency first)', async () => {
-
-            const server = Hapi.server();
-
-            const a = {
-                name: 'a',
-                register: function (srv, options) {
-
-                    srv.decorate('server', 'a', () => {
-
-                        return 'a';
-                    });
-                }
-            };
-
-            const b = {
-                name: 'b',
-                register: function (srv, options) {
-
-                    const after = function (srv2) {
-
-                        if (typeof srv2.a !== 'function') {
-                            throw new Error('Missing decoration');
-                        }
-                    };
-
-                    srv.dependency('a', after);
-                }
-            };
-
-            await server.register([a, b]);
-            await server.initialize();
-        });
-
-        it('exposes server decorations to dependency (dependency second)', async () => {
-
-            const server = Hapi.server();
-
-            const a = {
-                name: 'a',
-                register: function (srv, options) {
-
-                    srv.decorate('server', 'a', () => 'a');
-                }
-            };
-
-            const b = {
-                name: 'b',
-                register: function (srv, options) {
-
-                    srv.realm.x = 1;
-                    const after = function (srv2) {
-
-                        expect(srv2.realm.x).to.equal(1);
-                        if (typeof srv2.a !== 'function') {
-                            throw new Error('Missing decoration');
-                        }
-                    };
-
-                    srv.dependency('a', after);
-                }
-            };
-
-            await server.register([b, a]);
-            await server.initialize();
-        });
-
-        it('exposes server decorations to next register when nested', async () => {
-
-            const server = Hapi.server();
-
-            const a = {
-                name: 'a',
-                register: function (srv, options) {
-
-                    srv.decorate('server', 'a', () => {
-
-                        return 'a';
-                    });
-                }
-            };
-
-            const b = {
-                name: 'b',
-                register: async function (srv, options) {
-
-                    await srv.register(a);
-                    if (typeof srv.a !== 'function') {
-                        throw new Error('Missing decoration');
-                    }
-                }
-            };
-
-            await server.register([b]);
-            await server.initialize();
-        });
-    });
-
     describe('auth', () => {
 
         it('adds auth strategy via plugin', async () => {
@@ -1014,6 +238,34 @@ describe('Server', () => {
             await cache.set('a', 'going in', 0);
             const value = await cache.get('a');
             expect(value).to.equal('going in');
+        });
+    });
+
+    describe('control()', () => {
+
+        it('controls the phase of the controlled servers', async () => {
+
+            const server = Hapi.server();
+            const controlled1 = Hapi.server();
+            const controlled2 = Hapi.server();
+
+            server.control(controlled1);
+            server.control(controlled2);
+
+            await server.initialize();
+            expect(server._core.phase).to.equal('initialized');
+            expect(controlled1._core.phase).to.equal('initialized');
+            expect(controlled2._core.phase).to.equal('initialized');
+
+            await server.start();
+            expect(server._core.phase).to.equal('started');
+            expect(controlled1._core.phase).to.equal('started');
+            expect(controlled2._core.phase).to.equal('started');
+
+            await server.stop();
+            expect(server._core.phase).to.equal('stopped');
+            expect(controlled1._core.phase).to.equal('stopped');
+            expect(controlled2._core.phase).to.equal('stopped');
         });
     });
 
@@ -2535,6 +1787,782 @@ describe('Server', () => {
 
             const server = Hapi.server();
             await expect(server.register(test)).to.reject('relativeTo must be a non-empty string');
+        });
+    });
+
+    describe('register()', () => {
+
+        it('registers plugin with options', async () => {
+
+            const server = Hapi.server();
+
+            const test = {
+                name: 'test',
+
+                register: function (srv, options) {
+
+                    expect(options.something).to.be.true();
+                    expect(srv.realm.pluginOptions).to.equal(options);
+                }
+            };
+
+            await server.register({ plugin: test, options: { something: true } });
+        });
+
+        it('registers a required plugin', async () => {
+
+            const server = Hapi.server();
+
+            const test = {
+                plugin: {
+                    name: 'test',
+                    register: function (srv, options) {
+
+                        expect(options.something).to.be.true();
+                    }
+                }
+            };
+
+            await server.register({ plugin: test, options: { something: true } });
+        });
+
+        it('rejects on bad plugin (missing name)', async () => {
+
+            const plugin = {
+                register: Hoek.ignore
+            };
+
+            const server = Hapi.server();
+            await expect(server.register(plugin)).to.reject();
+        });
+
+        it('rejects on bad plugin (empty pkg)', async () => {
+
+            const plugin = {
+                pkg: {},
+                register: Hoek.ignore
+            };
+
+            const server = Hapi.server();
+            await expect(server.register(plugin)).to.reject();
+        });
+
+        it('returns plugin error', async () => {
+
+            const test = {
+                name: 'test',
+                register: function (srv, options) {
+
+                    throw new Error('from plugin');
+                }
+            };
+
+            const server = Hapi.server();
+            await expect(server.register(test)).to.reject('from plugin');
+        });
+
+        it('sets version to 0.0.0 if missing', async () => {
+
+            const test = {
+                pkg: {
+                    name: 'steve'
+                },
+                register: function (srv, options) {
+
+                    srv.route({
+                        method: 'GET',
+                        path: '/',
+                        handler: () => srv.version
+                    });
+                }
+            };
+
+            const server = Hapi.server();
+            await server.register(test);
+            expect(server.registrations.steve.version).to.equal('0.0.0');
+
+            const res = await server.inject('/');
+            expect(res.result).to.equal(require('../package.json').version);
+        });
+
+        it('exposes plugin registration information', async () => {
+
+            const test = {
+                multiple: true,
+                pkg: {
+                    name: 'bob',
+                    version: '1.2.3'
+                },
+                register: function (srv, options) {
+
+                    srv.route({ method: 'GET', path: '/', handler: () => srv.version });
+                }
+            };
+
+            const server = Hapi.server();
+
+            await server.register({ plugin: test, options: { foo: 'bar' } });
+            const bob = server.registrations.bob;
+            expect(bob).to.exist();
+            expect(bob).to.be.an.object();
+            expect(bob.version).to.equal('1.2.3');
+            expect(bob.options.foo).to.equal('bar');
+
+            const res = await server.inject('/');
+            expect(res.result).to.equal(require('../package.json').version);
+        });
+
+        it('prevents plugin from multiple registrations', async () => {
+
+            const test = {
+                name: 'test',
+                register: function (srv, options) {
+
+                    srv.route({ method: 'GET', path: '/a', handler: () => 'a' });
+                }
+            };
+
+            const server = Hapi.server({ host: 'example.com' });
+            await server.register(test);
+            await expect(server.register(test)).to.reject('Plugin test already registered');
+        });
+
+        it('allows plugin multiple registrations (plugin)', async () => {
+
+            const test = {
+                name: 'test',
+                multiple: true,
+                register: function (srv, options) {
+
+                    srv.app.x = srv.app.x ? srv.app.x + 1 : 1;
+                }
+            };
+
+            const server = Hapi.server();
+            await server.register(test);
+            await server.register(test);
+            expect(server.app.x).to.equal(2);
+        });
+
+        it('registers multiple plugins', async () => {
+
+            const server = Hapi.server();
+            let log = null;
+            server.events.once('log', (event, tags) => {
+
+                log = [event, tags];
+            });
+
+            await server.register([internals.plugins.test1, internals.plugins.test2]);
+            expect(internals.routesList(server)).to.equal(['/test1', '/test2']);
+            expect(log[1].test).to.equal(true);
+            expect(log[0].data).to.equal('abc');
+        });
+
+        it('registers multiple plugins (verbose)', async () => {
+
+            const server = Hapi.server();
+            let log = null;
+            server.events.once('log', (event, tags) => {
+
+                log = [event, tags];
+            });
+
+            await server.register([{ plugin: internals.plugins.test1 }, { plugin: internals.plugins.test2 }]);
+            expect(internals.routesList(server)).to.equal(['/test1', '/test2']);
+            expect(log[1].test).to.equal(true);
+            expect(log[0].data).to.equal('abc');
+        });
+
+        it('registers a child plugin', async () => {
+
+            const server = Hapi.server();
+            await server.register(internals.plugins.child);
+            const res = await server.inject('/test1');
+            expect(res.result).to.equal('testing123');
+        });
+
+        it('registers a plugin with routes path prefix', async () => {
+
+            const server = Hapi.server();
+            await server.register(internals.plugins.test1, { routes: { prefix: '/xyz' } });
+
+            expect(server.plugins.test1.prefix).to.equal('/xyz');
+            const res = await server.inject('/xyz/test1');
+            expect(res.result).to.equal('testing123');
+        });
+
+        it('registers a plugin with routes path prefix (plugin options)', async () => {
+
+            const server = Hapi.server();
+            await server.register({ plugin: internals.plugins.test1, routes: { prefix: '/abc' } }, { routes: { prefix: '/xyz' } });
+
+            expect(server.plugins.test1.prefix).to.equal('/abc');
+            const res = await server.inject('/abc/test1');
+            expect(res.result).to.equal('testing123');
+        });
+
+        it('register a plugin once (plugin options)', async () => {
+
+            let count = 0;
+            const b = {
+                name: 'b',
+                register: function (srv, options) {
+
+                    ++count;
+                }
+            };
+
+            const a = {
+                name: 'a',
+                register: async function (srv, options) {
+
+                    await srv.register({ plugin: b, once: true });
+                }
+            };
+
+            const server = Hapi.server();
+            await server.register(b);
+            await server.register(a);
+            await server.initialize();
+            expect(count).to.equal(1);
+        });
+
+        it('registers plugins and adds options to realm that routes can access', async () => {
+
+            const server = Hapi.server();
+
+            const foo = {
+                name: 'foo',
+                register: function (srv, options) {
+
+                    expect(options.something).to.be.true();
+                    expect(srv.realm.pluginOptions).to.equal(options);
+
+                    srv.route({
+                        method: 'GET', path: '/foo', handler: (request, h) => {
+
+                            expect(request.route.realm.pluginOptions).to.equal(options);
+                            expect(h.realm.pluginOptions).to.equal(options);
+                            return 'foo';
+                        }
+                    });
+                }
+            };
+
+            const bar = {
+                name: 'bar',
+                register: function (srv, options) {
+
+                    expect(options.something).to.be.false();
+                    expect(srv.realm.pluginOptions).to.equal(options);
+
+                    srv.route({
+                        method: 'GET', path: '/bar', handler: (request, h) => {
+
+                            expect(request.route.realm.pluginOptions).to.equal(options);
+                            expect(h.realm.pluginOptions).to.equal(options);
+                            return 'bar';
+                        }
+                    });
+                }
+            };
+
+            const plugins = [
+                { plugin: foo, options: { something: true } },
+                { plugin: bar, options: { something: false } }
+            ];
+
+            await server.register(plugins);
+
+            const res1 = await server.inject('/foo');
+            expect(res1.result).to.equal('foo');
+
+            const res2 = await server.inject('/bar');
+            expect(res2.result).to.equal('bar');
+        });
+
+        it('registers a plugin with routes path prefix and plugin root route', async () => {
+
+            const test = {
+                name: 'test',
+                register: function (srv, options) {
+
+                    srv.route({
+                        method: 'GET',
+                        path: '/',
+                        handler: () => 'ok'
+                    });
+                }
+            };
+
+            const server = Hapi.server();
+            await server.register(test, { routes: { prefix: '/xyz' } });
+
+            const res = await server.inject('/xyz');
+            expect(res.result).to.equal('ok');
+        });
+
+        it('ignores the type of the plugin value', async () => {
+
+            const a = function () { };
+            a.plugin = {
+                name: 'a',
+                register: function (srv, options) {
+
+                    srv.route({
+                        method: 'GET',
+                        path: '/',
+                        handler: () => 'ok'
+                    });
+                }
+            };
+
+            const server = Hapi.server();
+            await server.register(a, { routes: { prefix: '/xyz' } });
+
+            const res = await server.inject('/xyz');
+            expect(res.result).to.equal('ok');
+        });
+
+        it('ignores unknown plugin properties', async () => {
+
+            const a = {
+                name: 'a',
+                register: function (srv, options) {
+
+                    srv.route({
+                        method: 'GET',
+                        path: '/',
+                        handler: () => 'ok'
+                    });
+                },
+                other: {}
+            };
+
+            const server = Hapi.server();
+            await server.register(a);
+        });
+
+        it('ignores unknown plugin properties (with options)', async () => {
+
+            const a = {
+                name: 'a',
+                register: function (srv, options) {
+
+                    srv.route({
+                        method: 'GET',
+                        path: '/',
+                        handler: () => 'ok'
+                    });
+                },
+                other: {}
+            };
+
+            const server = Hapi.server();
+            await server.register({ plugin: a });
+        });
+
+        it('registers a child plugin with parent routes path prefix', async () => {
+
+            const server = Hapi.server();
+            await server.register(internals.plugins.child, { routes: { prefix: '/xyz' } });
+
+            const res = await server.inject('/xyz/test1');
+            expect(res.result).to.equal('testing123');
+        });
+
+        it('registers a child plugin with parent routes vhost prefix', async () => {
+
+            const server = Hapi.server();
+            await server.register(internals.plugins.child, { routes: { vhost: 'example.com' } });
+
+            const res = await server.inject({ url: '/test1', headers: { host: 'example.com' } });
+            expect(res.result).to.equal('testing123');
+        });
+
+        it('registers a child plugin with parent routes path prefix and inner register prefix', async () => {
+
+            const server = Hapi.server();
+            await server.register({ plugin: internals.plugins.child, options: { routes: { prefix: '/inner' } } }, { routes: { prefix: '/xyz' } });
+
+            const res = await server.inject('/xyz/inner/test1');
+            expect(res.result).to.equal('testing123');
+        });
+
+        it('registers a child plugin with parent routes vhost prefix and inner register vhost', async () => {
+
+            const server = Hapi.server();
+            await server.register({ plugin: internals.plugins.child, options: { routes: { vhost: 'example.net' } } }, { routes: { vhost: 'example.com' } });
+
+            const res = await server.inject({ url: '/test1', headers: { host: 'example.com' } });
+            expect(res.result).to.equal('testing123');
+        });
+
+        it('registers a plugin with routes vhost', async () => {
+
+            const server = Hapi.server();
+            await server.register(internals.plugins.test1, { routes: { vhost: 'example.com' } });
+
+            const res1 = await server.inject('/test1');
+            expect(res1.statusCode).to.equal(404);
+
+            const res2 = await server.inject({ url: '/test1', headers: { host: 'example.com' } });
+            expect(res2.result).to.equal('testing123');
+        });
+
+        it('registers a plugin with routes vhost (plugin options)', async () => {
+
+            const server = Hapi.server();
+            await server.register({ plugin: internals.plugins.test1, routes: { vhost: 'example.org' } }, { routes: { vhost: 'example.com' } });
+
+            const res1 = await server.inject('/test1');
+            expect(res1.statusCode).to.equal(404);
+
+            const res2 = await server.inject({ url: '/test1', headers: { host: 'example.org' } });
+            expect(res2.result).to.equal('testing123');
+        });
+
+        it('sets multiple dependencies in one statement', async () => {
+
+            const a = {
+                name: 'a',
+                register: function (srv, options) {
+
+                    srv.dependency(['b', 'c']);
+                }
+            };
+
+            const b = {
+                name: 'b',
+                register: Hoek.ignore
+            };
+
+            const c = {
+                name: 'c',
+                register: Hoek.ignore
+            };
+
+            const server = Hapi.server();
+            await server.register(b);
+            await server.register(c);
+            await server.register(a);
+            await server.initialize();
+        });
+
+        it('sets multiple dependencies in plugin', async () => {
+
+            const a = {
+                name: 'a',
+                dependencies: ['b', 'c'],
+                register: Hoek.ignore
+            };
+
+            const b = {
+                name: 'b',
+                register: Hoek.ignore
+            };
+
+            const c = {
+                name: 'c',
+                register: Hoek.ignore
+            };
+
+            const server = Hapi.server();
+            await server.register(b);
+            await server.register(c);
+            await server.register(a);
+            await server.initialize();
+        });
+
+        it('sets multiple dependencies in multiple statements', async () => {
+
+            const a = {
+                name: 'a',
+                register: function (srv, options) {
+
+                    srv.dependency('b');
+                    srv.dependency('c');
+                }
+            };
+
+            const b = {
+                name: 'b',
+                register: Hoek.ignore
+            };
+
+            const c = {
+                name: 'c',
+                register: Hoek.ignore
+            };
+
+            const server = Hapi.server();
+            await server.register(b);
+            await server.register(c);
+            await server.register(a);
+            await server.initialize();
+        });
+
+        it('sets multiple dependencies in multiple locations', async () => {
+
+            const a = {
+                name: 'a',
+                dependencies: 'c',
+                register: function (srv, options) {
+
+                    srv.dependency('b');
+                }
+            };
+
+            const b = {
+                name: 'b',
+                register: Hoek.ignore
+            };
+
+            const c = {
+                name: 'c',
+                register: Hoek.ignore
+            };
+
+            const server = Hapi.server();
+            await server.register(b);
+            await server.register(c);
+            await server.register(a);
+            await server.initialize();
+        });
+
+        it('register a plugin once per server', async () => {
+
+            let count = 0;
+            const b = {
+                name: 'b',
+                register: function (srv, options) {
+
+                    ++count;
+                }
+            };
+
+            const a = {
+                name: 'a',
+                register: function (srv, options) {
+
+                    return srv.register(b, { once: true });
+                }
+            };
+
+            const server = Hapi.server();
+            await server.register(b);
+            await server.register(a);
+            await server.initialize();
+            expect(count).to.equal(1);
+        });
+
+        it('register a plugin once (plugin)', async () => {
+
+            let count = 0;
+            const b = {
+                name: 'b',
+                once: true,
+                register: function (srv, options) {
+
+                    ++count;
+                }
+            };
+
+            const a = {
+                name: 'a',
+                register: function (srv, options) {
+
+                    return srv.register(b);
+                }
+            };
+
+            const server = Hapi.server();
+            await server.register(b);
+            await server.register(a);
+            await server.initialize();
+            expect(count).to.equal(1);
+        });
+
+        it('throws when once used with plugin options', async () => {
+
+            const a = {
+                name: 'a',
+                register: Hoek.ignore
+            };
+
+            const server = Hapi.server();
+            await expect(server.register({ plugin: a, options: {}, once: true })).to.reject();
+        });
+
+        it('throws when once is false', async () => {
+
+            const b = {
+                name: 'b',
+                register: Hoek.ignore
+            };
+
+            const a = {
+                name: 'a',
+                register: function (srv, options) {
+
+                    return srv.register(b);
+                }
+            };
+
+            const server = Hapi.server();
+            await server.register(b);
+            await expect(server.register(a)).to.reject(Error, 'Plugin b already registered');
+        });
+
+        it('throws when dependencies is an object', async () => {
+
+            const a = {
+                name: 'a',
+                dependencies: { b: true },
+                register: Hoek.ignore
+            };
+
+            const server = Hapi.server();
+            await expect(server.register(a)).to.reject();
+        });
+
+        it('throws when dependencies contain something else than a string', async () => {
+
+            const a = {
+                name: 'a',
+                dependencies: [true],
+                register: Hoek.ignore
+            };
+
+            const server = Hapi.server();
+            await expect(server.register(a)).to.reject();
+        });
+
+        it('exposes server decorations to next register', async () => {
+
+            const server = Hapi.server();
+
+            const b = {
+                name: 'b',
+                register: function (srv, options) {
+
+                    if (typeof srv.a !== 'function') {
+                        throw new Error('Missing decoration');
+                    }
+                }
+            };
+
+            const a = {
+                name: 'a',
+                register: function (srv, options) {
+
+                    srv.decorate('server', 'a', () => {
+
+                        return 'a';
+                    });
+                }
+            };
+
+            await server.register([a, b]);
+            await server.initialize();
+        });
+
+        it('exposes server decorations to dependency (dependency first)', async () => {
+
+            const server = Hapi.server();
+
+            const a = {
+                name: 'a',
+                register: function (srv, options) {
+
+                    srv.decorate('server', 'a', () => {
+
+                        return 'a';
+                    });
+                }
+            };
+
+            const b = {
+                name: 'b',
+                register: function (srv, options) {
+
+                    const after = function (srv2) {
+
+                        if (typeof srv2.a !== 'function') {
+                            throw new Error('Missing decoration');
+                        }
+                    };
+
+                    srv.dependency('a', after);
+                }
+            };
+
+            await server.register([a, b]);
+            await server.initialize();
+        });
+
+        it('exposes server decorations to dependency (dependency second)', async () => {
+
+            const server = Hapi.server();
+
+            const a = {
+                name: 'a',
+                register: function (srv, options) {
+
+                    srv.decorate('server', 'a', () => 'a');
+                }
+            };
+
+            const b = {
+                name: 'b',
+                register: function (srv, options) {
+
+                    srv.realm.x = 1;
+                    const after = function (srv2) {
+
+                        expect(srv2.realm.x).to.equal(1);
+                        if (typeof srv2.a !== 'function') {
+                            throw new Error('Missing decoration');
+                        }
+                    };
+
+                    srv.dependency('a', after);
+                }
+            };
+
+            await server.register([b, a]);
+            await server.initialize();
+        });
+
+        it('exposes server decorations to next register when nested', async () => {
+
+            const server = Hapi.server();
+
+            const a = {
+                name: 'a',
+                register: function (srv, options) {
+
+                    srv.decorate('server', 'a', () => {
+
+                        return 'a';
+                    });
+                }
+            };
+
+            const b = {
+                name: 'b',
+                register: async function (srv, options) {
+
+                    await srv.register(a);
+                    if (typeof srv.a !== 'function') {
+                        throw new Error('Missing decoration');
+                    }
+                }
+            };
+
+            await server.register([b]);
+            await server.initialize();
         });
     });
 
