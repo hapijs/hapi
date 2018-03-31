@@ -108,9 +108,8 @@
             "integrity": "sha512-LUk6ZWdgeQ4xmRa5WfkhZexmUaM2Js9UYgIQIUO8QmpjDgETXFauPR7RRFVcyuWzpV6hT61c4y2SkDhNFV3msQ=="
         },
         "statehood": {
-            "version": "6.0.5",
-            "resolved": "https://registry.npmjs.org/statehood/-/statehood-6.0.5.tgz",
-            "integrity": "sha1-u83LOkOm+4b0vQTtSKkwm2z8Gxg="
+            "version": "6.0.6",
+            "resolved": "https://registry.npmjs.org/statehood/-/statehood-6.0.6.tgz"
         },
         "subtext": {
             "version": "6.0.7",
