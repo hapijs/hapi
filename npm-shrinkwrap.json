@@ -1,4 +1,5 @@
 {
+    "version": "17.3.0",
     "name": "hapi",
     "lockfileVersion": 1,
     "dependencies": {
@@ -48,9 +49,8 @@
             "integrity": "sha1-TzmINaPY9ZksMd3uJDeEZ0mKnJo="
         },
         "content": {
-            "version": "4.0.4",
-            "resolved": "https://registry.npmjs.org/content/-/content-4.0.4.tgz",
-            "integrity": "sha512-h0r6/VHlhrLVFrTj612v5EPwqyMs3L79Uf4vEw0zFmywodU8TveiIuINp0//3/GRnAWrQbgSnazSosNkyAeVNA=="
+            "version": "4.0.5",
+            "resolved": "https://registry.npmjs.org/content/-/content-4.0.5.tgz"
         },
         "cryptiles": {
             "version": "4.1.1",
@@ -137,6 +137,5 @@
             "resolved": "https://registry.npmjs.org/wreck/-/wreck-14.0.2.tgz",
             "integrity": "sha1-icF6kGHHRe0cOuvLZuoYHbqrRUw="
         }
-    },
-    "version": "17.2.3"
+    }
 }
