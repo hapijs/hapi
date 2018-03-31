@@ -88,9 +88,8 @@
             "integrity": "sha1-duPScShDHLZIL9FbIEdXGa1ialo="
         },
         "nigel": {
-            "version": "3.0.0",
-            "resolved": "https://registry.npmjs.org/nigel/-/nigel-3.0.0.tgz",
-            "integrity": "sha1-puM3ioo0KB51uhZB6IakFdS+k60="
+            "version": "3.0.1",
+            "resolved": "https://registry.npmjs.org/nigel/-/nigel-3.0.1.tgz"
         },
         "pez": {
             "version": "4.0.2",
