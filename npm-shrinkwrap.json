@@ -44,9 +44,8 @@
             "integrity": "sha1-5qwfNRAtGpvQeRW4LlCNErUKi/o="
         },
         "catbox-memory": {
-            "version": "3.1.1",
-            "resolved": "https://registry.npmjs.org/catbox-memory/-/catbox-memory-3.1.1.tgz",
-            "integrity": "sha1-TzmINaPY9ZksMd3uJDeEZ0mKnJo="
+            "version": "3.1.2",
+            "resolved": "https://registry.npmjs.org/catbox-memory/-/catbox-memory-3.1.2.tgz"
         },
         "content": {
             "version": "4.0.5",
