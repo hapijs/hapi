@@ -45,11 +45,13 @@
         },
         "catbox-memory": {
             "version": "3.1.2",
-            "resolved": "https://registry.npmjs.org/catbox-memory/-/catbox-memory-3.1.2.tgz"
+            "resolved": "https://registry.npmjs.org/catbox-memory/-/catbox-memory-3.1.2.tgz",
+            "integrity": "sha512-lhWtutLVhsq3Mucxk2McxBPPibJ34WcHuWFz3xqub9u9Ve/IQYpZv3ijLhQXfQped9DXozURiaq9O3aZpP91eg=="
         },
         "content": {
             "version": "4.0.5",
-            "resolved": "https://registry.npmjs.org/content/-/content-4.0.5.tgz"
+            "resolved": "https://registry.npmjs.org/content/-/content-4.0.5.tgz",
+            "integrity": "sha512-wDP6CTWDpwCf791fNxlCCkZGRkrNzSEU/8ju9Hnr3Uc5mF/gFR5W+fcoGm6zUSlVPdSXYn5pCbySADKj7YM4Cg=="
         },
         "cryptiles": {
             "version": "4.1.1",
@@ -88,11 +90,13 @@
         },
         "nigel": {
             "version": "3.0.1",
-            "resolved": "https://registry.npmjs.org/nigel/-/nigel-3.0.1.tgz"
+            "resolved": "https://registry.npmjs.org/nigel/-/nigel-3.0.1.tgz",
+            "integrity": "sha512-kCVtUG9JyD//tsYrZY+/Y+2gUrANVSba8y23QkM5Znx0FOxlnl9Z4OVPBODmstKWTOvigfTO+Va1VPOu3eWSOQ=="
         },
         "pez": {
             "version": "4.0.2",
-            "resolved": "https://registry.npmjs.org/pez/-/pez-4.0.2.tgz"
+            "resolved": "https://registry.npmjs.org/pez/-/pez-4.0.2.tgz",
+            "integrity": "sha512-HuPxmGxHsEFPWhdkwBs2gIrHhFqktIxMtudISTFN95RQ85ZZAOl8Ki6u3nnN/X8OUaGlIGldk/l8p2IR4/i76w=="
         },
         "podium": {
             "version": "3.1.2",
@@ -106,7 +110,8 @@
         },
         "statehood": {
             "version": "6.0.6",
-            "resolved": "https://registry.npmjs.org/statehood/-/statehood-6.0.6.tgz"
+            "resolved": "https://registry.npmjs.org/statehood/-/statehood-6.0.6.tgz",
+            "integrity": "sha512-jR45n5ZMAkasw0xoE9j9TuLmJv4Sa3AkXe+6yIFT6a07kXYHgSbuD2OVGECdZGFxTmvNqLwL1iRIgvq6O6rq+A=="
         },
         "subtext": {
             "version": "6.0.7",
