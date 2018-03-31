@@ -93,9 +93,8 @@
             "integrity": "sha1-puM3ioo0KB51uhZB6IakFdS+k60="
         },
         "pez": {
-            "version": "4.0.1",
-            "resolved": "https://registry.npmjs.org/pez/-/pez-4.0.1.tgz",
-            "integrity": "sha1-1pjs+aFGyRiNdKvlzve1y3Hes7U="
+            "version": "4.0.2",
+            "resolved": "https://registry.npmjs.org/pez/-/pez-4.0.2.tgz"
         },
         "podium": {
             "version": "3.1.2",
