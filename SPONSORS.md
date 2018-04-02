@@ -59,3 +59,4 @@
 - Troy Whiteley
 - Viswanadha Pratap Kondoju
 - CodePilot.ai
+- [quickytools](quickytools.com)
