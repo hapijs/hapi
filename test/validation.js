@@ -1358,6 +1358,27 @@ describe('validation', () => {
             expect(res.statusCode).to.equal(200);
         });
 
+        it('skips response validation when a status schema is true', async () => {
+
+            const server = Hapi.server({ debug: false });
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    handler: (request, h) => h.redirect('/somewhere'),
+                    response: {
+                        schema: false,
+                        status: {
+                            302: true
+                        }
+                    }
+                }
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(302);
+        });
+
         it('skips response validation when status is empty', async () => {
 
             const server = Hapi.server({ debug: false });
