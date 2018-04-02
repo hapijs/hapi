@@ -243,6 +243,34 @@ describe('Response', () => {
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
         });
+
+        it('doesn\'t return an error on created with PUT', async () => {
+
+            const handler = (request, h) => {
+
+                return h.response({ a: 1 }).created();
+            };
+            const server = Hapi.server();
+            server.route({ method: 'PUT', path: '/', handler });
+
+            const res = await server.inject({ method: 'PUT', url: '/' });
+            expect(res.result).to.equal({ a: 1 });
+            expect(res.statusCode).to.equal(201);
+        });
+
+        it('doesn\'t return an error on created with PATCH', async () => {
+
+            const handler = (request, h) => {
+
+                return h.response({ a: 1 }).created();
+            };
+            const server = Hapi.server();
+            server.route({ method: 'PATCH', path: '/', handler });
+
+            const res = await server.inject({ method: 'PATCH', url: '/' });
+            expect(res.result).to.equal({ a: 1 });
+            expect(res.statusCode).to.equal(201);
+        });
     });
 
     describe('state()', () => {
