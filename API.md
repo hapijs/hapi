@@ -299,11 +299,11 @@ Used to disable the automatic initialization of the [`listener`](#server.options
 `false`, indicates that the [`listener`](#server.options.listener) will be started manually outside
 the framework.
 
-Cannot be set to `true` along with a [`port`](#server.options.port) value.
+Cannot be set to `false` along with a [`port`](#server.options.port) value.
 
 #### <a name="server.options.cache" /> `server.options.cache`
 
-Default value: `{ engine: require('catbox-memory' }`.
+Default value: `{ engine: require('catbox-memory') }`.
 
 Sets up server-side caching providers. Every server includes a default cache for storing
 application state. By default, a simple memory-based cache is created which has limited capacity
