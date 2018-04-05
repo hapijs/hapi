@@ -2519,7 +2519,7 @@ server.route({ method: '*', path: '/{p*}', handler });
 Defines a route rules processor for converting route rules object into route configuration where:
 
 - `processor` - a function using the signature `function(rules, info)` where:
-    - `rules` - 
+    - `rules` -
     - `info` - an object with the following properties:
         - `method` - the route method.
         - `path` - the route path.
@@ -2697,7 +2697,7 @@ where:
 - `cookies` - a single object or an array of object where each contains:
     - `name` - the cookie name.
     - `value` - the cookie value.
-    - `options` - cookie configuration to override the server settings. 
+    - `options` - cookie configuration to override the server settings.
 
 Return value: a header string.
 
@@ -3394,6 +3394,18 @@ following options:
 - `noSniff` - boolean controlling the 'X-Content-Type-Options' header. Defaults to `true` setting
   the header to its only and default option, `'nosniff'`.
 
+- `referrer` - controls the ['Referrer-Policy'](https://www.w3.org/TR/referrer-policy/) header, which has the following possible values.
+    - `false` - the 'Referrer-Policy' header will not be sent to clients with responses. This is the default value.
+    - `''` - instructs clients that the Referrer-Policy will be [defined elsewhere](https://www.w3.org/TR/referrer-policy/#referrer-policy-empty-string), such as in a meta html tag.
+    - `'no-referrer'` - instructs clients to never include the referrer header when making requests.
+    - `'no-referrer-when-downgrade'` - instructs clients to never include the referrer when navigating from HTTPS to HTTP.
+    - `'same-origin'` - instructs clients to only include the referrer on the current site origin.
+    - `'origin'` - instructs clients to include the referrer but strip off path information so that the value is the current origin only.
+    - `'strict-origin'` - same as `'origin'` but instructs clients to omit the referrer header when going from HTTPS to HTTP.
+    - `'origin-when-cross-origin'` - instructs clients to include the full path in the referrer header for same-origin requests but only the origin components of the URL are included for cross origin requests.
+    - `'strict-origin-when-cross-origin'` - same as `'origin-when-cross-origin'` but the client is instructed to omit the referrer when going from HTTPS to HTTP.
+    - `'unsafe-url'` - instructs the client to always include the referrer with the full URL.
+
 ### <a name="route.options.state" /> `route.options.state`
 
 Default value: `{ parse: true, failAction: 'error' }`.
@@ -3899,7 +3911,7 @@ const handler = function (request, h) {
 
 When a different error representation is desired, such as an HTML page or a different payload
 format, the `'onPreResponse'` extension point may be used to identify errors and replace them with
-a different response object, as in this example using [Vision's](https://github.com/hapijs/vision) 
+a different response object, as in this example using [Vision's](https://github.com/hapijs/vision)
 `.view()` [response toolkit](#response-toolkit) property.
 
 ```js

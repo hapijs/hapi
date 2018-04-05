@@ -438,6 +438,52 @@ describe('Headers', () => {
             expect(res.headers['x-download-options']).to.equal('noopen');
             expect(res.headers['x-content-type-options']).to.equal('nosniff');
         });
+
+        it('does not return the referrer-policy header by default', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: () => 'Test' });
+
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['referrer-policy']).to.not.exist();
+        });
+
+        it('does not return the referrer-policy header when security.referrer is false', async () => {
+
+            const server = Hapi.server({ routes: { security: { referrer: false } } });
+            server.route({ method: 'GET', path: '/', handler: () => 'Test' });
+
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['referrer-policy']).to.not.exist();
+        });
+
+        it('does not allow security.referrer to be true', () => {
+
+            let err;
+            try {
+                Hapi.server({ routes: { security: { referrer: true } } });
+            }
+            catch (ex) {
+                err = ex;
+            }
+
+            expect(err).to.exist();
+        });
+
+        it('returns correct referrer-policy header when security.referrer is a string with a valid value', async () => {
+
+            const server = Hapi.server({ routes: { security: { referrer: 'strict-origin-when-cross-origin' } } });
+            server.route({ method: 'GET', path: '/', handler: () => 'Test' });
+
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['referrer-policy']).to.equal('strict-origin-when-cross-origin');
+        });
     });
 
     describe('content()', () => {
