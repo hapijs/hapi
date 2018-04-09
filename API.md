@@ -1930,7 +1930,7 @@ async function example() {
             // Change all requests to '/test'
 
             request.setUrl('/test');
-            return h.continue;
+            return h.continue();
         }
     });
 
@@ -1960,7 +1960,7 @@ async function example() {
         // Change all requests to '/test'
 
         request.setUrl('/test');
-        return h.continue;
+        return h.continue();
     });
 
     server.route({ method: 'GET', path: '/test', handler: () => 'ok' });
@@ -3919,7 +3919,7 @@ const preResponse = function (request, h) {
 
     const response = request.response;
     if (!response.isBoom) {
-        return h.continue;
+        return h.continue();
     }
 
     // Replace error with friendly HTML
@@ -4101,7 +4101,7 @@ Return value: none.
 const ext = function (request, h) {
 
     h.state('cookie-name', 'value');
-    return h.continue;
+    return h.continue();
 };
 ```
 
@@ -4130,7 +4130,7 @@ Clears a response cookie using the same arguments as [`response.unstate()`](#res
 const ext = function (request, h) {
 
     h.unstate('cookie-name');
-    return h.continue;
+    return h.continue();
 };
 ```
 
@@ -4188,7 +4188,7 @@ const preResponse = function (request, h) {
         console.log(hash.digest('hex'));
     });
 
-    return h.continue;
+    return h.continue();
 };
 
 server.ext('onPreResponse', preResponse);
@@ -4587,7 +4587,7 @@ const onRequest = function (request, h) {
         console.error('request aborted');
     });
 
-    return h.continue;
+    return h.continue();
 };
 
 server.ext('onRequest', onRequest);
@@ -4851,7 +4851,7 @@ const onRequest = function (request, h) {
 
     // Change all requests to 'GET'
     request.setMethod('GET');
-    return h.continue;
+    return h.continue();
 };
 
 server.ext('onRequest', onRequest);
@@ -4876,7 +4876,7 @@ const onRequest = function (request, h) {
 
     // Change all requests to '/test'
     request.setUrl('/test');
-    return h.continue;
+    return h.continue();
 };
 
 server.ext('onRequest', onRequest);
@@ -4898,7 +4898,7 @@ const onRequest = function (request, h) {
     parsed.query = Qs.parse(parsed.query);
     request.setUrl(parsed);
 
-    return h.continue;
+    return h.continue();
 };
 
 server.ext('onRequest', onRequest);
