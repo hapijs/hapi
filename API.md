@@ -3789,7 +3789,7 @@ The [`authenticate()`](#authentication-scheme) method has access to two addition
     - [`h.authenticated()`](#h.authenticated()) - indicate request authenticated successfully.
     - [`h.unauthenticated()`](#h.unauthenticated()) - indicate request failed to authenticate.
 
-Note that these rules are apply somewhat differently when used in a [pre-handler method](#route.options.pre).
+Note that these rules apply somewhat differently when used in a [pre-handler method](#route.options.pre).
 
 #### Takeover response
 
