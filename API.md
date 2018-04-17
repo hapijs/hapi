@@ -1733,7 +1733,7 @@ Subscribe to an event where:
 
 - `criteria` - the subscription criteria which must be one of:
 
-    - event name string which can be any of the [built-in server events](#server-events) or a
+    - event name string which can be any of the [built-in server events](#server.events) or a
       custom application event registered with [`server.event()`](#server.event()).
 
     - a criteria object with the following optional keys (unless noted otherwise):
