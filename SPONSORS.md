@@ -9,6 +9,7 @@
 - Bryan Sapot
 - Christian Giacomi
 - CNN Digital
+- CodePilot.ai
 - Condé Nast Technology
 - Contentful
 - Dave Hyndman
@@ -55,8 +56,9 @@
 - Nicklas Laine Overgaard
 - Oakley Hall
 - PIer Bover
+- Robin van der Vleuten
 - Sheridan Tighe
 - Troy Whiteley
 - Viswanadha Pratap Kondoju
-- CodePilot.ai
 - [quickytools](quickytools.com)
+
