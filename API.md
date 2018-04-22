@@ -611,7 +611,7 @@ console.log(server.auth.api.default.settings.x);    // 5
 
 Access: read only.
 
-Contains the default authentication configuration is a default strategy was set via
+Contains the default authentication configuration if a default strategy was set via
 [`server.auth.default()`](#server.auth.default()).
 
 #### <a name="server.decorations" /> `server.decorations`
