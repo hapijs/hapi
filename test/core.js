@@ -303,6 +303,7 @@ describe('Core', () => {
         expect(server.settings.routes.security.hsts).to.equal(2);
         expect(server.settings.routes.security.xss).to.be.false();
         expect(server.settings.routes.security.xframe).to.equal('deny');
+        expect(server.settings.routes.security.referrer).to.equal(false);
     });
 
     describe('_debug()', () => {
