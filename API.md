@@ -791,7 +791,7 @@ signature `function(request)` where:
 ```js
 server.events.on('response', (request) => {
 
-    console.log(`Response sent for request: ${request.id}`);
+    console.log(`Response sent for request: ${request.info.id}`);
 });
 ```
 
@@ -3824,7 +3824,7 @@ values:
 - a [lifecycle method](#lifecycle-methods) with the signature `async function(request, h, err)`
   where:
     - `request` - the [request object](#request).
-    - `h` - the [response toolkit](#tookit-interface).
+    - `h` - the [response toolkit](#response-toolkit).
     - `err` - the error object.
 
 #### Errors
@@ -4717,8 +4717,7 @@ wrapped response object, use `responses`.
 Access: read / write (see limitations below).
 
 The response object when set. The object can be modified but must not be assigned another object.
-To replace the response with another from within an [extension point](#server.ext()),
-use `reply(response)` to override with a different response. Contains `null` when no response has
+To replace the response with another from within an [extension point](#server.ext()), return a new response value. Contains `null` when no response has
 been set (e.g. when a request terminates prematurely when the client disconnects).
 
 #### <a name="request.preResponses" /> `request.preResponses`
