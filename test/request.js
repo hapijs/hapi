@@ -53,16 +53,17 @@ describe('Request.Generator', () => {
     it('decorates request with non function method', async () => {
 
         const server = Hapi.server();
+        const symbol = Symbol('abc');
 
         server.decorate('request', 'x2', 2);
-        server.decorate('request', 'abc', 1);
+        server.decorate('request', symbol, 1);
 
         server.route({
             method: 'GET',
             path: '/',
             handler: (request) => {
 
-                return request.x2 + request.abc;
+                return request.x2 + request[symbol];
             }
         });
 

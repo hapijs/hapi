@@ -1466,7 +1466,7 @@ Extends various framework interfaces with custom methods where:
     - `'server'` - adds methods to the [Server](#server) object.
     - `'toolkit'` - adds methods to the [response toolkit](#response-toolkit).
 
-- `property` - the object decoration key name.
+- `property` - the object decoration key name or symbol.
 
 - `method` - the extension function or other value.
 
