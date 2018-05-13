@@ -60,5 +60,5 @@
 - Sheridan Tighe
 - Troy Whiteley
 - Viswanadha Pratap Kondoju
-- [quickytools](quickytools.com)
+- [quickytools](https://www.quickytools.com)
 
