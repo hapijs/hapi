@@ -584,11 +584,12 @@ describe('Server', () => {
         it('shows decorations on request (many)', () => {
 
             const server = Hapi.server();
+            const symbol = Symbol('b');
 
             server.decorate('request', 'a', () => { });
-            server.decorate('request', 'b', () => { });
+            server.decorate('request', symbol, () => { });
 
-            expect(server.decorations.request).to.equal(['a', 'b']);
+            expect(server.decorations.request).to.equal(['a', symbol]);
         });
 
         it('shows decorations on toolkit (empty array)', () => {
@@ -610,11 +611,12 @@ describe('Server', () => {
         it('shows decorations on toolkit (many)', () => {
 
             const server = Hapi.server();
+            const symbol = Symbol('b');
 
             server.decorate('toolkit', 'a', () => { });
-            server.decorate('toolkit', 'b', () => { });
+            server.decorate('toolkit', symbol, () => { });
 
-            expect(server.decorations.toolkit).to.equal(['a', 'b']);
+            expect(server.decorations.toolkit).to.equal(['a', symbol]);
         });
 
         it('shows decorations on server (empty array)', () => {
@@ -636,11 +638,12 @@ describe('Server', () => {
         it('shows decorations on server (many)', () => {
 
             const server = Hapi.server();
+            const symbol = Symbol('b');
 
             server.decorate('server', 'a', () => { });
-            server.decorate('server', 'b', () => { });
+            server.decorate('server', symbol, () => { });
 
-            expect(server.decorations.server).to.equal(['a', 'b']);
+            expect(server.decorations.server).to.equal(['a', symbol]);
         });
     });
 
