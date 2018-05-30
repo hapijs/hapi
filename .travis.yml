@@ -6,3 +6,5 @@ node_js:
   - "node"
 
 sudo: false
+install: npm i
+
