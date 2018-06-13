@@ -3555,10 +3555,9 @@ Validation rules for incoming request payload (request body), where:
 
 - a validation function using the signature `async function(value, options)` where:
 
-    - `value` - the [`request.query`](#request.query) object containing the request query
-      parameters.
+    - `value` - the [`request.payload`](#request.payload) object containing the request payload.
     - `options` - [`options`](#route.options.validate.options).
-    - if a value is returned, the value is used as the new [`request.payload`](#request.query)
+    - if a value is returned, the value is used as the new [`request.payload`](#request.payload)
       value and the original value is stored in [`request.orig.payload`](#request.orig). Otherwise,
       the payload is left unchanged. If an error is thrown, the error is handled according to
       [`failAction`](#route.options.validate.failAction).
