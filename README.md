@@ -37,5 +37,5 @@ Eran Hammer's [Patreon page](https://www.patreon.com/eranhammer) or contact him 
 
 Past major financial support for the project was provided by:
 - Benjamin Flesch and [StriveWire](https://strivewire.com/)
-- [Lob](https://lob.com/)
 - [Condé Nast Technology](https://technology.condenast.com/)
+- [![Lob](https://user-images.githubusercontent.com/56631/42724877-60d54714-872f-11e8-97e9-07726418f41f.png)](https://lob.com/)
