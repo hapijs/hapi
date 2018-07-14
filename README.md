@@ -24,21 +24,7 @@ Eran Hammer's [Patreon page](https://www.patreon.com/eranhammer) or contact him 
 
 ## Featured Sponsors
 
-<img src="https://user-images.githubusercontent.com/56631/32082980-4fd9b342-ba74-11e7-872a-42b0a414fcb2.png" align="left"  />
-
-[**Lob**](http://bit.ly/lobh-rn) enables you to seamlessly print and mail documents, postcards, checks, and more via an API. They have been an early **hapi** adopters and vocal supporters. If you are looking to take your **hapi** and JS skills to the next level, check out their [career page](http://bit.ly/lobc-rn) for exciting opportunities.
-
-#
-
-<br>
-
 [![Auth0](https://user-images.githubusercontent.com/56631/31878562-5c64483a-b78f-11e7-92da-5a991ebb302d.png)](http://bit.ly/auth0h-rn)
-
-<br>
-
-[![Condé Nast Technology](https://user-images.githubusercontent.com/56631/32398027-e2027480-c0a9-11e7-9077-c5ecca7bc39c.png)](http://bit.ly/cn-rn)
-
-<br>
 
 ## Active Supporters
 
@@ -51,3 +37,5 @@ Eran Hammer's [Patreon page](https://www.patreon.com/eranhammer) or contact him 
 
 Past major financial support for the project was provided by:
 - Benjamin Flesch and [StriveWire](https://strivewire.com/)
+- [Lob](https://lob.com/)
+- [Condé Nast Technology](https://technology.condenast.com/)
