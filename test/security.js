@@ -20,6 +20,15 @@ const expect = Code.expect;
 
 describe('security', () => {
 
+    it('handles missing routes', async () => {
+
+        const server = Hapi.server({ port: 8080, routes: { security: { xframe: true } } });
+
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(404);
+        expect(res.headers['x-frame-options']).to.exist();
+    });
+
     it('blocks response splitting through the request.create method', async () => {
 
         const server = Hapi.server();
