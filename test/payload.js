@@ -25,7 +25,7 @@ const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
 
 
-describe('payload', () => {
+describe('Payload', () => {
 
     it('sets payload', async () => {
 
@@ -80,6 +80,7 @@ describe('payload', () => {
         server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { close: true, end: false } });
         const [request] = await log;
         expect(request._isReplied).to.equal(true);
+        expect(request.response).to.be.null();
     });
 
     it('handles aborted request', async () => {
