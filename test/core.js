@@ -747,6 +747,7 @@ describe('Core', () => {
             await internals.socket(server);
             await internals.socket(server);
 
+            await Hoek.wait(50);
             const count1 = await internals.countConnections(server);
             expect(count1).to.equal(2);
 
@@ -1867,7 +1868,7 @@ describe('Core', () => {
 });
 
 
-internals.countConnections = function (server) {
+internals.countConnections = async function (server) {
 
     return new Promise((resolve, reject) => {
 
