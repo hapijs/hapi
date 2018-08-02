@@ -835,7 +835,7 @@ describe('Core', () => {
             const count2 = await internals.countConnections(server);
             expect(count2).to.equal(1);
 
-            await Hoek.wait(40);
+            await Hoek.wait(50);
 
             const count3 = await internals.countConnections(server);
             expect(count3).to.equal(0);
