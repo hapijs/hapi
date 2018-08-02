@@ -107,7 +107,7 @@ describe('Response', () => {
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
             expect(res.headers['content-length']).to.equal(0);
-            expect(res.headers['content-type']).to.not.exist();
+            expect(res.headers['content-type']).to.equal('text/html; charset=utf-8');
             expect(res.result).to.equal('');
             expect(res.payload).to.equal('');
         });
@@ -124,6 +124,7 @@ describe('Response', () => {
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
             expect(res.headers['content-length']).to.equal(0);
+            expect(res.headers['content-type']).to.not.exist();
             expect(res.result).to.equal(null);
             expect(res.payload).to.equal('');
         });
