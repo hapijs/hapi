@@ -951,7 +951,7 @@ describe('Core', () => {
             const handler = (request) => {
 
                 const start = Date.now();
-                while (Date.now() - start < 10) { }
+                while (Date.now() - start < 15) { }
                 return 'ok';
             };
 
