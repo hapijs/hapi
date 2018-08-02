@@ -835,7 +835,7 @@ describe('Core', () => {
             const count2 = await internals.countConnections(server);
             expect(count2).to.equal(1);
 
-            await Hoek.wait(50);
+            await Hoek.wait(100);
 
             const count3 = await internals.countConnections(server);
             expect(count3).to.equal(0);
@@ -951,7 +951,7 @@ describe('Core', () => {
             let buffer;
             const handler = (request) => {
 
-                buffer = buffer || new Buffer(2048);
+                buffer = buffer || Buffer.alloc(2048);
                 const start = Date.now();
                 while (Date.now() - start < 10) { }
                 return 'ok';
