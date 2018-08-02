@@ -1868,7 +1868,7 @@ describe('Core', () => {
 });
 
 
-internals.countConnections = async function (server) {
+internals.countConnections = function (server) {
 
     return new Promise((resolve, reject) => {
 
