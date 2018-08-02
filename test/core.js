@@ -611,7 +611,7 @@ describe('Core', () => {
             await server.start();
             const promise = Wreck.request('GET', `https://localhost:${server.info.port}/`, { rejectUnauthorized: false });
 
-            await Hoek.wait(50);
+            await Hoek.wait(100);
             const count1 = await internals.countConnections(server);
             expect(count1).to.equal(1);
             expect(server._core.sockets.size).to.equal(1);
@@ -952,8 +952,6 @@ describe('Core', () => {
             const handler = (request) => {
 
                 buffer = buffer || Buffer.alloc(2048);
-                const start = Date.now();
-                while (Date.now() - start < 10) { }
                 return 'ok';
             };
 
@@ -965,7 +963,7 @@ describe('Core', () => {
             const res1 = await server.inject('/');
             expect(res1.statusCode).to.equal(200);
 
-            await Hoek.wait(0);
+            await Hoek.wait(10);
             const res2 = await server.inject('/');
             expect(res2.statusCode).to.equal(503);
 
