@@ -1,5 +1,5 @@
 {
-    "version": "17.5.2",
+    "version": "17.5.3",
     "name": "hapi",
     "lockfileVersion": 1,
     "dependencies": {
@@ -74,14 +74,14 @@
             "integrity": "sha1-AD7YIvZW8HwrYnYoFfXeOUcyaGc="
         },
         "joi": {
-            "version": "13.2.0",
-            "resolved": "https://registry.npmjs.org/joi/-/joi-13.2.0.tgz",
-            "integrity": "sha512-VUzQwyCrmT2lIpxBCYq26dcK9veCQzDh84gQnCtaxCa8ePohX8JZVVsIb+E66kCUUcIvzeIpifa6eZuzqTZ3NA=="
+            "version": "13.5.2",
+            "resolved": "https://registry.npmjs.org/joi/-/joi-13.5.2.tgz",
+            "integrity": "sha512-3HrFXLC57iU5CzYth3cJRdYEo4/Dr+tXmCQ+BHyiTTKnKxJ9ICkI/WJGPwUUXj3dWA4tO2hwZO5oCdBNhAYuRg=="
         },
         "mime-db": {
-            "version": "1.33.0",
-            "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.33.0.tgz",
-            "integrity": "sha512-BHJ/EKruNIqJf/QahvxwQZXKygOQ256myeN/Ew+THcAa5q+PjyTTMMeNQC4DZw5AwfvelsUrA6B67NKMqXDbzQ=="
+            "version": "1.35.0",
+            "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.35.0.tgz",
+            "integrity": "sha512-JWT/IcCTsB0Io3AhWUMjRqucrHSPsSf2xKLaRldJVULioggvkJvggZ3VXNNSRkCddE6D+BUI4HEIZIA2OjwIvg=="
         },
         "mimos": {
             "version": "4.0.0",
