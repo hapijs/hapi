@@ -523,11 +523,11 @@ describe('Methods', () => {
         let gen = 0;
         const method = async function (id) {
 
-            await Hoek.wait(5);
+            await Hoek.wait(50);
             return { id, gen: ++gen };
         };
 
-        server.method('user', method, { cache: { expiresIn: 2000, generateTimeout: 3 } });
+        server.method('user', method, { cache: { expiresIn: 2000, generateTimeout: 30 } });
 
         await server.initialize();
 
@@ -535,7 +535,7 @@ describe('Methods', () => {
         const err = await expect(server.methods.user(id)).to.reject();
         expect(err.output.statusCode).to.equal(503);
 
-        await Hoek.wait(3);
+        await Hoek.wait(30);
 
         const result2 = await server.methods.user(id);
         expect(result2.id).to.equal(id);

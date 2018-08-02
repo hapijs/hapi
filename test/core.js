@@ -948,10 +948,12 @@ describe('Core', () => {
 
             const server = Hapi.server({ load: { sampleInterval: 5, maxRssBytes: 1 } });
 
+            let buffer;
             const handler = (request) => {
 
+                buffer = buffer || new Buffer(2048);
                 const start = Date.now();
-                while (Date.now() - start < 15) { }
+                while (Date.now() - start < 10) { }
                 return 'ok';
             };
 
