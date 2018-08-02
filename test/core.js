@@ -64,23 +64,35 @@ describe('Core', () => {
 
     it('allows null port and host', () => {
 
-        expect(() => Hapi.server({ host: null, port: null })).to.not.throw();
+        expect(() => {
+
+            Hapi.server({ host: null, port: null });
+        }).to.not.throw();
     });
 
     it('does not throw when given a default authentication strategy', () => {
 
-        expect(() => Hapi.server({ routes: { auth: 'test' } })).not.to.throw();
+        expect(() => {
+
+            Hapi.server({ routes: { auth: 'test' } });
+        }).not.to.throw();
     });
 
     it('throws when disabling autoListen and providing a port', () => {
 
-        expect(() => Hapi.server({ port: 80, autoListen: false })).to.throw('Cannot specify port when autoListen is false');
+        expect(() => {
+
+            Hapi.server({ port: 80, autoListen: false });
+        }).to.throw('Cannot specify port when autoListen is false');
     });
 
-    it('throws when disabling autoListen and providing special host', { skip: process.platform === 'win32' }, () => {
+    it('throws when disabling autoListen and providing special host', () => {
 
         const port = Path.join(__dirname, 'hapi-server.socket');
-        expect(() => Hapi.server({ port, autoListen: false })).to.throw('Cannot specify port when autoListen is false');
+        expect(() => {
+
+            Hapi.server({ port, autoListen: false });
+        }).to.throw('Cannot specify port when autoListen is false');
     });
 
     it('defaults address to 0.0.0.0 or :: when no host is provided', async () => {
@@ -569,6 +581,7 @@ describe('Core', () => {
             promise.req.abort();
             await expect(promise).to.reject();
 
+            await Hoek.wait(50);
             const count2 = await internals.countConnections(server);
             expect(count2).to.equal(0);
             expect(server._core.sockets.size).to.equal(0);
@@ -608,6 +621,7 @@ describe('Core', () => {
             promise.req.abort();
             await expect(promise).to.reject();
 
+            await Hoek.wait(50);
             const count2 = await internals.countConnections(server);
             expect(count2).to.equal(0);
             expect(server._core.sockets.size).to.equal(0);
