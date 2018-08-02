@@ -753,7 +753,7 @@ describe('Core', () => {
 
             const timer = new Hoek.Bench();
             await server.stop({ timeout: 20 });
-            expect(timer.elapsed()).to.be.at.most(20);
+            expect(timer.elapsed()).to.be.at.most(21);
         });
 
         it('waits to destroy handled connections until after the timeout', async () => {
