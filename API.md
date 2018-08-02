@@ -2499,8 +2499,7 @@ routing table node.
 #### Catch all route
 
 If the application needs to override the default Not Found (404) error response, it can add a
-catch-all route for a specific method or all methods. Only one catch-all route can be defined per
-server connection.
+catch-all route for a specific method or all methods. Only one catch-all route can be defined.
 
 ```js
 const Hapi = require('hapi');
