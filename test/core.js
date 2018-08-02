@@ -86,7 +86,7 @@ describe('Core', () => {
         }).to.throw('Cannot specify port when autoListen is false');
     });
 
-    it('throws when disabling autoListen and providing special host', () => {
+    it('throws when disabling autoListen and providing special host', { skip: process.platform === 'win32' }, () => {
 
         const port = Path.join(__dirname, 'hapi-server.socket');
         expect(() => {
