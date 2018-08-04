@@ -4785,12 +4785,12 @@ Returns a [`response`](#response-object) which you can pass into the [reply inte
         - `response` - the response object being prepared.
         - must return the prepared response object (new object or `response`).
         - may throw an error which is used as the prepared response.
-    - `marshal` - a function with the signature `async function(response)` used to repare the
+    - `marshal` - a function with the signature `async function(response)` used to prepare the
       response for transmission to the client before it is sent, where:
         - `response` - the response object being marshaled.
         - must return the prepared value (not as response object) which can be any value accepted
           by the [`h.response()`](#h.response()) `value` argument.
-        - may throw an error which is used as the marhsaled value.
+        - may throw an error which is used as the marshaled value.
     - `close` - a function with the signature `function(response)` used to close the resources
       opened by the response object (e.g. file handlers), where:
         - `response` - the response object being marshaled.
