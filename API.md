@@ -3405,6 +3405,20 @@ following options:
     - `'strict-origin-when-cross-origin'` - same as `'origin-when-cross-origin'` but the client is instructed to omit the referrer when going from HTTPS to HTTP.
     - `'unsafe-url'` - instructs the client to always include the referrer with the full URL.
 
+- `csp` - controls the ['Content-Security-Policy'](https://www.w3.org/TR/CSP3/) header, an object of which the following directives can be set (types are `string`, defaults are `none`):
+    - `child` - governs the creation of nested browsing contexts.
+    - `connect` - restricts the URLs which can be loaded using script interfaces.
+    - `default` - serves as a fallback for the other fetch directives.
+    - `font` - restricts the URLs from which font resources may be loaded.
+    - `frame` - restricts the URLs which may be loaded into nested browsing contexts.
+    - `image` - restricts the URLs from which image resources may be loaded.
+    - `manifest` - restricts the URLs from which application manifests may be loaded.
+    - `media` - restricts the URLs from which video, audio, and associated text track resources may be loaded.
+    - `object` - restricts the URLs from which plugin content may be loaded.
+    - `script` - restricts the locations from which scripts may be executed.
+    - `style` - restricts the locations from which style may be applied to a Document.
+    - `worker` - restricts the URLs which may be loaded as a Worker, SharedWorker, or ServiceWorker.
+
 ### <a name="route.options.state" /> `route.options.state`
 
 Default value: `{ parse: true, failAction: 'error' }`.
