@@ -484,6 +484,61 @@ describe('Headers', () => {
             expect(res.result).to.equal('Test');
             expect(res.headers['referrer-policy']).to.equal('strict-origin-when-cross-origin');
         });
+
+        it('does not return the content-security-policy header by default', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: () => 'Test' });
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['content-security-policy']).to.not.exist();
+        });
+
+        it('does not return the content-security-policy header when secuirty.csp is false', async () => {
+
+            const server = Hapi.server({ routes: { security: { csp: false } } });
+            server.route({ method: 'GET', path: '/', handler: () => 'Test' });
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['content-security-policy']).to.not.exist();
+        });
+
+        it('does not allow security.csp to be true', () => {
+
+            let err;
+            try {
+                Hapi.server({ routes: { security: { csp: true } } });
+            }
+            catch (ex) {
+                err = ex;
+            }
+
+            expect(err).to.exist();
+        });
+
+        it('returns correct content-security-policy header when setting security.csp options', async () => {
+
+            const server = Hapi.server({
+                routes: {
+                    security: {
+                        csp: {
+                            default: '\'self\'',
+                            style: '\'self\'',
+                            script: '\'self\'',
+                            font: '\'self\' data:'
+                        }
+                    }
+                }
+            });
+            server.route({ method: 'GET', path: '/', handler: () => 'Test' });
+
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['content-security-policy']).to.equal('default-src \'self\'; style-src \'self\'; script-src \'self\'; font-src \'self\' data:;');
+        });
     });
 
     describe('content()', () => {
