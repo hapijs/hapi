@@ -139,6 +139,11 @@ describe('Core', () => {
     it('creates a server listening on a unix domain socket', { skip: process.platform === 'win32' }, async () => {
 
         const port = Path.join(__dirname, 'hapi-server.socket');
+
+        if (Fs.existsSync(port)) {
+            Fs.unlinkSync(port);
+        }
+
         const server = Hapi.server({ port });
 
         expect(server.type).to.equal('socket');
