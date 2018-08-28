@@ -4617,12 +4617,11 @@ Request information:
 
 - `acceptEncoding` - the request preferred encoding.
 
-- `cors` - if CORS is enabled for the route, contains the following:
+- `cors` - request CORS information (available only after the `'onRequest'` extension point as CORS
+  is configured per-route and no routing decisions are made at that point in the request
+  lifecycle), where:
     - `isOriginMatch` - `true` if the request 'Origin' header matches the configured CORS
       restrictions. Set to `false` if no 'Origin' header is found or if it does not match.
-      Note that this is only available after the `'onRequest'` extension point as CORS is
-      configured per-route and no routing decisions are made at that point in the request
-      lifecycle.
 
 - `host` - content of the HTTP 'Host' header (e.g. 'example.com:8080').
 
