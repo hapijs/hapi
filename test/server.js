@@ -171,7 +171,7 @@ describe('Server', () => {
                 name: 'test',
                 register: function (srv, options) {
 
-                    const cache = srv.cache({ expiresIn: 10 });
+                    const cache = srv.cache({ expiresIn: 50 });
                     srv.expose({
                         get: function (key) {
 
@@ -193,7 +193,7 @@ describe('Server', () => {
             const value1 = await server.plugins.test.get('a');
             expect(value1).to.equal('1');
 
-            await Hoek.wait(11);
+            await Hoek.wait(600);
             const value2 = await server.plugins.test.get('a');
             expect(value2).to.equal(null);
         });
