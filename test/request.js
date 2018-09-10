@@ -5,7 +5,6 @@
 const Http = require('http');
 const Net = require('net');
 const Stream = require('stream');
-const Url = require('url');
 
 const Boom = require('boom');
 const Code = require('code');
@@ -218,6 +217,7 @@ describe('Request', () => {
             const server = Hapi.server();
             const res = await server.inject('invalid');
             expect(res.statusCode).to.equal(400);
+            expect(res.result.message).to.equal('Invalid URL: invalid');
         });
 
         it('returns boom response on ext error', async () => {
@@ -816,16 +816,16 @@ describe('Request', () => {
             const onRequest = (request, h) => {
 
                 const uri = request.raw.req.url;
-                const parsed = Url.parse(uri, true);
-                parsed.query.a = 2;
+                const parsed = new URL(uri, 'http://test/');
+                parsed.searchParams.set('a', 2);
                 request.setUrl(parsed);
-                return h.response([request.url.href, request.path, request.query.a].join('|')).takeover();
+                return h.response([request.url.href, request.path, request.url.searchParams.get('a')].join('|')).takeover();
             };
 
             server.ext('onRequest', onRequest);
 
             const res = await server.inject('/?a=1');
-            expect(res.payload).to.equal('/?a=1|/|2');
+            expect(res.payload).to.equal('http://test/?a=2|/|2');
         });
 
         it('normalizes a path', async () => {
@@ -851,7 +851,7 @@ describe('Request', () => {
             expect(res.payload).to.equal(normUrl + '|' + normPath + '|something');
         });
 
-        it('allows missing path', async () => {
+        it('allows empty path', async () => {
 
             const server = Hapi.server();
             const onRequest = (request, h) => {
@@ -864,6 +864,29 @@ describe('Request', () => {
 
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(400);
+            expect(res.result.message).to.equal('Invalid URL: ');
+        });
+
+        it('throws when path is missing', async () => {
+
+            const server = Hapi.server();
+            const onRequest = (request, h) => {
+
+                try {
+                    request.setUrl();
+                }
+                catch (err) {
+                    return h.response(err.message).takeover();
+                }
+
+                return h.continue;
+            };
+
+            server.ext('onRequest', onRequest);
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('Url must be a string or URL object');
         });
 
         it('strips trailing slash', async () => {
@@ -892,17 +915,13 @@ describe('Request', () => {
 
         it('clones passed url', async () => {
 
-            const urlObject = {
-                protocol: 'http:',
-                pathname: '/%41'
-            };
-            const passedUrl = Hoek.clone(urlObject);
+            const urlObject = new URL('http:/%41');
             let requestUrl;
 
             const server = Hapi.server();
             const onRequest = (request, h) => {
 
-                request.setUrl(passedUrl);
+                request.setUrl(urlObject);
                 requestUrl = request.url;
 
                 return h.continue;
@@ -912,9 +931,8 @@ describe('Request', () => {
 
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(404);
-            expect(passedUrl).to.equal(urlObject);
-            expect(requestUrl).to.not.shallow.equal(passedUrl);
-            expect(requestUrl).to.not.equal(urlObject);
+            expect(requestUrl).to.equal(urlObject);
+            expect(requestUrl).to.not.shallow.equal(urlObject);
         });
 
         it('handles vhost redirection', async () => {
