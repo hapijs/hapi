@@ -1,5 +1,7 @@
 'use strict';
 
+const { URL, URLSearchParams } = require('url');
+
 // Load modules
 
 const Http = require('http');
