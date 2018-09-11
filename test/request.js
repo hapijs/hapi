@@ -538,6 +538,101 @@ describe('Request', () => {
             const res = await server.inject({ url: '/some/route', allowInternals: true });
             expect(res.statusCode).to.equal(200);
         });
+
+        it('queryParser creates arrays from multiple entries', async () => {
+
+            const server = Hapi.server();
+
+            server.route({ method: 'GET', path: '/', handler: (request) => request.query });
+
+            const res = await server.inject('/?a=1&a=2');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal({ a: ['1', '2'] });
+        });
+
+        it('allows custom queryParser', async () => {
+
+            const server = Hapi.server();
+
+            const queryParser = (request) => {
+
+                return { hello: request.url.searchParams.get('hi') };
+            };
+
+            server.route({ method: 'GET', path: '/', options: {
+                queryParser,
+                handler: (request) => request.query.hello
+            } });
+
+            const res = await server.inject('/?hi=hola');
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('hola');
+        });
+
+        it('returns 500 when custom queryParser returns non-object', async () => {
+
+            const server = Hapi.server();
+
+            const queryParser = (request) => {
+
+                return request.url.search;
+            };
+
+            server.route({
+                method: 'GET', path: '/', options: {
+                    queryParser,
+                    handler: (request) => request.query.hello
+                }
+            });
+
+            const res = await server.inject('/?hi=hola');
+            expect(res.statusCode).to.equal(500);
+            expect(res.request.response._error).to.be.an.error('Parsed query must be an object');
+        });
+
+        it('handles custom queryParser that returns URLSearchParams', async () => {
+
+            const server = Hapi.server();
+
+            const queryParser = (request) => {
+
+                const params = new URLSearchParams('');
+                params.append('hello', request.url.searchParams.get('hi'));
+                return params;
+            };
+
+            server.route({
+                method: 'GET', path: '/', options: {
+                    queryParser,
+                    handler: (request) => request.query.hello
+                }
+            });
+
+            const res = await server.inject('/?hi=hola');
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('hola');
+        });
+
+        it('handles custom queryParser that returns Map', async () => {
+
+            const server = Hapi.server();
+
+            const queryParser = (request) => {
+
+                return new Map([['hello', request.url.searchParams.get('hi')]]);
+            };
+
+            server.route({
+                method: 'GET', path: '/', options: {
+                    queryParser,
+                    handler: (request) => request.query.hello
+                }
+            });
+
+            const res = await server.inject('/?hi=hola');
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('hola');
+        });
     });
 
     describe('_onRequest()', () => {
@@ -752,12 +847,18 @@ describe('Request', () => {
 
             const url = 'http://localhost/page?param1=something';
             const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', handler: () => null });
+
+            const handler = (request) => {
+
+                return [request.url.href, request.path, request.query.param1].join('|');
+            };
+
+            server.route({ method: 'GET', path: '/page', handler });
 
             const onRequest = (request, h) => {
 
                 request.setUrl(url);
-                return h.response([request.url.href, request.path, request.query.param1].join('|')).takeover();
+                return h.continue;
             };
 
             server.ext('onRequest', onRequest);
@@ -808,10 +909,16 @@ describe('Request', () => {
             expect(res2.payload).to.equal(url + '|/|initial|redirected|redirected');
         });
 
-        it('overrides query string parsing', async () => {
+        it('overrides query string content', async () => {
 
             const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', handler: () => null });
+
+            const handler = (request) => {
+
+                return [request.url.href, request.path, request.query.a].join('|');
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
 
             const onRequest = (request, h) => {
 
@@ -819,7 +926,7 @@ describe('Request', () => {
                 const parsed = new URL(uri, 'http://test/');
                 parsed.searchParams.set('a', 2);
                 request.setUrl(parsed);
-                return h.response([request.url.href, request.path, request.url.searchParams.get('a')].join('|')).takeover();
+                return h.continue;
             };
 
             server.ext('onRequest', onRequest);
@@ -842,7 +949,7 @@ describe('Request', () => {
             const onRequest = (request, h) => {
 
                 request.setUrl(url);
-                return h.response([request.url.href, request.path, request.query.param1].join('|')).takeover();
+                return h.response([request.url.href, request.path, request.url.searchParams.get('param1')].join('|')).takeover();
             };
 
             server.ext('onRequest', onRequest);
