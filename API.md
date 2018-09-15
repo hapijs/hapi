@@ -2425,16 +2425,16 @@ server.route([
 #### Path parameters
 
 Parameterized paths are processed by matching the named parameters to the content of the incoming
-request path at that path segment. For example, '/book/{id}/cover' will match '/book/123/cover' and
-`request.params.id` will be set to `'123'`. Each path segment (everything between the opening '/'
-and the closing '/' unless it is the end of the path) can only include one named parameter. A
-parameter can cover the entire segment ('/{param}') or part of the segment ('/file.{ext}').  A path
-parameter may only contain letters, numbers and underscores, e.g. '/{file-name}' is invalid
-and '/{file_name}' is valid.
+request path at that path segment. For example, `'/book/{id}/cover'` will match `'/book/123/cover'` and
+`request.params.id` will be set to `'123'`. Each path segment (everything between the opening `'/'`
+and the closing `'/'` unless it is the end of the path) can only include one named parameter. A
+parameter can cover the entire segment (`'/{param}'`) or part of the segment (`'/file.{ext}'`).  A path
+parameter may only contain letters, numbers and underscores, e.g. `'/{file-name}'` is invalid
+and `'/{file_name}'` is valid.
 
-An optional '?' suffix following the parameter name indicates an optional parameter (only allowed
+An optional `'?'` suffix following the parameter name indicates an optional parameter (only allowed
 if the parameter is at the ends of the path or only covers part of the segment as in
-'/a{param?}/b'). For example, the route '/book/{id?}' matches '/book/' with the value of
+`'/a{param?}/b'`). For example, the route `'/book/{id?}'` matches `'/book/'` with the value of
 `request.params.id` set to an empty string `''`.
 
 ```js
@@ -3772,7 +3772,7 @@ The flow between each lifecyle step depends on the value returned by each lifecy
 follows:
 
 - an error:
-    - the lifecycle skips to the **_Response validation**_ step.
+    - the lifecycle skips to the _**Response validation**_ step.
     - if returned by the _**onRequest**_ step it skips to the _**onPreResponse**_ step.
     - if returned by the _**Response validation**_ step it skips to the _**onPreResponse**_ step.
     - if returned by the _**onPreResponse**_ step it skips to the _**Response transmission**_ step.
