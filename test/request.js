@@ -635,6 +635,8 @@ describe('Request', () => {
             await server.inject('/');
             const [request] = await log;
             expect(request.info.responded).to.be.min(request.info.received);
+            expect(request.response.source).to.equal('ok');
+            expect(request.response.statusCode).to.equal(200);
         });
 
         it('closes response after server timeout', async () => {
