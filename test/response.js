@@ -245,12 +245,13 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(500);
         });
 
-        it('doesn\'t return an error on created with PUT', async () => {
+        it('does not return an error on created with PUT', async () => {
 
             const handler = (request, h) => {
 
                 return h.response({ a: 1 }).created();
             };
+
             const server = Hapi.server();
             server.route({ method: 'PUT', path: '/', handler });
 
@@ -259,12 +260,13 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(201);
         });
 
-        it('doesn\'t return an error on created with PATCH', async () => {
+        it('does not return an error on created with PATCH', async () => {
 
             const handler = (request, h) => {
 
                 return h.response({ a: 1 }).created();
             };
+
             const server = Hapi.server();
             server.route({ method: 'PATCH', path: '/', handler });
 
@@ -510,6 +512,7 @@ describe('Response', () => {
                     if (this.isDone) {
                         return;
                     }
+
                     this.isDone = true;
 
                     this.push('x');
@@ -553,6 +556,7 @@ describe('Response', () => {
                     if (this.isDone) {
                         return;
                     }
+
                     this.isDone = true;
 
                     this.push('x');
@@ -592,6 +596,7 @@ describe('Response', () => {
                     if (this.isDone) {
                         return;
                     }
+
                     this.isDone = true;
 
                     this.push('x');
@@ -629,6 +634,7 @@ describe('Response', () => {
                     if (this.isDone) {
                         return;
                     }
+
                     this.isDone = true;
 
                     this.push('x');
@@ -665,6 +671,7 @@ describe('Response', () => {
                     if (this.isDone) {
                         return;
                     }
+
                     this.isDone = true;
 
                     this.push('x');
@@ -941,7 +948,7 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(308);
         });
 
-        it('returns a 301 redirection response (reveresed methods)', async () => {
+        it('returns a 301 redirection response (reversed methods)', async () => {
 
             const handler = (request, h) => {
 
@@ -955,7 +962,7 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(301);
         });
 
-        it('returns a 302 redirection response (reveresed methods)', async () => {
+        it('returns a 302 redirection response (reversed methods)', async () => {
 
             const handler = (request, h) => {
 
@@ -969,7 +976,7 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(302);
         });
 
-        it('returns a 307 redirection response (reveresed methods)', async () => {
+        it('returns a 307 redirection response (reversed methods)', async () => {
 
             const handler = (request, h) => {
 
@@ -983,7 +990,7 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(307);
         });
 
-        it('returns a 308 redirection response (reveresed methods)', async () => {
+        it('returns a 308 redirection response (reversed methods)', async () => {
 
             const handler = (request, h) => {
 
@@ -1172,6 +1179,7 @@ describe('Response', () => {
                     if (this.isDone) {
                         return;
                     }
+
                     this.isDone = true;
 
                     this.push({ x: 1 });

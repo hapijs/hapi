@@ -264,6 +264,7 @@ describe('Toolkit', () => {
                         if (this.isDone) {
                             return;
                         }
+
                         this.isDone = true;
 
                         this.push('x');

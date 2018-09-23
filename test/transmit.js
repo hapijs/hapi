@@ -261,6 +261,7 @@ describe('transmission', () => {
                         if (this.isDone) {
                             return;
                         }
+
                         this.isDone = true;
 
                         this.push('hello');
@@ -296,6 +297,7 @@ describe('transmission', () => {
                         if (this.isDone) {
                             return;
                         }
+
                         this.isDone = true;
 
                         this.push('hello');
@@ -1085,6 +1087,7 @@ describe('transmission', () => {
                     if (this.isDone) {
                         return;
                     }
+
                     this.isDone = true;
                     this.push('here is the response');
                     process.nextTick(() => {
@@ -1279,6 +1282,7 @@ describe('transmission', () => {
                         _read();
                     }
                 };
+
                 stream.pause = function () {
 
                     paused = true;
@@ -1793,6 +1797,7 @@ describe('transmission', () => {
                         if (this.isDone) {
                             return;
                         }
+
                         this.isDone = true;
 
                         this.push('some payload');
@@ -1877,6 +1882,7 @@ internals.TimerStream = class extends Stream.Readable {
         if (this.isDone) {
             return;
         }
+
         this.isDone = true;
 
         setTimeout(() => {
