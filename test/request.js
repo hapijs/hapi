@@ -250,7 +250,7 @@ describe('Request', () => {
             await server.stop();
 
             await team.work;
-            expect(rounds).to.equal(5);
+            expect(rounds).to.be.below(6);
         });
     });
 
