@@ -211,6 +211,49 @@ describe('Request', () => {
         expect(res3.result).to.match(/10$/);
     });
 
+    describe('active()', () => {
+
+        it('exits handler early when request is no longer active', async () => {
+
+            const server = Hapi.server();
+            const team = new Teamwork();
+
+            let rounds = 0;
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    handler: async (request, h) => {
+
+                        for (let i = 0; i < 10; ++i) {
+                            ++rounds;
+                            await Hoek.wait(10);
+
+                            if (!request.active()) {
+                                break;
+                            }
+                        }
+
+                        team.attend();
+                        return null;
+                    }
+                }
+            });
+
+            await server.start();
+
+            const req = Http.get(server.info.uri, (res) => { });
+            req.on('error', Hoek.ignore);
+
+            await Hoek.wait(50);
+            req.abort();
+            await server.stop();
+
+            await team.work;
+            expect(rounds).to.equal(5);
+        });
+    });
+
     describe('_execute()', () => {
 
         it('returns 400 on invalid path', async () => {

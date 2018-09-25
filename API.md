@@ -1,4 +1,4 @@
-# v17.5.x API Reference
+# v17.6.x API Reference
 
 <!-- toc -->
 
@@ -238,6 +238,7 @@
     - [`request.server`](#request.server)
     - [`request.state`](#request.state)
     - [`request.url`](#request.url)
+  - [`request.active()`](#request.active())
   - [`request.generateResponse(source, [options])`](#request.generateResponse())
   - [`request.log(tags, [data])`](#request.log())
   - [`request.route.auth.access(request)`](#request.route.auth.access())
@@ -4794,6 +4795,36 @@ Returns a [`response`](#response-object) which you can pass into the [reply inte
       opened by the response object (e.g. file handlers), where:
         - `response` - the response object being marshaled.
         - should not throw errors (which are logged but otherwise ignored).
+
+### <a name="request.active()" /> `request.active()`
+
+Returns `true` when the request is active and processing should continue and `false` when the
+request terminated early or completed its lifecycle. Useful when request processing is a
+resource-intensive operation and should be terminated early if the request is no longer active
+(e.g. client disconnected or aborted early).
+
+```js
+const Hapi = require('hapi');
+const server = Hapi.server({ port: 80 });
+
+server.route({
+    method: 'POST',
+    path: '/worker',
+    handler: function (request, h) {
+
+        // Do some work...
+
+        // Check if request is still active
+        if (!request.active()) {
+            return h.close;
+        }
+
+        // Do some more work...
+
+        return null;
+    }
+});
+```
 
 ### <a name="request.log()" /> `request.log(tags, [data])`
 
