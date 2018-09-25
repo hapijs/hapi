@@ -225,7 +225,7 @@ describe('Request', () => {
                 options: {
                     handler: async (request, h) => {
 
-                        for (let i = 0; i < 10; ++i) {
+                        for (let i = 0; i < 100; ++i) {
                             ++rounds;
                             await Hoek.wait(10);
 
@@ -250,7 +250,7 @@ describe('Request', () => {
             await server.stop();
 
             await team.work;
-            expect(rounds).to.be.below(6);
+            expect(rounds).to.be.below(10);
         });
     });
 
