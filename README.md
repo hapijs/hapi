@@ -32,6 +32,7 @@ Eran Hammer's [Patreon page](https://www.patreon.com/eranhammer) or contact him 
 - **CNN Digital**
 - **[Contentful](https://www.contentful.com/)**
 - The product development team at **Creative Artists Agency**
+- **[Chords](https://getonchords.com)**
 - **[First + Third](https://firstandthird.com)**
 
 ## Legacy Supporters
