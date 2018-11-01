@@ -15,7 +15,7 @@
     "web"
   ],
   "engines": {
-    "node": ">=8.9.0"
+    "node": ">=8.12.0"
   },
   "dependencies": {
     "accept": "3.x.x",
@@ -26,8 +26,8 @@
     "catbox": "10.x.x",
     "catbox-memory": "3.x.x",
     "heavy": "6.x.x",
-    "hoek": "5.x.x",
-    "joi": "13.x.x",
+    "hoek": "6.x.x",
+    "joi": "14.x.x",
     "mimos": "4.x.x",
     "podium": "3.x.x",
     "shot": "4.x.x",
@@ -41,7 +41,7 @@
     "handlebars": "4.x.x",
     "hapitoc": "1.x.x",
     "inert": "5.x.x",
-    "lab": "16.x.x",
+    "lab": "17.x.x",
     "vision": "5.x.x",
     "wreck": "14.x.x"
   },
