@@ -8,27 +8,12 @@ Lead Maintainer: [Eran Hammer](https://github.com/hueniverse)
 authentication, and other essential facilities for building web and services applications. **hapi** enables
 developers to focus on writing reusable application logic in a highly modular and prescriptive approach. 
 
-Development version: **16.6.x** ([release notes](https://github.com/hapijs/hapi/issues?labels=release+notes&page=1&state=closed)) 
-[![Build Status](https://secure.travis-ci.org/hapijs/hapi.svg?branch=master)](http://travis-ci.org/hapijs/hapi)
+This **v16** is a maintenance-only branch for those unable to update to the latest major
+version of the core module. It on receives critical bug fixes and security patches. It will stop
+being maintained on March 1st, 2019.
 
-For the latest updates, [change log](http://hapijs.com/updates), and release information visit [hapijs.com](http://hapijs.com) and follow [@hapijs](https://twitter.com/hapijs) on twitter. If you have questions, please open an issue in the
-[discussion forum](https://github.com/hapijs/discuss).
+[![Build Status](https://secure.travis-ci.org/hapijs/hapi.svg?branch=v16)](http://travis-ci.org/hapijs/hapi)
 
-### Sponsorship
-
-Development of the **hapi** core module generously supported by contributions from [individuals and corporations](https://github.com/hapijs/hapi/blob/master/SPONSORS.md).
-If you are benefiting from **hapi** and would like to help keep the project financially sustainable, please visit
-Eran Hammer's [Patreon page](https://www.patreon.com/eranhammer) or contact him [via email](mailto:eran@hammer.io).
-
-#### Current Supporters
-
-- **Lob**
-- **Auth0**
-- **CNN Digital**
-- **Contentful**
-- The product development team at **Creative Artists Agency**
-
-#### Legacy Supporters
-
-Past major financial support for the project was provided by:
-- Benjamin Flesch and [StriveWire](https://strivewire.com/)
+For the latest updates, [change log](http://hapijs.com/updates), and release information visit
+[hapijs.com](http://hapijs.com) and follow [@hapijs](https://twitter.com/hapijs) on twitter. If you
+have questions, please open an issue in the [discussion forum](https://github.com/hapijs/discuss).
