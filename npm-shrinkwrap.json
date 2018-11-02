@@ -1,5 +1,5 @@
 {
-    "version": "17.6.2",
+    "version": "17.6.3",
     "name": "hapi",
     "lockfileVersion": 1,
     "dependencies": {
@@ -114,9 +114,9 @@
             "integrity": "sha512-qezTt0KfZshh7n4iRj8mFNOEgy9KKM8wVTQZDZkY288qslw6a3K8em1ig5ysyczVJB4ERN7oq2RNPes+WcVqSA=="
         },
         "subtext": {
-            "version": "6.0.9",
-            "resolved": "https://registry.npmjs.org/subtext/-/subtext-6.0.9.tgz",
-            "integrity": "sha512-UX8Y6GCHfo4Dw0ED7vLQVc+2E3SR1f1rKvqUf2HwDjLjT18SGejX73RIcwYia298+gU/ACZJKEJ8v9MBNVIvdw=="
+            "version": "6.0.10",
+            "resolved": "https://registry.npmjs.org/subtext/-/subtext-6.0.10.tgz",
+            "integrity": "sha512-eegy4p15t3kniScXLBPutJYhJDOuZ9qnOCgYMuzwPJpmlKfWK3XY/TiD8oFs91MpHn5m4mDnzgd3s9JRkSH/RA=="
         },
         "teamwork": {
             "version": "3.0.1",
