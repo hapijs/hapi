@@ -14,9 +14,6 @@
     "api",
     "web"
   ],
-  "engines": {
-    "node": ">=8.12.0"
-  },
   "dependencies": {
     "accept": "3.x.x",
     "ammo": "3.x.x",
