@@ -2519,7 +2519,7 @@ server.route({ method: '*', path: '/{p*}', handler });
 Defines a route rules processor for converting route rules object into route configuration where:
 
 - `processor` - a function using the signature `function(rules, info)` where:
-    - `rules` -
+    - `rules` - the [custom object](#route.options.rules) defined in your routes configuration for you to use its values.
     - `info` - an object with the following properties:
         - `method` - the route method.
         - `path` - the route path.
