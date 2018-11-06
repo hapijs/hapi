@@ -16,6 +16,8 @@ const Lab = require('lab');
 const Vision = require('vision');
 const Wreck = require('wreck');
 
+const Pkg = require('../package.json');
+
 
 // Declare internals
 
@@ -2253,6 +2255,70 @@ describe('Server', () => {
             await server.initialize();
         });
 
+        it('sets multiple dependencies in one statement (versioned)', async () => {
+
+            const a = {
+                name: 'a',
+                version: '0.1.2',
+                register: function (srv, options) {
+
+                    srv.dependency({
+                        b: '1.x.x',
+                        c: '2.x.x'
+                    });
+                }
+            };
+
+            const b = {
+                name: 'b',
+                version: '1.2.3',
+                register: Hoek.ignore
+            };
+
+            const c = {
+                name: 'c',
+                version: '2.3.4',
+                register: Hoek.ignore
+            };
+
+            const server = Hapi.server();
+            await server.register(b);
+            await server.register(c);
+            await server.register(a);
+            await server.initialize();
+        });
+
+        it('sets multiple dependencies in plugin (versioned)', async () => {
+
+            const a = {
+                name: 'a',
+                version: '0.1.2',
+                dependencies: {
+                    b: '1.x.x',
+                    c: '2.x.x'
+                },
+                register: Hoek.ignore
+            };
+
+            const b = {
+                name: 'b',
+                version: '1.2.3',
+                register: Hoek.ignore
+            };
+
+            const c = {
+                name: 'c',
+                version: '2.3.4',
+                register: Hoek.ignore
+            };
+
+            const server = Hapi.server();
+            await server.register(b);
+            await server.register(c);
+            await server.register(a);
+            await server.initialize();
+        });
+
         it('sets multiple dependencies in plugin', async () => {
 
             const a = {
@@ -2566,6 +2632,93 @@ describe('Server', () => {
 
             await server.register([b]);
             await server.initialize();
+        });
+
+        it('validates node version', async () => {
+
+            const test = {
+                name: 'test',
+                requirements: {
+                    node: '>=8.x.x'
+                },
+                register: function (srv, options) { }
+            };
+
+            const server = Hapi.server();
+            await expect(server.register(test)).to.not.reject();
+        });
+
+        it('errors on invalid node version', async () => {
+
+            const test = {
+                name: 'test',
+                requirements: {
+                    node: '4.x.x'
+                },
+                register: function (srv, options) { }
+            };
+
+            const server = Hapi.server();
+            await expect(server.register(test)).to.reject(`Plugin test requires node version 4.x.x but found ${process.version}`);
+        });
+
+        it('validates hapi version', async () => {
+
+            const test = {
+                name: 'test',
+                requirements: {
+                    hapi: '>=17.x.x'
+                },
+                register: function (srv, options) { }
+            };
+
+            const server = Hapi.server();
+            await expect(server.register(test)).to.not.reject();
+        });
+
+        it('errors on invalid hapi version', async () => {
+
+            const test = {
+                name: 'test',
+                requirements: {
+                    hapi: '4.x.x'
+                },
+                register: function (srv, options) { }
+            };
+
+            const server = Hapi.server();
+            await expect(server.register(test)).to.reject(`Plugin test requires hapi version 4.x.x but found ${Pkg.version}`);
+        });
+
+        it('errors on invalid plugin version', async () => {
+
+            const a = {
+                name: 'a',
+                version: '0.1.2',
+                dependencies: {
+                    b: '3.x.x',
+                    c: '2.x.x'
+                },
+                register: Hoek.ignore
+            };
+
+            const b = {
+                name: 'b',
+                version: '1.2.3',
+                register: Hoek.ignore
+            };
+
+            const c = {
+                name: 'c',
+                version: '2.3.4',
+                register: Hoek.ignore
+            };
+
+            const server = Hapi.server();
+            await server.register(b);
+            await server.register(c);
+            await server.register(a);
+            await expect(server.initialize()).to.reject('Plugin a requires b version 3.x.x but found 1.2.3');
         });
     });
 

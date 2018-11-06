@@ -1,5 +1,5 @@
 {
-    "version": "17.6.4",
+    "version": "17.7.0",
     "name": "hapi",
     "lockfileVersion": 1,
     "dependencies": {
@@ -107,6 +107,11 @@
             "version": "4.0.7",
             "resolved": "https://registry.npmjs.org/shot/-/shot-4.0.7.tgz",
             "integrity": "sha512-RKaKAGKxJ11EjJl0cf2fYVSsd4KB5Cncb9J0v7w+0iIaXpxNqFWTYNDNhBX7f0XSyDrjOH9a4OWZ9Gp/ZML+ew=="
+        },
+        "somever": {
+            "version": "2.0.0",
+            "resolved": "https://registry.npmjs.org/somever/-/somever-2.0.0.tgz",
+            "integrity": "sha512-9JaIPP+HxwYGqCDqqK3tRaTqdtQHoK6Qy3IrXhIt2q5x8fs8RcfU7BMWlFTCOgFazK8p88zIv1tHQXvAwtXMyw=="
         },
         "statehood": {
             "version": "6.0.8",

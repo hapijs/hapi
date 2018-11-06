@@ -1,4 +1,4 @@
-# v17.6.x API Reference
+# v17.7.x API Reference
 
 <!-- toc -->
 
@@ -1570,11 +1570,16 @@ server.decorate('handler', 'test', handler);
 
 ### <a name="server.dependency()" /> `server.dependency(dependencies, [after])`
 
-Used within a plugin to declare a required dependency on other [plugins](#plugins) where:
+Used within a plugin to declare a required dependency on other [plugins](#plugins) required for
+the current plugin to operate (plugins listed must be registered before the server is initialized
+or started) where:
 
-- `dependencies` - a single string or an array of plugin name strings which must be registered in
-  order for this plugin to operate. Plugins listed must be registered before the server is
-  initialized or started.
+- `dependencies` - one of:
+  - a single plugin name string.
+  - an array of plugin name strings.
+  - an object where each key is a plugin name and each matching value is a
+   [version range string](https://www.npmjs.com/package/semver) which must match the registered
+   plugin version.
 
 - `after` - (optional) a function that is called after all the specified dependencies have been
 registered and before the server starts. The function is only called if the server is initialized
@@ -1588,9 +1593,6 @@ The `after` method is identical to setting a server extension point on `'onPreSt
 
 If a circular  dependency is detected, an exception is thrown (e.g. two plugins each has an `after`
 function to be called after the other).
-
-The method does not provide version dependency which should be implemented using
-[npm peer dependencies](https://nodejs.org/en/blog/npm/peer-dependencies/).
 
 ```js
 const after = function (server) {
@@ -1614,10 +1616,19 @@ Dependencies can also be set via the plugin `dependencies` property (does not su
 exports.plugin = {
     name: 'test',
     version: '1.0.0',
-    dependencies: 'yar',
+    dependencies: {
+        yar: '1.x.x'
+    },
     register: function (server, options) { }
 };
 ```
+
+The `dependencies` configuration accepts one of:
+  - a single plugin name string.
+  - an array of plugin name strings.
+  - an object where each key is a plugin name and each matching value is a
+   [version range string](https://www.npmjs.com/package/semver) which must match the registered
+   plugin version.
 
 ### <a name="server.encoder()" /> `server.encoder(encoding, encoder)`
 
