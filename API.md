@@ -1,4 +1,4 @@
-# 16.6.x API Reference
+# 16.7.x API Reference
 
 - [Server](#server)
     - [`new Server([options])`](#new-serveroptions)
@@ -1028,11 +1028,17 @@ server.route({
 
 ### `server.dependency(dependencies, [after])`
 
-Used within a plugin to declare a required dependency on other [plugins](#plugins) where:
-- `dependencies` - a single string or array of plugin name strings which must be registered in
-  order for this plugin to operate. Plugins listed must be registered before the server is initialized or started.
-  Does not provide version dependency which should be implemented using
-  [npm peer dependencies](http://blog.nodejs.org/2013/02/07/peer-dependencies/).
+
+Used within a plugin to declare a required dependency on other [plugins](#plugins) required for
+the current plugin to operate (plugins listed must be registered before the server is initialized
+or started) where:
+
+- `dependencies` - one of:
+  - a single plugin name string.
+  - an array of plugin name strings.
+  - an object where each key is a plugin name and each matching value is a
+   [version range string](https://www.npmjs.com/package/semver) which must match the registered
+   plugin version.
 - `after` - an optional function called after all the specified dependencies have been registered
   and before the server starts. The function is only called if the server is initialized or started. If a circular
   dependency is detected, an exception is thrown (e.g. two plugins each has an `after` function
@@ -1073,9 +1079,18 @@ exports.register = function (server, options, next) {
 register.attributes = {
     name: 'test',
     version: '1.0.0',
-    dependencies: 'yar'
+    dependencies: {
+        yar: '1.x.x'
+    }
 };
 ```
+
+The `dependencies` configuration accepts one of:
+  - a single plugin name string.
+  - an array of plugin name strings.
+  - an object where each key is a plugin name and each matching value is a
+   [version range string](https://www.npmjs.com/package/semver) which must match the registered
+   plugin version.
 
 ### `server.emit(criteria, data, [callback])`
 

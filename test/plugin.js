@@ -14,6 +14,7 @@ const Inert = require('inert');
 const Lab = require('lab');
 const Vision = require('vision');
 const Wreck = require('wreck');
+const Pkg = require('../package.json');
 
 
 // Declare internals
@@ -1006,6 +1007,121 @@ describe('Plugin', () => {
 
             c.attributes = {
                 name: 'c'
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.register(b, (err) => {
+
+                expect(err).to.not.exist();
+                server.register(c, (err) => {
+
+                    expect(err).to.not.exist();
+                    server.register(a, (err) => {
+
+                        expect(err).to.not.exist();
+                        server.initialize((err) => {
+
+                            expect(err).to.not.exist();
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+
+        it('sets multiple dependencies in one statement (versioned)', (done) => {
+
+            const a = function (srv, options, next) {
+
+                srv.dependency({
+                    b: '1.x.x',
+                    c: '2.x.x'
+                });
+
+                return next();
+            };
+
+            a.attributes = {
+                name: 'a',
+                version: '0.1.2'
+            };
+
+            const b = function (srv, options, next) {
+
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b',
+                version: '1.2.3'
+            };
+
+            const c = function (srv, options, next) {
+
+                return next();
+            };
+
+            c.attributes = {
+                name: 'c',
+                version: '2.3.4'
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.register(b, (err) => {
+
+                expect(err).to.not.exist();
+                server.register(c, (err) => {
+
+                    expect(err).to.not.exist();
+                    server.register(a, (err) => {
+
+                        expect(err).to.not.exist();
+                        server.initialize((err) => {
+
+                            expect(err).to.not.exist();
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+
+        it('sets multiple dependencies in attributes (versioned)', (done) => {
+
+            const a = function (srv, options, next) {
+
+                return next();
+            };
+
+            a.attributes = {
+                name: 'a',
+                version: '0.1.2',
+                dependencies: {
+                    b: '1.x.x',
+                    c: '2.x.x'
+                }
+            };
+
+            const b = function (srv, options, next) {
+
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b',
+                version: '1.2.3'
+            };
+
+            const c = function (srv, options, next) {
+
+                return next();
+            };
+
+            c.attributes = {
+                name: 'c',
+                version: '2.3.4'
             };
 
             const server = new Hapi.Server();
@@ -2131,6 +2247,219 @@ describe('Plugin', () => {
 
                     expect(res.result).to.equal('in context throughout');
                     done();
+                });
+            });
+        });
+
+        it('validates node version', (done) => {
+
+            const test = function (srv, options, next) {
+
+                return next();
+            };
+
+            test.attributes = {
+                name: 'test',
+                requirements: {
+                    node: '>=6.x.x'
+                }
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.register(test, (err) => {
+
+                expect(err).to.not.exist();
+                done();
+            });
+        });
+
+        it('errors on invalid node version', (done) => {
+
+            const test = function (srv, options, next) {
+
+                return next();
+            };
+
+            test.attributes = {
+                name: 'test',
+                requirements: {
+                    node: '4.x.x'
+                }
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            expect(() => {
+
+                server.register(test, Hoek.ignore);
+            }).to.throw(`Plugin test requires node version 4.x.x but found ${process.version}`);
+
+            done();
+        });
+
+        it('validates hapi version', (done) => {
+
+            const test = function (srv, options, next) {
+
+                return next();
+            };
+
+            test.attributes = {
+                name: 'test',
+                requirements: {
+                    hapi: '>=16.x.x'
+                }
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.register(test, (err) => {
+
+                expect(err).to.not.exist();
+                done();
+            });
+        });
+
+        it('errors on invalid hapi version', (done) => {
+
+            const test = function (srv, options, next) {
+
+                return next();
+            };
+
+            test.attributes = {
+                name: 'test',
+                requirements: {
+                    hapi: '4.x.x'
+                }
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            expect(() => {
+
+                server.register(test, Hoek.ignore);
+            }).to.throw(`Plugin test requires hapi version 4.x.x but found ${Pkg.version}`);
+
+            done();
+        });
+
+        it('errors on invalid plugin version', (done) => {
+
+            const a = function (srv, options, next) {
+
+                return next();
+            };
+
+            a.attributes = {
+                name: 'a',
+                version: '0.1.2',
+                dependencies: {
+                    b: '3.x.x',
+                    c: '2.x.x'
+                }
+            };
+
+            const b = function (srv, options, next) {
+
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b',
+                version: '1.2.3'
+            };
+
+            const c = function (srv, options, next) {
+
+                return next();
+            };
+
+            c.attributes = {
+                name: 'c',
+                version: '2.3.4'
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.register(b, (err) => {
+
+                expect(err).to.not.exist();
+                server.register(c, (err) => {
+
+                    expect(err).to.not.exist();
+                    server.register(a, (err) => {
+
+                        expect(err).to.not.exist();
+                        server.initialize((err) => {
+
+                            expect(err).to.be.an.error('Plugin a requires b version 3.x.x but found 1.2.3 in connection: ' + server.info.uri);
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+
+        it('errors on invalid plugin version (connectionless)', (done) => {
+
+            const a = function (srv, options, next) {
+
+                return next();
+            };
+
+            a.attributes = {
+                name: 'a',
+                version: '0.1.2',
+                connections: false,
+                dependencies: {
+                    b: '3.x.x',
+                    c: '2.x.x'
+                }
+            };
+
+            const b = function (srv, options, next) {
+
+                return next();
+            };
+
+            b.attributes = {
+                name: 'b',
+                connections: false,
+                version: '1.2.3'
+            };
+
+            const c = function (srv, options, next) {
+
+                return next();
+            };
+
+            c.attributes = {
+                name: 'c',
+                connections: false,
+                version: '2.3.4'
+            };
+
+            const server = new Hapi.Server();
+            server.connection();
+            server.register(b, (err) => {
+
+                expect(err).to.not.exist();
+                server.register(c, (err) => {
+
+                    expect(err).to.not.exist();
+                    server.register(a, (err) => {
+
+                        expect(err).to.not.exist();
+                        server.initialize((err) => {
+
+                            expect(err).to.be.an.error('Plugin a requires b version 3.x.x but found 1.2.3');
+                            done();
+                        });
+                    });
                 });
             });
         });
@@ -4260,7 +4589,7 @@ describe('Plugin', () => {
                 }
             };
 
-            server.inject('/', () => {});
+            server.inject('/', () => { });
         });
     });
 
