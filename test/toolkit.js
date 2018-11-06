@@ -1,7 +1,5 @@
 'use strict';
 
-// Load modules
-
 const Path = require('path');
 const Stream = require('stream');
 
@@ -14,12 +12,8 @@ const Teamwork = require('teamwork');
 const Vision = require('vision');
 
 
-// Declare internals
-
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
@@ -264,6 +258,7 @@ describe('Toolkit', () => {
                         if (this.isDone) {
                             return;
                         }
+
                         this.isDone = true;
 
                         this.push('x');

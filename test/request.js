@@ -1,9 +1,6 @@
 'use strict';
 
 const { URL, URLSearchParams } = require('url');
-
-// Load modules
-
 const Http = require('http');
 const Net = require('net');
 const Stream = require('stream');
@@ -17,12 +14,8 @@ const Teamwork = require('teamwork');
 const Wreck = require('wreck');
 
 
-// Declare internals
-
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
@@ -212,6 +205,49 @@ describe('Request', () => {
         expect(res3.result).to.match(/10$/);
     });
 
+    describe('active()', () => {
+
+        it('exits handler early when request is no longer active', async () => {
+
+            const server = Hapi.server();
+            const team = new Teamwork();
+
+            let rounds = 0;
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    handler: async (request, h) => {
+
+                        for (let i = 0; i < 100; ++i) {
+                            ++rounds;
+                            await Hoek.wait(10);
+
+                            if (!request.active()) {
+                                break;
+                            }
+                        }
+
+                        team.attend();
+                        return null;
+                    }
+                }
+            });
+
+            await server.start();
+
+            const req = Http.get(server.info.uri, (res) => { });
+            req.on('error', Hoek.ignore);
+
+            await Hoek.wait(50);
+            req.abort();
+            await server.stop();
+
+            await team.work;
+            expect(rounds).to.be.below(10);
+        });
+    });
+
     describe('_execute()', () => {
 
         it('returns 400 on invalid path', async () => {
@@ -265,6 +301,7 @@ describe('Request', () => {
                         if (this.isDone) {
                             return;
                         }
+
                         this.isDone = true;
 
                         this.push('success');
@@ -661,6 +698,51 @@ describe('Request', () => {
         });
     });
 
+    describe('_postCycle()', () => {
+
+        it('skips onPreResponse when validation terminates request', async () => {
+
+            const server = Hapi.server();
+            const team = new Teamwork();
+
+            let called = false;
+            server.ext('onPreResponse', (request, h) => {
+
+                called = true;
+                return h.continue;
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    handler: () => null,
+                    response: {
+                        status: {
+                            200: async () => {
+
+                                req.abort();
+                                await Hoek.wait(10);
+                                team.attend();
+                            }
+                        }
+                    }
+                }
+            });
+
+            await server.start();
+
+            const req = Http.get(server.info.uri, (res) => { });
+            req.on('error', Hoek.ignore);
+
+            await team.work;
+            await Hoek.wait(100);
+            await server.stop();
+
+            expect(called).to.be.false();
+        });
+    });
+
     describe('_reply()', () => {
 
         it('returns a reply with auto end in onPreResponse', async () => {
@@ -686,6 +768,8 @@ describe('Request', () => {
             await server.inject('/');
             const [request] = await log;
             expect(request.info.responded).to.be.min(request.info.received);
+            expect(request.response.source).to.equal('ok');
+            expect(request.response.statusCode).to.equal(200);
         });
 
         it('closes response after server timeout', async () => {
@@ -1611,6 +1695,7 @@ describe('Request', () => {
                         if (this.isDone) {
                             return;
                         }
+
                         this.isDone = true;
 
                         setTimeout(() => {

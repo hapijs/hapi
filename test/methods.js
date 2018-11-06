@@ -1,7 +1,5 @@
 'use strict';
 
-// Load modules
-
 const CatboxMemory = require('catbox-memory');
 const Code = require('code');
 const Hapi = require('..');
@@ -9,12 +7,8 @@ const Hoek = require('hoek');
 const Lab = require('lab');
 
 
-// Declare internals
-
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;

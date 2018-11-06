@@ -1,7 +1,5 @@
 'use strict';
 
-// Load modules
-
 const ChildProcess = require('child_process');
 const Fs = require('fs');
 const Http = require('http');
@@ -20,12 +18,8 @@ const Teamwork = require('teamwork');
 const Wreck = require('wreck');
 
 
-// Declare internals
-
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
@@ -261,6 +255,7 @@ describe('transmission', () => {
                         if (this.isDone) {
                             return;
                         }
+
                         this.isDone = true;
 
                         this.push('hello');
@@ -296,6 +291,7 @@ describe('transmission', () => {
                         if (this.isDone) {
                             return;
                         }
+
                         this.isDone = true;
 
                         this.push('hello');
@@ -1085,6 +1081,7 @@ describe('transmission', () => {
                     if (this.isDone) {
                         return;
                     }
+
                     this.isDone = true;
                     this.push('here is the response');
                     process.nextTick(() => {
@@ -1279,6 +1276,7 @@ describe('transmission', () => {
                         _read();
                     }
                 };
+
                 stream.pause = function () {
 
                     paused = true;
@@ -1793,6 +1791,7 @@ describe('transmission', () => {
                         if (this.isDone) {
                             return;
                         }
+
                         this.isDone = true;
 
                         this.push('some payload');
@@ -1877,6 +1876,7 @@ internals.TimerStream = class extends Stream.Readable {
         if (this.isDone) {
             return;
         }
+
         this.isDone = true;
 
         setTimeout(() => {

@@ -7,6 +7,7 @@
 - Benjamin Flesch / StriveWire
 - Biao Xie
 - Bryan Sapot
+- Chords
 - Christian Giacomi
 - CNN Digital
 - CodePilot.ai
@@ -27,9 +28,12 @@
 - Louis Beltramo
 - Mahesh Babu R
 - Manny Pamintuan
+- Max Fierro
+- Nicklas Laine Overgaard
 - NZZ Storytelling
 - Paulo Vieira
 - Peter Ka
+- [quickytools](https://www.quickytools.com)
 - Raffi Minassian
 - Raquel Hernandez
 - Saul Maddox
@@ -51,14 +55,11 @@
 - Geraint Corneu
 - Luke Bond
 - Marcos Bérgamo
-- Max Fierro
 - Nathan Buchar
-- Nicklas Laine Overgaard
 - Oakley Hall
 - PIer Bover
+- Robert McGuinness
 - Robin van der Vleuten
 - Sheridan Tighe
 - Troy Whiteley
 - Viswanadha Pratap Kondoju
-- [quickytools](https://www.quickytools.com)
-

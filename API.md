@@ -1,4 +1,4 @@
-# v17.5.x API Reference
+# v18.0.x API Reference
 
 <!-- toc -->
 
@@ -238,6 +238,7 @@
     - [`request.server`](#request.server)
     - [`request.state`](#request.state)
     - [`request.url`](#request.url)
+  - [`request.active()`](#request.active())
   - [`request.generateResponse(source, [options])`](#request.generateResponse())
   - [`request.log(tags, [data])`](#request.log())
   - [`request.route.auth.access(request)`](#request.route.auth.access())
@@ -1569,11 +1570,16 @@ server.decorate('handler', 'test', handler);
 
 ### <a name="server.dependency()" /> `server.dependency(dependencies, [after])`
 
-Used within a plugin to declare a required dependency on other [plugins](#plugins) where:
+Used within a plugin to declare a required dependency on other [plugins](#plugins) required for
+the current plugin to operate (plugins listed must be registered before the server is initialized
+or started) where:
 
-- `dependencies` - a single string or an array of plugin name strings which must be registered in
-  order for this plugin to operate. Plugins listed must be registered before the server is
-  initialized or started.
+- `dependencies` - one of:
+  - a single plugin name string.
+  - an array of plugin name strings.
+  - an object where each key is a plugin name and each matching value is a
+   [version range string](https://www.npmjs.com/package/semver) which must match the registered
+   plugin version.
 
 - `after` - (optional) a function that is called after all the specified dependencies have been
 registered and before the server starts. The function is only called if the server is initialized
@@ -1587,9 +1593,6 @@ The `after` method is identical to setting a server extension point on `'onPreSt
 
 If a circular  dependency is detected, an exception is thrown (e.g. two plugins each has an `after`
 function to be called after the other).
-
-The method does not provide version dependency which should be implemented using
-[npm peer dependencies](https://nodejs.org/en/blog/npm/peer-dependencies/).
 
 ```js
 const after = function (server) {
@@ -1613,10 +1616,19 @@ Dependencies can also be set via the plugin `dependencies` property (does not su
 exports.plugin = {
     name: 'test',
     version: '1.0.0',
-    dependencies: 'yar',
+    dependencies: {
+        yar: '1.x.x'
+    },
     register: function (server, options) { }
 };
 ```
+
+The `dependencies` configuration accepts one of:
+  - a single plugin name string.
+  - an array of plugin name strings.
+  - an object where each key is a plugin name and each matching value is a
+   [version range string](https://www.npmjs.com/package/semver) which must match the registered
+   plugin version.
 
 ### <a name="server.encoder()" /> `server.encoder(encoding, encoder)`
 
@@ -2425,16 +2437,16 @@ server.route([
 #### Path parameters
 
 Parameterized paths are processed by matching the named parameters to the content of the incoming
-request path at that path segment. For example, '/book/{id}/cover' will match '/book/123/cover' and
-`request.params.id` will be set to `'123'`. Each path segment (everything between the opening '/'
-and the closing '/' unless it is the end of the path) can only include one named parameter. A
-parameter can cover the entire segment ('/{param}') or part of the segment ('/file.{ext}').  A path
-parameter may only contain letters, numbers and underscores, e.g. '/{file-name}' is invalid
-and '/{file_name}' is valid.
+request path at that path segment. For example, `'/book/{id}/cover'` will match `'/book/123/cover'` and
+`request.params.id` will be set to `'123'`. Each path segment (everything between the opening `'/'`
+and the closing `'/'` unless it is the end of the path) can only include one named parameter. A
+parameter can cover the entire segment (`'/{param}'`) or part of the segment (`'/file.{ext}'`).  A path
+parameter may only contain letters, numbers and underscores, e.g. `'/{file-name}'` is invalid
+and `'/{file_name}'` is valid.
 
-An optional '?' suffix following the parameter name indicates an optional parameter (only allowed
+An optional `'?'` suffix following the parameter name indicates an optional parameter (only allowed
 if the parameter is at the ends of the path or only covers part of the segment as in
-'/a{param?}/b'). For example, the route '/book/{id?}' matches '/book/' with the value of
+`'/a{param?}/b'`). For example, the route `'/book/{id?}'` matches `'/book/'` with the value of
 `request.params.id` set to an empty string `''`.
 
 ```js
@@ -2518,7 +2530,7 @@ server.route({ method: '*', path: '/{p*}', handler });
 Defines a route rules processor for converting route rules object into route configuration where:
 
 - `processor` - a function using the signature `function(rules, info)` where:
-    - `rules` -
+    - `rules` - the [custom object](#route.options.rules) defined in your routes configuration for you to use its values.
     - `info` - an object with the following properties:
         - `method` - the route method.
         - `path` - the route path.
@@ -3772,7 +3784,7 @@ The flow between each lifecyle step depends on the value returned by each lifecy
 follows:
 
 - an error:
-    - the lifecycle skips to the **_Response validation**_ step.
+    - the lifecycle skips to the _**Response validation**_ step.
     - if returned by the _**onRequest**_ step it skips to the _**onPreResponse**_ step.
     - if returned by the _**Response validation**_ step it skips to the _**onPreResponse**_ step.
     - if returned by the _**onPreResponse**_ step it skips to the _**Response transmission**_ step.
@@ -4794,6 +4806,36 @@ Returns a [`response`](#response-object) which you can pass into the [reply inte
       opened by the response object (e.g. file handlers), where:
         - `response` - the response object being marshaled.
         - should not throw errors (which are logged but otherwise ignored).
+
+### <a name="request.active()" /> `request.active()`
+
+Returns `true` when the request is active and processing should continue and `false` when the
+request terminated early or completed its lifecycle. Useful when request processing is a
+resource-intensive operation and should be terminated early if the request is no longer active
+(e.g. client disconnected or aborted early).
+
+```js
+const Hapi = require('hapi');
+const server = Hapi.server({ port: 80 });
+
+server.route({
+    method: 'POST',
+    path: '/worker',
+    handler: function (request, h) {
+
+        // Do some work...
+
+        // Check if request is still active
+        if (!request.active()) {
+            return h.close;
+        }
+
+        // Do some more work...
+
+        return null;
+    }
+});
+```
 
 ### <a name="request.log()" /> `request.log(tags, [data])`
 

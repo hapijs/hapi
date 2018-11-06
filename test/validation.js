@@ -1,7 +1,5 @@
 'use strict';
 
-// Load modules
-
 const Boom = require('boom');
 const Code = require('code');
 const Hapi = require('..');
@@ -10,12 +8,8 @@ const Joi = require('joi');
 const Lab = require('lab');
 
 
-// Declare internals
-
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
@@ -1562,6 +1556,53 @@ describe('validation', () => {
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
             expect(res.payload).to.equal('else');
+        });
+
+        it('combines onPreResponse with response validation error', async () => {
+
+            const server = Hapi.server();
+
+            const responses = [];
+
+            server.ext('onPreResponse', (request, h) => {
+
+                responses.push(request.response);
+                return h.continue;
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    handler: () => {
+
+                        const err = Boom.internal('handler error');
+                        err.output.payload.x = 1;
+                        throw err;
+                    },
+                    response: {
+                        status: {
+                            500: (value, options) => {
+
+                                responses.push(value);
+                                throw new Error('500 validation error');
+                            }
+                        },
+                        failAction: (request, h, err) => {
+
+                            responses.push(err);
+                            throw new Error('failAction error');
+                        }
+                    }
+                }
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+
+            expect(responses).to.have.length(3);
+            expect(responses[0].x).to.equal(1);
+            expect(responses[1]).to.be.an.error('500 validation error');
         });
 
         it('validates string response', async () => {
