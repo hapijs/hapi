@@ -1,5 +1,5 @@
 {
-    "version": "17.7.0",
+    "version": "18.0.0",
     "name": "hapi",
     "lockfileVersion": 1,
     "dependencies": {
@@ -17,11 +17,6 @@
             "version": "4.1.2",
             "resolved": "https://registry.npmjs.org/b64/-/b64-4.1.2.tgz",
             "integrity": "sha512-+GUspBxlH3CJaxMUGUE1EBoWM6RKgWiYwUDal0qdf8m3ArnXNN1KzKVo5HOnE/FSq4HHyWf3TlHLsZI8PKQgrQ=="
-        },
-        "big-time": {
-            "version": "2.0.1",
-            "resolved": "https://registry.npmjs.org/big-time/-/big-time-2.0.1.tgz",
-            "integrity": "sha512-qtwYYoocwpiAxTXC5sIpB6nH5j6ckt+n/jhD7J5OEiFHnUZEFn0Xk8STUaE5s10LdazN/87bTDMe+fSihaW7Kg=="
         },
         "boom": {
             "version": "7.2.2",
@@ -44,9 +39,9 @@
             "integrity": "sha512-5SpI/tEP3SiLE1qkkV+/hdVW48sHVBEbzPX4jBiwl6hsZh/gkl4bqfGLkvh7mjpMK5evJ0Rm/6NRlhF/Jsy9ow=="
         },
         "catbox-memory": {
-            "version": "3.1.4",
-            "resolved": "https://registry.npmjs.org/catbox-memory/-/catbox-memory-3.1.4.tgz",
-            "integrity": "sha512-1tDnll066au0HXBSDHS/YQ34MQ2omBsmnA9g/jseyq/M3m7UPrajVtPDZK/rXgikSC1dfjo9Pa+kQ1qcyG2d3g=="
+            "version": "4.0.1",
+            "resolved": "https://registry.npmjs.org/catbox-memory/-/catbox-memory-4.0.1.tgz",
+            "integrity": "sha512-ZmqNiLsYCIu9qvBJ/MQbznDV2bFH5gFiH67TgIJgSSffJFtTXArT+MM3AvJQlby9NSkLHOX4eH/uuUqnch/Ldw=="
         },
         "content": {
             "version": "4.0.6",
