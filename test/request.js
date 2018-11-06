@@ -1,7 +1,5 @@
 'use strict';
 
-// Load modules
-
 const Http = require('http');
 const Net = require('net');
 const Stream = require('stream');
@@ -16,12 +14,8 @@ const Teamwork = require('teamwork');
 const Wreck = require('wreck');
 
 
-// Declare internals
-
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;

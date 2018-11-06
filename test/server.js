@@ -1,7 +1,5 @@
 'use strict';
 
-// Load modules
-
 const Path = require('path');
 const Zlib = require('zlib');
 
@@ -19,12 +17,8 @@ const Wreck = require('wreck');
 const Pkg = require('../package.json');
 
 
-// Declare internals
-
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
