@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "code": "5.x.x",
+    "eslint": "^5.8.0",
     "handlebars": "4.x.x",
     "hapitoc": "1.x.x",
     "inert": "5.x.x",
@@ -43,6 +44,7 @@
     "wreck": "14.x.x"
   },
   "scripts": {
+    "lint": "eslint .",
     "test": "lab -a code -t 100 -L -m 3000",
     "test-tap": "lab -a code -r tap -o tests.tap -m 3000",
     "test-cov-html": "lab -a code -r html -o coverage.html -m 3000",
