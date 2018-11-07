@@ -1,7 +1,5 @@
 'use strict';
 
-// Load modules
-
 const Path = require('path');
 
 const Code = require('code');
@@ -11,12 +9,8 @@ const Joi = require('joi');
 const Lab = require('lab');
 
 
-// Declare internals
-
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;

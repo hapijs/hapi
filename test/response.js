@@ -1,7 +1,5 @@
 'use strict';
 
-// Load modules
-
 const Events = require('events');
 const Http = require('http');
 const Path = require('path');
@@ -18,12 +16,8 @@ const Vision = require('vision');
 const Response = require('../lib/response');
 
 
-// Declare internals
-
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;

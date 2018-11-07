@@ -1,7 +1,5 @@
 'use strict';
 
-// Load modules
-
 const ChildProcess = require('child_process');
 const Fs = require('fs');
 const Http = require('http');
@@ -20,12 +18,8 @@ const Teamwork = require('teamwork');
 const Wreck = require('wreck');
 
 
-// Declare internals
-
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;

@@ -1,7 +1,5 @@
 'use strict';
 
-// Load modules
-
 const Boom = require('boom');
 const CatboxMemory = require('catbox-memory');
 const Code = require('code');
@@ -10,12 +8,8 @@ const Inert = require('inert');
 const Lab = require('lab');
 
 
-// Declare internals
-
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
