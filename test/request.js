@@ -1,9 +1,9 @@
 'use strict';
 
-const { URL, URLSearchParams } = require('url');
 const Http = require('http');
 const Net = require('net');
 const Stream = require('stream');
+const Url = require('url');
 
 const Boom = require('boom');
 const Code = require('code');
@@ -253,6 +253,15 @@ describe('Request', () => {
         it('returns 400 on invalid path', async () => {
 
             const server = Hapi.server();
+
+            server.ext('onRequest', (request, h) => {
+
+                expect(request.url).to.be.null();
+                expect(request.query).to.equal({});
+                expect(request.path).to.equal('invalid');
+                return h.continue;
+            });
+
             const res = await server.inject('invalid');
             expect(res.statusCode).to.equal(400);
             expect(res.result.message).to.equal('Invalid URL: invalid');
@@ -578,7 +587,7 @@ describe('Request', () => {
             expect(res.statusCode).to.equal(200);
         });
 
-        it('queryParser creates arrays from multiple entries', async () => {
+        it('creates arrays from multiple entries', async () => {
 
             const server = Hapi.server();
 
@@ -589,37 +598,55 @@ describe('Request', () => {
             expect(res.result).to.equal({ a: ['1', '2'] });
         });
 
-        it('allows custom queryParser', async () => {
+        it('supports custom query parser (new object)', async () => {
 
-            const server = Hapi.server();
+            const parser = (query) => {
 
-            const queryParser = (request) => {
-
-                return { hello: request.url.searchParams.get('hi') };
+                return { hello: query.hi };
             };
 
-            server.route({ method: 'GET', path: '/', options: {
-                queryParser,
-                handler: (request) => request.query.hello
-            } });
+            const server = Hapi.server({ query: { parser } });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    handler: (request) => request.query.hello
+                }
+            });
 
             const res = await server.inject('/?hi=hola');
             expect(res.statusCode).to.equal(200);
             expect(res.payload).to.equal('hola');
         });
 
-        it('returns 500 when custom queryParser returns non-object', async () => {
+        it('supports custom query parser (same object)', async () => {
 
-            const server = Hapi.server();
+            const parser = (query) => {
 
-            const queryParser = (request) => {
-
-                return request.url.search;
+                query.hello = query.hi;
+                return query;
             };
+
+            const server = Hapi.server({ query: { parser } });
 
             server.route({
                 method: 'GET', path: '/', options: {
-                    queryParser,
+                    handler: (request) => request.query.hello
+                }
+            });
+
+            const res = await server.inject('/?hi=hola');
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('hola');
+        });
+
+        it('returns 500 when custom query parser returns non-object', async () => {
+
+            const server = Hapi.server({ debug: false, query: { parser: () => 'something' } });
+
+            server.route({
+                method: 'GET', path: '/', options: {
                     handler: (request) => request.query.hello
                 }
             });
@@ -629,48 +656,19 @@ describe('Request', () => {
             expect(res.request.response._error).to.be.an.error('Parsed query must be an object');
         });
 
-        it('handles custom queryParser that returns URLSearchParams', async () => {
+        it('returns 500 when custom query parser returns null', async () => {
 
-            const server = Hapi.server();
-
-            const queryParser = (request) => {
-
-                const params = new URLSearchParams('');
-                params.append('hello', request.url.searchParams.get('hi'));
-                return params;
-            };
+            const server = Hapi.server({ debug: false, query: { parser: () => null } });
 
             server.route({
                 method: 'GET', path: '/', options: {
-                    queryParser,
                     handler: (request) => request.query.hello
                 }
             });
 
             const res = await server.inject('/?hi=hola');
-            expect(res.statusCode).to.equal(200);
-            expect(res.payload).to.equal('hola');
-        });
-
-        it('handles custom queryParser that returns Map', async () => {
-
-            const server = Hapi.server();
-
-            const queryParser = (request) => {
-
-                return new Map([['hello', request.url.searchParams.get('hi')]]);
-            };
-
-            server.route({
-                method: 'GET', path: '/', options: {
-                    queryParser,
-                    handler: (request) => request.query.hello
-                }
-            });
-
-            const res = await server.inject('/?hi=hola');
-            expect(res.statusCode).to.equal(200);
-            expect(res.payload).to.equal('hola');
+            expect(res.statusCode).to.equal(500);
+            expect(res.request.response._error).to.be.an.error('Parsed query must be an object');
         });
     });
 
@@ -1009,7 +1007,7 @@ describe('Request', () => {
             const onRequest = (request, h) => {
 
                 const uri = request.raw.req.url;
-                const parsed = new URL(uri, 'http://test/');
+                const parsed = new Url.URL(uri, 'http://test/');
                 parsed.searchParams.set('a', 2);
                 request.setUrl(parsed);
                 return h.continue;
@@ -1044,20 +1042,18 @@ describe('Request', () => {
             expect(res.payload).to.equal(normUrl + '|' + normPath + '|something');
         });
 
-        it('allows empty path', async () => {
+        it('errors on empty path', async () => {
 
-            const server = Hapi.server();
+            const server = Hapi.server({ debug: false });
             const onRequest = (request, h) => {
 
                 request.setUrl('');
-                return h.continue;
             };
 
             server.ext('onRequest', onRequest);
 
             const res = await server.inject('/');
-            expect(res.statusCode).to.equal(400);
-            expect(res.result.message).to.equal('Invalid URL: ');
+            expect(res.statusCode).to.equal(500);
         });
 
         it('throws when path is missing', async () => {
@@ -1108,7 +1104,7 @@ describe('Request', () => {
 
         it('clones passed url', async () => {
 
-            const urlObject = new URL('http:/%41');
+            const urlObject = new Url.URL('http:/%41');
             let requestUrl;
 
             const server = Hapi.server();

@@ -18,6 +18,7 @@
     - [`server.options.mime`](#server.options.mime)
     - [`server.options.plugins`](#server.options.plugins)
     - [`server.options.port`](#server.options.port)
+    - [`server.options.query`](#server.options.query)
     - [`server.options.router`](#server.options.router)
     - [`server.options.routes`](#server.options.routes)
     - [`server.options.state`](#server.options.state)
@@ -497,6 +498,33 @@ The TCP port the server will listen to. Defaults the next available port when th
 
 If `port` is a string containing a '/' character, it is used as a UNIX domain socket path.
 If it starts with '\\.\pipe', it is used as a Windows named pipe.
+
+#### <a name="server.options.query" /> `server.options.query`
+
+Default value: `{}`.
+
+Defines server handling of the request path query component.
+
+##### <a name="server.options.query.parser" /> `server.options.query.parser`
+
+Default value: none.
+
+Sets a query parameters parser method using the signature `function(searchParams)` where:
+
+- `query` - an object containing the incoming [`request.query`](#request.query) parameters.
+- the method must return an object where each key is a parameter and matching value is the
+  parameter value. If the method throws, the error is used as the response or returned when
+  [`request.setUrl()`](#request.setUrl()) is called.
+
+```js
+const Qs = require('qs');
+
+const options = {
+    query: {
+        parser: (query) => Qs.parse(query)
+    }
+};
+```
 
 #### <a name="server.options.router" /> `server.options.router`
 
@@ -3614,6 +3642,8 @@ the same. The following is the complete list of steps a request can go through:
       and [`request.setMethod()`](#request.setMethod()) methods. Changes to the request path or
       method will impact how the request is routed and can be used for rewrite rules.
     - [`request.route`](#request.route) is unassigned.
+    - [`request.url`](#request.url) can be `null` if the incoming request path is invalid.
+    - [`request.path`](#request.path) can be an invalid path.
     - JSONP configuration is ignored for any response returned from the extension point since no
       route is matched yet and the JSONP configuration is unavailable.
 
@@ -4739,10 +4769,9 @@ Same as `pre` but represented as the response object created by the pre method.
 
 Access: read only.
 
-By default the object outputted from [node's URL parse()](https://nodejs.org/docs/latest/api/url.html#url_urlobject_query)
-method.  Might also be set indirectly via [request.setUrl](#request.setUrl())
-in which case it may be a `string` (if `url` is set to an object with the `query` attribute as an
-unparsed string).
+An object where each key is a query parameter name and each matching value is the parameter value
+or an array of values if a parameter repeats. Can be modified indirectly via
+[request.setUrl](#request.setUrl()).
 
 #### <a name="request.raw" /> `request.raw`
 
@@ -4919,11 +4948,10 @@ Can only be called from an `'onRequest'` extension method.
 ### <a name="request.setUrl()" /> `request.setUrl(url, [stripTrailingSlash]`
 
 Changes the request URI before the router begins processing the request where:
- - `url` - the new request URI. If `url` is a string, it is parsed with [node's **URL**
- `parse()`](https://nodejs.org/docs/latest/api/url.html#url_url_parse_urlstring_parsequerystring_slashesdenotehost)
- method with `parseQueryString` set to `true`.  `url` can also be set to an object
- compatible with node's **URL** `parse()` method output.
- - `stripTrailingSlash` - if `true`, strip the trailing slash from the path. Defaults to `false`.
+- `url` - the new request URI. `url` can be a string or an instance of
+  [`Url.URL`](https://nodejs.org/dist/latest-v10.x/docs/api/url.html#url_class_url) in which case
+  `url.href` is used.
+- `stripTrailingSlash` - if `true`, strip the trailing slash from the path. Defaults to `false`.
 
 ```js
 const Hapi = require('hapi');
@@ -4933,28 +4961,6 @@ const onRequest = function (request, h) {
 
     // Change all requests to '/test'
     request.setUrl('/test');
-    return h.continue;
-};
-
-server.ext('onRequest', onRequest);
-```
-
-To use another query string parser:
-
-```js
-const Url = require('url');
-const Hapi = require('hapi');
-const Qs = require('qs');
-
-const server = Hapi.server({ port: 80 });
-
-const onRequest = function (request, h) {
-
-    const uri = request.url.href;
-    const parsed = Url.parse(uri, false);
-    parsed.query = Qs.parse(parsed.query);
-    request.setUrl(parsed);
-
     return h.continue;
 };
 
