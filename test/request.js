@@ -1048,6 +1048,7 @@ describe('Request', () => {
             const onRequest = (request, h) => {
 
                 request.setUrl('');
+                return h.continue;
             };
 
             server.ext('onRequest', onRequest);
