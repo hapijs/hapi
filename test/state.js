@@ -21,6 +21,7 @@ describe('state', () => {
         const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'v=a' } });
         expect(res.statusCode).to.equal(200);
         expect(res.result.v).to.equal('a');
+        expect(res.headers['set-cookie']).to.not.exist();
     });
 
     it('sets a cookie value to a base64json string representation of an object', async () => {
@@ -60,7 +61,7 @@ describe('state', () => {
         server.route({ method: 'GET', path: '/', handler: (request) => request.state });
         const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'vab' } });
         expect(res.statusCode).to.equal(400);
-        expect(res.headers['set-cookie']).to.not.exists();
+        expect(res.headers['set-cookie']).to.not.exist();
     });
 
     it('ignores invalid cookies (state level config)', async () => {
@@ -123,6 +124,28 @@ describe('state', () => {
         expect(res.headers['set-cookie']).to.equal(['always=present; Secure; HttpOnly; SameSite=Strict']);
     });
 
+    it('does not set cookie value automatically when set by the handler', async () => {
+
+        const server = Hapi.server();
+        server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('ok').state('always', 'from-handler') });
+        server.state('always', { autoValue: 'present' });
+
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(200);
+        expect(res.headers['set-cookie']).to.equal(['always=from-handler; Secure; HttpOnly; SameSite=Strict']);
+    });
+
+    it('does not set cookie value automatically when cookie received from the client', async () => {
+
+        const server = Hapi.server();
+        server.route({ method: 'GET', path: '/', handler: () => 'ok' });
+        server.state('always', { autoValue: 'present' });
+
+        const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'always=from-client' } });
+        expect(res.statusCode).to.equal(200);
+        expect(res.headers['set-cookie']).to.not.exist();
+    });
+
     it('appends handler set-cookie to server state', async () => {
 
         const server = Hapi.server();
@@ -138,7 +161,7 @@ describe('state', () => {
 
         const server = Hapi.server();
         server.route({ method: 'GET', path: '/{x}', handler: () => 'ok' });
-        server.state('always', { autoValue: (request) => request.params.x });
+        server.state('always', { autoValue: (request) => Promise.resolve(request.params.x) });
 
         const res = await server.inject('/sweet');
         expect(res.statusCode).to.equal(200);
