@@ -753,6 +753,100 @@ describe('validation', () => {
             });
         });
 
+        it('rejects invalid cookies', async () => {
+
+            const server = Hapi.server({
+                routes: {
+                    validate: {
+                        state: {
+                            a: Joi.string().min(8)
+                        },
+                        failAction: (request, h, err) => err            // Expose detailed error
+                    }
+                }
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: () => 'ok'
+            });
+
+            const res = await server.inject({ method: 'GET', url: '/', headers: { 'cookie': 'a=abc' } });
+            expect(res.statusCode).to.equal(400);
+            expect(res.result.validation).to.equal({
+                source: 'state',
+                keys: ['a']
+            });
+        });
+
+        it('accepts valid cookies', async () => {
+
+            const server = Hapi.server();
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: (request) => request.state,
+                options: {
+                    validate: {
+                        state: {
+                            a: Joi.string().min(8),
+                            b: Joi.array().single().items(Joi.boolean()),
+                            c: Joi.string().default('value')
+                        },
+                        failAction: (request, h, err) => err            // Expose detailed error
+                    }
+                }
+            });
+
+            const res = await server.inject({ method: 'GET', url: '/', headers: { 'cookie': 'a=abcdefghi; b=true' } });
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal({
+                a: 'abcdefghi',
+                b: [true],
+                c: 'value'
+            });
+        });
+
+        it('accepts all cookies', async () => {
+
+            const server = Hapi.server();
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: (request) => request.state,
+                options: {
+                    validate: {
+                        state: true
+                    }
+                }
+            });
+
+            const res = await server.inject({ method: 'GET', url: '/', headers: { 'cookie': 'a=abc' } });
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal({ a: 'abc' });
+        });
+
+        it('rejects all cookies', async () => {
+
+            const server = Hapi.server();
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: (request) => request.state,
+                options: {
+                    validate: {
+                        state: false
+                    }
+                }
+            });
+
+            const res = await server.inject({ method: 'GET', url: '/', headers: { 'cookie': 'a=abc' } });
+            expect(res.statusCode).to.equal(400);
+        });
+
         it('validates valid header', async () => {
 
             const server = Hapi.server();

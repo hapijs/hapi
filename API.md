@@ -3326,14 +3326,14 @@ The default response payload validation rules (for all non-error responses) expr
 - `false` - no payload allowed.
 
 - a [**joi**](https://github.com/hapijs/joi) validation object. The [`options`](#route.options.response.options)
-  along with the request context (`{ headers, params, query, payload, app, auth }`) are passed to
+  along with the request context (`{ headers, params, query, payload, state, app, auth }`) are passed to
   the validation function.
 
 - a validation function using the signature `async function(value, options)` where:
 
     - `value` - the pending response payload.
     - `options` - The [`options`](#route.options.response.options) along with the request context
-      (`{ headers, params, query, payload, app, auth }`).
+      (`{ headers, params, query, payload, state, app, auth }`).
 
     - if the function returns a value and [`modify`](#route.options.response.modify) is `true`,
       the value is used as the new response. If the original response is an error, the return
@@ -3513,7 +3513,7 @@ If a custom validation function (see `headers`, `params`, `query`, or `payload` 
 then `options` can an arbitrary object that will be passed to this function as the second
 parameter.
 
-The values of the other inputs (i.e. `headers`, `query`, `params`, `payload`, `app`, and `auth`)
+The values of the other inputs (i.e. `headers`, `query`, `params`, `payload`, 'state', `app`, and `auth`)
 are added to the `options` object under the validation `context` (accessible in rules as
 `Joi.ref('$query.key')`).
 
@@ -3556,6 +3556,7 @@ Default value: `true` (no validation).
 Validation rules for incoming request payload (request body), where:
 
 - `true` - any payload allowed (no validation performed).
+
 - `false` - no payload allowed.
 
 - a [**joi**](https://github.com/hapijs/joi) validation object.
@@ -3586,6 +3587,7 @@ Validation rules for incoming request URI query component (the key-value part of
 [`request.query`](#request.query) prior to validation. Where:
 
 - `true` - any query parameter value allowed (no validation performed).
+
 - `false` - no query parameter value allowed.
 
 - a [**joi**](https://github.com/hapijs/joi) validation object.
@@ -3601,6 +3603,28 @@ Validation rules for incoming request URI query component (the key-value part of
       [`failAction`](#route.options.validate.failAction).
 
 Note that changes to the query parameters will not be reflected in [`request.url`](#request.url).
+
+#### <a name="route.options.validate.state" /> `route.options.validate.state`
+
+Default value: `true` (no validation).
+
+Validation rules for incoming cookies. The `cookie` header is parsed and decoded into the
+[`request.state`](#request.state) prior to validation. Where: 
+
+- `true` - any cookie value allowed (no validation performed).
+
+- `false` - no cookies allowed.
+
+- a [**joi**](https://github.com/hapijs/joi) validation object.
+
+- a validation function using the signature `async function(value, options)` where:
+
+    - `value` - the [`request.state`](#request.state) object containing all parsed cookie values.
+    - `options` - [`options`](#route.options.validate.options).
+    - if a value is returned, the value is used as the new [`request.state`](#request.state) value
+      and the original value is stored in [`request.orig.state`](#request.orig). Otherwise, the
+      cookie values are left unchanged. If an error is thrown, the error is handled according to
+      [`failAction`](#route.options.validate.failAction).
 
 ## Request lifecycle
 
@@ -3671,6 +3695,10 @@ the same. The following is the complete list of steps a request can go through:
 
 - _**Payload validation**_
     - based on the route [`validate.payload`](#route.options.validate.payload) option.
+    - error handling based on [`failAction`](#route.options.validate.failAction).
+
+- _**State validation**_
+    - based on the route [`validate.state`](#route.options.validate.state) option.
     - error handling based on [`failAction`](#route.options.validate.failAction).
 
 - _**onPreHandler**_
@@ -4678,7 +4706,7 @@ The parsed content-type header. Only available when payload parsing enabled and 
 
 Access: read only.
 
-An object containing the values of `params`, `query`, and `payload` before any validation
+An object containing the values of `params`, `query`, `payload` and `state` before any validation
 modifications made. Only set when input validation is performed.
 
 #### <a name="request.params" /> `request.params`
