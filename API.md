@@ -531,7 +531,7 @@ Default value:
 
 Sets the default configuration for every state (cookie) set explicitly via
 [`server.state()`](#server.state()) or implicitly (without definition) using the
-[state configuration](#server.state()) object.
+[state configuration](#server.state()) object, except for `validate` property.
 
 #### <a name="server.options.tls" /> `server.options.tls`
 
@@ -2631,6 +2631,9 @@ across multiple requests. Registers a cookie definitions where:
     - `iron` - options for `'iron'` encoding. Defaults to
        [`require('iron').defaults`](https://github.com/hueniverse/iron#options).
 
+    - `validate` - [**joi**](https://github.com/hapijs/joi) validation object. 
+       Defaults to `undefined` (no validation).
+
     - `ignoreErrors` - if `true`, errors are ignored and treated as missing cookies.
 
     - `clearInvalid` - if `true`, automatically instruct the client to remove invalid
@@ -2643,8 +2646,8 @@ across multiple requests. Registers a cookie definitions where:
 
 Return value: none.
 
-State defaults can be modified via the [server.options.state](#server.options.state) configuration
-option.
+State defaults, except for `validate`, can be modified via the
+[server.options.state](#server.options.state) configuration option.
 
 ```js
 const Hapi = require('hapi');

@@ -4,6 +4,7 @@
 
 const Code = require('code');
 const Hapi = require('..');
+const Joi = require('joi');
 const Lab = require('lab');
 
 
@@ -65,6 +66,16 @@ describe('state', () => {
         server.state('vab', { encoding: 'base64json', clearInvalid: true });
         server.route({ method: 'GET', path: '/', handler: (request) => request.state });
         const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'vab' } });
+        expect(res.statusCode).to.equal(400);
+        expect(res.headers['set-cookie']).to.not.exists();
+    });
+
+    it('rejects request when cookie validation fails', async () => {
+
+        const server = Hapi.server();
+        server.state('a', { validate: Joi.string().valid('b') });
+        server.route({ method: 'GET', path: '/', handler: (request) => request.state });
+        const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=a' } });
         expect(res.statusCode).to.equal(400);
         expect(res.headers['set-cookie']).to.not.exists();
     });
