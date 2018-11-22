@@ -1323,6 +1323,91 @@ describe('authentication', () => {
         });
     });
 
+    describe('verify()', () => {
+
+        it('verifies an authenticated request', async () => {
+
+            const implementation = (...args) => {
+
+                const imp = internals.implementation(...args);
+                imp.verify = async (auth) => {
+
+                    await Hoek.wait(1);
+                    if (auth.credentials.user !== 'steve') {
+                        throw Boom.unauthorized('Invalid');
+                    }
+                };
+
+                return imp;
+            };
+
+            const server = Hapi.server();
+            server.auth.scheme('custom', implementation);
+            server.auth.strategy('default', 'custom', { users: { steve: { user: 'steve' }, john: { user: 'john' } } });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    auth: {
+                        mode: 'try',
+                        strategy: 'default'
+                    },
+                    handler: async (request) => {
+
+                        if (request.auth.error &&
+                            request.auth.error.message === 'Missing authentication') {
+
+                            request.auth.error = null;
+                        }
+
+                        return await server.auth.verify(request) || 'ok';
+                    }
+                }
+            });
+
+            const res1 = await server.inject('/');
+            expect(res1.result).to.equal('ok');
+
+            const res2 = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res2.result).to.equal('ok');
+
+            const res3 = await server.inject({ url: '/', headers: { authorization: 'Custom unknown' } });
+            expect(res3.result.message).to.equal('Missing credentials');
+
+            const res4 = await server.inject({ url: '/', credentials: {} });
+            expect(res4.result).to.equal('ok');
+
+            const res5 = await server.inject({ url: '/', headers: { authorization: 'Custom john' } });
+            expect(res5.result.message).to.equal('Invalid');
+        });
+
+        it('skips when verify unsupported', async () => {
+
+            const server = Hapi.server();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', { users: { steve: { user: 'steve' } } });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    auth: {
+                        mode: 'try',
+                        strategy: 'default'
+                    },
+                    handler: async (request) => {
+
+                        return await server.auth.verify(request) || 'ok';
+                    }
+                }
+            });
+
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.result).to.equal('ok');
+        });
+    });
+
     describe('access()', () => {
 
         it('skips access when unauthenticated and mode is not required', async () => {

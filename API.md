@@ -19,6 +19,7 @@
     - [`server.options.plugins`](#server.options.plugins)
     - [`server.options.port`](#server.options.port)
     - [`server.options.query`](#server.options.query)
+      - [`server.options.query.parser`](#server.options.query.parser)
     - [`server.options.router`](#server.options.router)
     - [`server.options.routes`](#server.options.routes)
     - [`server.options.state`](#server.options.state)
@@ -56,6 +57,7 @@
     - [Authentication scheme](#authentication-scheme)
   - [`server.auth.strategy(name, scheme, [options])`](#server.auth.strategy())
   - [`await server.auth.test(strategy, request)`](#server.auth.test())
+  - [`await server.auth.verify(request)`](#server.auth.verify())
   - [`server.bind(context)`](#server.bind())
   - [`server.cache(options)`](#server.cache())
   - [`await server.cache.provision(options)`](#server.cache.provision())
@@ -239,8 +241,8 @@
     - [`request.server`](#request.server)
     - [`request.state`](#request.state)
     - [`request.url`](#request.url)
-  - [`request.active()`](#request.active())
   - [`request.generateResponse(source, [options])`](#request.generateResponse())
+  - [`request.active()`](#request.active())
   - [`request.log(tags, [data])`](#request.log())
   - [`request.route.auth.access(request)`](#request.route.auth.access())
   - [`request.setMethod(method)`](#request.setMethod())
@@ -1218,6 +1220,14 @@ An authentication scheme is an object with the following properties:
 - `async response(request, h)` - (optional) a [lifecycle method](#lifecycle-methods) to decorate
   the response with authentication headers before the response headers or payload is written.
 
+- `async verify(auth)` - (optional) a method used to verify the authentication credentials provided
+  are still valid (e.g. not expired or revoked after the initial authentication) where:
+  - `auth` - the [`request.auth`](#request.auth) object containing the `credentials` and
+    `artifacts` objects returned by the scheme's `authenticate()` method.
+  - the method throws an `Error` when the credentials passed are no longer valid (e.g. expired or
+  revoked). Note that the method does not have access to the original request, only to the
+  credentials and artifacts produced by the `authenticate()` method.
+
 - `options` - (optional) an object with the following keys:
     - `payload` - if `true`, requires payload validation as part of the scheme and forbids routes
       from disabling payload auth validation. Defaults to `false`.
@@ -1317,6 +1327,44 @@ server.route({
 
         try {
             const credentials = await request.server.auth.test('default', request);
+            return { status: true, user: credentials.name };
+        }
+        catch (err) {
+            return { status: false };
+        }
+    }
+});
+```
+
+
+### <a name="server.auth.verify()" /> `await server.auth.verify(request)`
+
+Verify a request's authentication credentials against an authentication strategy where:
+
+- `request` - the [request object](#request).
+
+Return value: nothing if verification was successful, otherwise throws an error.
+
+Note that the `verify()` method does not take into account the route authentication configuration
+or any other information from the request other than the `request.auth` object. It also does not
+perform payload authentication. It is limited to verifying that the previously valid credentials
+are still valid (e.g. have not been revoked or expired). It does not include verifying scope,
+entity, or other route properties.
+
+```js
+const Hapi = require('hapi');
+const server = Hapi.server({ port: 80 });
+
+server.auth.scheme('custom', scheme);
+server.auth.strategy('default', 'custom');
+
+server.route({
+    method: 'GET',
+    path: '/',
+    handler: async function (request, h) {
+
+        try {
+            const credentials = await request.server.auth.verify(request);
             return { status: true, user: credentials.name };
         }
         catch (err) {
@@ -4590,7 +4638,7 @@ Authentication information:
 - `credentials` - the `credential` object received during the authentication process. The
   presence of an object does not mean successful authentication.
 
-- `error` - the authentication error is failed and mode set to `'try'`.
+- `error` - the authentication error if failed and mode set to `'try'`.
 
 - `isAuthenticated` - `true` if the request has been successfully authenticated, otherwise `false`.
 
