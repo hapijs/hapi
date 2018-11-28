@@ -30,7 +30,7 @@
 - Manny Pamintuan
 - Max Fierro
 - Nicklas Laine Overgaard
-- NZZ Storytelling
+- NZZ Visuals
 - Paulo Vieira
 - Peter Ka
 - [quickytools](https://www.quickytools.com)
