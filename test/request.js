@@ -857,6 +857,22 @@ describe('Request', () => {
             expect(res.payload).to.equal(url + '|/page|something');
         });
 
+        it('creates arrays from multiple entries', async () => {
+
+            const server = Hapi.server();
+
+            const handler = (request) => {
+
+                return { a: request.query.a, array: Array.isArray(request.query.a), instance: request.query.a instanceof Array };
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+
+            const res = await server.inject('/?a=1&a=2');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal({ a: ['1', '2'], array: true, instance: true });
+        });
+
         it('updates host info', async () => {
 
             const url = 'http://redirected:321/';
