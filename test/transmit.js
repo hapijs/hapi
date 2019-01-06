@@ -611,10 +611,14 @@ describe('transmission', () => {
 
             const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
+            const log = server.events.once('response');
 
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
             expect(res.result.message).to.equal('An internal server error occurred');
+
+            const [request] = await log;
+            expect(request.response.output.statusCode).to.equal(500);
         });
 
         it('handles stream errors on the response after the response has been piped (http)', async () => {
@@ -1099,7 +1103,7 @@ describe('transmission', () => {
             server.route({ method: 'GET', path: '/stream', handler: (request, h) => h.response(new ErrStream(request)).bytes(0) });
 
             const res = await server.inject({ url: '/stream', headers: { 'Accept-Encoding': 'gzip' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(499);
         });
 
         it('does not truncate the response when stream finishes before response is done', async () => {

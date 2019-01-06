@@ -74,7 +74,7 @@ describe('Payload', () => {
         server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { close: true, end: false } });
         const [request] = await log;
         expect(request._isReplied).to.equal(true);
-        expect(request.response).to.be.null();
+        expect(request.response.output.statusCode).to.equal(500);
     });
 
     it('handles aborted request', async () => {

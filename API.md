@@ -135,6 +135,7 @@
   - [`route.options.plugins`](#route.options.plugins)
   - [`route.options.pre`](#route.options.pre)
   - [`route.options.response`](#route.options.response)
+    - [`route.options.response.disconnectStatusCode`](#route.options.response.disconnectStatusCode)
     - [`route.options.response.emptyStatusCode`](#route.options.response.emptyStatusCode)
     - [`route.options.response.failAction`](#route.options.response.failAction)
     - [`route.options.response.modify`](#route.options.response.modify)
@@ -3351,6 +3352,15 @@ server.route({
 ### <a name="route.options.response" /> `route.options.response`
 
 Processing rules for the outgoing response.
+
+#### <a name="route.options.response.disconnectStatusCode" /> `route.options.response.disconnectStatusCode`
+
+ Default value: `499`.
+
+The default HTTP status code used to set a response error when the request is closed or aborted
+before the response is fully transmitted. Value can be any integer greater or equal to `400`. The
+default value `499` is based on the non-standard nginx "CLIENT CLOSED REQUEST" error. The value is
+only used for logging as the request has already ended.
 
 #### <a name="route.options.response.emptyStatusCode" /> `route.options.response.emptyStatusCode`
 
