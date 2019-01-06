@@ -2108,14 +2108,19 @@ injections, with some additional options and response properties:
       an object it will be converted to a string for you. Defaults to no payload. Note that payload
       processing defaults to `'application/json'` if no 'Content-Type' header provided.
 
-    - `credentials` - (optional) an credentials object containing authentication information. The
-      `credentials` are used to bypass the default authentication strategies, and are validated
-      directly as if they were received via an authentication scheme. Defaults to no credentials.
+    - `auth` - (optional) an object containing parsed authentication credentials where:
 
-    - `artifacts` - (optional) an artifacts object containing authentication artifact information.
-      The `artifacts` are used to bypass the default authentication strategies, and are validated
-      directly as if they were received via an authentication scheme. Ignored if set without
-      `credentials`. Defaults to no artifacts.
+        - `strategy` - (required) the authentication strategy name matching the provided
+          credentials.
+
+        - `credentials` - (required) a credentials object containing authentication information.
+          The `credentials` are used to bypass the default authentication strategies, and are
+          validated directly as if they were received via an authentication scheme.
+
+        - `artifacts` - (optional) an artifacts object containing authentication artifact
+          information. The `artifacts` are used to bypass the default authentication strategies,
+          and are validated directly as if they were received via an authentication scheme.
+          Defaults to no artifacts.
 
     - `app` - (optional) sets the initial value of `request.app`, defaults to `{}`.
 

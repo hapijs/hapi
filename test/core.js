@@ -984,12 +984,15 @@ describe('Core', () => {
 
             const options = {
                 url: '/',
-                credentials: { foo: 'bar' }
+                auth: {
+                    credentials: { foo: 'bar' },
+                    strategy: 'test'
+                }
             };
 
             const res = await server.inject(options);
             expect(res.statusCode).to.equal(200);
-            expect(options.credentials).to.exist();
+            expect(options.auth.credentials).to.exist();
         });
 
         it('sets credentials (with host header)', async () => {
@@ -999,7 +1002,10 @@ describe('Core', () => {
 
             const options = {
                 url: '/',
-                credentials: { foo: 'bar' },
+                auth: {
+                    credentials: { foo: 'bar' },
+                    strategy: 'test'
+                },
                 headers: {
                     host: 'something'
                 }
@@ -1007,7 +1013,7 @@ describe('Core', () => {
 
             const res = await server.inject(options);
             expect(res.statusCode).to.equal(200);
-            expect(options.credentials).to.exist();
+            expect(options.auth.credentials).to.exist();
         });
 
         it('sets credentials (with authority)', async () => {
@@ -1017,14 +1023,17 @@ describe('Core', () => {
 
             const options = {
                 url: '/',
-                credentials: { foo: 'bar' },
-                authority: 'something'
+                authority: 'something',
+                auth: {
+                    credentials: { foo: 'bar' },
+                    strategy: 'test'
+                }
             };
 
             const res = await server.inject(options);
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal('something');
-            expect(options.credentials).to.exist();
+            expect(options.auth.credentials).to.exist();
         });
 
         it('sets authority', async () => {
@@ -1049,14 +1058,17 @@ describe('Core', () => {
 
             const options = {
                 url: '/',
-                credentials: { foo: 'bar' },
-                artifacts: { bar: 'baz' }
+                auth: {
+                    credentials: { foo: 'bar' },
+                    artifacts: { bar: 'baz' },
+                    strategy: 'test'
+                }
             };
 
             const res = await server.inject(options);
             expect(res.statusCode).to.equal(200);
             expect(res.result.bar).to.equal('baz');
-            expect(options.artifacts).to.exist();
+            expect(options.auth.artifacts).to.exist();
         });
 
         it('sets app settings', async () => {

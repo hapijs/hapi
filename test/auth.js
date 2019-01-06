@@ -419,7 +419,7 @@ describe('authentication', () => {
 
             const doubleHandler = async (request) => {
 
-                const options = { url: '/2', credentials: request.auth.credentials };
+                const options = { url: '/2', auth: { credentials: request.auth.credentials, strategy: 'default' } };
                 const res = await server.inject(options);
                 return res.result;
             };
@@ -441,7 +441,7 @@ describe('authentication', () => {
 
             const doubleHandler = async (request) => {
 
-                const options = { url: '/2', credentials: request.auth.credentials, artifacts: '!' };
+                const options = { url: '/2', auth: { credentials: request.auth.credentials, artifacts: '!', strategy: 'default' } };
                 const res = await server.inject(options);
                 return res.result;
             };
@@ -1272,8 +1272,11 @@ describe('authentication', () => {
             const options = {
                 url: '/',
                 headers: { authorization: 'Custom steve' },
-                credentials: { foo: 'bar' },
-                artifacts: { bar: 'baz' }
+                auth: {
+                    credentials: { foo: 'bar' },
+                    artifacts: { bar: 'baz' },
+                    strategy: 'default'
+                }
             };
 
             const res = await server.inject(options);
@@ -1375,11 +1378,14 @@ describe('authentication', () => {
             const res3 = await server.inject({ url: '/', headers: { authorization: 'Custom unknown' } });
             expect(res3.result.message).to.equal('Missing credentials');
 
-            const res4 = await server.inject({ url: '/', credentials: {} });
-            expect(res4.result).to.equal('ok');
+            const res4 = await server.inject({ url: '/', auth: { credentials: {}, strategy: 'default' } });
+            expect(res4.result.message).to.equal('Invalid');
 
-            const res5 = await server.inject({ url: '/', headers: { authorization: 'Custom john' } });
-            expect(res5.result.message).to.equal('Invalid');
+            const res5 = await server.inject({ url: '/', auth: { credentials: { user: 'steve' }, strategy: 'default' } });
+            expect(res5.result).to.equal('ok');
+
+            const res6 = await server.inject({ url: '/', headers: { authorization: 'Custom john' } });
+            expect(res6.result.message).to.equal('Invalid');
         });
 
         it('skips when verify unsupported', async () => {
