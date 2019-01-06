@@ -2275,7 +2275,9 @@ Registers a [server method](#server.methods) where:
 
 - `method` - the method function with a signature `async function(...args, [flags])` where:
     - `...args` - the method function arguments (can be any number of arguments or none).
-    - `flags` - when caching is enabled, an object used to set optional method result flags:
+    - `flags` - when caching is enabled, an object used to set optional method result flags. This
+      parameter is provided automatically and can only be accessed/modified within the method
+      function. It cannot be passed as an argument.
         - `ttl` - `0` if result is valid but cannot be cached. Defaults to cache policy.
 
 - `options` - (optional) configuration object:
