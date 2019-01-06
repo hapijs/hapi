@@ -1262,7 +1262,7 @@ server.auth.strategy('default', 'custom');
 server.route({
     method: 'GET',
     path: '/',
-    config: {
+    options: {
         auth: 'default',
         handler: function (request, h) {
 
@@ -2200,7 +2200,7 @@ const server = Hapi.server();
 server.route({
     method: 'GET',
     path: '/',
-    config: {
+    options: {
         id: 'root',
         handler: () => 'ok'
     }
@@ -2225,7 +2225,7 @@ const server = Hapi.server();
 server.route({
     method: 'GET',
     path: '/',
-    config: {
+    options: {
         id: 'root',
         handler: () => 'ok'
     }
@@ -2473,7 +2473,7 @@ const user = {
     }
 };
 
-server.route({ method: 'GET', path: '/user', config: user });
+server.route({ method: 'GET', path: '/user', options: user });
 
 // An array of routes
 
@@ -3299,7 +3299,7 @@ const pre3 = function (request, h) {
 server.route({
     method: 'GET',
     path: '/',
-    config: {
+    options: {
         pre: [
             [
                 // m1 and m2 executed in parallel
@@ -4103,7 +4103,7 @@ const server = Hapi.server({ port: 80 });
 server.route({
     method: 'GET',
     path: '/',
-    config: {
+    options: {
         cache: { expiresIn: 5000 },
         handler: function (request, h) {
 
