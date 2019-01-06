@@ -289,16 +289,65 @@ describe('Toolkit', () => {
 
         describe('abandon', () => {
 
-            it('abandon request with manual response', async () => {
+            it('abandon request with manual response (handler)', async () => {
 
                 const handler = (request, h) => {
 
+                    request.raw.res.setHeader('content-type', 'text/plain');
                     request.raw.res.end('manual');
                     return h.abandon;
                 };
 
                 const server = Hapi.server();
                 server.route({ method: 'GET', path: '/', handler });
+
+                const res = await server.inject('/');
+                expect(res.result).to.equal('manual');
+            });
+
+            it('abandon request with manual response (onRequest)', async () => {
+
+                const server = Hapi.server();
+                server.route({ method: 'GET', path: '/', handler: () => null });
+
+                server.ext('onRequest', (request, h) => {
+
+                    request.raw.res.setHeader('content-type', 'text/plain');
+                    request.raw.res.end('manual');
+                    return h.abandon;
+                });
+
+                const res = await server.inject('/');
+                expect(res.result).to.equal('manual');
+            });
+
+            it('abandon request with manual response (lifecycle)', async () => {
+
+                const server = Hapi.server();
+                server.route({ method: 'GET', path: '/', handler: () => null });
+
+                server.ext('onPreHandler', (request, h) => {
+
+                    request.raw.res.setHeader('content-type', 'text/plain');
+                    request.raw.res.end('manual');
+                    return h.abandon;
+                });
+
+                const res = await server.inject('/');
+                expect(res.result).to.equal('manual');
+            });
+
+            it('abandon request with manual response (post cycle)', async () => {
+
+                const server = Hapi.server();
+                server.route({ method: 'GET', path: '/', handler: () => null });
+
+                server.ext('onPreResponse', (request, h) => {
+
+                    request.raw.res.setHeader('content-type', 'text/plain');
+                    request.raw.res.end('manual');
+                    return h.abandon;
+                });
 
                 const res = await server.inject('/');
                 expect(res.result).to.equal('manual');
