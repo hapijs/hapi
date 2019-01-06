@@ -122,6 +122,30 @@ describe('Response', () => {
             expect(res.result).to.equal(null);
             expect(res.payload).to.equal('');
         });
+
+        it('returns a stream', async () => {
+
+            const handler = (request) => {
+
+                const stream = new Stream.Readable({
+                    read() {
+
+                        this.push('x');
+                        this.push(null);
+                    }
+                });
+
+                return stream;
+            };
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler });
+
+            const res = await server.inject('/');
+            expect(res.result).to.equal('x');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['content-type']).to.equal('application/octet-stream');
+        });
     });
 
     describe('code()', () => {
@@ -208,7 +232,7 @@ describe('Response', () => {
 
     describe('created()', () => {
 
-        it('returns a stream response (created)', async () => {
+        it('returns a response (created)', async () => {
 
             const handler = (request, h) => {
 
@@ -498,7 +522,7 @@ describe('Response', () => {
 
                     super();
                     this.statusCode = 299;
-                    this.headers = { xcustom: 'some value' };
+                    this.headers = { xcustom: 'some value', 'content-type': 'something/special' };
                 }
 
                 _read(size) {
@@ -526,6 +550,7 @@ describe('Response', () => {
             expect(res.result).to.equal('x');
             expect(res.statusCode).to.equal(299);
             expect(res.headers.xcustom).to.equal('some value');
+            expect(res.headers['content-type']).to.equal('something/special');
         });
 
         it('excludes connection header and connection options', async () => {
