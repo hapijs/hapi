@@ -591,11 +591,16 @@ describe('Request', () => {
 
             const server = Hapi.server();
 
-            server.route({ method: 'GET', path: '/', handler: (request) => request.query });
+            const handler = (request) => {
+
+                return { a: request.query.a, array: Array.isArray(request.query.a), instance: request.query.a instanceof Array };
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/?a=1&a=2');
             expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal({ a: ['1', '2'] });
+            expect(res.result).to.equal({ a: ['1', '2'], array: true, instance: true });
         });
 
         it('supports custom query parser (new object)', async () => {
