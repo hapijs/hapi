@@ -4651,6 +4651,9 @@ Authentication information:
   authentication [`access`](#route.options.auth.access) configuration. If the route has not
   access rules defined or if the request failed authorization, set to `false`.
 
+- `isInjected` - `true` if the request has been authenticated via the
+  [`server.inject()`](#server.inject()) `auth` option, otherwise `undefined`.
+
 - `mode` - the route authentication mode.
 
 - `strategy` - the name of the strategy used.

@@ -1071,6 +1071,24 @@ describe('Core', () => {
             expect(options.auth.artifacts).to.exist();
         });
 
+        it('sets isInjected', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request) => request.auth.isInjected });
+
+            const options = {
+                url: '/',
+                auth: {
+                    credentials: { foo: 'bar' },
+                    strategy: 'test'
+                }
+            };
+
+            const res = await server.inject(options);
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.be.true();
+        });
+
         it('sets app settings', async () => {
 
             const server = Hapi.server();
