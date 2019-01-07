@@ -1774,8 +1774,8 @@ describe('authentication', () => {
             const handler = async (request) => {
 
                 try {
-                    const credentials = await request.server.auth.test('default', request);
-                    return { status: true, user: credentials.name };
+                    const { credentials, artifacts } = await request.server.auth.test('default', request);
+                    return { status: true, user: credentials.name, artifacts };
                 }
                 catch (err) {
                     return { status: false };
@@ -1784,7 +1784,7 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', { users: { steve: { name: 'steve' }, skip: 'skip' } });
+            server.auth.strategy('default', 'custom', { users: { steve: { name: 'steve' }, skip: 'skip' }, artifacts: {} });
             server.route({ method: 'GET', path: '/', handler });
 
             const res1 = await server.inject('/');
@@ -1795,6 +1795,7 @@ describe('authentication', () => {
             expect(res2.statusCode).to.equal(200);
             expect(res2.result.status).to.be.true();
             expect(res2.result.user).to.equal('steve');
+            expect(res2.result.artifacts).to.equal({});
 
             const res3 = await server.inject({ url: '/', headers: { authorization: 'Custom skip' } });
             expect(res3.statusCode).to.equal(200);
@@ -1844,7 +1845,7 @@ internals.implementation = function (server, options) {
             }
 
             credentials.user = credentials.user || null;
-            return h.authenticated({ credentials });
+            return h.authenticated({ credentials, artifacts: settings.artifacts });
         },
         response: (request, h) => {
 
