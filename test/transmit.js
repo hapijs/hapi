@@ -1340,6 +1340,7 @@ describe('transmission', () => {
 
             const res = await Wreck.request('GET', 'http://localhost:' + server.info.port);
             res.on('data', (chunk) => { });
+            await team.work;
             await server.stop();
         });
 
