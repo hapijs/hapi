@@ -1318,19 +1318,21 @@ describe('transmission', () => {
                 let count = 0;
                 stream._read = function (size) {
 
+                    const timeout = 10 * count++;           // Must have back off here to hit the socket timeout
+
                     setTimeout(() => {
 
                         if (request._isFinalized) {
                             stream.push(null);
+                            return;
                         }
-                        else {
-                            stream.push(new Array(size).join('x'));
-                        }
-                    }, 10 * (count++));       // Must have back off here to hit the socket timeout
+
+                        stream.push(new Array(size).join('x'));
+
+                    }, timeout);
                 };
 
-                stream.once('end', () => team.attend());
-
+                stream.once('error', () => team.attend());
                 return stream;
             };
 
@@ -1340,6 +1342,7 @@ describe('transmission', () => {
 
             const res = await Wreck.request('GET', 'http://localhost:' + server.info.port);
             res.on('data', (chunk) => { });
+
             await team.work;
             await server.stop();
         });
