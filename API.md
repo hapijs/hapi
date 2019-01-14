@@ -3513,7 +3513,7 @@ If a custom validation function (see `headers`, `params`, `query`, or `payload` 
 then `options` can an arbitrary object that will be passed to this function as the second
 parameter.
 
-The values of the other inputs (i.e. `headers`, `query`, `params`, `payload`, 'state', `app`, and `auth`)
+The values of the other inputs (i.e. `headers`, `query`, `params`, `payload`, `state`, `app`, and `auth`)
 are added to the `options` object under the validation `context` (accessible in rules as
 `Joi.ref('$query.key')`).
 
