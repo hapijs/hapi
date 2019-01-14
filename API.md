@@ -1307,8 +1307,8 @@ Tests a request against an authentication strategy where:
 - `strategy` - the strategy name registered with [`server.auth.strategy()`](#server.auth.strategy()).
 - `request` - the [request object](#request).
 
-Return value: the authentication credentials object if authentication was successful, otherwise
-throws an error.
+Return value: an object containing the authentication `credentials` and `artifacts` if authentication
+was successful, otherwise throws an error.
 
 Note that the `test()` method does not take into account the route authentication configuration. It
 also does not perform payload authentication. It is limited to the basic strategy authentication
@@ -1327,7 +1327,7 @@ server.route({
     handler: async function (request, h) {
 
         try {
-            const credentials = await request.server.auth.test('default', request);
+            const { credentials, artifacts } = await request.server.auth.test('default', request);
             return { status: true, user: credentials.name };
         }
         catch (err) {
