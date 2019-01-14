@@ -1332,7 +1332,8 @@ describe('transmission', () => {
                     }, timeout);
                 };
 
-                stream.once('error', () => team.attend());
+                stream.once('error', () => team.attend());          // Node 8
+                stream.once('close', () => team.attend());          // Node 10
                 return stream;
             };
 
