@@ -1770,4 +1770,24 @@ describe('Request', () => {
             await server.stop({ timeout: 1 });
         });
     });
+
+    describe('event()', () => {
+
+        it('does not emit request error on normal close', async () => {
+
+            const server = Hapi.server();
+            const events = [];
+            server.events.on('request', (request, event, tags) => events.push(tags));
+
+            server.route({ method: 'GET', path: '/', handler: () => 'ok' });
+
+            await server.start();
+
+            const { payload } = await Wreck.get('http://localhost:' + server.info.port);
+            expect(payload.toString()).to.equal('ok');
+            await server.stop();
+
+            expect(events).to.have.length(0);
+        });
+    });
 });
