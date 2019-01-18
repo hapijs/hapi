@@ -34,9 +34,9 @@
             "integrity": "sha512-eX16KHiAYXugbFu6VifstSdwH6aMuWWb4s0qvpq1nR1b+Sf+u68jjttg8ixDBEldPqBi30bDU35OJQWKeTLKxg=="
         },
         "catbox": {
-            "version": "10.0.5",
-            "resolved": "https://registry.npmjs.org/catbox/-/catbox-10.0.5.tgz",
-            "integrity": "sha512-5SpI/tEP3SiLE1qkkV+/hdVW48sHVBEbzPX4jBiwl6hsZh/gkl4bqfGLkvh7mjpMK5evJ0Rm/6NRlhF/Jsy9ow=="
+            "version": "10.0.6",
+            "resolved": "https://registry.npmjs.org/catbox/-/catbox-10.0.6.tgz",
+            "integrity": "sha512-gQWCnF/jbHcfwGbQ4FQxyRiAwLRipqWTTXjpq7rTqqdcsnZosFa0L3LsCZcPTF33QIeMMkS7QmFBHt6QdzGPvg=="
         },
         "catbox-memory": {
             "version": "4.0.1",

@@ -308,7 +308,7 @@ Cannot be set to `false` along with a [`port`](#server.options.port) value.
 
 #### <a name="server.options.cache" /> `server.options.cache`
 
-Default value: `{ engine: require('catbox-memory') }`.
+Default value: `{ provider: { constructor: require('catbox-memory'), options: { partition: 'hapi-cache' } } }`.
 
 Sets up server-side caching providers. Every server includes a default cache for storing
 application state. By default, a simple memory-based cache is created which has limited capacity
@@ -324,25 +324,30 @@ assigned one or more (array):
 
 - a class or prototype function (usually obtained by calling `require()` on a **catbox** strategy
     such as `require('catbox-redis')`). A new **catbox** [client](https://github.com/hapijs/catbox#client)
-    will be created internally using this function.
+    will be created internally using this constructor.
 
 - a configuration object with the following:
 
-    - `engine` - a class, a prototype function, or a **catbox** engine object.
+    - `engine` - a **catbox** engine object instance.
 
     - `name` - an identifier used later when provisioning or configuring caching for
         [server methods](#server.methods) or [plugins](#plugins). Each cache name must be unique.
         A single item may omit the `name` option which defines the default cache. If every cache
         includes a `name`, a default memory cache is provisioned as well.
 
+    - `provider` - a class, a constructor function, or an object with the following:
+
+        - `constructor` - a class or a prototype function.
+
+        - `options` - (optional) a settings object passed as-is to the `constructor` with the following:
+
+            - `partition` - (optional) string used to isolate cached data. Defaults to `'hapi-cache'`.
+            - other constructor-specific options passed to the `constructor` on instantiation.
+
     - `shared` - if `true`, allows multiple cache users to share the same segment (e.g.
         multiple methods using the same cache storage container). Default to `false`.
 
-    - `partition` - (optional) string used to isolate cached data. Defaults to `'hapi-cache'`.
-
-    - other options passed to the **catbox** strategy used. Other options are only passed to
-      **catbox** when `engine` above is a class or function and ignored if `engine` is a **catbox**
-      engine object).
+    - One (and only one) of `engine` or `provider` is required per configuration object.
 
 #### <a name="server.options.compression" /> `server.options.compression`
 
@@ -1495,7 +1500,7 @@ async function example() {
 
     const server = Hapi.server({ port: 80 });
     await server.initialize();
-    await server.cache.provision({ engine: require('catbox-memory'), name: 'countries' });
+    await server.cache.provision({ provider: require('catbox-memory'), name: 'countries' });
 
     const cache = server.cache({ cache: 'countries', expiresIn: 60 * 60 * 1000 });
     await cache.set('norway', { capital: 'oslo' });

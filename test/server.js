@@ -113,7 +113,7 @@ describe('Server', () => {
 
         it('provisions a server cache with custom partition', async () => {
 
-            const server = Hapi.server({ cache: { engine: CatboxMemory, partition: 'hapi-test-other' } });
+            const server = Hapi.server({ cache: { provider: { constructor: CatboxMemory, options: { partition: 'hapi-test-other' } } } });
             const cache = server.cache({ segment: 'test', expiresIn: 1000 });
             await server.initialize();
 
@@ -143,7 +143,7 @@ describe('Server', () => {
 
         it('allows reusing the same cache segment (server)', () => {
 
-            const server = Hapi.server({ cache: { engine: CatboxMemory, shared: true } });
+            const server = Hapi.server({ cache: { provider: CatboxMemory, shared: true } });
             expect(() => {
 
                 server.cache({ segment: 'a', expiresIn: 1000 });
@@ -200,7 +200,7 @@ describe('Server', () => {
         it('provisions a server cache (before initialization)', async () => {
 
             const server = Hapi.server();
-            await server.cache.provision({ engine: CatboxMemory, name: 'dynamic' });
+            await server.cache.provision({ provider: CatboxMemory, name: 'dynamic' });
             const cache = server.cache({ cache: 'dynamic', segment: 'test', expiresIn: 1000 });
 
             await expect(cache.set('a', 'going in', 0)).to.reject();
@@ -216,7 +216,7 @@ describe('Server', () => {
             const server = Hapi.server();
 
             await server.initialize();
-            await server.cache.provision({ engine: CatboxMemory, name: 'dynamic' });
+            await server.cache.provision({ provider: CatboxMemory, name: 'dynamic' });
             const cache = server.cache({ cache: 'dynamic', segment: 'test', expiresIn: 1000 });
 
             await cache.set('a', 'going in', 0);
@@ -228,7 +228,7 @@ describe('Server', () => {
 
             const server = Hapi.server();
             await server.initialize();
-            await server.cache.provision({ engine: CatboxMemory, name: 'dynamic' });
+            await server.cache.provision({ provider: CatboxMemory, name: 'dynamic' });
             const cache = server.cache({ cache: 'dynamic', segment: 'test', expiresIn: 1000 });
 
             await cache.set('a', 'going in', 0);

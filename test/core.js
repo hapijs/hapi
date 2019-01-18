@@ -11,6 +11,7 @@ const TLS = require('tls');
 
 const Boom = require('boom');
 const Bounce = require('bounce');
+const CatboxMemory = require('catbox-memory');
 const Code = require('code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
@@ -334,6 +335,34 @@ describe('Core', () => {
 
             const [, event] = await log;
             expect(event.error.message).to.equal('Cannot read property \'here\' of null');
+        });
+    });
+
+    describe('_createCache()', () => {
+
+        it('provisions cache using engine instance', async () => {
+
+            // Config provision
+
+            const engine = new CatboxMemory();
+            const server = Hapi.server({ cache: { engine, name: 'test1' } });
+            expect(server._core.caches.get('test1').client.connection).to.shallow.equal(engine);
+
+            // Active provision
+
+            await server.cache.provision({ engine, name: 'test2' });
+            expect(server._core.caches.get('test2').client.connection).to.shallow.equal(engine);
+
+            // Active provision but indirect constructor
+
+            const Provider = function (options) {
+
+                this.settings = options;
+            };
+
+            const ref = {};
+            await server.cache.provision({ provider: { constructor: Provider, options: { ref } }, name: 'test3' });
+            expect(server._core.caches.get('test3').client.connection.settings.ref).to.shallow.equal(ref);
         });
     });
 
