@@ -19,9 +19,9 @@
             "integrity": "sha512-+GUspBxlH3CJaxMUGUE1EBoWM6RKgWiYwUDal0qdf8m3ArnXNN1KzKVo5HOnE/FSq4HHyWf3TlHLsZI8PKQgrQ=="
         },
         "boom": {
-            "version": "7.2.2",
-            "resolved": "https://registry.npmjs.org/boom/-/boom-7.2.2.tgz",
-            "integrity": "sha512-IFUbOa8PS7xqmhIjpeStwT3d09hGkNYQ6aj2iELSTxcVs2u0aKn1NzhkdUQSzsRg1FVkj3uit3I6mXQCBixw+A=="
+            "version": "7.3.0",
+            "resolved": "https://registry.npmjs.org/boom/-/boom-7.3.0.tgz",
+            "integrity": "sha512-Swpoyi2t5+GhOEGw8rEsKvTxFLIDiiKoUc2gsoV6Lyr43LHBIzch3k2MvYUs8RTROrIkVJ3Al0TkaOGjnb+B6A=="
         },
         "bounce": {
             "version": "1.2.3",
@@ -69,9 +69,9 @@
             "integrity": "sha512-zYUMOSkEXGBdwlV/AXF9zJC0aLuTJUKHkGeYS5I2g225M5i6SrxQyGJGhPgOR8BK1omL6N5i6TcwfsXbP8/Exw=="
         },
         "joi": {
-            "version": "14.0.4",
-            "resolved": "https://registry.npmjs.org/joi/-/joi-14.0.4.tgz",
-            "integrity": "sha512-KUXRcinDUMMbtlOk7YLGHQvG73dLyf8bmgE+6sBTkdJbZpeGVGAlPXEHLiQBV7KinD/VLD5OA0EUgoTTfbRAJQ=="
+            "version": "14.3.1",
+            "resolved": "https://registry.npmjs.org/joi/-/joi-14.3.1.tgz",
+            "integrity": "sha512-LQDdM+pkOrpAn4Lp+neNIFV3axv1Vna3j38bisbQhETPMANYRbFJFUyOZcOClYvM/hppMhGWuKSFEK9vjrB+bQ=="
         },
         "mime-db": {
             "version": "1.37.0",
@@ -119,9 +119,9 @@
             "integrity": "sha512-jap1ev33dbVTBPxpIyJ5OvD9/J4oWlx1qHQ8bBnKpiwItxXt3+7tvmNZqZeTEQVTjvkReHY1ZnP/7iltNdGnOA=="
         },
         "teamwork": {
-            "version": "3.0.2",
-            "resolved": "https://registry.npmjs.org/teamwork/-/teamwork-3.0.2.tgz",
-            "integrity": "sha512-tpG01+9Qws/oGhMBiZN3BnB32gn5QeKY84AmLxxaCJw4mNeRzhEZ6jEj/vBhKerHD7Hgq9/vOZ58pyryYSn9gA=="
+            "version": "3.0.3",
+            "resolved": "https://registry.npmjs.org/teamwork/-/teamwork-3.0.3.tgz",
+            "integrity": "sha512-OCB56z+G70iA1A1OFoT+51TPzfcgN0ks75uN3yhxA+EU66WTz2BevNDK4YzMqfaL5tuAvxy4iFUn35/u8pxMaQ=="
         },
         "topo": {
             "version": "3.0.3",
@@ -129,9 +129,9 @@
             "integrity": "sha512-IgpPtvD4kjrJ7CRA3ov2FhWQADwv+Tdqbsf1ZnPUSAtCJ9e1Z44MmoSGDXGk4IppoZA7jd/QRkNddlLJWlUZsQ=="
         },
         "vise": {
-            "version": "3.0.1",
-            "resolved": "https://registry.npmjs.org/vise/-/vise-3.0.1.tgz",
-            "integrity": "sha512-7BJNjsv2o83+E6AHAFSnjQF324UTgypsR/Sw/iFmLvr7RgJrEXF1xNBvb5LJfi+1FvWQXjJK4X41WMuHMeunPQ=="
+            "version": "3.0.2",
+            "resolved": "https://registry.npmjs.org/vise/-/vise-3.0.2.tgz",
+            "integrity": "sha512-X52VtdRQbSBXdjcazRiY3eRgV3vTQ0B+7Wh8uC9cVv7lKfML5m9+9NHlbcgCY0R9EAqD1v/v7o9mhGh2A3ANFg=="
         },
         "wreck": {
             "version": "14.1.3",
