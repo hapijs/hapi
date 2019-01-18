@@ -4755,6 +4755,8 @@ Request information:
 
 - `acceptEncoding` - the request preferred encoding.
 
+- `completed` - request processing completion timestamp (`0` is still processing).
+
 - `cors` - request CORS information (available only after the `'onRequest'` extension point as CORS
   is configured per-route and no routing decisions are made at that point in the request
   lifecycle), where:
@@ -4775,7 +4777,7 @@ Request information:
 
 - `remotePort` - remote client port.
 
-- `responded` - request response timestamp (`0` is not responded yet).
+- `responded` - request response timestamp (`0` is not responded yet or response failed when `completed` is set).
 
 Note that the `request.info` object is not meant to be modified.
 

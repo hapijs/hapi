@@ -597,13 +597,8 @@ describe('transmission', () => {
                     }
 
                     this.isDone = true;
-
                     this.push('success');
-
-                    setImmediate(() => {
-
-                        this.emit('error', new Error());
-                    });
+                    setImmediate(() => this.emit('error', new Error()));
                 };
 
                 return stream;
@@ -618,7 +613,9 @@ describe('transmission', () => {
             expect(res.result.message).to.equal('An internal server error occurred');
 
             const [request] = await log;
-            expect(request.response.output.statusCode).to.equal(500);
+            expect(request.response.statusCode).to.equal(500);
+            expect(request.info.completed).to.be.above(0);
+            expect(request.info.responded).to.equal(0);
         });
 
         it('handles stream errors on the response after the response has been piped (http)', async () => {
@@ -642,11 +639,17 @@ describe('transmission', () => {
             };
 
             const server = Hapi.server();
+            const log = server.events.once('response');
             server.route({ method: 'GET', path: '/', handler });
 
             await server.start();
             await expect(Wreck.request('GET', 'http://localhost:' + server.info.port + '/')).to.reject();
             await server.stop();
+
+            const [request] = await log;
+            expect(request.response.statusCode).to.equal(500);
+            expect(request.info.completed).to.be.above(0);
+            expect(request.info.responded).to.equal(0);
         });
 
         it('matches etag header list value', async () => {
@@ -1100,10 +1103,16 @@ describe('transmission', () => {
             };
 
             const server = Hapi.server();
+            const log = server.events.once('response');
             server.route({ method: 'GET', path: '/stream', handler: (request, h) => h.response(new ErrStream(request)).bytes(0) });
 
             const res = await server.inject({ url: '/stream', headers: { 'Accept-Encoding': 'gzip' } });
             expect(res.statusCode).to.equal(499);
+
+            const [request] = await log;
+            expect(request.response.statusCode).to.equal(499);
+            expect(request.info.completed).to.be.above(0);
+            expect(request.info.responded).to.equal(0);
         });
 
         it('does not truncate the response when stream finishes before response is done', async () => {
