@@ -1063,7 +1063,21 @@ describe('Response', () => {
             expect(event.error.message).to.contain('The partial x could not be found: The partial x could not be found');
         });
 
-        it('returns a formatted response', async () => {
+        it('returns a formatted response (spaces)', async () => {
+
+            const handler = (request) => {
+
+                return { a: 1, b: 2, '<': '&' };
+            };
+
+            const server = Hapi.server({ routes: { json: { space: 4, suffix: '\n', escape: true } } });
+            server.route({ method: 'GET', path: '/', handler });
+
+            const res = await server.inject('/');
+            expect(res.payload).to.equal('{\n    \"a\": 1,\n    \"b\": 2,\n    \"\\u003c\": \"\\u0026\"\n}\n');
+        });
+
+        it('returns a formatted response (replacer and spaces', async () => {
 
             const handler = (request) => {
 
@@ -1148,7 +1162,7 @@ describe('Response', () => {
             let updates = 0;
             server.events.on({ name: 'request', channels: 'error' }, (request, event) => {
 
-                expect(event.error).to.be.an.error('Stream must have a streams2 readable interface');
+                expect(event.error).to.be.an.error('Stream must have a readable interface');
                 ++updates;
             });
 

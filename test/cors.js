@@ -196,9 +196,13 @@ describe('CORS', () => {
             return h.response('skip').takeover();
         });
 
-        const res = await server.inject({ url: '/', headers: { origin: 'http://example.domain.com' } });
-        expect(res.statusCode).to.equal(200);
-        expect(res.headers['access-control-allow-origin']).to.exist();
+        const res1 = await server.inject({ url: '/', headers: { origin: 'http://example.domain.com' } });
+        expect(res1.statusCode).to.equal(200);
+        expect(res1.headers['access-control-allow-origin']).to.exist();
+
+        const res2 = await server.inject({ url: '/', headers: { origin: 'http://example.domain.net' } });
+        expect(res2.statusCode).to.equal(200);
+        expect(res2.headers['access-control-allow-origin']).to.not.exist();
     });
 
     describe('headers()', () => {

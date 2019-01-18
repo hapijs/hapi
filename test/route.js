@@ -7,6 +7,7 @@ const Hapi = require('..');
 const Inert = require('inert');
 const Joi = require('joi');
 const Lab = require('lab');
+const Subtext = require('subtext');
 
 
 const internals = {};
@@ -90,7 +91,7 @@ describe('Route', () => {
 
             const server = Hapi.server();
             server.route({ method: 'HEAD', path: '/', handler: () => null });
-        }).to.throw(/Method name not allowed/);
+        }).to.throw('Cannot set HEAD route: /');
     });
 
     it('throws an error when a route is missing a handler', () => {
@@ -99,7 +100,7 @@ describe('Route', () => {
 
             const server = Hapi.server();
             server.route({ path: '/test', method: 'put' });
-        }).to.throw('Missing or undefined handler: put /test');
+        }).to.throw('Missing or undefined handler: PUT /test');
     });
 
     it('throws when handler is missing in config', () => {
@@ -254,7 +255,7 @@ describe('Route', () => {
         expect(() => {
 
             server.route({ method: 'GET', path: '/', handler: () => null, options: { validate: { payload: {} } } });
-        }).to.throw('Cannot validate HEAD or GET requests: GET /');
+        }).to.throw('Cannot validate HEAD or GET request payload: GET /');
     });
 
     it('throws when payload parsing is set on GET', () => {
@@ -272,6 +273,35 @@ describe('Route', () => {
         server.route({ method: '*', path: '/', handler: () => null, options: { validate: { payload: { a: Joi.required() } } } });
         const res = await server.inject('/');
         expect(res.statusCode).to.equal(200);
+    });
+
+    it('ignores validation on * route when request is HEAD', async () => {
+
+        const server = Hapi.server();
+        server.route({ method: '*', path: '/', handler: () => null, options: { validate: { payload: { a: Joi.required() } } } });
+        const res = await server.inject({ url: '/', method: 'HEAD' });
+        expect(res.statusCode).to.equal(200);
+    });
+
+    it('skips payload on * route when request is HEAD', async (flags) => {
+
+        const orig = Subtext.parse;
+        let called = false;
+        Subtext.parse = () => {
+
+            called = true;
+        };
+
+        flags.onCleanup = () => {
+
+            Subtext.parse = orig;
+        };
+
+        const server = Hapi.server();
+        server.route({ method: '*', path: '/', handler: () => null });
+        const res = await server.inject({ url: '/', method: 'HEAD' });
+        expect(res.statusCode).to.equal(200);
+        expect(called).to.be.false();
     });
 
     it('ignores default validation on GET', async () => {
@@ -403,7 +433,7 @@ describe('Route', () => {
         expect(() => {
 
             Hapi.server({ routes: { timeout: { server: 60000, socket: 12000 } } });
-        }).to.throw('Server timeout must be shorter than socket timeout: _special /{p*}');
+        }).to.throw('Server timeout must be shorter than socket timeout');
     });
 
     it('throws when server timeout is more then socket timeout (node default)', () => {
@@ -411,7 +441,7 @@ describe('Route', () => {
         expect(() => {
 
             Hapi.server({ routes: { timeout: { server: 6000000 } } });
-        }).to.throw('Server timeout must be shorter than socket timeout: _special /{p*}');
+        }).to.throw('Server timeout must be shorter than socket timeout');
     });
 
     it('ignores large server timeout when socket timeout disabled', () => {

@@ -1881,7 +1881,7 @@ describe('Core', () => {
 
         it('queues requests', () => {
 
-            const server = Hapi.server({ load: { concurrent: 100 } });
+            const server = Hapi.server({ load: { concurrent: 10 } });
 
             const handler = async () => {
 
@@ -1890,8 +1890,11 @@ describe('Core', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler });
-            server.inject('/');
-            expect(server._core.queue.active).to.equal(1);
+            for (let i = 0; i < 15; ++i) {
+                server.inject('/');
+            }
+
+            expect(server._core.queue.active).to.equal(10);
         });
     });
 });

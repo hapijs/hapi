@@ -9,6 +9,7 @@ const Boom = require('boom');
 const Code = require('code');
 const Hapi = require('..');
 const Hoek = require('hoek');
+const Joi = require('joi');
 const Lab = require('lab');
 const Teamwork = require('teamwork');
 const Wreck = require('wreck');
@@ -587,6 +588,22 @@ describe('Request', () => {
             expect(res.statusCode).to.equal(200);
         });
 
+        it('allows internal only route (inject with allowInternals and authority)', async () => {
+
+            const server = Hapi.server();
+            server.route({
+                method: 'GET',
+                path: '/some/route',
+                options: {
+                    isInternal: true,
+                    handler: () => 'ok'
+                }
+            });
+
+            const res = await server.inject({ url: '/some/route', allowInternals: true, authority: 'server:8000' });
+            expect(res.statusCode).to.equal(200);
+        });
+
         it('creates arrays from multiple entries', async () => {
 
             const server = Hapi.server();
@@ -744,6 +761,27 @@ describe('Request', () => {
 
             expect(called).to.be.false();
         });
+
+        it('handles continue signal', async () => {
+
+            const server = Hapi.server({ debug: false });
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    handler: () => ({ a: '1' }),
+                    response: {
+                        failAction: (request, h) => h.continue,
+                        schema: {
+                            b: Joi.string()
+                        }
+                    }
+                }
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+        });
     });
 
     describe('_reply()', () => {
@@ -773,6 +811,23 @@ describe('Request', () => {
             expect(request.info.responded).to.be.min(request.info.received);
             expect(request.response.source).to.equal('ok');
             expect(request.response.statusCode).to.equal(200);
+        });
+
+        it('skips logging error when not the result of a thrown error', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request, h) => h.response().code(500) });
+
+            let called = false;
+            server.events.once('request', () => {
+
+                called = true;
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+            expect(res.request.response._error).to.not.exist();
+            expect(called).to.be.false();
         });
 
         it('closes response after server timeout', async () => {
@@ -809,11 +864,11 @@ describe('Request', () => {
 
             const handler = async (request) => {
 
-                await Hoek.wait(10);
+                await Hoek.wait(40);
                 throw new Error('after');
             };
 
-            const server = Hapi.server({ routes: { timeout: { server: 5 } } });
+            const server = Hapi.server({ routes: { timeout: { server: 20 } } });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -1088,8 +1143,12 @@ describe('Request', () => {
 
             const server = Hapi.server({ router: { stripTrailingSlash: true } });
             server.route({ method: 'GET', path: '/test', handler: () => null });
-            const res = await server.inject('/test/');
-            expect(res.statusCode).to.equal(200);
+
+            const res1 = await server.inject('/test/');
+            expect(res1.statusCode).to.equal(200);
+
+            const res2 = await server.inject('/test');
+            expect(res2.statusCode).to.equal(200);
         });
 
         it('does not strip trailing slash on /', async () => {
@@ -1494,6 +1553,38 @@ describe('Request', () => {
             console.error('nothing');
             expect(i).to.equal(1);
             console.error = orig;
+        });
+
+        it('logs nothing', async () => {
+
+            const server = Hapi.server({ debug: false, routes: { log: { collect: false } } });
+
+            const handler = (request) => {
+
+                expect(request.logs).to.have.length(0);
+                return request.info.acceptEncoding;
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+
+            const res = await server.inject({ url: '/', headers: { 'accept-encoding': 'a;b' } });
+            expect(res.result).to.equal('identity');
+        });
+
+        it('logs when only collect is true', async () => {
+
+            const server = Hapi.server({ debug: false, routes: { log: { collect: true } } });
+
+            const handler = (request) => {
+
+                expect(request.logs).to.have.length(1);
+                return request.info.acceptEncoding;
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+
+            const res = await server.inject({ url: '/', headers: { 'accept-encoding': 'a;b' } });
+            expect(res.result).to.equal('identity');
         });
     });
 

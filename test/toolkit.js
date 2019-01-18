@@ -530,6 +530,26 @@ describe('Toolkit', () => {
                 expect(count).to.equal(1);
             });
 
+            it('does not override manual last-modified header', async () => {
+
+                const server = Hapi.server();
+
+                server.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: (request, h) => {
+
+                        h.entity({ modified: 1200 });
+                        return h.response('ok').header('last-modified', 999);
+                    }
+                });
+
+                const res = await server.inject('/');
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('ok');
+                expect(res.headers['last-modified']).to.equal(999);
+            });
+
             it('returns a 304 when the request has if-none-match', async () => {
 
                 const server = Hapi.server();

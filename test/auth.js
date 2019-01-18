@@ -92,12 +92,14 @@ describe('authentication', () => {
                     const access = {
                         two: request.server.lookup('two').auth.access(request),
                         three1: request.server.lookup('three').auth.access(request),
-                        four1: request.server.lookup('four').auth.access(request)
+                        four1: request.server.lookup('four').auth.access(request),
+                        five1: request.server.lookup('five').auth.access(request)
                     };
 
                     request.auth.credentials = null;
                     access.three2 = request.server.lookup('three').auth.access(request);
                     access.four2 = request.server.lookup('four').auth.access(request);
+                    access.five2 = request.server.lookup('five').auth.access(request);
                     request.auth.credentials = credentials;
 
                     return access;
@@ -111,6 +113,7 @@ describe('authentication', () => {
         server.route({ method: 'GET', path: '/two', options: { id: 'two', handler: () => null, auth: { scope: 'two' } } });
         server.route({ method: 'GET', path: '/three', options: { id: 'three', handler: () => null, auth: { scope: 'one' } } });
         server.route({ method: 'GET', path: '/four', options: { id: 'four', handler: () => null, auth: false } });
+        server.route({ method: 'GET', path: '/five', options: { id: 'five', handler: () => null, auth: { mode: 'required' } } });
 
         const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
         expect(res.statusCode).to.equal(200);
@@ -119,7 +122,9 @@ describe('authentication', () => {
             three1: true,
             three2: false,
             four1: true,
-            four2: true
+            four2: true,
+            five1: true,
+            five2: true
         });
     });
 

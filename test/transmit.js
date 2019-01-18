@@ -1481,7 +1481,7 @@ describe('transmission', () => {
             const fileStreamHandler = (request, h) => {
 
                 const filePath = Path.join(__dirname, 'file', 'image.png');
-                return h.response(Fs.createReadStream(filePath)).bytes(Fs.statSync(filePath).size);
+                return h.response(Fs.createReadStream(filePath)).bytes(Fs.statSync(filePath).size).etag('some-tag');
             };
 
             it('returns a subset of a fileStream (start)', async () => {
