@@ -9,4 +9,5 @@ coverage.*
 **/*.pem
 
 **/.vs
-
+**/.vscode
+**/.idea
