@@ -30,7 +30,7 @@
         },
         "bourne": {
             "version": "1.0.0",
-            "resolved": "https://registry.npmjs.org/bourne/-/bourne-1.2.2.tgz",
+            "resolved": "https://registry.npmjs.org/bourne/-/bourne-1.0.0.tgz",
             "integrity": "sha512-938G7p21n3x3FiGnZcoN8Spv7EHOgFRnUStCby2/2fYnkY+fFU5TobsN4xCo5kW/jniYJP8KWjBFTzM4oq+ewg=="
         },
         "call": {
