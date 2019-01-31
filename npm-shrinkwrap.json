@@ -1,5 +1,5 @@
 {
-    "version": "18.0.0",
+    "version": "18.0.1",
     "name": "hapi",
     "lockfileVersion": 1,
     "dependencies": {
@@ -27,6 +27,11 @@
             "version": "1.2.3",
             "resolved": "https://registry.npmjs.org/bounce/-/bounce-1.2.3.tgz",
             "integrity": "sha512-3G7B8CyBnip5EahCZJjnvQ1HLyArC6P5e+xcolo13BVI9ogFaDOsNMAE7FIWliHtIkYI8/nTRCvCY9tZa3Mu4g=="
+        },
+        "bourne": {
+            "version": "1.0.0",
+            "resolved": "https://registry.npmjs.org/bounce/-/bounce-1.2.2.tgz",
+            "integrity": "sha512-938G7p21n3x3FiGnZcoN8Spv7EHOgFRnUStCby2/2fYnkY+fFU5TobsN4xCo5kW/jniYJP8KWjBFTzM4oq+ewg=="
         },
         "call": {
             "version": "5.0.3",
@@ -109,14 +114,14 @@
             "integrity": "sha512-9JaIPP+HxwYGqCDqqK3tRaTqdtQHoK6Qy3IrXhIt2q5x8fs8RcfU7BMWlFTCOgFazK8p88zIv1tHQXvAwtXMyw=="
         },
         "statehood": {
-            "version": "6.0.8",
-            "resolved": "https://registry.npmjs.org/statehood/-/statehood-6.0.8.tgz",
-            "integrity": "sha512-/uk2Iq5VXCAGmYnRTjez6gDfU8fROm1Um5WH2C9aNCdG7DAqD94dqZgeuqXrvVFnfDqxAtorUBLUtD9El/uJ6w=="
+            "version": "6.0.9",
+            "resolved": "https://registry.npmjs.org/statehood/-/statehood-6.0.9.tgz",
+            "integrity": "sha512-jbFg1+MYEqfC7ABAoWZoeF4cQUtp3LUvMDUGExL76cMmleBHG7I6xlZFsE8hRi7nEySIvutHmVlLmBe9+2R5LQ=="
         },
         "subtext": {
-            "version": "6.0.11",
-            "resolved": "https://registry.npmjs.org/subtext/-/subtext-6.0.11.tgz",
-            "integrity": "sha512-jap1ev33dbVTBPxpIyJ5OvD9/J4oWlx1qHQ8bBnKpiwItxXt3+7tvmNZqZeTEQVTjvkReHY1ZnP/7iltNdGnOA=="
+            "version": "6.0.12",
+            "resolved": "https://registry.npmjs.org/subtext/-/subtext-6.0.12.tgz",
+            "integrity": "sha512-yT1wCDWVgqvL9BIkWzWqgj5spUSYo/Enu09iUV8t2ZvHcr2tKGTGg2kc9tUpVEsdhp1ihsZeTAiDqh0TQciTPQ=="
         },
         "teamwork": {
             "version": "3.0.3",
