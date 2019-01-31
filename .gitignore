@@ -7,3 +7,7 @@ coverage.*
 **/._*
 
 **/*.pem
+
+**/.vs
+**/.vscode
+**/.idea
