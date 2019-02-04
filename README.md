@@ -8,7 +8,7 @@ developers to focus on writing reusable application logic in a highly modular an
 
 Version 18.x only supports node v8.12.0 and over. For older version of node please use hapi version 16.x.
 
-Development version: **18.0.x** ([release notes](https://github.com/hapijs/hapi/issues?labels=release+notes&page=1&state=closed)) 
+Development version: **18.1.x** ([release notes](https://github.com/hapijs/hapi/issues?labels=release+notes&page=1&state=closed)) 
 [![Linux Build Status](https://secure.travis-ci.org/hapijs/hapi.svg?branch=master)](https://travis-ci.org/hapijs/hapi)
 [![Windows Build Status](https://ci.appveyor.com/api/projects/status/github/hapijs/hapi?branch=master&svg=true)](https://ci.appveyor.com/project/hueniverse/hapi)
 
