@@ -130,6 +130,7 @@
     - [`route.options.payload.output`](#route.options.payload.output)
     - [`route.options.payload.override`](#route.options.payload.override)
     - [`route.options.payload.parse`](#route.options.payload.parse)
+    - [`route.options.payload.protoAction`](#route.options.payload.protoAction)
     - [`route.options.payload.timeout`](#route.options.payload.timeout)
     - [`route.options.payload.uploads`](#route.options.payload.uploads)
   - [`route.options.plugins`](#route.options.plugins)
@@ -3257,6 +3258,20 @@ Determines if the incoming payload is processed or presented raw. Available valu
 - `false` - the raw payload is returned unmodified.
 
 - `'gunzip'` - the raw payload is returned unmodified after any known content encoding is decoded.
+
+#### <a name="route.options.payload.protoAction" /> `route.options.payload.protoAction`
+
+Default value: `'error'`.
+
+Sets handling of incoming payload that may contain a prototype poisoning security attach. Available
+values:
+
+- `'error'` - returns a `400` bad request error when the payload contains a prototype.
+
+- `'remove'` - sanitizes the payload to remove the prototype.
+
+- `'ignore'` - disables the protection and allows the payload to pass as received. Use this option
+  only when you are sure that such incoming data cannot pose any risks to your application.
 
 #### <a name="route.options.payload.timeout" /> `route.options.payload.timeout`
 
