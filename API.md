@@ -3263,7 +3263,7 @@ Determines if the incoming payload is processed or presented raw. Available valu
 
 Default value: `'error'`.
 
-Sets handling of incoming payload that may contain a prototype poisoning security attach. Available
+Sets handling of incoming payload that may contain a prototype poisoning security attack. Available
 values:
 
 - `'error'` - returns a `400` bad request error when the payload contains a prototype.
