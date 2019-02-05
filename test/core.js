@@ -780,8 +780,8 @@ describe('Core', () => {
             expect(count1).to.equal(2);
 
             const timer = new Hoek.Bench();
-            await server.stop({ timeout: 20 });
-            expect(timer.elapsed()).to.be.at.most(21);
+            await server.stop({ timeout: 100 });
+            expect(timer.elapsed()).to.be.at.most(110);
         });
 
         it('waits to destroy handled connections until after the timeout', async () => {
