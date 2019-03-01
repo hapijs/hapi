@@ -3777,7 +3777,7 @@ the same. The following is the complete list of steps a request can go through:
     - based on the route [`auth`](#route.options.auth) option.
 
 - _**Payload processing**_
-    - based on the route [`state`](#route.options.payload) option.
+    - based on the route [`payload`](#route.options.payload) option.
     - error handling based on [`failAction`](#route.options.payload.failAction).
 
 - _**Payload authentication**_
