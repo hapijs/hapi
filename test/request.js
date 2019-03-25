@@ -362,10 +362,11 @@ describe('Request', () => {
                 }
             });
 
+            const onDisconnect = Hoek.once(() => server.stop(done));
             let client;
             const onRequest = function (request, reply) {
 
-                request.once('disconnect', () => server.stop(done));
+                request.once('disconnect', onDisconnect);
                 return reply.continue();
             };
 

@@ -374,14 +374,17 @@ describe('Connection', () => {
                 const req = Wreck.request('GET', `http://localhost:${server.info.port}/`, { rejectUnauthorized: false }, (err, res) => {
 
                     expect(err).to.exist();
-                    server.listener.getConnections((err, count2) => {
+                    setTimeout(() => {
 
-                        expect(err).to.not.exist();
-                        expect(count2).to.equal(0);
-                        expect(Object.keys(server.connections[0]._connections).length).to.equal(0);
-                        expect(count).to.equal(1);
-                        server.stop(done);
-                    });
+                        server.listener.getConnections((err, count2) => {
+
+                            expect(err).to.not.exist();
+                            expect(count2).to.equal(0);
+                            expect(Object.keys(server.connections[0]._connections).length).to.equal(0);
+                            expect(count).to.equal(1);
+                            server.stop(done);
+                        });
+                    }, 100);
                 });
 
                 setTimeout(() => {

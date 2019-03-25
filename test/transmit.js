@@ -1947,21 +1947,23 @@ describe('transmission', () => {
                 let count = 0;
                 stream._read = function (size) {
 
+                    const timeout = 10 * count++;           // Must have back off here to hit the socket timeout
+
                     setTimeout(() => {
 
                         if (request._isFinalized) {
                             stream.push(null);
+                            return;
                         }
-                        else {
-                            stream.push(new Array(size).join('x'));
-                        }
-                    }, 10 * (count++));       // Must have back off here to hit the socket timeout
+
+                        stream.push(new Array(size).join('x'));
+
+                    }, timeout);
                 };
 
-                stream.once('end', () => {
-
-                    server.stop(done);
-                });
+                const finish = Hoek.once(() => server.stop(done));
+                stream.once('end', finish);             // Node <= 8
+                stream.once('close', finish);           // Node >= 10
 
                 return reply(stream);
             };
