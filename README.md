@@ -1,18 +1,18 @@
-<img src="https://raw.github.com/hapijs/hapi/master/images/hapi.png" />
+# hapi
 
-### Web and services application framework
+Web and services application framework
 
-Lead Maintainer: [Eran Hammer](https://github.com/hueniverse)
+[![Build Status](https://travis-ci.org/hapijs/hapi.svg?branch=v16-commercial)](https://travis-ci.org/hapijs/hapi)
+
+## License
+
+This version of the package requires a commercial license. You may not use, copy, or distribute it without first acquiring a commercial license from Sideway Inc. Using this software without a license is a violation of US and international law. To obtain a license, please contact [sales@sideway.com](mailto:sales@sideway.com). The open source version of this package can be found [here](https://github.com/hapijs/hapi).
+
+## About
 
 **hapi** is a simple to use configuration-centric framework with built-in support for input validation, caching,
 authentication, and other essential facilities for building web and services applications. **hapi** enables
 developers to focus on writing reusable application logic in a highly modular and prescriptive approach. 
-
-This **v16** is a maintenance-only branch for those unable to update to the latest major
-version of the core module. It on receives critical bug fixes and security patches. It will stop
-being maintained on March 1st, 2019.
-
-[![Build Status](https://secure.travis-ci.org/hapijs/hapi.svg?branch=v16)](http://travis-ci.org/hapijs/hapi)
 
 For the latest updates, [change log](http://hapijs.com/updates), and release information visit
 [hapijs.com](http://hapijs.com) and follow [@hapijs](https://twitter.com/hapijs) on twitter. If you

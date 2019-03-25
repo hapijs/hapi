@@ -1,27 +1,23 @@
 'use strict';
 
-// Load modules
-
 const Events = require('events');
 const Path = require('path');
 const Stream = require('stream');
-const Boom = require('boom');
+
+const Boom = require('@commercial/boom');
 const Code = require('code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
-const Hoek = require('hoek');
+const Hoek = require('@commercial/hoek');
 const Inert = require('inert');
 const Lab = require('lab');
 const Vision = require('vision');
+
 const Response = require('../lib/response');
 
 
-// Declare internals
-
 const internals = {};
 
-
-// Test shortcuts
 
 const lab = exports.lab = Lab.script();
 const describe = lab.describe;
@@ -251,7 +247,7 @@ describe('Response', () => {
 
             const handler = function (request, reply) {
 
-                return reply('ok').header('set-cookie', new Buffer(decodeURIComponent('%E0%B4%8Aset-cookie:%20foo=bar')));
+                return reply('ok').header('set-cookie', Buffer.from(decodeURIComponent('%E0%B4%8Aset-cookie:%20foo=bar')));
             };
 
             const server = new Hapi.Server();

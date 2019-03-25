@@ -1,24 +1,19 @@
 'use strict';
 
-// Load modules
-
 const Fs = require('fs');
 const Http = require('http');
 const Path = require('path');
 const Zlib = require('zlib');
+
 const Code = require('code');
 const Hapi = require('..');
-const Hoek = require('hoek');
+const Hoek = require('@commercial/hoek');
 const Lab = require('lab');
-const Wreck = require('wreck');
+const Wreck = require('@commercial/wreck');
 
-
-// Declare internals
 
 const internals = {};
 
-
-// Test shortcuts
 
 const lab = exports.lab = Lab.script();
 const describe = lab.describe;
@@ -163,7 +158,7 @@ describe('payload', () => {
 
     it('returns 413 with response when payload is not consumed', (done) => {
 
-        const payload = new Buffer(10 * 1024 * 1024).toString();
+        const payload = Buffer.alloc(10 * 1024 * 1024).toString();
 
         const handler = function (request, reply) {
 
@@ -679,7 +674,7 @@ describe('payload', () => {
 
     it('signals connection close when payload is unconsumed', (done) => {
 
-        const payload = new Buffer(1024);
+        const payload = Buffer.alloc(1024);
 
         const handler = function (request, reply) {
 

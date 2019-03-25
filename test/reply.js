@@ -1,22 +1,17 @@
 'use strict';
 
-// Load modules
-
 const Http = require('http');
 const Stream = require('stream');
-const Boom = require('boom');
+
+const Boom = require('@commercial/boom');
 const Code = require('code');
 const Hapi = require('..');
-const Hoek = require('hoek');
+const Hoek = require('@commercial/hoek');
 const Lab = require('lab');
 
 
-// Declare internals
-
 const internals = {};
 
-
-// Test shortcuts
 
 const lab = exports.lab = Lab.script();
 const describe = lab.describe;
@@ -211,7 +206,7 @@ describe('Reply', () => {
 
             const handler = function (request, reply) {
 
-                return reply(new Buffer('Tada1')).code(299);
+                return reply(Buffer.from('Tada1')).code(299);
             };
 
             const server = new Hapi.Server();
@@ -516,7 +511,7 @@ describe('Reply', () => {
 
                     return reply(new Promise((resolve, reject) => {
 
-                        return resolve(new Buffer('buffer content'));
+                        return resolve(Buffer.from('buffer content'));
                     })).code(299).type('something/special');
                 };
 

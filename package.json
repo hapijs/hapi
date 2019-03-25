@@ -1,5 +1,5 @@
 {
-  "name": "hapi",
+  "name": "@commercial/hapi",
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
   "version": "16.7.0",
@@ -15,25 +15,25 @@
     "web"
   ],
   "dependencies": {
-    "accept": "2.x.x",
-    "ammo": "2.x.x",
-    "boom": "5.x.x",
-    "call": "4.x.x",
-    "catbox": "7.x.x",
-    "catbox-memory": "2.x.x",
-    "cryptiles": "3.x.x",
-    "heavy": "4.x.x",
-    "hoek": "4.x.x",
-    "iron": "4.x.x",
-    "items": "2.x.x",
-    "joi": "11.x.x",
-    "mimos": "3.x.x",
-    "podium": "1.x.x",
-    "shot": "3.x.x",
-    "somever": "1.x.x",
-    "statehood": "5.x.x",
-    "subtext": "5.x.x",
-    "topo": "2.x.x"
+    "@commercial/accept": "2.x.x",
+    "@commercial/ammo": "2.x.x",
+    "@commercial/boom": "5.x.x",
+    "@commercial/call": "4.x.x",
+    "@commercial/catbox": "7.x.x",
+    "@commercial/catbox-memory": "2.x.x",
+    "@commercial/cryptiles": "3.x.x",
+    "@commercial/heavy": "4.x.x",
+    "@commercial/hoek": "4.x.x",
+    "@commercial/iron": "4.x.x",
+    "@commercial/items": "2.x.x",
+    "@commercial/joi": "12.x.x",
+    "@commercial/mimos": "3.x.x",
+    "@commercial/podium": "1.x.x",
+    "@commercial/shot": "3.x.x",
+    "@commercial/somever": "1.x.x",
+    "@commercial/statehood": "5.x.x",
+    "@commercial/subtext": "5.x.x",
+    "@commercial/topo": "2.x.x"
   },
   "devDependencies": {
     "code": "4.x.x",
@@ -41,10 +41,10 @@
     "inert": "4.x.x",
     "lab": "14.x.x",
     "vision": "4.x.x",
-    "wreck": "12.x.x"
+    "@commercial/wreck": "12.x.x"
   },
   "scripts": {
-    "test": "lab -a code -t 100 -L -I SharedArrayBuffer,Atomics,BigUint64Array,BigInt64Array,BigInt,URL,URLSearchParams -m 3000"
+    "test": "lab -a code -t 100 -L -m 3000 -l"
   },
-  "license": "BSD-3-Clause"
+  "license": "SEE LICENSE IN LICENSE.md"
 }

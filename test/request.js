@@ -1,25 +1,20 @@
 'use strict';
 
-// Load modules
-
 const Http = require('http');
 const Net = require('net');
 const Stream = require('stream');
 const Url = require('url');
-const Boom = require('boom');
+
+const Boom = require('@commercial/boom');
 const Code = require('code');
 const Hapi = require('..');
-const Hoek = require('hoek');
+const Hoek = require('@commercial/hoek');
 const Lab = require('lab');
-const Wreck = require('wreck');
+const Wreck = require('@commercial/wreck');
 
-
-// Declare internals
 
 const internals = {};
 
-
-// Test shortcuts
 
 const lab = exports.lab = Lab.script();
 const describe = lab.describe;

@@ -1,19 +1,13 @@
 'use strict';
 
-// Load modules
-
 const Code = require('code');
 const Hapi = require('..');
-const Joi = require('joi');
+const Joi = require('@commercial/joi');
 const Lab = require('lab');
 
 
-// Declare internals
-
 const internals = {};
 
-
-// Test shortcuts
 
 const lab = exports.lab = Lab.script();
 const describe = lab.describe;

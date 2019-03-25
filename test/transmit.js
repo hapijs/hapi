@@ -1,29 +1,24 @@
 'use strict';
 
-// Load modules
-
 const ChildProcess = require('child_process');
 const Fs = require('fs');
 const Http = require('http');
 const Path = require('path');
 const Stream = require('stream');
 const Zlib = require('zlib');
-const Boom = require('boom');
-const CatboxMemory = require('catbox-memory');
+
+const Boom = require('@commercial/boom');
+const CatboxMemory = require('@commercial/catbox-memory');
 const Code = require('code');
 const Hapi = require('..');
-const Hoek = require('hoek');
+const Hoek = require('@commercial/hoek');
 const Inert = require('inert');
 const Lab = require('lab');
-const Wreck = require('wreck');
+const Wreck = require('@commercial/wreck');
 
-
-// Declare internals
 
 const internals = {};
 
-
-// Test shortcuts
 
 const lab = exports.lab = Lab.script();
 const describe = lab.describe;
@@ -504,7 +499,7 @@ describe('transmission', () => {
 
             const handler = function (request, reply) {
 
-                return reply(new Buffer('value'));
+                return reply(Buffer.from('value'));
             };
 
             const server = new Hapi.Server();
@@ -1066,7 +1061,7 @@ describe('transmission', () => {
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Zlib.gzip(new Buffer(data), (err, zipped) => {
+                Zlib.gzip(Buffer.from(data), (err, zipped) => {
 
                     expect(err).to.not.exist();
 
@@ -1099,7 +1094,7 @@ describe('transmission', () => {
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Zlib.gzip(new Buffer(data), (err, zipped) => {
+                Zlib.gzip(Buffer.from(data), (err, zipped) => {
 
                     expect(err).to.not.exist();
 
@@ -1187,7 +1182,7 @@ describe('transmission', () => {
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Zlib.deflate(new Buffer(data), (err, deflated) => {
+                Zlib.deflate(Buffer.from(data), (err, deflated) => {
 
                     expect(err).to.not.exist();
 
@@ -1219,7 +1214,7 @@ describe('transmission', () => {
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Zlib.deflate(new Buffer(data), (err, deflated) => {
+                Zlib.deflate(Buffer.from(data), (err, deflated) => {
 
                     expect(err).to.not.exist();
 
@@ -1252,7 +1247,7 @@ describe('transmission', () => {
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Zlib.gzip(new Buffer(data), (err, zipped) => {
+                Zlib.gzip(Buffer.from(data), (err, zipped) => {
 
                     expect(err).to.not.exist();
 
@@ -1285,7 +1280,7 @@ describe('transmission', () => {
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Zlib.gzip(new Buffer(data), (err, zipped) => {
+                Zlib.gzip(Buffer.from(data), (err, zipped) => {
 
                     expect(err).to.not.exist();
 
@@ -1318,7 +1313,7 @@ describe('transmission', () => {
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Zlib.deflate(new Buffer(data), (err, deflated) => {
+                Zlib.deflate(Buffer.from(data), (err, deflated) => {
 
                     expect(err).to.not.exist();
 
@@ -1351,7 +1346,7 @@ describe('transmission', () => {
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Zlib.deflate(new Buffer(data), (err, deflated) => {
+                Zlib.deflate(Buffer.from(data), (err, deflated) => {
 
                     expect(err).to.not.exist();
 
@@ -1384,7 +1379,7 @@ describe('transmission', () => {
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Zlib.gzip(new Buffer(data), (err, zipped) => {
+                Zlib.gzip(Buffer.from(data), (err, zipped) => {
 
                     expect(err).to.not.exist();
 
@@ -1417,7 +1412,7 @@ describe('transmission', () => {
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Zlib.gzip(new Buffer(data), (err, zipped) => {
+                Zlib.gzip(Buffer.from(data), (err, zipped) => {
 
                     expect(err).to.not.exist();
 
@@ -1451,7 +1446,7 @@ describe('transmission', () => {
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Zlib.gzip(new Buffer(data), (err, zipped) => {
+                Zlib.gzip(Buffer.from(data), (err, zipped) => {
 
                     expect(err).to.not.exist();
 
@@ -1492,7 +1487,7 @@ describe('transmission', () => {
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Zlib.gzip(new Buffer(data), (err, zipped) => {
+                Zlib.gzip(Buffer.from(data), (err, zipped) => {
 
                     expect(err).to.not.exist();
 
@@ -1574,7 +1569,7 @@ describe('transmission', () => {
 
             const data = '{"test":"true"}';
 
-            Zlib.gzip(new Buffer(data), (err, zipped) => {
+            Zlib.gzip(Buffer.from(data), (err, zipped) => {
 
                 expect(err).to.not.exist();
 

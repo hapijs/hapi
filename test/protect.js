@@ -1,21 +1,16 @@
 'use strict';
 
-// Load modules
-
 const Events = require('events');
 const Domain = require('domain');
+
 const Code = require('code');
 const Hapi = require('..');
-const Hoek = require('hoek');
+const Hoek = require('@commercial/hoek');
 const Lab = require('lab');
 
 
-// Declare internals
-
 const internals = {};
 
-
-// Test shortcuts
 
 const lab = exports.lab = Lab.script();
 const describe = lab.describe;

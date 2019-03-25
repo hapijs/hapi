@@ -1,28 +1,24 @@
 'use strict';
 
-// Load modules
-
 const Path = require('path');
 const Zlib = require('zlib');
-const Boom = require('boom');
-const CatboxMemory = require('catbox-memory');
+
+const Boom = require('@commercial/boom');
+const CatboxMemory = require('@commercial/catbox-memory');
 const Code = require('code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
-const Hoek = require('hoek');
+const Hoek = require('@commercial/hoek');
 const Inert = require('inert');
 const Lab = require('lab');
 const Vision = require('vision');
-const Wreck = require('wreck');
+const Wreck = require('@commercial/wreck');
+
 const Pkg = require('../package.json');
 
 
-// Declare internals
-
 const internals = {};
 
-
-// Test shortcuts
 
 const lab = exports.lab = Lab.script();
 const describe = lab.describe;
@@ -2191,7 +2187,7 @@ describe('Plugin', () => {
                 server.select('a').inject('/', (res1) => {
 
                     expect(res1.statusCode).to.equal(401);
-                    server.select('a').inject({ method: 'GET', url: '/', headers: { authorization: 'Basic ' + (new Buffer('john:12345', 'utf8')).toString('base64') } }, (res2) => {
+                    server.select('a').inject({ method: 'GET', url: '/', headers: { authorization: 'Basic ' + (Buffer.from('john:12345', 'utf8')).toString('base64') } }, (res2) => {
 
                         expect(res2.statusCode).to.equal(200);
                         expect(res2.result).to.equal('authenticated!');
@@ -3508,7 +3504,7 @@ describe('Plugin', () => {
 
                 const uri = 'http://localhost:' + server.info.port;
 
-                Zlib.gzip(new Buffer(data), (err, zipped) => {
+                Zlib.gzip(Buffer.from(data), (err, zipped) => {
 
                     expect(err).to.not.exist();
 
@@ -5157,7 +5153,7 @@ internals.plugins = {
                         return reply(Boom.badRequest('Bad HTTP authentication header format', 'Basic'));
                     }
 
-                    const credentialsParts = new Buffer(parts[1], 'base64').toString().split(':');
+                    const credentialsParts = Buffer.from(parts[1], 'base64').toString().split(':');
                     if (credentialsParts.length !== 2) {
                         return reply(Boom.badRequest('Bad header internal syntax', 'Basic'));
                     }

@@ -1,7 +1,5 @@
 'use strict';
 
-// Load modules
-
 const ChildProcess = require('child_process');
 const Fs = require('fs');
 const Http = require('http');
@@ -9,25 +7,22 @@ const Https = require('https');
 const Net = require('net');
 const Os = require('os');
 const Path = require('path');
-const Boom = require('boom');
-const Code = require('code');
-const Handlebars = require('handlebars');
-const Hapi = require('..');
-const Hoek = require('hoek');
-const Inert = require('inert');
-const Lab = require('lab');
-const Vision = require('vision');
-const Wreck = require('wreck');
 const Stream = require('stream');
 const TLS = require('tls');
 
+const Boom = require('@commercial/boom');
+const Code = require('code');
+const Handlebars = require('handlebars');
+const Hapi = require('..');
+const Hoek = require('@commercial/hoek');
+const Inert = require('inert');
+const Lab = require('lab');
+const Vision = require('vision');
+const Wreck = require('@commercial/wreck');
 
-// Declare internals
 
 const internals = {};
 
-
-// Test shortcuts
 
 const lab = exports.lab = Lab.script();
 const describe = lab.describe;

@@ -1,17 +1,13 @@
 'use strict';
 
-// Load modules
-
 const Code = require('code');
 const Lab = require('lab');
+
 const Promises = require('../lib/promises');
 
-// Declare internals
 
 const internals = {};
 
-
-// Test shortcuts
 
 const lab = exports.lab = Lab.script();
 const describe = lab.describe;

@@ -1,19 +1,13 @@
 'use strict';
 
-// Load modules
-
-const CatboxMemory = require('catbox-memory');
+const CatboxMemory = require('@commercial/catbox-memory');
 const Code = require('code');
 const Hapi = require('..');
 const Lab = require('lab');
 
 
-// Declare internals
-
 const internals = {};
 
-
-// Test shortcuts
 
 const lab = exports.lab = Lab.script();
 const describe = lab.describe;
