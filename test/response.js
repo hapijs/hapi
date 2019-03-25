@@ -842,7 +842,7 @@ describe('Response', () => {
             server.connection({ routes: { files: { relativeTo: Path.join(__dirname, '../') } } });
             const handler = function (request, reply) {
 
-                return reply.file('./LICENSE').type('application/example');
+                return reply.file('./LICENSE.md').type('application/example');
             };
 
             server.route({ method: 'GET', path: '/file', handler });
