@@ -11,11 +11,12 @@ moment. There are typically one to three major releases each year and most are s
 
 ## Current versions
 
-As we transition to this new policy, the currently supported versions are:
-- `v17.x.x` - under active support. Once `v18.0.0` is published, will receive at least 3 months of
-  maintenance support until at least June 1st, 2019.
-- `v16.x.x` - under maintenance support until March 1st, 2019. Extended paid support options will
-  be available and announced by January 2019.
+- `v18.x.x` - under active support. Maintenance support until at least January 18th, 2020.
+- `v17.x.x` - under maintenance support until August 1st, 2019.
+- `v16.x.x` - under maintenance support until March 31st, 2019.
+
+Extended paid support options is available for v16, v17, and v18 by contacting
+[sales@sideway.com](mailto:sales.sideway.com).
 
 ## Latest version
 
@@ -57,5 +58,4 @@ the `v10.0.0` release).
 When a version is no longer supported, it will be marked as `deprecated` in the npm registry. You
 may continue using it at your own risk, ignoring the warning messages.
 
-Starting in January 2019, companies will have the option of purchasing a license that will extend
-the supported period of older versions. More details coming soon.
+Starting with v16, you may obtain extended paid support by contacting [sales@sideway.com](mailto:sales.sideway.com).
