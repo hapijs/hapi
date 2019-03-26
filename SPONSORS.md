@@ -13,53 +13,63 @@
 - CodePilot.ai
 - Condé Nast Technology
 - Contentful
+- Creative Artists Agency
 - Dave Hyndman
 - David Roncancio
 - Dmitry Savinkov
 - Elba Sánchez Márquez
 - Eric Lanehart
 - [gitconnected](https://gitconnected.com)
-- Greg Allen
+- Greg Allen / First + Third
 - Healthline Media
 - Jeremy Whitbred
 - John Brett
 - Julian Lannigan
 - Lob
 - Louis Beltramo
+- Luke Bond
 - Mahesh Babu R
 - Manny Pamintuan
 - Max Fierro
 - Nicklas Laine Overgaard
 - NZZ Visuals
+- Oakley Hall
 - Paulo Vieira
 - Peter Ka
 - [quickytools](https://www.quickytools.com)
 - Raffi Minassian
 - Raquel Hernandez
+- Robert McGuinness
 - Saul Maddox
 - Shane Warren
 - Srikanth Minnam
 - Sven Lito
 - Tim Boudreau
+- Trey Huffine
 - Umut Şirin
 - Yehor Sergeenko
 
 # Supporters
 
+- Adam Recvlohe
 - Adilson Schmitt Junior
+- Alexander Springer
 - Andreas Zeuch
+- Checkly
 - Chris St
+- Daniel Cassidy
 - Dave Stevens
+- Domenic Denicola
 - Essau Ramirez
 - Finnegan
 - Geraint Corneu
-- Luke Bond
 - Marcos Bérgamo
+- Marie Clemenssy
 - Nathan Buchar
-- Oakley Hall
+- Nathan Heskew
 - PIer Bover
-- Robert McGuinness
 - Robin van der Vleuten
 - Sheridan Tighe
 - Troy Whiteley
 - Viswanadha Pratap Kondoju
+- Wouter De Loose
