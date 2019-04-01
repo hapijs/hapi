@@ -35,6 +35,7 @@
     "topo": "3.x.x"
   },
   "devDependencies": {
+    "bourne": "1.x.x",
     "code": "5.x.x",
     "handlebars": "4.x.x",
     "inert": "5.x.x",
