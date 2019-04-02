@@ -9,17 +9,17 @@ const Os = require('os');
 const Path = require('path');
 const TLS = require('tls');
 
-const Boom = require('boom');
-const Bounce = require('bounce');
-const CatboxMemory = require('catbox-memory');
-const Code = require('code');
+const Boom = require('@hapi/boom');
+const Bounce = require('@hapi/bounce');
+const CatboxMemory = require('@hapi/catbox-memory');
+const Code = require('@hapi/code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
-const Hoek = require('hoek');
+const Hoek = require('@hapi/hoek');
 const Inert = require('inert');
-const Lab = require('lab');
+const Lab = require('@hapi/lab');
 const Vision = require('vision');
-const Wreck = require('wreck');
+const Wreck = require('@hapi/wreck');
 
 
 const internals = {};

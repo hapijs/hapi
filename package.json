@@ -1,51 +1,43 @@
 {
-  "name": "hapi",
+  "name": "@hapi/hapi",
   "description": "HTTP Server framework",
   "homepage": "https://hapijs.com",
   "version": "18.1.0",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/hapijs/hapi"
-  },
+  "repository": "git://github.com/hapijs/hapi",
   "main": "lib/index.js",
-  "keywords": [
-    "framework",
-    "http",
-    "api",
-    "web"
-  ],
+  "keywords": ["framework", "http", "api", "web"],
   "dependencies": {
-    "accept": "3.x.x",
-    "ammo": "3.x.x",
-    "boom": "7.x.x",
-    "bounce": "1.x.x",
-    "call": "5.x.x",
-    "catbox": "10.x.x",
-    "catbox-memory": "4.x.x",
-    "heavy": "6.x.x",
-    "hoek": "6.x.x",
-    "joi": "14.x.x",
-    "mimos": "4.x.x",
-    "podium": "3.x.x",
-    "shot": "4.x.x",
-    "somever": "2.x.x",
-    "statehood": "6.x.x",
-    "subtext": "6.x.x",
-    "teamwork": "3.x.x",
-    "topo": "3.x.x"
+    "@hapi/accept": "3.x.x",
+    "@hapi/ammo": "3.x.x",
+    "@hapi/boom": "7.x.x",
+    "@hapi/bounce": "1.x.x",
+    "@hapi/call": "5.x.x",
+    "@hapi/catbox": "10.x.x",
+    "@hapi/catbox-memory": "4.x.x",
+    "@hapi/heavy": "6.x.x",
+    "@hapi/hoek": "6.x.x",
+    "@hapi/joi": "15.x.x",
+    "@hapi/mimos": "4.x.x",
+    "@hapi/podium": "3.x.x",
+    "@hapi/shot": "4.x.x",
+    "@hapi/somever": "2.x.x",
+    "@hapi/statehood": "6.x.x",
+    "@hapi/subtext": "6.x.x",
+    "@hapi/teamwork": "3.x.x",
+    "@hapi/topo": "3.x.x"
   },
   "devDependencies": {
-    "code": "5.x.x",
-    "handlebars": "4.x.x",
+    "@hapi/code": "5.x.x",
+    "@hapi/lab": "18.x.x",
+    "@hapi/wreck": "15.x.x",
     "inert": "5.x.x",
-    "lab": "18.x.x",
     "vision": "5.x.x",
-    "wreck": "14.x.x"
+    "handlebars": "4.x.x"
   },
   "scripts": {
-    "test": "lab -a code -t 100 -L -m 3000",
-    "test-tap": "lab -a code -r tap -o tests.tap -m 3000",
-    "test-cov-html": "lab -a code -r html -o coverage.html -m 3000"
+    "test": "lab -a @hapi/code -t 100 -L -m 3000",
+    "test-tap": "lab -a @hapi/code -r tap -o tests.tap -m 3000",
+    "test-cov-html": "lab -a @hapi/code -r html -o coverage.html -m 3000"
   },
   "license": "BSD-3-Clause"
 }

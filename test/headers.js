@@ -1,12 +1,12 @@
 'use strict';
 
-const Boom = require('boom');
-const CatboxMemory = require('catbox-memory');
-const Code = require('code');
+const Boom = require('@hapi/boom');
+const CatboxMemory = require('@hapi/catbox-memory');
+const Code = require('@hapi/code');
 const Hapi = require('..');
 const Inert = require('inert');
-const Lab = require('lab');
-const Wreck = require('wreck');
+const Lab = require('@hapi/lab');
+const Wreck = require('@hapi/wreck');
 
 
 const internals = {};

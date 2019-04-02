@@ -1,8 +1,8 @@
 'use strict';
 
-const Code = require('code');
+const Code = require('@hapi/code');
 const Hapi = require('..');
-const Lab = require('lab');
+const Lab = require('@hapi/lab');
 
 
 const internals = {};

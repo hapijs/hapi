@@ -3,12 +3,12 @@
 const Path = require('path');
 const Stream = require('stream');
 
-const Code = require('code');
+const Code = require('@hapi/code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
 const Inert = require('inert');
-const Lab = require('lab');
-const Teamwork = require('teamwork');
+const Lab = require('@hapi/lab');
+const Teamwork = require('@hapi/teamwork');
 const Vision = require('vision');
 
 
