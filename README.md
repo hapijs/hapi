@@ -2,8 +2,6 @@
 
 ### Web and services application framework
 
-Lead Maintainer: [Eran Hammer](https://github.com/hueniverse)
-
 Enterprise support plans and commercial licensing are available. Please check the
 [Version Support Schedule](https://github.com/hapijs/hapi/blob/master/SUPPORT.md) for more information.
 
