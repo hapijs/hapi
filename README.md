@@ -1,3 +1,5 @@
+<img src="https://github.com/hapijs/assets/blob/master/images/hapi.png" width="400px" />
+
 ### Web and services application framework
 
 Lead Maintainer: [Eran Hammer](https://github.com/hueniverse)
