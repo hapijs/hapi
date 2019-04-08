@@ -1,6 +1,6 @@
-# **hapi** core module LTS support policy
+# **hapi** core modules support policy
 
-The hapi code module is published under the following support rules:
+The hapi code module and its dependencies are published under the following support rules:
 
 TL;DR
 
@@ -8,15 +8,15 @@ Every **major** version of the [core module](https://github.com/hapijs/hapi) rec
 year of support from the time of publication of the first `x.0.0` release. When a new **major**
 version is published, the previous **major** version gets at least 3 months of support from that
 moment. There are typically one to three major releases each year and most are simple to upgrade.
+Core dependecies are maintained as long as they are used by a supported core version.
 
 ## Current versions
 
 - `v18.x.x` - under active support. Maintenance support until at least January 18th, 2020.
 - `v17.x.x` - under maintenance support until August 1st, 2019.
-- `v16.x.x` - under maintenance support until March 31st, 2019.
 
 Extended paid support options is available for v16, v17, and v18 by contacting
-[sales@sideway.com](mailto:sales.sideway.com).
+[sales@sideway.com](mailto:sales.sideway.com). For more information visit [hapi.business](http://hapi.business).
 
 ## Latest version
 
