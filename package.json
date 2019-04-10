@@ -33,10 +33,10 @@
   },
   "devDependencies": {
     "@hapi/code": "5.x.x",
+    "@hapi/inert": "5.x.x",
     "@hapi/lab": "18.x.x",
     "@hapi/wreck": "15.x.x",
-    "inert": "5.x.x",
-    "vision": "5.x.x",
+    "@hapi/vision": "5.x.x",
     "handlebars": "4.x.x"
   },
   "scripts": {

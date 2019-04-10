@@ -16,9 +16,9 @@ const Code = require('@hapi/code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
 const Hoek = require('@hapi/hoek');
-const Inert = require('inert');
+const Inert = require('@hapi/inert');
 const Lab = require('@hapi/lab');
-const Vision = require('vision');
+const Vision = require('@hapi/vision');
 const Wreck = require('@hapi/wreck');
 
 

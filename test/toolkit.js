@@ -6,10 +6,10 @@ const Stream = require('stream');
 const Code = require('@hapi/code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
-const Inert = require('inert');
+const Inert = require('@hapi/inert');
 const Lab = require('@hapi/lab');
 const Teamwork = require('@hapi/teamwork');
-const Vision = require('vision');
+const Vision = require('@hapi/vision');
 
 
 const internals = {};
