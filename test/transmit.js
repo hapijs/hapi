@@ -1,7 +1,5 @@
 'use strict';
 
-// Load modules
-
 const ChildProcess = require('child_process');
 const Fs = require('fs');
 const Http = require('http');
@@ -9,23 +7,19 @@ const Path = require('path');
 const Stream = require('stream');
 const Zlib = require('zlib');
 
-const Boom = require('boom');
-const Bounce = require('bounce');
-const Code = require('code');
+const Boom = require('@hapi/boom');
+const Bounce = require('@hapi/bounce');
+const Code = require('@hapi/code');
 const Hapi = require('..');
-const Hoek = require('hoek');
+const Hoek = require('@hapi/hoek');
 const Inert = require('inert');
-const Lab = require('lab');
-const Teamwork = require('teamwork');
-const Wreck = require('wreck');
+const Lab = require('@hapi/lab');
+const Teamwork = require('@hapi/teamwork');
+const Wreck = require('@hapi/wreck');
 
-
-// Declare internals
 
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;

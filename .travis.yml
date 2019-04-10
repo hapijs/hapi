@@ -10,3 +10,8 @@ sudo: false
 
 install:
   - "npm install"
+
+os:
+  - "linux"
+  - "osx"
+  - "windows"

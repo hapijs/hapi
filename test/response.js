@@ -1,29 +1,23 @@
 'use strict';
 
-// Load modules
-
 const Events = require('events');
 const Http = require('http');
 const Path = require('path');
 const Stream = require('stream');
 
-const Code = require('code');
+const Code = require('@hapi/code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
-const Hoek = require('hoek');
+const Hoek = require('@hapi/hoek');
 const Inert = require('inert');
-const Lab = require('lab');
-const Vision = require('vision');
+const Lab = require('@hapi/lab');
+const Vision = require('@hapi/vision');
 
 const Response = require('../lib/response');
 
 
-// Declare internals
-
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
@@ -779,7 +773,7 @@ describe('Response', () => {
             await server.register(Inert);
             const handler = (request, h) => {
 
-                return h.file('./LICENSE').type('application/example');
+                return h.file('./LICENSE.md').type('application/example');
             };
 
             server.route({ method: 'GET', path: '/file', handler });

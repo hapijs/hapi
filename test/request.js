@@ -1,27 +1,21 @@
 'use strict';
 
-// Load modules
-
 const Http = require('http');
 const Net = require('net');
 const Stream = require('stream');
 const Url = require('url');
 
-const Boom = require('boom');
-const Code = require('code');
+const Boom = require('@hapi/boom');
+const Code = require('@hapi/code');
 const Hapi = require('..');
-const Hoek = require('hoek');
-const Lab = require('lab');
-const Teamwork = require('teamwork');
-const Wreck = require('wreck');
+const Hoek = require('@hapi/hoek');
+const Lab = require('@hapi/lab');
+const Teamwork = require('@hapi/teamwork');
+const Wreck = require('@hapi/wreck');
 
-
-// Declare internals
 
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;

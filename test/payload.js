@@ -1,25 +1,19 @@
 'use strict';
 
-// Load modules
-
 const Fs = require('fs');
 const Http = require('http');
 const Path = require('path');
 const Zlib = require('zlib');
 
-const Code = require('code');
+const Code = require('@hapi/code');
 const Hapi = require('..');
-const Hoek = require('hoek');
-const Lab = require('lab');
-const Wreck = require('wreck');
+const Hoek = require('@hapi/hoek');
+const Lab = require('@hapi/lab');
+const Wreck = require('@hapi/wreck');
 
-
-// Declare internals
 
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;

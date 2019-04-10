@@ -1,21 +1,15 @@
 'use strict';
 
-// Load modules
-
-const Boom = require('boom');
-const CatboxMemory = require('catbox-memory');
-const Code = require('code');
+const Boom = require('@hapi/boom');
+const CatboxMemory = require('@hapi/catbox-memory');
+const Code = require('@hapi/code');
 const Hapi = require('..');
 const Inert = require('inert');
-const Lab = require('lab');
+const Lab = require('@hapi/lab');
 
-
-// Declare internals
 
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
