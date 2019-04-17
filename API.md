@@ -2837,8 +2837,14 @@ connections will continue until closed or timeout), where:
 
 - `options` - (optional) object with:
 
-    - `timeout` - overrides the timeout in millisecond before forcefully terminating a connection.
-      Defaults to `5000` (5 seconds).
+    - `timeout` - sets the timeout in millisecond before forcefully terminating any open
+      connections that arrived before the server stopped accepting new connections. The timeout
+      only applies to waiting for existing connections to close, and not to any
+      [`'onPreStop'` or `'onPostStop'` server extensions](#server.ext.args()) which can
+      delay or block the stop operation indefinitely. Ignored if
+      [`server.options.operations.cleanStop`](#server.options.operations) is `false`. Note that if
+      the server is set as a [group controller](#server.control()), the timeout is per controlled
+      server and the controlling server itself. Defaults to `5000` (5 seconds).
 
 Return value: none.
 
