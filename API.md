@@ -16,6 +16,7 @@
     - [`server.options.listener`](#server.options.listener)
     - [`server.options.load`](#server.options.load)
     - [`server.options.mime`](#server.options.mime)
+    - [`server.options.operations`](#server.options.operations)
     - [`server.options.plugins`](#server.options.plugins)
     - [`server.options.port`](#server.options.port)
     - [`server.options.query`](#server.options.query)
@@ -487,6 +488,19 @@ const options = {
     }
 };
 ```
+
+#### <a name="server.options.operations" /> `server.options.operations`
+
+Default value: `{ cleanStop: true }`.
+
+Defines server handling of server operations:
+
+- `cleanStop` - if `true`, the server keeps track of open connections and properly closes them
+  when the server is stopped. Under normal load, this should not interfere with server performance.
+  However, under severe load connection monitoring can consume additional resources and aggravate
+  the situation. If the server is never stopped, or if it is forced to stop without waiting for
+  open connection to close, setting this to `false` can save resources that are not being utilized
+  anyway. Defaults to `true`.
 
 #### <a name="server.options.plugins" /> `server.options.plugins`
 
