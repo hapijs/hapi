@@ -2,10 +2,15 @@
   "name": "@hapi/hapi",
   "description": "HTTP Server framework",
   "homepage": "https://hapijs.com",
-  "version": "18.2.0",
+  "version": "18.3.0",
   "repository": "git://github.com/hapijs/hapi",
   "main": "lib/index.js",
-  "keywords": ["framework", "http", "api", "web"],
+  "keywords": [
+    "framework",
+    "http",
+    "api",
+    "web"
+  ],
   "dependencies": {
     "@hapi/accept": "3.x.x",
     "@hapi/ammo": "3.x.x",
