@@ -552,6 +552,20 @@ describe('Core', () => {
             await expect(server.stop()).to.reject('failed cleanup');
         });
 
+        it('returns an extension timeout (onPreStop)', async () => {
+
+            const server = Hapi.server();
+            const preStop = function (srv) {
+
+                return Hoek.block();
+            };
+
+            server.ext('onPreStop', preStop, { timeout: 100 });
+
+            await server.start();
+            await expect(server.stop()).to.reject('onPreStop timed out');
+        });
+
         it('errors when stopping a stopping server', async () => {
 
             const server = Hapi.server();

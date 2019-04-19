@@ -1,4 +1,4 @@
-# v18.1.x API Reference
+# v18.3.x API Reference
 
 <!-- toc -->
 
@@ -2022,6 +2022,9 @@ points where:
           the extension is only added to routes defined by the current plugin. Not allowed when
           configuring route-level extensions, or when adding server extensions. Defaults to
           `'server'` which applies to any route added to the server the extension is added to.
+
+        - `timeout` - number of milliseconds to wait for the `method` to complete before returning
+          a timeout error. Defaults to no timeout.
 
 Return value: none.
 

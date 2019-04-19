@@ -300,6 +300,26 @@ describe('Request', () => {
             expect(res.result.statusCode).to.equal(500);
         });
 
+        it('returns error response on ext timeout', async () => {
+
+            const server = Hapi.server();
+
+            const log = server.events.once('response');
+            const ext = (request) => {
+
+                return Hoek.block();
+            };
+
+            server.ext('onPostHandler', ext, { timeout: 100 });
+            server.route({ method: 'GET', path: '/', handler: () => 'OK' });
+
+            const res = await server.inject('/');
+            expect(res.result.statusCode).to.equal(500);
+
+            const [request] = await log;
+            expect(request.response._error).to.be.an.error('onPostHandler timed out');
+        });
+
         it('handles aborted requests (during response)', async () => {
 
             const handler = (request) => {
