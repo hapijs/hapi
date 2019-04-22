@@ -1,5 +1,5 @@
 {
-  "name": "@hapi/hapi",
+  "name": "@commercial/hapi",
   "description": "HTTP Server framework",
   "homepage": "https://hapijs.com",
   "version": "18.3.1",
