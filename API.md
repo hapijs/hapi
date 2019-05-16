@@ -1140,7 +1140,7 @@ where each key is the cookie name and value is the configuration object.
 
 Access: read only.
 
-An array containing the names of all configued cookies.
+An array containing the names of all configured cookies.
 
 #### <a name="server.type" /> `server.type`
 
@@ -2820,7 +2820,7 @@ where:
 Return value: a header string.
 
 Note that this utility uses the server configuration but does not change the server state. It is
-provided for manual cookie formating (e.g. when headers are set manually).
+provided for manual cookie formatting (e.g. when headers are set manually).
 
 ### <a name="server.states.parse()" /> `await server.states.parse(header)`
 
@@ -3092,7 +3092,7 @@ The route handler function performs the main business logic of the route and set
 
 - a [lifecycle method](#lifecycle-methods).
 
-- an object with a single property using the name of a handler type registred with the
+- an object with a single property using the name of a handler type registered with the
   [`server.decorate()`](#server.decorate()) method. The matching property value is passed
   as options to the registered handler generator.
 
@@ -3925,7 +3925,7 @@ The return value must be one of:
       (auth scheme only).
 - a promise object that resolve to any of the above values
 
-Any error thrown by a lifecycle method will be used as the reponse object. While errors and valid
+Any error thrown by a lifecycle method will be used as the response object. While errors and valid
 values can be returned, it is recommended to throw errors. Throwing non-error values will generate
 a Bad Implementation (500) error response.
 
@@ -3946,7 +3946,7 @@ via [`h.context`](#h.context).
 
 #### Lifecycle workflow
 
-The flow between each lifecyle step depends on the value returned by each lifecycle method as
+The flow between each lifecycle step depends on the value returned by each lifecycle method as
 follows:
 
 - an error:
@@ -4197,7 +4197,7 @@ Sets the response 'ETag' and 'Last-Modified' headers and checks for any conditio
 to decide if the response is going to qualify for an HTTP 304 (Not Modified). If the entity values
 match the request conditions, `h.entity()` returns a response object for the lifecycle method to
 return as its value which will set a 304 response. Otherwise, it sets the provided entity headers
-and returns `undefined`. The method argumetns are:
+and returns `undefined`. The method arguments are:
 
 - `options` - a required configuration object with:
     - `etag` - the ETag string. Required if `modified` is not present. Defaults to no header.
@@ -4958,7 +4958,7 @@ The parsed request URI.
 
 Returns a [`response`](#response-object) which you can pass into the [reply interface](#response-toolkit) where:
 - `source` - the value to set as the source of the [reply interface](#response-toolkit), optional.
-- `options` - optional object with the following optioal properties:
+- `options` - optional object with the following optional properties:
     - `variety` - a sting name of the response type (e.g. `'file'`).
     - `prepare` - a function with the signature `async function(response)` used to prepare the
       response after it is returned by a [lifecycle method](#lifecycle-methods) such as setting a
