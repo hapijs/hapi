@@ -1203,21 +1203,6 @@ describe('Core', () => {
             expect(JSON.parse(res.payload)).to.equal(payload);
         });
 
-        it('returns the request object for POST', async () => {
-
-            const handler = (request) => {
-
-                return request.payload;
-            };
-
-            const server = Hapi.server();
-            server.route({ method: 'POST', path: '/', handler });
-
-            const res = await server.inject({ method: 'POST', url: '/', payload: { foo:true } });
-            expect(res.statusCode).to.equal(200);
-            expect(JSON.parse(res.payload)).to.equal({ foo:true });
-        });
-
         it('returns the request string for POST', async () => {
 
             const payload = JSON.stringify({ foo:true });
