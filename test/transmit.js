@@ -239,6 +239,28 @@ describe('transmission', () => {
             expect(res7.headers.etag).to.equal(gzipTag);
         });
 
+        it('matches etag with weak designator', async () => {
+
+            const server = Hapi.server({ compression: { minBytes: 1 } });
+            await server.register(Inert);
+            server.route({ method: 'GET', path: '/', handler: { file: __dirname + '/../package.json' } });
+
+            // Fetch etag
+
+            const res1 = await server.inject('/');
+            expect(res1.statusCode).to.equal(200);
+            expect(res1.headers.etag).to.exist();
+            expect(res1.headers.etag).to.not.contain('W/"');
+
+            const weakEtag = `W/${res1.headers.etag}`;
+
+            // Conditional request
+
+            const res2 = await server.inject({ url: '/', headers: { 'if-none-match': weakEtag } });
+            expect(res2.statusCode).to.equal(304);
+            expect(res2.headers.etag).to.equal(weakEtag);
+        });
+
         it('returns 304 when manually set to 304', async () => {
 
             const server = Hapi.server();
