@@ -3,10 +3,7 @@
   "description": "HTTP Server framework",
   "homepage": "http://hapijs.com",
   "version": "16.8.0",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/hapijs/hapi"
-  },
+  "repository": "git://github.com/hapijs/hapi",
   "main": "lib/index.js",
   "keywords": [
     "framework",
