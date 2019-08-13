@@ -13,7 +13,6 @@ Core dependecies are maintained as long as they are used by a supported core ver
 ## Current versions
 
 - `v18.x.x` - under active support. Maintenance support until at least January 18th, 2020.
-- `v17.x.x` - under maintenance support until August 1st, 2019.
 
 Extended paid support options is available for v16, v17, and v18 by contacting
 [sales@sideway.com](mailto:sales.sideway.com). For more information visit [hapi.business](http://hapi.business).
