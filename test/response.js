@@ -8,8 +8,8 @@ const Stream = require('stream');
 const Code = require('@hapi/code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
-const Hoek = require('@hapi/hoek');
-const Inert = require('inert');
+const Hoek = require('@commercial/hoek');
+const Inert = require('@hapi/inert');
 const Lab = require('@hapi/lab');
 const Vision = require('@hapi/vision');
 

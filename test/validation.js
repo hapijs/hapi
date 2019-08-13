@@ -3,7 +3,7 @@
 const Boom = require('@hapi/boom');
 const Code = require('@hapi/code');
 const Hapi = require('..');
-const Inert = require('inert');
+const Inert = require('@hapi/inert');
 const Joi = require('@hapi/joi');
 const Lab = require('@hapi/lab');
 
