@@ -766,6 +766,7 @@ describe('Core', () => {
             const socket1 = await internals.socket(server, 'tls');
             const socket2 = await internals.socket(server, 'tls');
 
+            await Hoek.wait(50);
             const count1 = await internals.countConnections(server);
             expect(count1).to.equal(2);
             expect(server._core.sockets.size).to.equal(2);
