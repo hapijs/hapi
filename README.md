@@ -1,4 +1,4 @@
-<img src="https://github.com/hapijs/assets/blob/master/images/hapi.png" width="400px" />
+<img src="https://raw.githubusercontent.com/hapijs/assets/master/images/hapi.png" width="400px" />
 
 ### Web and services application framework
 

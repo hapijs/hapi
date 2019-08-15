@@ -7,6 +7,7 @@ const Https = require('https');
 const Net = require('net');
 const Os = require('os');
 const Path = require('path');
+const Stream = require('stream');
 const TLS = require('tls');
 
 const Boom = require('@hapi/boom');
@@ -765,6 +766,7 @@ describe('Core', () => {
             const socket1 = await internals.socket(server, 'tls');
             const socket2 = await internals.socket(server, 'tls');
 
+            await Hoek.wait(50);
             const count1 = await internals.countConnections(server);
             expect(count1).to.equal(2);
             expect(server._core.sockets.size).to.equal(2);
@@ -1184,6 +1186,58 @@ describe('Core', () => {
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
             expect(res.request.app.key).to.equal('value');
+        });
+
+        it('returns the request object for POST', async () => {
+
+            const payload = { foo:true };
+            const handler = (request) => {
+
+                return request.payload;
+            };
+
+            const server = Hapi.server();
+            server.route({ method: 'POST', path: '/', handler });
+
+            const res = await server.inject({ method: 'POST', url: '/', payload });
+            expect(res.statusCode).to.equal(200);
+            expect(JSON.parse(res.payload)).to.equal(payload);
+        });
+
+        it('returns the request string for POST', async () => {
+
+            const payload = JSON.stringify({ foo:true });
+            const handler = (request) => {
+
+                return request.payload;
+            };
+
+            const server = Hapi.server();
+            server.route({ method: 'POST', path: '/', handler });
+
+            const res = await server.inject({ method: 'POST', url: '/', payload });
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal(payload);
+        });
+
+        it('returns the request stream for POST', async () => {
+
+            const param = { foo:true };
+            const payload = new Stream.Readable();
+            payload.push(JSON.stringify(param));
+            payload.push(null);
+
+            const handler = (request) => {
+
+                return request.payload;
+            };
+
+            const server = Hapi.server();
+            server.route({ method: 'POST', path: '/', handler });
+
+            const res = await server.inject({ method: 'POST', url: '/', payload });
+            expect(res.statusCode).to.equal(200);
+            expect(JSON.parse(res.payload)).to.equal(param);
         });
 
         it('can set a client remoteAddress', async () => {

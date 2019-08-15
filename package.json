@@ -20,7 +20,7 @@
     "@hapi/catbox": "10.x.x",
     "@hapi/catbox-memory": "4.x.x",
     "@hapi/heavy": "6.x.x",
-    "@hapi/hoek": "6.x.x",
+    "@hapi/hoek": "8.x.x",
     "@hapi/joi": "15.x.x",
     "@hapi/mimos": "4.x.x",
     "@hapi/podium": "3.x.x",
@@ -32,9 +32,9 @@
     "@hapi/topo": "3.x.x"
   },
   "devDependencies": {
-    "@hapi/code": "5.x.x",
+    "@hapi/code": "6.x.x",
     "@hapi/inert": "5.x.x",
-    "@hapi/lab": "18.x.x",
+    "@hapi/lab": "20.x.x",
     "@hapi/wreck": "15.x.x",
     "@hapi/vision": "5.x.x",
     "handlebars": "4.x.x"
