@@ -1759,6 +1759,34 @@ describe('Request', () => {
             expect(res.statusCode).to.equal(200);
         });
 
+        it('creates null response when request is aborted while draining payload', async () => {
+
+            const server = Hapi.server({ routes: { timeout: { server: false } } });
+            await server.start();
+
+            const log = server.events.once('response');
+            const ready = new Promise((resolve) => {
+
+                server.ext('onRequest', (request, h) => {
+
+                    resolve();
+                    return h.continue;
+                });
+            });
+
+            const req = Http.request('http://localhost:' + server.info.port, { headers: { 'content-length': 42 } });
+            req.on('error', Hoek.ignore);
+            req.flushHeaders();
+
+            await ready;
+            req.abort();
+            const [request] = await log;
+
+            expect(request.response).to.equal(null);
+
+            await server.stop({ timeout: 1 });
+        });
+
         it('does not return an error when server is responding when the timeout occurs', async () => {
 
             let ended = false;
