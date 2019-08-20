@@ -1774,7 +1774,12 @@ describe('Request', () => {
                 });
             });
 
-            const req = Http.request('http://localhost:' + server.info.port, { headers: { 'content-length': 42 } });
+            const req = Http.request({
+                hostname: 'localhost',
+                port: server.info.port,
+                method: 'GET',
+                headers: { 'content-length': 42 }
+            });
             req.on('error', Hoek.ignore);
             req.flushHeaders();
 
