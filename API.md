@@ -161,6 +161,7 @@
     - [`route.options.validate.params`](#route.options.validate.params)
     - [`route.options.validate.payload`](#route.options.validate.payload)
     - [`route.options.validate.query`](#route.options.validate.query)
+    - [`route.options.validate.state`](#route.options.validate.state)
 - [Request lifecycle](#request-lifecycle)
   - [Lifecycle methods](#lifecycle-methods)
     - [Lifecycle workflow](#lifecycle-workflow)
