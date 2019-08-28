@@ -2,6 +2,7 @@
 
 - Alexander Alimovs
 - Alvin Lumowa
+- Andreas Zeuch
 - Andres Garcia / Florence Healthcare
 - Auth0
 - Benjamin Flesch / StriveWire
@@ -19,6 +20,7 @@
 - Dmitry Savinkov
 - Elba Sánchez Márquez
 - Eric Lanehart
+- Fabian Gündel / DataWrapper.de
 - [gitconnected](https://gitconnected.com)
 - Greg Allen / First + Third
 - Healthline Media
@@ -30,6 +32,7 @@
 - Luke Bond
 - Mahesh Babu R
 - Manny Pamintuan
+- Marie Clemenssy
 - Max Fierro
 - Nicklas Laine Overgaard
 - NZZ Visuals
@@ -40,13 +43,16 @@
 - Raffi Minassian
 - Raquel Hernandez
 - Robert McGuinness
+- Rocky Jaiswal
 - Saul Maddox
+- Seth Holladay
 - Shane Warren
 - Srikanth Minnam
 - Sven Lito
 - Tim Boudreau
 - Trey Huffine
 - Umut Şirin
+- Viswanadha Pratap Kondoju
 - Yehor Sergeenko
 
 # Supporters
@@ -54,7 +60,7 @@
 - Adam Recvlohe
 - Adilson Schmitt Junior
 - Alexander Springer
-- Andreas Zeuch
+- Amit Lahav
 - Checkly
 - Chris St
 - Daniel Cassidy
@@ -64,12 +70,10 @@
 - Finnegan
 - Geraint Corneu
 - Marcos Bérgamo
-- Marie Clemenssy
 - Nathan Buchar
 - Nathan Heskew
 - PIer Bover
 - Robin van der Vleuten
 - Sheridan Tighe
 - Troy Whiteley
-- Viswanadha Pratap Kondoju
 - Wouter De Loose
