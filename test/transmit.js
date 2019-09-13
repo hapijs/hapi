@@ -27,6 +27,33 @@ const expect = Code.expect;
 
 describe('transmission', () => {
 
+    describe('send()', () => {
+
+        it('handlers invalid headers in error', async () => {
+
+            const server = Hapi.server();
+
+            const handler = (request, h) => {
+
+                const error = Boom.badRequest();
+                error.output.headers.invalid = '\u1000';
+                throw error;
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+        });
+
+        it('handles invalid headers in redirect', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request, h) => h.redirect('/bad/path/\n') });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+        });
+    });
+
     describe('marshal()', () => {
 
         it('returns valid http date responses in last-modified header', async () => {
