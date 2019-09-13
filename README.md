@@ -4,4 +4,4 @@
 
 Build powerful, scalable applications, with minimal overhead and full out-of-the-box functionality - your code, your way.
 
-## Visit the [hapi.dev](https://hapi.dev) Developer Portal for tutorials, documentation, and support
+### Visit the [hapi.dev](https://hapi.dev) Developer Portal for tutorials, documentation, and support
