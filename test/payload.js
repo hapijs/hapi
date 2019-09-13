@@ -110,16 +110,49 @@ describe('Payload', () => {
 
         const payload = '{"x":"1","y":"2","z":"3"}';
 
-        const handler = (request) => {
-
-            expect(request.payload.toString()).to.equal(payload);
-            return request.payload;
-        };
-
         const server = Hapi.server();
-        server.route({ method: 'POST', path: '/', options: { handler, payload: { maxBytes: 10 } } });
+        server.route({ method: 'POST', path: '/', options: { handler: () => null, payload: { maxBytes: 10 } } });
 
         const res = await server.inject({ method: 'POST', url: '/', payload, headers: { 'content-length': payload.length } });
+        expect(res.statusCode).to.equal(413);
+        expect(res.result).to.exist();
+        expect(res.result.message).to.equal('Payload content length greater than maximum allowed: 10');
+    });
+
+    it('errors when payload too big (implicit length)', async () => {
+
+        const payload = '{"x":"1","y":"2","z":"3"}';
+
+        const server = Hapi.server();
+        server.route({ method: 'POST', path: '/', options: { handler: () => null, payload: { maxBytes: 10 } } });
+
+        const res = await server.inject({ method: 'POST', url: '/', payload });
+        expect(res.statusCode).to.equal(413);
+        expect(res.result).to.exist();
+        expect(res.result.message).to.equal('Payload content length greater than maximum allowed: 10');
+    });
+
+    it('errors when payload too big (file)', async () => {
+
+        const payload = '{"x":"1","y":"2","z":"3"}';
+
+        const server = Hapi.server();
+        server.route({ method: 'POST', path: '/', options: { handler: () => null, payload: { output: 'file', maxBytes: 10 } } });
+
+        const res = await server.inject({ method: 'POST', url: '/', payload, headers: { 'content-length': payload.length } });
+        expect(res.statusCode).to.equal(413);
+        expect(res.result).to.exist();
+        expect(res.result.message).to.equal('Payload content length greater than maximum allowed: 10');
+    });
+
+    it('errors when payload too big (file implicit length)', async () => {
+
+        const payload = '{"x":"1","y":"2","z":"3"}';
+
+        const server = Hapi.server();
+        server.route({ method: 'POST', path: '/', options: { handler: () => null, payload: { output: 'file', maxBytes: 10 } } });
+
+        const res = await server.inject({ method: 'POST', url: '/', payload });
         expect(res.statusCode).to.equal(413);
         expect(res.result).to.exist();
         expect(res.result.message).to.equal('Payload content length greater than maximum allowed: 10');
