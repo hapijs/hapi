@@ -1291,6 +1291,31 @@ describe('Response', () => {
             expect(output).to.equal('1234567890!');
         });
 
+        it('peeks into the response stream (finish only)', async () => {
+
+            const server = Hapi.server();
+
+            let output = false;
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: (request, h) => {
+
+                    const response = h.response('1234567890');
+
+                    response.events.once('finish', () => {
+
+                        output = true;
+                    });
+
+                    return response;
+                }
+            });
+
+            await server.inject('/');
+            expect(output).to.be.true();
+        });
+
         it('peeks into the response stream (empty)', async () => {
 
             const server = Hapi.server();
