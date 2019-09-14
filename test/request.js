@@ -1759,6 +1759,103 @@ describe('Request', () => {
             expect(res.statusCode).to.equal(200);
         });
 
+        it('creates null response when request is aborted while draining payload', async () => {
+
+            const server = Hapi.server({ routes: { timeout: { server: false } } });
+            await server.start();
+
+            const log = server.events.once('response');
+            const ready = new Promise((resolve) => {
+
+                server.ext('onRequest', (request, h) => {
+
+                    resolve();
+                    return h.continue;
+                });
+            });
+
+            const req = Http.request({
+                hostname: 'localhost',
+                port: server.info.port,
+                method: 'GET',
+                headers: { 'content-length': 42 }
+            });
+            req.on('error', Hoek.ignore);
+            req.flushHeaders();
+
+            await ready;
+            req.abort();
+            const [request] = await log;
+
+            expect(request.response).to.equal(null);
+
+            await server.stop({ timeout: 1 });
+        });
+
+        it('returns an unlogged bad request error when parser fails before request is setup', async () => {
+
+            const server = Hapi.server({ routes: { timeout: { server: false } } });
+            await server.start();
+
+            let responseCount = 0;
+            server.events.on('response', () => {
+
+                responseCount += 1;
+            });
+
+            const client = Net.connect(server.info.port);
+            const clientEnded = new Promise((resolve, reject) => {
+
+                let response = '';
+                client.on('data', (chunk) => {
+
+                    response = response + chunk.toString();
+                });
+
+                client.on('end', () => resolve(response));
+                client.on('error', reject);
+            });
+
+            await new Promise((resolve) => client.on('connect', resolve));
+            client.write('hello\n\r');
+
+            const clientResponse = await clientEnded;
+            expect(clientResponse).to.contain('400 Bad Request');
+            expect(responseCount).to.equal(0);
+
+            await server.stop({ timeout: 1 });
+        });
+
+        it('returns a logged bad request error when parser fails after request is setup', async () => {
+
+            const server = Hapi.server({ routes: { timeout: { server: false } } });
+            await server.start();
+
+            const log = server.events.once('response');
+            const client = Net.connect(server.info.port);
+            const clientEnded = new Promise((resolve, reject) => {
+
+                let response = '';
+                client.on('data', (chunk) => {
+
+                    response = response + chunk.toString();
+                });
+
+                client.on('end', () => resolve(response));
+                client.on('error', reject);
+            });
+
+            await new Promise((resolve) => client.on('connect', resolve));
+            client.write('GET / HTTP/1.1\nHost: test\nContent-Length: 0\n\n\ninvalid data');
+
+            const [request] = await log;
+            expect(request.response.statusCode).to.equal(400);
+            const clientResponse = await clientEnded;
+            expect(clientResponse).to.contain('400 Bad Request');
+
+            await server.stop({ timeout: 1 });
+        });
+
         it('does not return an error when server is responding when the timeout occurs', async () => {
 
             let ended = false;
