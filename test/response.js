@@ -729,6 +729,35 @@ describe('Response', () => {
         });
     });
 
+    describe('compressed()', () => {
+
+        it('errors on missing encoding', async () => {
+
+            const handler = (request, h) => {
+
+                return h.response('x').compressed();
+            };
+
+            const server = Hapi.server({ debug: false });
+            server.route({ method: 'GET', path: '/', handler });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+        });
+
+        it('errors on invalid encoding', async () => {
+
+            const handler = (request, h) => {
+
+                return h.response('x').compressed(123);
+            };
+
+            const server = Hapi.server({ debug: false });
+            server.route({ method: 'GET', path: '/', handler });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+        });
+    });
+
     describe('spaces()', () => {
 
         it('errors when called on wrong type', async () => {

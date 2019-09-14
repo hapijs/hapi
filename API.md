@@ -1,4 +1,4 @@
-# v18.3.x API Reference
+# v18.4.x API Reference
 
 <!-- toc -->
 
@@ -202,6 +202,7 @@
     - [`response.charset(charset)`](#response.charset())
     - [`response.code(statusCode)`](#response.code())
     - [`response.message(httpMessage)`](#response.message())
+    - [`response.compressed(encoding)`](#response.compressed())
     - [`response.created(uri)`](#response.created())
     - [`response.encoding(encoding)`](#response.encoding())
     - [`response.etag(tag, options)`](#response.etag())
@@ -4499,6 +4500,16 @@ Sets the HTTP status message where:
 - `httpMessage` - the HTTP status message (e.g. 'Ok' for status code 200).
 
 Return value: the current response object.
+
+#### <a name="response.compressed()" /> `response.compressed(encoding)`
+
+Sets the HTTP 'content-encoding' header where:
+
+- `encoding` - the header value string.
+
+Return value: the current response object.
+
+Note that setting content encoding via this method does not set a 'vary' HTTP header with 'accept-encoding' value. To vary the response, use the `response.header()` method instead.
 
 #### <a name="response.created()" /> `response.created(uri)`
 

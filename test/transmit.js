@@ -1466,6 +1466,7 @@ describe('transmission', () => {
                 port: server.info.port,
                 method: 'GET'
             });
+
             clientRequest.on('error', () => { /* NOP */ });
             clientRequest.end();
 
@@ -1475,13 +1476,29 @@ describe('transmission', () => {
 
         it('changes etag when content-encoding set manually', async () => {
 
+            const payload = new Array(1000).fill('x').join();
             const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('x').header('content-encoding', 'gzip').etag('abc') });
+            server.route({ method: 'GET', path: '/', handler: (request, h) => h.response(payload).header('content-encoding', 'gzip').etag('abc') });
 
-            const res = await server.inject('/');
+            const res = await server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } });
             expect(res.statusCode).to.equal(200);
             expect(res.headers.etag).to.exist();
             expect(res.headers.etag).to.match(/-gzip"$/);
+            expect(res.headers.vary).to.equal('accept-encoding');
+        });
+
+        it('changes etag without vary when content-encoding set via compressed', async () => {
+
+            const payload = new Array(1000).fill('x').join();
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request, h) => h.response(payload).compressed('gzip').etag('abc') });
+
+            const res = await server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } });
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers.etag).to.exist();
+            expect(res.headers.etag).to.equal('"abc-gzip"');
+            expect(res.headers['content-encoding']).to.equal('gzip');
+            expect(res.headers.vary).to.not.exist();
         });
 
         it('head request retains content-length header', async () => {
