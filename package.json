@@ -34,6 +34,7 @@
   "devDependencies": {
     "@hapi/code": "6.x.x",
     "@hapi/inert": "5.x.x",
+    "@hapi/joi-next-test": "npm:@hapi/joi@16.x.x",
     "@hapi/lab": "20.x.x",
     "@hapi/wreck": "15.x.x",
     "@hapi/vision": "5.x.x",

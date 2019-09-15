@@ -1262,15 +1262,14 @@ describe('Request', () => {
                     return {
                         p: request.params.p,
                         path: request.path,
-                        hostname: request.info.hostname,
-                        host: request.info.host
+                        hostname: request.info.hostname.toLowerCase()           // Lowercase for OSX tests
                     };
                 }
             });
 
             const res = await server.inject('//path');
             expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal({ p: '/path', path: '//path', hostname: server.info.host, host: `${server.info.host}:0` });
+            expect(res.result).to.equal({ p: '/path', path: '//path', hostname: server.info.host.toLowerCase() });
         });
     });
 
