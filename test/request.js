@@ -1965,7 +1965,7 @@ describe('Request', () => {
 
         it('handles race condition between equal client and server timeouts', async () => {
 
-            const server = Hapi.server({ routes: { timeout: { server: 50 }, payload: { timeout: 50 } } });
+            const server = Hapi.server({ routes: { timeout: { server: 100 }, payload: { timeout: 100 } } });
             server.route({ method: 'POST', path: '/timeout', options: { handler: Hoek.block } });
 
             await server.start();
@@ -1983,7 +1983,7 @@ describe('Request', () => {
                 const req = Http.request(options, (res) => {
 
                     expect([503, 408]).to.contain(res.statusCode);
-                    expect(timer.elapsed()).to.be.at.least(45);
+                    expect(timer.elapsed()).to.be.at.least(80);
                     resolve();
                 });
 
@@ -1993,7 +1993,7 @@ describe('Request', () => {
                 });
 
                 req.write('\n');
-                await Hoek.wait(100);
+                await Hoek.wait(200);
                 req.end();
             });
 
