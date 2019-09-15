@@ -41,9 +41,9 @@
     "handlebars": "4.x.x"
   },
   "scripts": {
-    "test": "lab -a @hapi/code -t 100 -L -m 3000",
-    "test-tap": "lab -a @hapi/code -r tap -o tests.tap -m 3000",
-    "test-cov-html": "lab -a @hapi/code -r html -o coverage.html -m 3000"
+    "test": "lab -a @hapi/code -t 100 -L -m 5000",
+    "test-tap": "lab -a @hapi/code -r tap -o tests.tap -m 5000",
+    "test-cov-html": "lab -a @hapi/code -r html -o coverage.html -m 5000"
   },
   "license": "BSD-3-Clause"
 }
