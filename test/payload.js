@@ -268,6 +268,28 @@ describe('Payload', () => {
         expect(res.result).to.equal(payload);
     });
 
+    it('peeks at unparsed data (finish only)', async () => {
+
+        let peeked = false;
+        const ext = (request, h) => {
+
+            request.events.once('finish', () => {
+
+                peeked = true;
+            });
+
+            return h.continue;
+        };
+
+        const server = Hapi.server();
+        server.ext('onRequest', ext);
+        server.route({ method: 'POST', path: '/', options: { handler: () => null, payload: { parse: false } } });
+
+        const payload = '0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789';
+        await server.inject({ method: 'POST', url: '/', payload });
+        expect(peeked).to.be.true();
+    });
+
     it('handles gzipped payload', async () => {
 
         const message = { 'msg': 'This message is going to be gzipped.' };

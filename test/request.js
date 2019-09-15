@@ -1250,6 +1250,28 @@ describe('Request', () => {
             await server.stop();
             expect(hostname).to.equal('host.com');
         });
+
+        it('handles url starting with multiple /', async () => {
+
+            const server = Hapi.server();
+            server.route({
+                method: 'GET',
+                path: '/{p*}',
+                handler: (request) => {
+
+                    return {
+                        p: request.params.p,
+                        path: request.path,
+                        hostname: request.info.hostname,
+                        host: request.info.host
+                    };
+                }
+            });
+
+            const res = await server.inject('//path');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal({ p: '/path', path: '//path', hostname: 'eze', host: 'eze:0' });
+        });
     });
 
     describe('_tap()', () => {
