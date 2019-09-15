@@ -831,11 +831,11 @@ describe('Core', () => {
             const count1 = await internals.countConnections(server);
             expect(count1).to.equal(1);
 
-            setTimeout(() => socket.end(), 50);
+            setTimeout(() => socket.end(), 100);
 
             const timer = new Hoek.Bench();
-            await server.stop({ timeout: 200 });
-            expect(timer.elapsed()).to.be.below(150);
+            await server.stop({ timeout: 400 });
+            expect(timer.elapsed()).to.be.below(300);
         });
 
         it('immediately destroys idle keep-alive connections', async () => {
