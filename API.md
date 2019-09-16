@@ -3198,11 +3198,13 @@ cause the server to run out of memory.
 
 #### <a name="route.options.payload.multipart" /> `route.options.payload.multipart`
 
-Default value: none.
+Default value: `false`.
 
 Overrides payload processing for multipart requests. Value can be one of:
 
-- `false` - disable multipart processing.
+- `false` - disable multipart processing (this is the default value).
+
+- `true` - enable multipart processing using the [`output`](#route.options.payload.output) value.
 
 - an object with the following required options:
 

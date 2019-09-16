@@ -575,7 +575,7 @@ describe('Payload', () => {
         };
 
         const server = Hapi.server();
-        server.route({ method: 'POST', path: '/echo', handler });
+        server.route({ method: 'POST', path: '/echo', handler, options: { payload: { multipart: true } } });
 
         const res = await server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } });
         expect(Object.keys(res.result).length).to.equal(3);
@@ -698,10 +698,47 @@ describe('Payload', () => {
             '--AaB03x--\r\n';
 
         const server = Hapi.server();
-        server.route({ method: 'POST', path: '/echo', options: { handler: () => 'result', payload: { output: 'data', parse: true, maxBytes: 5 } } });
+        server.route({ method: 'POST', path: '/echo', options: { handler: () => 'result', payload: { output: 'data', parse: true, maxBytes: 5, multipart: true } } });
 
         const res = await server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, simulate: { split: true }, headers: { 'content-length': null, 'content-type': 'multipart/form-data; boundary=AaB03x' } });
         expect(res.statusCode).to.equal(400);
         expect(res.payload.toString()).to.equal('{"statusCode":400,"error":"Bad Request","message":"Invalid multipart payload format"}');
+    });
+
+    it('errors if multipart disabled (default)', async () => {
+
+        const multipartPayload =
+            '--AaB03x\r\n' +
+            'content-disposition: form-data; name="x"\r\n' +
+            '\r\n' +
+            'First\r\n' +
+            '--AaB03x\r\n' +
+            'content-disposition: form-data; name="x"\r\n' +
+            '\r\n' +
+            'Second\r\n' +
+            '--AaB03x\r\n' +
+            'content-disposition: form-data; name="x"\r\n' +
+            '\r\n' +
+            'Third\r\n' +
+            '--AaB03x\r\n' +
+            'content-disposition: form-data; name="field1"\r\n' +
+            '\r\n' +
+            'Joe Blow\r\nalmost tricked you!\r\n' +
+            '--AaB03x\r\n' +
+            'content-disposition: form-data; name="field1"\r\n' +
+            '\r\n' +
+            'Repeated name segment\r\n' +
+            '--AaB03x\r\n' +
+            'content-disposition: form-data; name="pics"; filename="file1.txt"\r\n' +
+            'Content-Type: text/plain\r\n' +
+            '\r\n' +
+            '... contents of file1.txt ...\r\r\n' +
+            '--AaB03x--\r\n';
+
+        const server = Hapi.server();
+        server.route({ method: 'POST', path: '/echo', options: { handler: () => 'result', payload: { output: 'data', parse: true, maxBytes: 5 } } });
+
+        const res = await server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, simulate: { split: true }, headers: { 'content-length': null, 'content-type': 'multipart/form-data; boundary=AaB03x' } });
+        expect(res.statusCode).to.equal(415);
     });
 });
