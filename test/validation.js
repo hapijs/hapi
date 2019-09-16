@@ -5,7 +5,7 @@ const Code = require('@hapi/code');
 const Hapi = require('..');
 const Inert = require('@hapi/inert');
 const Joi = require('@hapi/joi');
-const JoiNext = require('@hapi/joi-next-test');
+const JoiLegacy = require('@hapi/joi-legacy-test');
 const Lab = require('@hapi/lab');
 
 
@@ -18,7 +18,7 @@ const expect = Code.expect;
 
 describe('validation', () => {
 
-    it('validates using joi v16', async () => {
+    it('validates using joi v15', async () => {
 
         const server = Hapi.server();
         server.route({
@@ -27,9 +27,9 @@ describe('validation', () => {
             handler: () => 'ok',
             options: {
                 validate: {
-                    payload: JoiNext.object({
-                        a: JoiNext.number(),
-                        b: JoiNext.array()
+                    payload: JoiLegacy.object({
+                        a: JoiLegacy.number(),
+                        b: JoiLegacy.array()
                     })
                 }
             }
@@ -602,7 +602,7 @@ describe('validation', () => {
             expect(res.result).to.equal({
                 statusCode: 400,
                 error: 'Bad Request',
-                message: 'child "a" fails because ["a" length must be at least 2 characters long]',
+                message: '"a" length must be at least 2 characters long',
                 validation: {
                     source: 'query',
                     keys: ['a']
@@ -1236,7 +1236,7 @@ describe('validation', () => {
                     },
                     handler: () => ({ a: 1, b: 2 })
                 });
-            }).to.throw(/"sample" is not allowed/);
+            }).to.throw(/"response.sample" is not allowed/);
         });
 
         it('do not throws on sample with false response modify', () => {
@@ -1773,54 +1773,6 @@ describe('validation', () => {
             const res2 = await server.inject('/');
             expect(res2.statusCode).to.equal(200);
             expect(res2.payload).to.equal('true');
-        });
-
-        it('throws on options.stripUnknown without modify', () => {
-
-            const server = Hapi.server();
-
-            expect(() => {
-
-                server.route({
-                    method: 'GET',
-                    path: '/',
-                    handler: () => 'ok',
-                    options: {
-                        response: {
-                            schema: Joi.string(),
-                            options: {
-                                stripUnknown: true
-                            }
-                        }
-                    }
-                });
-            }).to.throw(/"options.stripUnknown" failed to meet requirement of having peer modify set to true/);
-        });
-
-        it('allows options.stripUnknown to be an object', () => {
-
-            const server = Hapi.server();
-
-            expect(() => {
-
-                server.route({
-                    method: 'GET',
-                    path: '/',
-                    handler: () => 'ok',
-                    options: {
-                        response: {
-                            schema: Joi.string(),
-                            modify: true,
-                            options: {
-                                stripUnknown: {
-                                    objects: true,
-                                    arrays: true
-                                }
-                            }
-                        }
-                    }
-                });
-            }).to.not.throw();
         });
     });
 });

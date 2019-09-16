@@ -742,8 +742,8 @@ describe('Route', () => {
 
             server.rules(processor);
 
-            server.route({ path: '/1', method: 'GET', handler: () => null, rules: { x: 1 } });
-            server.route({ path: '/2', method: 'GET', handler: () => null, rules: { x: 2 } });
+            server.route({ path: '/1', method: 'GET', handler: () => null, rules: { x: Joi.number().valid(1) } });
+            server.route({ path: '/2', method: 'GET', handler: () => null, rules: { x: Joi.number().valid(2) } });
             server.route({ path: '/3', method: 'GET', handler: () => null });
 
             expect((await server.inject('/1?x=1')).statusCode).to.equal(200);
