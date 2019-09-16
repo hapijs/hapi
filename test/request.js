@@ -1166,10 +1166,10 @@ describe('Request', () => {
             server.route({ method: 'GET', path: '/test', handler: () => null });
 
             const res1 = await server.inject('/test/');
-            expect(res1.statusCode).to.equal(200);
+            expect(res1.statusCode).to.equal(204);
 
             const res2 = await server.inject('/test');
-            expect(res2.statusCode).to.equal(200);
+            expect(res2.statusCode).to.equal(204);
         });
 
         it('does not strip trailing slash on /', async () => {
@@ -1177,7 +1177,7 @@ describe('Request', () => {
             const server = Hapi.server({ router: { stripTrailingSlash: true } });
             server.route({ method: 'GET', path: '/', handler: () => null });
             const res = await server.inject('/');
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('strips trailing slash with query', async () => {
@@ -1185,7 +1185,7 @@ describe('Request', () => {
             const server = Hapi.server({ router: { stripTrailingSlash: true } });
             server.route({ method: 'GET', path: '/test', handler: () => null });
             const res = await server.inject('/test/?a=b');
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('clones passed url', async () => {
@@ -1337,7 +1337,7 @@ describe('Request', () => {
             });
 
             const res = await server.inject('/');
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
             await log;
         });
 
@@ -1360,7 +1360,7 @@ describe('Request', () => {
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('emits a request event (function data + collect)', async () => {
@@ -1384,7 +1384,7 @@ describe('Request', () => {
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('emits a request event (function data)', async () => {
@@ -1407,7 +1407,7 @@ describe('Request', () => {
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('outputs log to debug console without data', async () => {
@@ -1435,7 +1435,7 @@ describe('Request', () => {
             });
 
             const res = await server.inject('/');
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
             await log;
         });
 
@@ -1464,7 +1464,7 @@ describe('Request', () => {
             });
 
             const res = await server.inject('/');
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
             await log;
         });
 
@@ -1496,7 +1496,7 @@ describe('Request', () => {
             });
 
             const res = await server.inject('/');
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
             await log;
         });
 

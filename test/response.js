@@ -99,10 +99,10 @@ describe('Response', () => {
             });
 
             const res = await server.inject('/');
-            expect(res.statusCode).to.equal(200);
-            expect(res.headers['content-length']).to.equal(0);
+            expect(res.statusCode).to.equal(204);
+            expect(res.headers['content-length']).to.not.exist();
             expect(res.headers['content-type']).to.equal('text/html; charset=utf-8');
-            expect(res.result).to.equal('');
+            expect(res.result).to.equal(null);
             expect(res.payload).to.equal('');
         });
 
@@ -116,8 +116,8 @@ describe('Response', () => {
             });
 
             const res = await server.inject('/');
-            expect(res.statusCode).to.equal(200);
-            expect(res.headers['content-length']).to.equal(0);
+            expect(res.statusCode).to.equal(204);
+            expect(res.headers['content-length']).to.not.exist();
             expect(res.headers['content-type']).to.not.exist();
             expect(res.result).to.equal(null);
             expect(res.payload).to.equal('');
@@ -152,10 +152,10 @@ describe('Response', () => {
 
         it('sets manual code regardless of emptyStatusCode override', async () => {
 
-            const server = Hapi.server({ routes: { response: { emptyStatusCode: 204 } } });
-            server.route({ method: 'GET', path: '/', handler: (request, h) => h.response().code(200) });
+            const server = Hapi.server({ routes: { response: { emptyStatusCode: 200 } } });
+            server.route({ method: 'GET', path: '/', handler: (request, h) => h.response().code(204) });
             const res = await server.inject('/');
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
     });
 
@@ -327,7 +327,7 @@ describe('Response', () => {
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
             expect(res.headers['set-cookie']).to.equal(['session=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; HttpOnly; SameSite=Strict; Path=/unset']);
         });
     });

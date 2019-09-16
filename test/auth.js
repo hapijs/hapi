@@ -162,7 +162,7 @@ describe('authentication', () => {
             expect(res1.statusCode).to.equal(401);
 
             const res2 = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
-            expect(res2.statusCode).to.equal(200);
+            expect(res2.statusCode).to.equal(204);
         });
 
         it('uses views', async () => {
@@ -246,7 +246,7 @@ describe('authentication', () => {
             expect(res1.statusCode).to.equal(401);
 
             const res2 = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
-            expect(res2.statusCode).to.equal(200);
+            expect(res2.statusCode).to.equal(204);
         });
 
         it('sets default with object', async () => {
@@ -261,7 +261,7 @@ describe('authentication', () => {
             expect(res1.statusCode).to.equal(401);
 
             const res2 = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
-            expect(res2.statusCode).to.equal(200);
+            expect(res2.statusCode).to.equal(204);
         });
 
         it('throws when setting default twice', () => {
@@ -482,7 +482,7 @@ describe('authentication', () => {
             });
 
             const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('authenticates a request with auth strategy name config', async () => {
@@ -500,7 +500,7 @@ describe('authentication', () => {
             });
 
             const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('tries to authenticate a request', async () => {
@@ -610,7 +610,7 @@ describe('authentication', () => {
             });
 
             const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('matches scope (array to array)', async () => {
@@ -631,7 +631,7 @@ describe('authentication', () => {
             });
 
             const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('matches scope (single to array)', async () => {
@@ -652,7 +652,7 @@ describe('authentication', () => {
             });
 
             const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('matches scope (single to single)', async () => {
@@ -673,7 +673,7 @@ describe('authentication', () => {
             });
 
             const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('matches dynamic scope (single to single)', async () => {
@@ -694,7 +694,7 @@ describe('authentication', () => {
             });
 
             const res = await server.inject({ url: '/test', headers: { authorization: 'Custom steve' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('matches multiple required dynamic scopes', async () => {
@@ -715,7 +715,7 @@ describe('authentication', () => {
             });
 
             const res = await server.inject({ url: '/test', headers: { authorization: 'Custom steve' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('matches multiple required dynamic scopes (mixed types)', async () => {
@@ -736,7 +736,7 @@ describe('authentication', () => {
             });
 
             const res = await server.inject({ url: '/test', headers: { authorization: 'Custom steve' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('matches dynamic scope with multiple parts (single to single)', async () => {
@@ -757,7 +757,7 @@ describe('authentication', () => {
             });
 
             const res = await server.inject({ url: '/test/admin', headers: { authorization: 'Custom steve' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('does not match broken dynamic scope (single to single)', async () => {
@@ -834,7 +834,7 @@ describe('authentication', () => {
             });
 
             const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('errors on missing scope', async () => {
@@ -910,7 +910,7 @@ describe('authentication', () => {
             expect(res1.result.message).to.equal('Insufficient scope');
 
             const res2 = await server.inject({ url: '/', headers: { authorization: 'Custom john' } });
-            expect(res2.statusCode).to.equal(200);
+            expect(res2.statusCode).to.equal(204);
         });
 
         it('validates forbidden scope', async () => {
@@ -942,7 +942,7 @@ describe('authentication', () => {
             expect(res1.result.message).to.equal('Insufficient scope');
 
             const res2 = await server.inject({ url: '/', headers: { authorization: 'Custom john' } });
-            expect(res2.statusCode).to.equal(200);
+            expect(res2.statusCode).to.equal(204);
         });
 
         it('validates complex scope', async () => {
@@ -977,10 +977,10 @@ describe('authentication', () => {
             expect(res1.result.message).to.equal('Insufficient scope');
 
             const res2 = await server.inject({ url: '/', headers: { authorization: 'Custom john' } });
-            expect(res2.statusCode).to.equal(200);
+            expect(res2.statusCode).to.equal(204);
 
             const res3 = await server.inject({ url: '/', headers: { authorization: 'Custom mary' } });
-            expect(res3.statusCode).to.equal(200);
+            expect(res3.statusCode).to.equal(204);
 
             const res4 = await server.inject({ url: '/', headers: { authorization: 'Custom lucy' } });
             expect(res4.statusCode).to.equal(403);
@@ -1035,7 +1035,7 @@ describe('authentication', () => {
             });
 
             const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('matches scope (access single)', async () => {
@@ -1091,7 +1091,7 @@ describe('authentication', () => {
             });
 
             const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('errors on matching scope (access array)', async () => {
@@ -1139,7 +1139,7 @@ describe('authentication', () => {
             });
 
             const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('matches user entity', async () => {
@@ -1160,7 +1160,7 @@ describe('authentication', () => {
             });
 
             const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('errors on missing user entity', async () => {
@@ -1203,7 +1203,7 @@ describe('authentication', () => {
             });
 
             const res = await server.inject({ url: '/', headers: { authorization: 'Custom client' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('errors on missing app entity', async () => {
@@ -1327,7 +1327,7 @@ describe('authentication', () => {
             server.route({ method: 'GET', path: '/', handler: () => null });
 
             const res = await server.inject('/');
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
     });
 
@@ -1468,7 +1468,7 @@ describe('authentication', () => {
             });
 
             const res = await server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom validPayload' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('skips when scheme does not support it', async () => {
@@ -1486,7 +1486,7 @@ describe('authentication', () => {
             });
 
             const res = await server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom validPayload' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('authenticates request payload (required scheme)', async () => {
@@ -1505,7 +1505,7 @@ describe('authentication', () => {
             });
 
             const res = await server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom validPayload' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('authenticates request payload (required scheme and required route)', async () => {
@@ -1526,7 +1526,7 @@ describe('authentication', () => {
             });
 
             const res = await server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom validPayload' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('throws when scheme requires payload authentication and route conflicts', () => {
@@ -1646,7 +1646,7 @@ describe('authentication', () => {
             });
 
             const res = await server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom skip' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('skips request payload when unauthenticated', async () => {
@@ -1668,7 +1668,7 @@ describe('authentication', () => {
             });
 
             const res = await server.inject({ method: 'POST', url: '/' });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('skips optional payload', async () => {
@@ -1689,7 +1689,7 @@ describe('authentication', () => {
             });
 
             const res = await server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom optionalPayload' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
         });
 
         it('errors on missing payload when required', async () => {

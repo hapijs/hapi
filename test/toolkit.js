@@ -167,7 +167,7 @@ describe('Toolkit', () => {
                 const server = Hapi.server();
                 server.route({ method: 'GET', path: '/', handler: (request, h) => h.response() });
                 const res = await server.inject('/');
-                expect(res.statusCode).to.equal(200);
+                expect(res.statusCode).to.equal(204);
                 expect(res.result).to.equal(null);
                 expect(res.payload).to.equal('');
                 expect(res.headers['content-type']).to.not.exist();
@@ -398,7 +398,7 @@ describe('Toolkit', () => {
                 server.route({ method: 'GET', path: '/', handler });
 
                 const res = await server.inject('/');
-                expect(res.statusCode).to.equal(200);
+                expect(res.statusCode).to.equal(204);
                 expect(res.result).to.equal(null);
                 expect(res.payload).to.equal('');
             });

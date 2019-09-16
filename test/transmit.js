@@ -547,16 +547,33 @@ describe('transmission', () => {
 
         it('sends 204 on empty payload', async () => {
 
-            const server = Hapi.server({ routes: { response: { emptyStatusCode: 204 } } });
+            const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: () => null });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(204);
             expect(res.result).to.equal(null);
         });
 
+        it('overrides emptyStatusCode', async () => {
+
+            const server = Hapi.server({ routes: { response: { emptyStatusCode: 200 } } });
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: () => null
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['content-length']).to.equal(0);
+            expect(res.headers['content-type']).to.not.exist();
+            expect(res.result).to.equal(null);
+            expect(res.payload).to.equal('');
+        });
+
         it('does not send 204 for chunked transfer payloads', async () => {
 
-            const server = Hapi.server({ routes: { response: { emptyStatusCode: 204 } } });
+            const server = Hapi.server();
 
             const handler = (request) => {
 
@@ -584,7 +601,7 @@ describe('transmission', () => {
             const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'GET', path: '/', handler: (request, h) => h.response().type('text/html') });
             const res = await server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
             expect(res.result).to.equal(null);
             expect(res.headers['content-encoding']).to.not.exist();
         });

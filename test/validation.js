@@ -1349,7 +1349,7 @@ describe('validation', () => {
             expect(res1.result).to.equal({ some: 'unchanged' });
 
             const res2 = await server.inject('/');
-            expect(res2.statusCode).to.equal(200);
+            expect(res2.statusCode).to.equal(204);
             expect(res2.result).to.equal(null);
 
             const res3 = await server.inject('/');

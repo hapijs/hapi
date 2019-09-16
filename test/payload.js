@@ -434,7 +434,7 @@ describe('Payload', () => {
         server.route({ method: 'POST', path: '/', options: { handler: (request) => request.payload, payload: { failAction: 'ignore' } } });
 
         const res = await server.inject({ method: 'POST', url: '/', payload: 'testing123', headers: { 'content-type': 'application/unknown' } });
-        expect(res.statusCode).to.equal(200);
+        expect(res.statusCode).to.equal(204);
         expect(res.result).to.equal(null);
     });
 

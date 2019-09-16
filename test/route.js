@@ -32,7 +32,7 @@ describe('Route', () => {
                 const a = this.a;
 
                 return {
-                    handler: () => (a + srv.app.b)
+                    handler: () => a + srv.app.b
                 };
             }
         });
@@ -272,7 +272,7 @@ describe('Route', () => {
         const server = Hapi.server();
         server.route({ method: '*', path: '/', handler: () => null, options: { validate: { payload: { a: Joi.required() } } } });
         const res = await server.inject('/');
-        expect(res.statusCode).to.equal(200);
+        expect(res.statusCode).to.equal(204);
     });
 
     it('ignores validation on * route when request is HEAD', async () => {
@@ -280,7 +280,7 @@ describe('Route', () => {
         const server = Hapi.server();
         server.route({ method: '*', path: '/', handler: () => null, options: { validate: { payload: { a: Joi.required() } } } });
         const res = await server.inject({ url: '/', method: 'HEAD' });
-        expect(res.statusCode).to.equal(200);
+        expect(res.statusCode).to.equal(204);
     });
 
     it('skips payload on * route when request is HEAD', async (flags) => {
@@ -300,7 +300,7 @@ describe('Route', () => {
         const server = Hapi.server();
         server.route({ method: '*', path: '/', handler: () => null });
         const res = await server.inject({ url: '/', method: 'HEAD' });
-        expect(res.statusCode).to.equal(200);
+        expect(res.statusCode).to.equal(204);
         expect(called).to.be.false();
     });
 
@@ -309,7 +309,7 @@ describe('Route', () => {
         const server = Hapi.server({ routes: { validate: { payload: { a: Joi.required() } } } });
         server.route({ method: 'GET', path: '/', handler: () => null });
         const res = await server.inject('/');
-        expect(res.statusCode).to.equal(200);
+        expect(res.statusCode).to.equal(204);
     });
 
     it('shallow copies route config bind', async () => {
@@ -746,12 +746,12 @@ describe('Route', () => {
             server.route({ path: '/2', method: 'GET', handler: () => null, rules: { x: Joi.number().valid(2) } });
             server.route({ path: '/3', method: 'GET', handler: () => null });
 
-            expect((await server.inject('/1?x=1')).statusCode).to.equal(200);
+            expect((await server.inject('/1?x=1')).statusCode).to.equal(204);
             expect((await server.inject('/1?x=2')).statusCode).to.equal(400);
             expect((await server.inject('/2?x=1')).statusCode).to.equal(400);
-            expect((await server.inject('/2?x=2')).statusCode).to.equal(200);
-            expect((await server.inject('/3?x=1')).statusCode).to.equal(200);
-            expect((await server.inject('/3?x=2')).statusCode).to.equal(200);
+            expect((await server.inject('/2?x=2')).statusCode).to.equal(204);
+            expect((await server.inject('/3?x=1')).statusCode).to.equal(204);
+            expect((await server.inject('/3?x=2')).statusCode).to.equal(204);
         });
 
         it('compiles rules into config (route info)', async () => {

@@ -1036,7 +1036,7 @@ describe('Core', () => {
             };
 
             const res = await server.inject(options);
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
             expect(options.auth.credentials).to.exist();
         });
 
@@ -1057,7 +1057,7 @@ describe('Core', () => {
             };
 
             const res = await server.inject(options);
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
             expect(options.auth.credentials).to.exist();
         });
 
@@ -1184,7 +1184,7 @@ describe('Core', () => {
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
             expect(res.request.app.key).to.equal('value');
         });
 

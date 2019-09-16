@@ -109,7 +109,7 @@ describe('state', () => {
         server.state('a', { ignoreErrors: true, encoding: 'base64json', clearInvalid: true });
         server.route({ path: '/', method: 'GET', handler: () => null });
         const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x' } });
-        expect(res.statusCode).to.equal(200);
+        expect(res.statusCode).to.equal(204);
         expect(res.headers['set-cookie'][0]).to.equal('a=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; HttpOnly; SameSite=Strict');
     });
 
@@ -153,7 +153,7 @@ describe('state', () => {
         server.state('always', { autoValue: 'present' });
 
         const res = await server.inject('/');
-        expect(res.statusCode).to.equal(200);
+        expect(res.statusCode).to.equal(204);
         expect(res.headers['set-cookie']).to.equal(['onecookie=yes', 'twocookie=no', 'always=present; Secure; HttpOnly; SameSite=Strict']);
     });
 
