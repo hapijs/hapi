@@ -1696,7 +1696,7 @@ server.method({
 });
 ```
 
-## `server.on(criteria, listener)`
+### `server.on(criteria, listener)`
 
 Subscribe a handler to an event where:
 - `criteria` - the subscription criteria which must be one of:
@@ -1750,7 +1750,7 @@ server.on('test', (update) => console.log(update));
 server.emit('test', 'hello');
 ```
 
-## `server.once(criteria, listener)`
+### `server.once(criteria, listener)`
 
 Same as calling [`server.on()`](#serveroncriteria-listener) with the `count` option set to `1`.
 
