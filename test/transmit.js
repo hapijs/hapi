@@ -794,7 +794,7 @@ describe('transmission', () => {
 
         it('returns a plain file when compression disabled', async () => {
 
-            const server = Hapi.server({ compression: { minBytes: 1 }, routes: { files: { relativeTo: __dirname } }, compression: false });
+            const server = Hapi.server({ routes: { files: { relativeTo: __dirname } }, compression: false });
             await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: (request, h) => h.file(__dirname + '/../package.json') });
 
