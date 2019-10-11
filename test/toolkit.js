@@ -585,6 +585,12 @@ describe('Toolkit', () => {
                 expect(res2.headers.etag).to.equal('"abc"');
                 expect(res2.headers['cache-control']).to.equal('max-age=5, must-revalidate');
                 expect(count).to.equal(1);
+
+                const res3 = await server.inject({ url: '/', headers: { 'if-none-match': 'W/"abc"' } });
+                expect(res3.statusCode).to.equal(304);
+                expect(res3.headers.etag).to.equal('W/"abc"');
+                expect(res3.headers['cache-control']).to.equal('max-age=5, must-revalidate');
+                expect(count).to.equal(1);
             });
 
             it('leaves etag header when vary is false', async () => {

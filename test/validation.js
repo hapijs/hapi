@@ -5,6 +5,7 @@ const Code = require('@hapi/code');
 const Hapi = require('..');
 const Inert = require('@hapi/inert');
 const Joi = require('@hapi/joi');
+const JoiNext = require('@hapi/joi-next-test');
 const Lab = require('@hapi/lab');
 
 
@@ -16,6 +17,30 @@ const expect = Code.expect;
 
 
 describe('validation', () => {
+
+    it('validates using joi v16', async () => {
+
+        const server = Hapi.server();
+        server.route({
+            method: 'POST',
+            path: '/',
+            handler: () => 'ok',
+            options: {
+                validate: {
+                    payload: JoiNext.object({
+                        a: JoiNext.number(),
+                        b: JoiNext.array()
+                    })
+                }
+            }
+        });
+
+        const res1 = await server.inject({ url: '/', method: 'POST', payload: { a: '1', b: [1] } });
+        expect(res1.statusCode).to.equal(200);
+
+        const res2 = await server.inject({ url: '/', method: 'POST', payload: { a: 'x', b: [1] } });
+        expect(res2.statusCode).to.equal(400);
+    });
 
     describe('inputs', () => {
 

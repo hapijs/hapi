@@ -729,6 +729,35 @@ describe('Response', () => {
         });
     });
 
+    describe('compressed()', () => {
+
+        it('errors on missing encoding', async () => {
+
+            const handler = (request, h) => {
+
+                return h.response('x').compressed();
+            };
+
+            const server = Hapi.server({ debug: false });
+            server.route({ method: 'GET', path: '/', handler });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+        });
+
+        it('errors on invalid encoding', async () => {
+
+            const handler = (request, h) => {
+
+                return h.response('x').compressed(123);
+            };
+
+            const server = Hapi.server({ debug: false });
+            server.route({ method: 'GET', path: '/', handler });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+        });
+    });
+
     describe('spaces()', () => {
 
         it('errors when called on wrong type', async () => {
@@ -1289,6 +1318,31 @@ describe('Response', () => {
 
             await server.inject('/');
             expect(output).to.equal('1234567890!');
+        });
+
+        it('peeks into the response stream (finish only)', async () => {
+
+            const server = Hapi.server();
+
+            let output = false;
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: (request, h) => {
+
+                    const response = h.response('1234567890');
+
+                    response.events.once('finish', () => {
+
+                        output = true;
+                    });
+
+                    return response;
+                }
+            });
+
+            await server.inject('/');
+            expect(output).to.be.true();
         });
 
         it('peeks into the response stream (empty)', async () => {

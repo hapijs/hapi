@@ -1250,6 +1250,27 @@ describe('Request', () => {
             await server.stop();
             expect(hostname).to.equal('host.com');
         });
+
+        it('handles url starting with multiple /', async () => {
+
+            const server = Hapi.server();
+            server.route({
+                method: 'GET',
+                path: '/{p*}',
+                handler: (request) => {
+
+                    return {
+                        p: request.params.p,
+                        path: request.path,
+                        hostname: request.info.hostname.toLowerCase()           // Lowercase for OSX tests
+                    };
+                }
+            });
+
+            const res = await server.inject('//path');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal({ p: '/path', path: '//path', hostname: server.info.host.toLowerCase() });
+        });
     });
 
     describe('_tap()', () => {
@@ -1759,6 +1780,103 @@ describe('Request', () => {
             expect(res.statusCode).to.equal(200);
         });
 
+        it('creates null response when request is aborted while draining payload', async () => {
+
+            const server = Hapi.server({ routes: { timeout: { server: false } } });
+            await server.start();
+
+            const log = server.events.once('response');
+            const ready = new Promise((resolve) => {
+
+                server.ext('onRequest', (request, h) => {
+
+                    resolve();
+                    return h.continue;
+                });
+            });
+
+            const req = Http.request({
+                hostname: 'localhost',
+                port: server.info.port,
+                method: 'GET',
+                headers: { 'content-length': 42 }
+            });
+            req.on('error', Hoek.ignore);
+            req.flushHeaders();
+
+            await ready;
+            req.abort();
+            const [request] = await log;
+
+            expect(request.response).to.equal(null);
+
+            await server.stop({ timeout: 1 });
+        });
+
+        it('returns an unlogged bad request error when parser fails before request is setup', async () => {
+
+            const server = Hapi.server({ routes: { timeout: { server: false } } });
+            await server.start();
+
+            let responseCount = 0;
+            server.events.on('response', () => {
+
+                responseCount += 1;
+            });
+
+            const client = Net.connect(server.info.port);
+            const clientEnded = new Promise((resolve, reject) => {
+
+                let response = '';
+                client.on('data', (chunk) => {
+
+                    response = response + chunk.toString();
+                });
+
+                client.on('end', () => resolve(response));
+                client.on('error', reject);
+            });
+
+            await new Promise((resolve) => client.on('connect', resolve));
+            client.write('hello\n\r');
+
+            const clientResponse = await clientEnded;
+            expect(clientResponse).to.contain('400 Bad Request');
+            expect(responseCount).to.equal(0);
+
+            await server.stop({ timeout: 1 });
+        });
+
+        it('returns a logged bad request error when parser fails after request is setup', async () => {
+
+            const server = Hapi.server({ routes: { timeout: { server: false } } });
+            await server.start();
+
+            const log = server.events.once('response');
+            const client = Net.connect(server.info.port);
+            const clientEnded = new Promise((resolve, reject) => {
+
+                let response = '';
+                client.on('data', (chunk) => {
+
+                    response = response + chunk.toString();
+                });
+
+                client.on('end', () => resolve(response));
+                client.on('error', reject);
+            });
+
+            await new Promise((resolve) => client.on('connect', resolve));
+            client.write('GET / HTTP/1.1\nHost: test\nContent-Length: 0\n\n\ninvalid data');
+
+            const [request] = await log;
+            expect(request.response.statusCode).to.equal(400);
+            const clientResponse = await clientEnded;
+            expect(clientResponse).to.contain('400 Bad Request');
+
+            await server.stop({ timeout: 1 });
+        });
+
         it('does not return an error when server is responding when the timeout occurs', async () => {
 
             let ended = false;
@@ -1847,7 +1965,7 @@ describe('Request', () => {
 
         it('handles race condition between equal client and server timeouts', async () => {
 
-            const server = Hapi.server({ routes: { timeout: { server: 50 }, payload: { timeout: 50 } } });
+            const server = Hapi.server({ routes: { timeout: { server: 100 }, payload: { timeout: 100 } } });
             server.route({ method: 'POST', path: '/timeout', options: { handler: Hoek.block } });
 
             await server.start();
@@ -1865,7 +1983,7 @@ describe('Request', () => {
                 const req = Http.request(options, (res) => {
 
                     expect([503, 408]).to.contain(res.statusCode);
-                    expect(timer.elapsed()).to.be.at.least(45);
+                    expect(timer.elapsed()).to.be.at.least(80);
                     resolve();
                 });
 
@@ -1875,7 +1993,7 @@ describe('Request', () => {
                 });
 
                 req.write('\n');
-                await Hoek.wait(100);
+                await Hoek.wait(200);
                 req.end();
             });
 

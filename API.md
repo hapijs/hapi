@@ -1,4 +1,4 @@
-# v18.3.x API Reference
+# v18.4.x API Reference
 
 <!-- toc -->
 
@@ -161,6 +161,7 @@
     - [`route.options.validate.params`](#route.options.validate.params)
     - [`route.options.validate.payload`](#route.options.validate.payload)
     - [`route.options.validate.query`](#route.options.validate.query)
+    - [`route.options.validate.state`](#route.options.validate.state)
 - [Request lifecycle](#request-lifecycle)
   - [Lifecycle methods](#lifecycle-methods)
     - [Lifecycle workflow](#lifecycle-workflow)
@@ -201,6 +202,7 @@
     - [`response.charset(charset)`](#response.charset())
     - [`response.code(statusCode)`](#response.code())
     - [`response.message(httpMessage)`](#response.message())
+    - [`response.compressed(encoding)`](#response.compressed())
     - [`response.created(uri)`](#response.created())
     - [`response.encoding(encoding)`](#response.encoding())
     - [`response.etag(tag, options)`](#response.etag())
@@ -792,44 +794,30 @@ The internally generated events are (identified by their `tags`):
 
 - `accept-encoding` `error` - a request received contains an invalid Accept-Encoding header.
 - `auth` `unauthenticated` - no authentication scheme included with the request.
-- `auth` `unauthenticated` `response` `{strategy}` - the authentication strategy listed returned a
-  non-error response (e.g. a redirect to a login page).
-- `auth` `unauthenticated` `error` `{strategy}` - the request failed to pass the listed
-  authentication strategy (invalid credentials).
-- `auth` `unauthenticated` `missing` `{strategy}` - the request failed to pass the listed
-  authentication strategy (no credentials found).
-- `auth` `unauthenticated` `try` `{strategy}` - the request failed to pass the listed
-  authentication strategy in `'try'` mode and will continue.
+- `auth` `unauthenticated` `response` `{strategy}` - the authentication strategy listed returned a non-error response (e.g. a redirect to a login page).
+- `auth` `unauthenticated` `error` `{strategy}` - the request failed to pass the listed authentication strategy (invalid credentials).
+- `auth` `unauthenticated` `missing` `{strategy}` - the request failed to pass the listed authentication strategy (no credentials found).
+- `auth` `unauthenticated` `try` `{strategy}` - the request failed to pass the listed authentication strategy in `'try'` mode and will continue.
 - `auth` `scope` `error` - the request authenticated but failed to meet the scope requirements.
-- `auth` `entity` `user` `error` - the request authenticated but included an application entity
-  when a user entity was required.
-- `auth` `entity` `app` `error` - the request authenticated but included a user entity when an
-  application entity was required.
-- `handler` `error` - the route handler returned an error. Includes the execution duration and the
-  error message.
-- `pre` `error` - a pre method was executed and returned an error. Includes the execution duration,
-  assignment key, and error.
+- `auth` `entity` `user` `error` - the request authenticated but included an application entity when a user entity was required.
+- `auth` `entity` `app` `error` - the request authenticated but included a user entity when an application entity was required.
+- `handler` `error` - the route handler returned an error. Includes the execution duration and the error message.
+- `pre` `error` - a pre method was executed and returned an error. Includes the execution duration, assignment key, and error.
 - `internal` `error` - an HTTP 500 error response was assigned to the request.
 - `internal` `implementation` `error` - an incorrectly implemented [lifecycle method](#lifecycle-methods).
 - `request` `abort` `error` - the request aborted.
 - `request` `closed` `error` - the request closed prematurely.
 - `request` `error` - the request stream emitted an error. Includes the error.
-- `request` `server` `timeout` `error` - the request took too long to process by the server.
-  Includes the timeout configuration value and the duration.
-- `state` `error` - the request included an invalid cookie or cookies. Includes the cookies and
-  error details.
-- `state` `response` `error` - the response included an invalid cookie which prevented generating a
-  valid header. Includes the error.
+- `request` `server` `timeout` `error` - the request took too long to process by the server. Includes the timeout configuration value and the duration.
+- `state` `error` - the request included an invalid cookie or cookies. Includes the cookies and error details.
+- `state` `response` `error` - the response included an invalid cookie which prevented generating a valid header. Includes the error.
 - `payload` `error` - failed processing the request payload. Includes the error.
 - `response` `error` - failed writing the response to the client. Includes the error.
-- `response` `error` `close` - failed writing the response to the client due to prematurely closed
-  connection.
-- `response` `error` `aborted` - failed writing the response to the client due to prematurely
-  aborted connection.
+- `response` `error` `close` - failed writing the response to the client due to prematurely closed connection.
+- `response` `error` `aborted` - failed writing the response to the client due to prematurely aborted connection.
 - `response` `error` `cleanup` - failed freeing response resources.
-- `validation` `error` `{input}` - input (i.e. payload, query, params, headers) validation failed.
-  Includes the error.
-- `validation` `response` `error` - response validation failed. Includes the error message.
+- `validation` `error` `{input}` - input (i.e. payload, query, params, headers) validation failed. Includes the error. Only emitted when `failAction` is set to `'log'`.
+- `validation` `response` `error` - response validation failed. Includes the error message. Only emitted when `failAction` is set to `'log'`.
 
 ##### <a name="server.events.response" /> `'response'` Event
 
@@ -4498,6 +4486,16 @@ Sets the HTTP status message where:
 - `httpMessage` - the HTTP status message (e.g. 'Ok' for status code 200).
 
 Return value: the current response object.
+
+#### <a name="response.compressed()" /> `response.compressed(encoding)`
+
+Sets the HTTP 'content-encoding' header where:
+
+- `encoding` - the header value string.
+
+Return value: the current response object.
+
+Note that setting content encoding via this method does not set a 'vary' HTTP header with 'accept-encoding' value. To vary the response, use the `response.header()` method instead.
 
 #### <a name="response.created()" /> `response.created(uri)`
 

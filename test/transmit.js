@@ -27,6 +27,33 @@ const expect = Code.expect;
 
 describe('transmission', () => {
 
+    describe('send()', () => {
+
+        it('handlers invalid headers in error', async () => {
+
+            const server = Hapi.server();
+
+            const handler = (request, h) => {
+
+                const error = Boom.badRequest();
+                error.output.headers.invalid = '\u1000';
+                throw error;
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+        });
+
+        it('handles invalid headers in redirect', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request, h) => h.redirect('/bad/path/\n') });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+        });
+    });
+
     describe('marshal()', () => {
 
         it('returns valid http date responses in last-modified header', async () => {
@@ -171,62 +198,94 @@ describe('transmission', () => {
             expect(res2.headers['last-modified']).to.exist();
         });
 
+        it('returns a 200 when the request has if-modified-since and the response has been modified since (less)', async () => {
+
+            const server = Hapi.server();
+            await server.register(Inert);
+            server.route({ method: 'GET', path: '/file', handler: { file: __dirname + '/../package.json' } });
+
+            const res1 = await server.inject('/file');
+            const last = new Date(Date.parse(res1.headers['last-modified']) - 1000);
+            const res2 = await server.inject({ url: '/file', headers: { 'if-modified-since': last.toUTCString() } });
+            expect(res2.statusCode).to.equal(200);
+            expect(res2.headers['content-length']).to.exist();
+            expect(res2.headers.etag).to.exist();
+            expect(res2.headers['last-modified']).to.exist();
+        });
+
         it('matches etag with content-encoding', async () => {
 
             const server = Hapi.server({ compression: { minBytes: 1 } });
             await server.register(Inert);
             server.route({ method: 'GET', path: '/', handler: { file: __dirname + '/../package.json' } });
 
-            // Initial request - no etag
+            // Request
 
             const res1 = await server.inject('/');
             expect(res1.statusCode).to.equal(200);
+            expect(res1.headers.etag).to.exist();
+            expect(res1.headers.etag).to.not.contain('-');
 
-            // Second request - etag
-
-            const res2 = await server.inject('/');
-            expect(res2.statusCode).to.equal(200);
-            expect(res2.headers.etag).to.exist();
-            expect(res2.headers.etag).to.not.contain('-');
-
-            const baseTag = res2.headers.etag.slice(0, -1);
+            const baseTag = res1.headers.etag.slice(0, -1);
             const gzipTag = baseTag + '-gzip"';
 
             // Conditional request
 
-            const res3 = await server.inject({ url: '/', headers: { 'if-none-match': res2.headers.etag } });
-            expect(res3.statusCode).to.equal(304);
-            expect(res3.headers.etag).to.equal(res2.headers.etag);
+            const res2 = await server.inject({ url: '/', headers: { 'if-none-match': res1.headers.etag } });
+            expect(res2.statusCode).to.equal(304);
+            expect(res2.headers.etag).to.equal(res1.headers.etag);
 
             // Conditional request with accept-encoding
 
-            const res4 = await server.inject({ url: '/', headers: { 'if-none-match': res2.headers.etag, 'accept-encoding': 'gzip' } });
-            expect(res4.statusCode).to.equal(304);
-            expect(res4.headers.etag).to.equal(gzipTag);
+            const res3 = await server.inject({ url: '/', headers: { 'if-none-match': res1.headers.etag, 'accept-encoding': 'gzip' } });
+            expect(res3.statusCode).to.equal(304);
+            expect(res3.headers.etag).to.equal(gzipTag);
 
             // Conditional request with vary etag
 
-            const res5 = await server.inject({ url: '/', headers: { 'if-none-match': res4.headers.etag, 'accept-encoding': 'gzip' } });
-            expect(res5.statusCode).to.equal(304);
-            expect(res5.headers.etag).to.equal(gzipTag);
+            const res4 = await server.inject({ url: '/', headers: { 'if-none-match': res3.headers.etag, 'accept-encoding': 'gzip' } });
+            expect(res4.statusCode).to.equal(304);
+            expect(res4.headers.etag).to.equal(gzipTag);
 
             // Request with accept-encoding (gzip)
 
-            const res6 = await server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } });
-            expect(res6.statusCode).to.equal(200);
-            expect(res6.headers.etag).to.equal(gzipTag);
+            const res5 = await server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } });
+            expect(res5.statusCode).to.equal(200);
+            expect(res5.headers.etag).to.equal(gzipTag);
 
             // Request with accept-encoding (deflate)
 
-            const res7 = await server.inject({ url: '/', headers: { 'accept-encoding': 'deflate' } });
-            expect(res7.statusCode).to.equal(200);
-            expect(res7.headers.etag).to.equal(baseTag + '-deflate"');
+            const res6 = await server.inject({ url: '/', headers: { 'accept-encoding': 'deflate' } });
+            expect(res6.statusCode).to.equal(200);
+            expect(res6.headers.etag).to.equal(baseTag + '-deflate"');
 
             // Conditional request with accept-encoding (gzip)
 
-            const res8 = await server.inject({ url: '/', headers: { 'if-none-match': res7.headers.etag, 'accept-encoding': 'gzip' } });
-            expect(res8.statusCode).to.equal(304);
-            expect(res8.headers.etag).to.equal(gzipTag);
+            const res7 = await server.inject({ url: '/', headers: { 'if-none-match': res6.headers.etag, 'accept-encoding': 'gzip' } });
+            expect(res7.statusCode).to.equal(304);
+            expect(res7.headers.etag).to.equal(gzipTag);
+        });
+
+        it('matches etag with weak designator', async () => {
+
+            const server = Hapi.server({ compression: { minBytes: 1 } });
+            await server.register(Inert);
+            server.route({ method: 'GET', path: '/', handler: { file: __dirname + '/../package.json' } });
+
+            // Fetch etag
+
+            const res1 = await server.inject('/');
+            expect(res1.statusCode).to.equal(200);
+            expect(res1.headers.etag).to.exist();
+            expect(res1.headers.etag).to.not.contain('W/"');
+
+            const weakEtag = `W/${res1.headers.etag}`;
+
+            // Conditional request
+
+            const res2 = await server.inject({ url: '/', headers: { 'if-none-match': weakEtag } });
+            expect(res2.statusCode).to.equal(304);
+            expect(res2.headers.etag).to.equal(weakEtag);
         });
 
         it('returns 304 when manually set to 304', async () => {
@@ -718,7 +777,7 @@ describe('transmission', () => {
 
         it('returns a plain file when compression disabled', async () => {
 
-            const server = Hapi.server({ compression: { minBytes: 1 }, routes: { files: { relativeTo: __dirname } }, compression: false });
+            const server = Hapi.server({ routes: { files: { relativeTo: __dirname } }, compression: false });
             await server.register(Inert);
             server.route({ method: 'GET', path: '/file', handler: (request, h) => h.file(__dirname + '/../package.json') });
 
@@ -1407,6 +1466,7 @@ describe('transmission', () => {
                 port: server.info.port,
                 method: 'GET'
             });
+
             clientRequest.on('error', () => { /* NOP */ });
             clientRequest.end();
 
@@ -1416,13 +1476,29 @@ describe('transmission', () => {
 
         it('changes etag when content-encoding set manually', async () => {
 
+            const payload = new Array(1000).fill('x').join();
             const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('x').header('content-encoding', 'gzip').etag('abc') });
+            server.route({ method: 'GET', path: '/', handler: (request, h) => h.response(payload).header('content-encoding', 'gzip').etag('abc') });
 
-            const res = await server.inject('/');
+            const res = await server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } });
             expect(res.statusCode).to.equal(200);
             expect(res.headers.etag).to.exist();
             expect(res.headers.etag).to.match(/-gzip"$/);
+            expect(res.headers.vary).to.equal('accept-encoding');
+        });
+
+        it('changes etag without vary when content-encoding set via compressed', async () => {
+
+            const payload = new Array(1000).fill('x').join();
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request, h) => h.response(payload).compressed('gzip').etag('abc') });
+
+            const res = await server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } });
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers.etag).to.exist();
+            expect(res.headers.etag).to.equal('"abc-gzip"');
+            expect(res.headers['content-encoding']).to.equal('gzip');
+            expect(res.headers.vary).to.not.exist();
         });
 
         it('head request retains content-length header', async () => {
