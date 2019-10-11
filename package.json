@@ -11,6 +11,9 @@
     "api",
     "web"
   ],
+  "files": [
+    "lib"
+  ],
   "dependencies": {
     "@hapi/accept": "3.x.x",
     "@hapi/ammo": "3.x.x",
