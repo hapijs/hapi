@@ -11,6 +11,9 @@
     "api",
     "web"
   ],
+  "files": [
+    "lib"
+  ],
   "dependencies": {
     "@commercial/accept": "2.x.x",
     "@commercial/ammo": "2.x.x",
