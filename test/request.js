@@ -1445,29 +1445,29 @@ describe('Request', () => {
 
             const handler = async (request) => {
 
-                await Hoek.wait(100);
+                await Hoek.wait(200);
                 return 'too slow';
             };
 
-            const server = Hapi.server({ routes: { timeout: { server: 50 } } });
+            const server = Hapi.server({ routes: { timeout: { server: 100 } } });
             server.route({ method: 'GET', path: '/timeout', handler });
 
             const timer = new Hoek.Bench();
 
             const res = await server.inject('/timeout');
             expect(res.statusCode).to.equal(503);
-            expect(timer.elapsed()).to.be.at.least(49);
+            expect(timer.elapsed()).to.be.at.least(90);
         });
 
         it('returns server error message when server timeout happens during request execution (and handler yields)', async () => {
 
             const handler = async (request) => {
 
-                await Hoek.wait(20);
+                await Hoek.wait(50);
                 return null;
             };
 
-            const server = Hapi.server({ routes: { timeout: { server: 10 } } });
+            const server = Hapi.server({ routes: { timeout: { server: 25 } } });
             server.route({ method: 'GET', path: '/', options: { handler } });
 
             const postHandler = (request, h) => {
