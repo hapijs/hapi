@@ -791,7 +791,7 @@ describe('Core', () => {
 
             const timer = new Hoek.Bench();
             await server.stop({ timeout: 1000 });
-            expect(timer.elapsed()).to.be.below(100);
+            expect(timer.elapsed()).to.be.below(200);
         });
 
         it('immediately destroys idle keep-alive connections', async () => {
