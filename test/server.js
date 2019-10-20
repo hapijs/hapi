@@ -469,10 +469,7 @@ describe('Server', () => {
                 return this.response({ status: 'ok' });
             });
 
-            expect(() => {
-
-                server.decorate('toolkit', 'success', () => { });
-            }).to.throw('Toolkit decoration already defined: success');
+            expect(() => server.decorate('toolkit', 'success', () => { })).to.throw('Toolkit decoration already defined: success');
         });
 
         it('throws on internal conflict', () => {
