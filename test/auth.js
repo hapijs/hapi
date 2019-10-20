@@ -36,6 +36,7 @@ describe('authentication', () => {
         expect(res2.result).to.equal({
             isAuthenticated: true,
             isAuthorized: false,
+            isInjected: false,
             credentials: { user: 'steve' },
             artifacts: undefined,
             strategy: 'default',
@@ -1062,6 +1063,7 @@ describe('authentication', () => {
             expect(res.result).to.equal({
                 isAuthenticated: true,
                 isAuthorized: true,
+                isInjected: false,
                 credentials: { scope: ['one'], user: null },
                 artifacts: undefined,
                 strategy: 'default',
