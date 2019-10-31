@@ -1998,6 +1998,7 @@ describe('Request', () => {
         it('returns a logged bad request error when parser fails after request is setup', async () => {
 
             const server = Hapi.server({ routes: { timeout: { server: false } } });
+            server.route({ path: '/', method: 'GET', handler: Hoek.block });
             await server.start();
 
             const log = server.events.once('response');
@@ -2019,6 +2020,34 @@ describe('Request', () => {
 
             const [request] = await log;
             expect(request.response.statusCode).to.equal(400);
+            const clientResponse = await clientEnded;
+            expect(clientResponse).to.contain('400 Bad Request');
+
+            await server.stop({ timeout: 1 });
+        });
+
+        it('returns a logged bad request error when parser fails after request is setup (cleanStop false)', async () => {
+
+            const server = Hapi.server({ routes: { timeout: { server: false } }, operations: { cleanStop: false } });
+            server.route({ path: '/', method: 'GET', handler: Hoek.block });
+            await server.start();
+
+            const client = Net.connect(server.info.port);
+            const clientEnded = new Promise((resolve, reject) => {
+
+                let response = '';
+                client.on('data', (chunk) => {
+
+                    response = response + chunk.toString();
+                });
+
+                client.on('end', () => resolve(response));
+                client.on('error', reject);
+            });
+
+            await new Promise((resolve) => client.on('connect', resolve));
+            client.write('GET / HTTP/1.1\nHost: test\nContent-Length: 0\n\n\ninvalid data');
+
             const clientResponse = await clientEnded;
             expect(clientResponse).to.contain('400 Bad Request');
 
