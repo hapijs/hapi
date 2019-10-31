@@ -111,7 +111,13 @@ describe('Request', () => {
             }
 
             expect(request.info.remoteAddress).to.equal(expectedClientAddress);
-            expect(request.info.remoteAddress).to.equal(request.info.remoteAddress);
+            expect(request.info.remotePort).to.be.above(0);
+
+            // Call twice to reuse cached values
+
+            expect(request.info.remoteAddress).to.equal(expectedClientAddress);
+            expect(request.info.remotePort).to.be.above(0);
+
             return 'ok';
         };
 
@@ -122,6 +128,14 @@ describe('Request', () => {
         const { payload } = await Wreck.get('http://localhost:' + server.info.port);
         expect(payload.toString()).to.equal('ok');
         await server.stop();
+    });
+
+    it('sets port to nothing when not available', async () => {
+
+        const server = Hapi.server({ debug: false });
+        server.route({ method: 'GET', path: '/', handler: (request) => request.info.remotePort === '' });
+        const res = await server.inject('/');
+        expect(res.result).to.equal(true);
     });
 
     it('sets referrer', async () => {
