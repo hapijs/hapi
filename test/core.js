@@ -870,16 +870,16 @@ describe('Core', () => {
             const count1 = await internals.countConnections(server);
             expect(count1).to.equal(1);
 
-            setTimeout(() => socket.end(), 50);
+            setTimeout(() => socket.end(), 100);
 
             const stop = server.stop();
 
-            await Hoek.wait(20);
+            await Hoek.wait(50);
 
             const count2 = await internals.countConnections(server);
             expect(count2).to.equal(1);
 
-            await Hoek.wait(100);
+            await Hoek.wait(200);
 
             const count3 = await internals.countConnections(server);
             expect(count3).to.equal(0);
