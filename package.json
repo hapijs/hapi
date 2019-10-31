@@ -17,13 +17,13 @@
   "dependencies": {
     "@hapi/accept": "3.x.x",
     "@hapi/ammo": "3.x.x",
-    "@hapi/boom": "7.x.x",
+    "@hapi/boom": "8.x.x",
     "@hapi/bounce": "1.x.x",
-    "@hapi/call": "5.x.x",
+    "@hapi/call": "6.x.x",
     "@hapi/catbox": "10.x.x",
     "@hapi/catbox-memory": "4.x.x",
     "@hapi/heavy": "6.x.x",
-    "@hapi/hoek": "8.x.x",
+    "@hapi/hoek": "^8.5.0",
     "@hapi/joi": "16.x.x",
     "@hapi/mimos": "4.x.x",
     "@hapi/podium": "3.x.x",
@@ -35,10 +35,10 @@
     "@hapi/topo": "3.x.x"
   },
   "devDependencies": {
-    "@hapi/code": "6.x.x",
+    "@hapi/code": "7.x.x",
     "@hapi/inert": "5.x.x",
     "@hapi/joi-legacy-test": "npm:@hapi/joi@15.x.x",
-    "@hapi/lab": "20.x.x",
+    "@hapi/lab": "21.x.x",
     "@hapi/wreck": "15.x.x",
     "@hapi/vision": "5.x.x",
     "handlebars": "4.x.x"

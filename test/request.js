@@ -1271,6 +1271,140 @@ describe('Request', () => {
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal({ p: '/path', path: '//path', hostname: server.info.host.toLowerCase() });
         });
+
+        it('handles escaped path segments', async () => {
+
+            const server = Hapi.server();
+            server.route({ path: '/%2F/%2F', method: 'GET', handler: (request) => request.path });
+
+            const tests = [
+                ['/', 404],
+                ['////', 404],
+                ['/%2F/%2F', 200, '/%2F/%2F'],
+                ['/%2F/%2F#x', 200, '/%2F/%2F'],
+                ['/%2F/%2F?a=1#x', 200, '/%2F/%2F']
+            ];
+
+            for (const [uri, code, result] of tests) {
+                const res = await server.inject(uri);
+                expect(res.statusCode).to.equal(code);
+
+                if (code < 400) {
+                    expect(res.result).to.equal(result);
+                }
+            }
+        });
+
+        it('handles fragments (no query)', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/{p*}', handler: (request) => request.path });
+
+            await server.start();
+
+            const options = {
+                hostname: 'localhost',
+                port: server.info.port,
+                path: '/path#ignore',
+                method: 'GET'
+            };
+
+            const team = new Teamwork();
+            const req = Http.request(options, (res) => team.attend(res));
+            req.end();
+
+            const res = await team.work;
+            const payload = await Wreck.read(res);
+            expect(payload.toString()).to.equal('/path');
+
+            await server.stop();
+        });
+
+        it('handles fragments (with query)', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/{p*}', handler: (request) => request.query.a });
+
+            await server.start();
+
+            const options = {
+                hostname: 'localhost',
+                port: server.info.port,
+                path: '/path?a=1#ignore',
+                method: 'GET'
+            };
+
+            const team = new Teamwork();
+            const req = Http.request(options, (res) => team.attend(res));
+            req.end();
+
+            const res = await team.work;
+            const payload = await Wreck.read(res);
+            expect(payload.toString()).to.equal('1');
+
+            await server.stop();
+        });
+
+        it('handles absolute URL (proxy)', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/{p*}', handler: (request) => request.query.a.join() });
+
+            await server.start();
+
+            const options = {
+                hostname: 'localhost',
+                port: server.info.port,
+                path: 'http://example.com/path?a=1&a=2#ignore',
+                method: 'GET'
+            };
+
+            const team = new Teamwork();
+            const req = Http.request(options, (res) => team.attend(res));
+            req.end();
+
+            const res = await team.work;
+            const payload = await Wreck.read(res);
+            expect(payload.toString()).to.equal('1,2');
+
+            await server.stop();
+        });
+    });
+
+    describe('url', () => {
+
+        it('generates URL object lazily', async () => {
+
+            const server = Hapi.server();
+
+            const handler = (request) => {
+
+                expect(request._url).to.not.exist();
+                return request.url.pathname;
+            };
+
+            server.route({ path: '/test', method: 'GET', handler });
+            const res = await server.inject('/test?a=1');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('/test');
+        });
+
+        it('generates URL object lazily (no host header)', async () => {
+
+            const server = Hapi.server();
+
+            const handler = (request) => {
+
+                delete request.info.host;
+                expect(request._url).to.not.exist();
+                return request.url.pathname;
+            };
+
+            server.route({ path: '/test', method: 'GET', handler });
+            const res = await server.inject('/test?a=1');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('/test');
+        });
     });
 
     describe('_tap()', () => {
