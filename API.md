@@ -268,7 +268,7 @@ Creates a new server object where:
 - `options` - (optional) a [server configuration object](#server.options).
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 
 const server = Hapi.server({ load: { sampleInterval: 1000 } });
 ```
@@ -312,7 +312,7 @@ Cannot be set to `false` along with a [`port`](#server.options.port) value.
 
 #### <a name="server.options.cache" /> `server.options.cache`
 
-Default value: `{ provider: { constructor: require('catbox-memory'), options: { partition: 'hapi-cache' } } }`.
+Default value: `{ provider: { constructor: require('@hapi/catbox-memory'), options: { partition: 'hapi-cache' } } }`.
 
 Sets up server-side caching providers. Every server includes a default cache for storing
 application state. By default, a simple memory-based cache is created which has limited capacity
@@ -327,7 +327,7 @@ The server cache configuration only defines the storage container itself. The co
 assigned one or more (array):
 
 - a class or prototype function (usually obtained by calling `require()` on a **catbox** strategy
-    such as `require('catbox-redis')`). A new **catbox** [client](https://github.com/hapijs/catbox#client)
+    such as `require('@hapi/catbox-redis')`). A new **catbox** [client](https://github.com/hapijs/catbox#client)
     will be created internally using this constructor.
 
 - a configuration object with the following:
@@ -673,7 +673,7 @@ Contains:
 - `server` - decorations on the [server](#server) object.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 
 const success = function () {
@@ -901,7 +901,7 @@ An object containing information about the server where:
   started.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 
 console.log(server.info.port);            // 80
@@ -914,7 +914,7 @@ Access: read only and listener public interface.
 The node HTTP server object.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const SocketIO = require('socket.io');
 
 const server = Hapi.server({ port: 80 });
@@ -938,7 +938,7 @@ is enabled):
 - `rss` - RSS memory usage.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ load: { sampleInterval: 1000 } });
 
 console.log(server.load.rss);
@@ -957,7 +957,7 @@ share across multiple request handlers without having to create a common module.
 property.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server();
 
 server.method('add', (a, b) => (a + b));
@@ -972,7 +972,7 @@ Provides access to the server MIME database used for setting content-type inform
 must not be modified directly but only through the [`mime`](#server.options.mime) server setting.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 
 const options = {
     mime: {
@@ -1086,7 +1086,7 @@ Access: read only.
 The server configuration object after defaults applied.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({
     app: {
         key: 'value'
@@ -1137,7 +1137,7 @@ Access: read only.
 The **hapi** module version number.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server();
 
 console.log(server.version);        // '17.0.0'
@@ -1170,7 +1170,7 @@ The default auth strategy configuration can be accessed via [`server.auth.settin
 To obtain the active authentication configuration of a route, use `server.auth.lookup(request.route)`.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 
 server.auth.scheme('custom', scheme);
@@ -1247,7 +1247,7 @@ failed due to bad payload. If the error has no message but includes a scheme nam
 [`auth.payload`](#route.options.auth.payload) configuration is set to `'optional'`.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 
 const scheme = function (server, options) {
@@ -1281,7 +1281,7 @@ Registers an authentication strategy where:
 Return value: none.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 
 server.auth.scheme('custom', scheme);
@@ -1315,7 +1315,7 @@ also does not perform payload authentication. It is limited to the basic strateg
 execution. It does not include verifying scope, entity, or other route properties.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 
 server.auth.scheme('custom', scheme);
@@ -1353,7 +1353,7 @@ are still valid (e.g. have not been revoked or expired). It does not include ver
 entity, or other route properties.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 
 server.auth.scheme('custom', scheme);
@@ -1466,7 +1466,7 @@ Provisions a cache segment within the server cache facility where:
       `false`.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 
 async function example() {
 
@@ -1489,13 +1489,13 @@ Note that if the server has been initialized or started, the cache will be autom
 to match the state of any other provisioned server cache.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 
 async function example() {
 
     const server = Hapi.server({ port: 80 });
     await server.initialize();
-    await server.cache.provision({ provider: require('catbox-memory'), name: 'countries' });
+    await server.cache.provision({ provider: require('@hapi/catbox-memory'), name: 'countries' });
 
     const cache = server.cache({ cache: 'countries', expiresIn: 60 * 60 * 1000 });
     await cache.set('norway', { capital: 'oslo' });
@@ -1527,7 +1527,7 @@ Return value: none.
 
 ```js
 const Zlib = require('zlib');
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80, routes: { payload: { compression: { special: { chunkSize: 16 * 1024 } } } } });
 
 server.decoder('special', (options) => Zlib.createGunzip(options));
@@ -1561,7 +1561,7 @@ Extends various framework interfaces with custom methods where:
 Return value: none.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 
 const success = function () {
@@ -1588,7 +1588,7 @@ When registering a handler decoration, the `method` must be a function using the
 - `options` - the configuration object provided in the handler config.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 
 async function example() {
 
@@ -1622,7 +1622,7 @@ property is set to a function, the function uses the signature `function(method)
 route default configuration.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ host: 'localhost', port: 8000 });
 
 const handler = function (route, options) {
@@ -1723,7 +1723,7 @@ Return value: none.
 
 ```js
 const Zlib = require('zlib');
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80, routes: { compression: { special: { chunkSize: 16 * 1024 } } } });
 
 server.encoder('special', (options) => Zlib.createGzip(options));
@@ -1771,7 +1771,7 @@ Register custom application events where:
 Return value: none.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 
 async function example() {
 
@@ -1805,7 +1805,7 @@ Note that events must be registered before they can be emitted or subscribed to 
 invalid event activities.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 
 async function example() {
 
@@ -1869,7 +1869,7 @@ Subscribe to an event where:
 Return value: none.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 
 async function example() {
 
@@ -1887,7 +1887,7 @@ Same as calling [`server.events.on()`](#server.events.on()) with the `count` opt
 Return value: none.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 
 async function example() {
 
@@ -1906,7 +1906,7 @@ Same as calling [`server.events.on()`](#server.events.on()) with the `count` opt
  Return value: a promise that resolves when the event is emitted.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 
 async function example() {
 
@@ -2009,7 +2009,7 @@ points where:
 Return value: none.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 
 async function example() {
 
@@ -2041,7 +2041,7 @@ Registers a single extension event using the same properties as used in
 Return value: none.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 
 async function example() {
 
@@ -2077,8 +2077,8 @@ the process when the server fails to start properly. If you must try to resume a
 [`server.stop()`](#server.stop()) first to reset the server state.
 
 ```js
-const Hapi = require('hapi');
-const Hoek = require('hoek');
+const Hapi = require('@hapi/hapi');
+const Hoek = require('@hapi/hoek');
 
 async function example() {
 
@@ -2176,7 +2176,7 @@ Return value: a response object with the following properties:
 - `request` - the [request object](#request).
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 
 async function example() {
 
@@ -2209,7 +2209,7 @@ information or output to the console. The arguments are:
 Return value: none.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 
 server.events.on('log', (event, tags) => {
@@ -2231,7 +2231,7 @@ Looks up a route configuration where:
 Return value: the [route information](#request.route) if found, otherwise `null`.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server();
 server.route({
     method: 'GET',
@@ -2256,7 +2256,7 @@ Looks up a route configuration where:
 Return value: the [route information](#request.route) if found, otherwise `null`.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server();
 server.route({
     method: 'GET',
@@ -2312,7 +2312,7 @@ following properties and methods:
 Simple arguments example:
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 
 async function example() {
 
@@ -2328,7 +2328,7 @@ async function example() {
 Object argument example:
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 
 async function example() {
 
@@ -2494,7 +2494,7 @@ Note that the `options` object is deeply cloned (with the exception of `bind` wh
 copied) and cannot contain any values that are unsafe to perform deep copy on.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 
 // Handler in top level
@@ -2537,7 +2537,7 @@ if the parameter is at the ends of the path or only covers part of the segment a
 `request.params.id` set to an empty string `''`.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 
 const getAlbum = function (request, h) {
@@ -2560,7 +2560,7 @@ can be anything, then use `*` without a number (matching any number of segments 
 the last path segment).
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 
 const getPerson = function (request, h) {
@@ -2601,7 +2601,7 @@ If the application needs to override the default Not Found (404) error response,
 catch-all route for a specific method or all methods. Only one catch-all route can be defined.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 
 const handler = function (request, h) {
@@ -2653,7 +2653,7 @@ If a started server is started again, the second call to `server.start()` is ign
 will be emitted and no extension points invoked.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 
 async function example() {
 
@@ -2734,7 +2734,7 @@ State defaults can be modified via the [server.options.state](#server.options.st
 option.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 
 // Set cookie definition
@@ -2770,7 +2770,7 @@ is set to `'log'` and an invalid cookie value is received, the server will emit 
 event on the `'internal'` channel and filter on `'error'` and `'state'` tags:
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 
 server.events.on({ name: 'request', channels: 'internal' }, (request, event, tags) => {
@@ -2832,7 +2832,7 @@ connections will continue until closed or timeout), where:
 Return value: none.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 
 async function example() {
 
@@ -2856,7 +2856,7 @@ Return value: an array of routes where each route contains:
 - `path` - the route path.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 server.route({ method: 'GET', path: '/example', handler: () => 'ok' });
 
@@ -3338,7 +3338,7 @@ value is used to assign the corresponding [`request.pre`](#request.pre) and
 [lifecycle methods](#lifecycle-methods).
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 
 const pre1 = function (request, h) {
@@ -3996,8 +3996,8 @@ When the error is sent back to the client, the response contains a JSON object w
 `statusCode`, `error`, and `message` keys.
 
 ```js
-const Hapi = require('hapi');
-const Boom = require('boom');
+const Hapi = require('@hapi/hapi');
+const Boom = require('@hapi/boom');
 
 const server = Hapi.server();
 
@@ -4055,7 +4055,7 @@ It also supports the following method:
 - `reformat()` - rebuilds `error.output` using the other object properties.
 
 ```js
-const Boom = require('boom');
+const Boom = require('@hapi/boom');
 
 const handler = function (request, h) {
 
@@ -4073,8 +4073,8 @@ a different response object, as in this example using [Vision's](https://github.
 `.view()` [response toolkit](#response-toolkit) property.
 
 ```js
-const Hapi = require('hapi');
-const Vision = require('vision');
+const Hapi = require('@hapi/hapi');
+const Vision = require('@hapi/vision');
 
 const server = Hapi.server({ port: 80 });
 server.register(Vision, (err) => {
@@ -4196,7 +4196,7 @@ is returned, it should be used as the return value (but may be customize using t
 methods).
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 
 server.route({
@@ -4337,7 +4337,7 @@ The `response.events` object supports the following events:
 
 ```js
 const Crypto = require('crypto');
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 
 const preResponse = function (request, h) {
@@ -4749,7 +4749,7 @@ The `request.events` supports the following events:
 
 ```js
 const Crypto = require('crypto');
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 
 const onRequest = function (request, h) {
@@ -4977,7 +4977,7 @@ resource-intensive operation and should be terminated early if the request is no
 (e.g. client disconnected or aborted early).
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 
 server.route({
@@ -5012,7 +5012,7 @@ are:
   value) the actual data emitted to the listeners.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80, routes: { log: { collect: true } } });
 
 server.events.on({ name: 'request', channels: 'app' }, (request, event, tags) => {
@@ -5064,7 +5064,7 @@ Changes the request method before the router begins processing the request where
 - `method` - is the request HTTP method (e.g. `'GET'`).
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 
 const onRequest = function (request, h) {
@@ -5088,7 +5088,7 @@ Changes the request URI before the router begins processing the request where:
 - `stripTrailingSlash` - if `true`, strip the trailing slash from the path. Defaults to `false`.
 
 ```js
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 
 const onRequest = function (request, h) {
