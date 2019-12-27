@@ -21,6 +21,7 @@ describe('validation', () => {
     it('validates using joi v15', async () => {
 
         const server = Hapi.server();
+        server.validator(JoiLegacy);
         server.route({
             method: 'POST',
             path: '/',
@@ -47,6 +48,7 @@ describe('validation', () => {
         it('validates valid input', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -67,6 +69,7 @@ describe('validation', () => {
         it('validates both params and query', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/b/{x}',
@@ -91,6 +94,7 @@ describe('validation', () => {
         it('validates valid input using context', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/{user?}',
@@ -120,6 +124,7 @@ describe('validation', () => {
         it('validates valid input using auth context', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
 
             const scheme = function (authServer, options) {
 
@@ -167,6 +172,7 @@ describe('validation', () => {
         it('validates valid input using app context', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -193,6 +199,7 @@ describe('validation', () => {
         it('fails valid input', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -213,6 +220,7 @@ describe('validation', () => {
         it('retains custom validation error', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -233,6 +241,7 @@ describe('validation', () => {
         it('validates valid input with validation options', async () => {
 
             const server = Hapi.server({ routes: { validate: { options: { convert: false } } } });
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -330,6 +339,7 @@ describe('validation', () => {
         it('casts input to desired type', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/{seq}',
@@ -351,6 +361,7 @@ describe('validation', () => {
         it('uses original value before schema conversion', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/{seq}',
@@ -412,6 +423,7 @@ describe('validation', () => {
         it('validates valid input (Object root)', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -432,6 +444,7 @@ describe('validation', () => {
         it('validates non-object payload', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'POST',
                 path: '/',
@@ -450,6 +463,7 @@ describe('validation', () => {
         it('validates boolean payload', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'POST',
                 path: '/',
@@ -468,6 +482,7 @@ describe('validation', () => {
         it('fails on invalid input', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -488,6 +503,7 @@ describe('validation', () => {
         it('ignores invalid input', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -509,6 +525,7 @@ describe('validation', () => {
         it('logs invalid input', async () => {
 
             const server = Hapi.server({ routes: { log: { collect: true } } });
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -531,6 +548,7 @@ describe('validation', () => {
         it('replaces error with message on invalid input', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -556,6 +574,7 @@ describe('validation', () => {
         it('catches error thrown in failAction', async () => {
 
             const server = Hapi.server({ debug: false });
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -580,6 +599,7 @@ describe('validation', () => {
         it('customizes error on invalid input', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -626,6 +646,8 @@ describe('validation', () => {
                 }
             });
 
+            server.validator(Joi);
+
             server.route({
                 method: 'GET',
                 path: '/',
@@ -663,6 +685,7 @@ describe('validation', () => {
         it('fails on invalid payload', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'POST',
                 path: '/',
@@ -688,6 +711,7 @@ describe('validation', () => {
         it('converts string input to number', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'POST',
                 path: '/',
@@ -707,6 +731,7 @@ describe('validation', () => {
         it('fails on text input', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'POST',
                 path: '/',
@@ -728,6 +753,7 @@ describe('validation', () => {
         it('fails on null input', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'POST',
                 path: '/',
@@ -750,6 +776,7 @@ describe('validation', () => {
         it('fails on no payload', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'POST',
                 path: '/',
@@ -780,7 +807,8 @@ describe('validation', () => {
                         state: {
                             a: Joi.string().min(8)
                         },
-                        failAction: (request, h, err) => err            // Expose detailed error
+                        failAction: (request, h, err) => err,           // Expose detailed error
+                        validator: Joi
                     }
                 }
             });
@@ -802,6 +830,7 @@ describe('validation', () => {
         it('accepts valid cookies', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -869,6 +898,7 @@ describe('validation', () => {
         it('validates valid header', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -899,6 +929,7 @@ describe('validation', () => {
         it('rejects invalid header', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -960,6 +991,7 @@ describe('validation', () => {
         it('samples responses', async () => {
 
             const server = Hapi.server({ debug: false });
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -993,6 +1025,7 @@ describe('validation', () => {
             let i = 0;
 
             const server = Hapi.server({ debug: false });
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1017,6 +1050,7 @@ describe('validation', () => {
         it('validates response with context', async () => {
 
             const server = Hapi.server({ debug: false });
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1042,6 +1076,7 @@ describe('validation', () => {
         it('validates response using app context', async () => {
 
             const server = Hapi.server({ debug: false });
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1068,6 +1103,7 @@ describe('validation', () => {
             let i = 0;
 
             const server = Hapi.server({ debug: false });
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1103,6 +1139,7 @@ describe('validation', () => {
             let i = 0;
 
             const server = Hapi.server({ debug: false });
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1146,6 +1183,7 @@ describe('validation', () => {
         it('validates and modifies response', async () => {
 
             const server = Hapi.server({ debug: false });
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1168,6 +1206,7 @@ describe('validation', () => {
         it('validates and modifies error response', async () => {
 
             const server = Hapi.server({ debug: false });
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1220,6 +1259,7 @@ describe('validation', () => {
         it('throws on sample with response modify', () => {
 
             const server = Hapi.server({ debug: false });
+            server.validator(Joi);
             expect(() => {
 
                 server.route({
@@ -1242,6 +1282,7 @@ describe('validation', () => {
         it('do not throws on sample with false response modify', () => {
 
             const server = Hapi.server({ debug: false });
+            server.validator(Joi);
             expect(() => {
 
                 server.route({
@@ -1382,6 +1423,7 @@ describe('validation', () => {
         it('skips response validation when sample is zero', async () => {
 
             const server = Hapi.server({ debug: false });
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1413,6 +1455,7 @@ describe('validation', () => {
         it('does not delete the response object from the route when sample is 0', async () => {
 
             const server = Hapi.server({ debug: false });
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1436,6 +1479,7 @@ describe('validation', () => {
         it('fails response validation with options', async () => {
 
             const server = Hapi.server({ debug: false, routes: { response: { options: { convert: false } } } });
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1531,6 +1575,7 @@ describe('validation', () => {
         it('ignores error responses', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1554,6 +1599,7 @@ describe('validation', () => {
         it('errors on non-plain-object responses', async () => {
 
             const server = Hapi.server({ debug: false });
+            server.validator(Joi);
             await server.register(Inert);
             server.route({
                 method: 'GET',
@@ -1575,6 +1621,7 @@ describe('validation', () => {
         it('logs invalid responses', async () => {
 
             const server = Hapi.server({ debug: false });
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1603,6 +1650,7 @@ describe('validation', () => {
         it('replaces error with message on invalid response', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1628,6 +1676,7 @@ describe('validation', () => {
         it('combines onPreResponse with response validation override', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.ext('onPreResponse', () => 'else');
             server.route({
                 method: 'GET',
@@ -1654,6 +1703,7 @@ describe('validation', () => {
         it('combines onPreResponse with response validation override takeover', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
             server.ext('onPreResponse', () => 'else');
             server.route({
                 method: 'GET',
@@ -1729,6 +1779,7 @@ describe('validation', () => {
             let value = 'abcd';
 
             const server = Hapi.server({ debug: false });
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',
@@ -1754,6 +1805,7 @@ describe('validation', () => {
             let value = 'abcd';
 
             const server = Hapi.server({ debug: false });
+            server.validator(Joi);
             server.route({
                 method: 'GET',
                 path: '/',

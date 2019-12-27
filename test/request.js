@@ -804,6 +804,9 @@ describe('Request', () => {
                 path: '/',
                 options: {
                     handler: () => ({ a: '1' }),
+                    validate: {
+                        validator: Joi
+                    },
                     response: {
                         failAction: (request, h) => h.continue,
                         schema: {

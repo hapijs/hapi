@@ -144,7 +144,7 @@ describe('Route', () => {
         const server = Hapi.server();
         expect(() => {
 
-            server.route({ method: 'POST', path: '/', handler: () => null, options: { validate: { payload: {} }, payload: { parse: false } } });
+            server.route({ method: 'POST', path: '/', handler: () => null, options: { validate: { payload: {}, validator: Joi }, payload: { parse: false } } });
         }).to.throw('Route payload must be set to \'parse\' when payload validation enabled: POST /');
     });
 
@@ -270,6 +270,7 @@ describe('Route', () => {
     it('ignores validation on * route when request is GET', async () => {
 
         const server = Hapi.server();
+        server.validator(Joi);
         server.route({ method: '*', path: '/', handler: () => null, options: { validate: { payload: { a: Joi.required() } } } });
         const res = await server.inject('/');
         expect(res.statusCode).to.equal(204);
@@ -278,6 +279,7 @@ describe('Route', () => {
     it('ignores validation on * route when request is HEAD', async () => {
 
         const server = Hapi.server();
+        server.validator(Joi);
         server.route({ method: '*', path: '/', handler: () => null, options: { validate: { payload: { a: Joi.required() } } } });
         const res = await server.inject({ url: '/', method: 'HEAD' });
         expect(res.statusCode).to.equal(204);
@@ -306,7 +308,7 @@ describe('Route', () => {
 
     it('ignores default validation on GET', async () => {
 
-        const server = Hapi.server({ routes: { validate: { payload: { a: Joi.required() } } } });
+        const server = Hapi.server({ routes: { validate: { payload: { a: Joi.required() }, validator: Joi } } });
         server.route({ method: 'GET', path: '/', handler: () => null });
         const res = await server.inject('/');
         expect(res.statusCode).to.equal(204);
@@ -730,6 +732,7 @@ describe('Route', () => {
         it('compiles rules into config', async () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
 
             const processor = (rules) => {
 
@@ -773,6 +776,7 @@ describe('Route', () => {
         it('compiles rules into config (validate)', () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
 
             const processor = (rules) => {
 
@@ -788,6 +792,7 @@ describe('Route', () => {
         it('compiles rules into config (validate + options)', () => {
 
             const server = Hapi.server();
+            server.validator(Joi);
 
             const processor = (rules) => {
 

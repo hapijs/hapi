@@ -97,6 +97,7 @@
   - [`await server.states.parse(header)`](#server.states.parse())
   - [`await server.stop([options])`](#server.stop())
   - [`server.table([host])`](#server.table())
+  - [`server.validator(validator)`](#server.validator())
 - [Route options](#route-options)
   - [`route.options.app`](#route.options.app)
   - [`route.options.auth`](#route.options.auth)
@@ -2863,6 +2864,27 @@ server.route({ method: 'GET', path: '/example', handler: () => 'ok' });
 const table = server.table();
 ```
 
+### <a name="server.validator()" /> `server.validator(validator)`
+
+Registers a server validation module used to compile raw validation rules into validation schemas for all routes where:
+
+- `validator` - the validation module (e.g. **joi**).
+
+Return value: none.
+
+Note: the validator is only used when validation rules are not pre-compiled schemas. When a validation rules is a function or schema object, the rule is used as-is and the validator is not used.
+
+```js
+const Hapi = require('@hapi/hapi');
+const Joi = require('@hapi/joi');
+
+async function example() {
+
+    const server = Hapi.server({ port: 80 });
+    server.validator(Joi);
+}
+```
+
 ## Route options
 
 Each route can be customized to change the default behavior of the request lifecycle.
@@ -3580,7 +3602,7 @@ behavior. Set to `false` to disable socket timeouts.
 
 ### <a name="route.options.validate" /> `route.options.validate`
 
-Default value: `{ headers: true, params: true, query: true, payload: true, failAction: 'error' }`.
+Default value: `{ headers: true, params: true, query: true, payload: true, state: true, failAction: 'error' }`.
 
 Request input validation rules for various request components.
 
@@ -3743,6 +3765,14 @@ Validation rules for incoming cookies. The `cookie` header is parsed and decoded
       and the original value is stored in [`request.orig.state`](#request.orig). Otherwise, the
       cookie values are left unchanged. If an error is thrown, the error is handled according to
       [`failAction`](#route.options.validate.failAction).
+
+#### <a name="route.options.validate.validator" /> `route.options.validate.validator`
+
+Default value: `null` (no default validator).
+
+Sets a server validation module used to compile raw validation rules into validation schemas (e.g. **joi**).
+
+Note: the validator is only used when validation rules are not pre-compiled schemas. When a validation rules is a function or schema object, the rule is used as-is and the validator is not used.
 
 ## Request lifecycle
 
