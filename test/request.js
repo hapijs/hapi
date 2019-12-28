@@ -1362,6 +1362,31 @@ describe('Request', () => {
             await server.stop();
         });
 
+        it('handles fragments with ? (no query)', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/{p*}', handler: (request) => request.path });
+
+            await server.start();
+
+            const options = {
+                hostname: 'localhost',
+                port: server.info.port,
+                path: '/path#ignore?x',
+                method: 'GET'
+            };
+
+            const team = new Teamwork();
+            const req = Http.request(options, (res) => team.attend(res));
+            req.end();
+
+            const res = await team.work;
+            const payload = await Wreck.read(res);
+            expect(payload.toString()).to.equal('/path');
+
+            await server.stop();
+        });
+
         it('handles absolute URL (proxy)', async () => {
 
             const server = Hapi.server();
