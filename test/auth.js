@@ -1346,6 +1346,7 @@ describe('authentication', () => {
                     return h.continue;
                 }
             });
+
             server.ext('onPreResponse', (request, h) => {
 
                 expect(request.auth.credentials).to.equal({ user: 'steve' });
@@ -1354,6 +1355,7 @@ describe('authentication', () => {
                 expect(request.auth.error.message).to.equal('Unauthorized');
                 return h.continue;
             });
+
             server.auth.scheme('custom', scheme);
             server.auth.strategy('default', 'custom');
             server.auth.default('default', { mode: 'required' });
