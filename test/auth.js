@@ -1308,7 +1308,7 @@ describe('authentication', () => {
             expect(res.statusCode).to.equal(500);
         });
 
-        it('passes credentials on unauthenticated()', async () => {
+        it('passes credentials on unauthenticated() in try mode', async () => {
 
             const scheme = () => {
 
@@ -1330,6 +1330,38 @@ describe('authentication', () => {
 
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(204);
+        });
+
+        it('passes strategy, credentials, artifacts, error on unauthenticated() in required mode', async () => {
+
+            const scheme = () => {
+
+                return { authenticate: (request, h) => h.unauthenticated(Boom.unauthorized(), { credentials: { user: 'steve' }, artifacts: '!' }) };
+            };
+
+            const server = Hapi.server();
+            server.ext('onPreResponse', (request, h) => {
+
+                if (request.auth.credentials.user === 'steve') {
+                    return h.continue;
+                }
+            });
+            server.ext('onPreResponse', (request, h) => {
+
+                expect(request.auth.credentials).to.equal({ user: 'steve' });
+                expect(request.auth.artifacts).to.equal('!');
+                expect(request.auth.strategy).to.equal('default');
+                expect(request.auth.error.message).to.equal('Unauthorized');
+                return h.continue;
+            });
+            server.auth.scheme('custom', scheme);
+            server.auth.strategy('default', 'custom');
+            server.auth.default('default', { mode: 'required' });
+
+            server.route({ method: 'GET', path: '/', handler: () => null });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(401);
         });
     });
 
