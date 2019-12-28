@@ -244,7 +244,7 @@ describe('Request', () => {
 
     describe('active()', () => {
 
-        it('exits handler early when request is no longer active', async () => {
+        it('exits handler early when request is no longer active', { retry: true }, async () => {
 
             const server = Hapi.server();
             const team = new Teamwork();
