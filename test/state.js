@@ -194,4 +194,22 @@ describe('state', () => {
         expect(res.statusCode).to.equal(200);
         expect(res.headers['set-cookie']).to.equal(['a=b; Secure; HttpOnly; SameSite=Strict']);
     });
+
+    it('sets cookie value based on request', async () => {
+
+        const server = Hapi.server();
+
+        const contextualize = (definition, request) => {
+
+            definition.isSameSite = request.query.x;
+            definition.isSecure = false;
+        };
+
+        server.state('a', { contextualize });
+        server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('ok').state('a', 'b') });
+
+        const res = await server.inject('/?x=TEST');
+        expect(res.statusCode).to.equal(200);
+        expect(res.headers['set-cookie']).to.equal(['a=b; HttpOnly; SameSite=TEST']);
+    });
 });
