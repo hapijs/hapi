@@ -1977,41 +1977,6 @@ describe('transmission', () => {
             expect(res.statusCode).to.equal(500);
         });
     });
-
-    describe('end()', () => {
-
-        it('node v8 and v10 coverage', async () => {
-
-            const AbortStream = class extends Stream.Readable {
-
-                constructor(request) {
-
-                    super();
-                    this.request = request;
-                }
-
-                _read(size) {
-
-                    if (this.isDone) {
-                        return;
-                    }
-
-                    this.isDone = true;
-                    this.push('here is the response');
-                    this.push(null);
-
-                    this.request.raw.res.finished = true;
-                    this.request.raw.req.emit('close');
-                }
-            };
-
-            const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', handler: (request, h) => new AbortStream(request) });
-
-            const res = await server.inject({ url: '/' });
-            expect(res.statusCode).to.equal(200);
-        });
-    });
 });
 
 
