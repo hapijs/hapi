@@ -95,6 +95,28 @@ describe('Request.Generator', () => {
         expect(res.statusCode).to.equal(200);
         expect(res.result).to.equal(['x2']);
     });
+
+    it('decorates symbols when apply=true', async () => {
+
+        const server = Hapi.server();
+        const symbol = Symbol('abc');
+
+        server.decorate('request', symbol, () => 'foo', { apply: true });
+
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: (request) => {
+
+                return request[symbol];
+            }
+        });
+
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(200);
+        expect(res.result).to.equal('foo');
+
+    });
 });
 
 describe('Request', () => {
