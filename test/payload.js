@@ -77,7 +77,7 @@ describe('Payload', () => {
         expect(request.response.output.statusCode).to.equal(500);
     });
 
-    it('handles aborted request', async () => {
+    it('handles aborted request', { retry: true }, async () => {
 
         const server = Hapi.server();
         server.route({ method: 'POST', path: '/', options: { handler: () => 'Success', payload: { parse: false } } });

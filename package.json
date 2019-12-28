@@ -38,7 +38,7 @@
     "@hapi/code": "7.x.x",
     "@hapi/inert": "5.x.x",
     "@hapi/joi-legacy-test": "npm:@hapi/joi@15.x.x",
-    "@hapi/lab": "21.x.x",
+    "@hapi/lab": "22.x.x",
     "@hapi/wreck": "15.x.x",
     "@hapi/vision": "5.x.x",
     "handlebars": "4.x.x"

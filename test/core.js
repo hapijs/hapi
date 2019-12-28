@@ -1190,7 +1190,7 @@ describe('Core', () => {
 
         it('returns the request object for POST', async () => {
 
-            const payload = { foo:true };
+            const payload = { foo: true };
             const handler = (request) => {
 
                 return request.payload;
@@ -1206,7 +1206,7 @@ describe('Core', () => {
 
         it('returns the request string for POST', async () => {
 
-            const payload = JSON.stringify({ foo:true });
+            const payload = JSON.stringify({ foo: true });
             const handler = (request) => {
 
                 return request.payload;
@@ -1222,7 +1222,7 @@ describe('Core', () => {
 
         it('returns the request stream for POST', async () => {
 
-            const param = { foo:true };
+            const param = { foo: true };
             const payload = new Stream.Readable();
             payload.push(JSON.stringify(param));
             payload.push(null);
