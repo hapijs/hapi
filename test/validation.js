@@ -1049,12 +1049,6 @@ describe('validation', () => {
 
         it('validates response with context', async () => {
 
-            const schema = Joi.object({
-                some: Joi.string(),
-                more: Joi.string()
-            })
-                .when('$query.user', { not: 'admin', then: Joi.object({ more: Joi.forbidden() }) });
-
             const server = Hapi.server({ debug: false });
             server.validator(Joi);
             server.route({
@@ -1062,17 +1056,19 @@ describe('validation', () => {
                 path: '/',
                 options: {
                     response: {
-                        schema
+                        schema: Joi.object({
+                            some: Joi.string(),
+                            more: Joi.string()
+                        })
+                            .when('$query.user', { not: 'admin', then: Joi.object({ more: Joi.forbidden() }) })
                     }
                 },
                 handler: () => ({ some: 'thing', more: 'stuff' })
             });
 
-            schema.validate({ some: 'thing', more: 'stuff' }, { context: { query: { user: 'test' } } });
-
-            //const res1 = await server.inject('/?user=admin');
-            //expect(res1.statusCode).to.equal(200);
-            //expect(res1.payload).to.equal('{"some":"thing","more":"stuff"}');
+            const res1 = await server.inject('/?user=admin');
+            expect(res1.statusCode).to.equal(200);
+            expect(res1.payload).to.equal('{"some":"thing","more":"stuff"}');
 
             const res2 = await server.inject('/?user=test');
             expect(res2.statusCode).to.equal(500);
