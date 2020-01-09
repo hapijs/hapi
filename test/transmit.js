@@ -1279,7 +1279,7 @@ describe('transmission', () => {
             const server = Hapi.server();
 
             let destroyed = false;
-            const team = new Teamwork();
+            const team = new Teamwork.Team();
             const handler = (request) => {
 
                 const stream = new Stream.Readable();
@@ -1329,7 +1329,7 @@ describe('transmission', () => {
             const server = Hapi.server({ debug: false });
 
             let destroyed = false;
-            const team = new Teamwork();
+            const team = new Teamwork.Team();
             const handler = (request) => {
 
                 const stream = new Stream();
@@ -1395,7 +1395,7 @@ describe('transmission', () => {
         it('does not leak stream data when request timeouts before stream drains', async () => {
 
             const server = Hapi.server({ routes: { timeout: { server: 20, socket: 40 }, payload: { timeout: false } } });
-            const team = new Teamwork();
+            const team = new Teamwork.Team();
 
             const handler = (request) => {
 
@@ -1436,7 +1436,7 @@ describe('transmission', () => {
         it('does not leak stream data when request aborts before stream is returned', async () => {
 
             const server = Hapi.server();
-            const team = new Teamwork();
+            const team = new Teamwork.Team();
 
             const handler = async (request) => {
 

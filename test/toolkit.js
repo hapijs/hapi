@@ -100,7 +100,7 @@ describe('Toolkit', () => {
 
             it('includes method name when method missing return', async () => {
 
-                const team = new Teamwork();
+                const team = new Teamwork.Team();
                 const myErrorHandler = () => {};
 
                 const server = Hapi.server({ debug: false });
