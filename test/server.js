@@ -826,6 +826,78 @@ describe('Server', () => {
             expect(server.plugins.test1.add(1, 3)).to.equal(4);
             expect(server.plugins.test1.glue('1', '3')).to.equal('13');
         });
+
+        it('exposes an api (scope without scope)', async () => {
+
+            const server = Hapi.server();
+
+            const plugin = {
+                name: 'test1',
+                version: '1.0.0',
+                register: function (srv, options) {
+
+                    srv.expose('x', { y: 1 }, { scope: true });
+                }
+            };
+
+            await server.register(plugin);
+            expect(server.plugins.test1.x.y).to.equal(1);
+            expect(server.registrations).to.equal({ test1: { version: '1.0.0', name: 'test1', options: undefined } });
+        });
+
+        it('exposes an api (drops scope by default)', async () => {
+
+            const server = Hapi.server();
+
+            const plugin = {
+                name: '@hapi/test1',
+                version: '1.0.0',
+                register: function (srv, options) {
+
+                    srv.expose('x', { y: 1 });
+                }
+            };
+
+            await server.register(plugin);
+            expect(server.plugins.test1.x.y).to.equal(1);
+            expect(server.registrations).to.equal({ '@hapi/test1': { version: '1.0.0', name: '@hapi/test1', options: undefined } });
+        });
+
+        it('exposes an api (keeps scope)', async () => {
+
+            const server = Hapi.server();
+
+            const plugin = {
+                name: '@hapi/test1',
+                version: '1.0.0',
+                register: function (srv, options) {
+
+                    srv.expose('x', { y: 1 }, { scope: true });
+                }
+            };
+
+            await server.register(plugin);
+            expect(server.plugins['@hapi/test1'].x.y).to.equal(1);
+            expect(server.registrations).to.equal({ '@hapi/test1': { version: '1.0.0', name: '@hapi/test1', options: undefined } });
+        });
+
+        it('exposes an api (rewrites scope)', async () => {
+
+            const server = Hapi.server();
+
+            const plugin = {
+                name: '@hapi/test1',
+                version: '1.0.0',
+                register: function (srv, options) {
+
+                    srv.expose('x', { y: 1 }, { scope: 'underscore' });
+                }
+            };
+
+            await server.register(plugin);
+            expect(server.plugins.hapi__test1.x.y).to.equal(1);
+            expect(server.registrations).to.equal({ '@hapi/test1': { version: '1.0.0', name: '@hapi/test1', options: undefined } });
+        });
     });
 
     describe('ext()', () => {
