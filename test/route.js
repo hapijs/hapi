@@ -157,6 +157,26 @@ describe('Route', () => {
         }).to.throw('Cannot set path parameters validations without path parameters: POST /');
     });
 
+    it('ignores payload when overridden', async () => {
+
+        const server = Hapi.server();
+        server.route({
+            method: 'POST',
+            path: '/',
+            handler: (request) => request.payload
+        });
+
+        server.ext('onRequest', (request, h) => {
+
+            request.payload = 'x';
+            return h.continue;
+        });
+
+        const res = await server.inject({ method: 'POST', url: '/', payload: 'y' });
+        expect(res.statusCode).to.equal(200);
+        expect(res.result).to.equal('x');
+    });
+
     it('ignores payload parsing errors', async () => {
 
         const server = Hapi.server();

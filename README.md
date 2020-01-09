@@ -12,5 +12,6 @@ Build powerful, scalable applications, with minimal overhead and full out-of-the
 
 - [Documentation and API](https://hapi.dev/)
 - [Version status](https://hapi.dev/resources/status/#hapi) (builds, dependencies, node versions, licenses, eol)
+- [Changelog](https://hapi.dev/resources/changelog/)
 - [Project policies](https://hapi.dev/policies/)
 - [Free and commercial support options](https://hapi.dev/support/)

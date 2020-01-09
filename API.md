@@ -3777,9 +3777,8 @@ the same. The following is the complete list of steps a request can go through:
 
 - _**onRequest**_
     - always called when `onRequest` extensions exist.
-    - the request path and method can be modified via the [`request.setUrl()`](#request.setUrl())
-      and [`request.setMethod()`](#request.setMethod()) methods. Changes to the request path or
-      method will impact how the request is routed and can be used for rewrite rules.
+    - the request path and method can be modified via the [`request.setUrl()`](#request.setUrl()) and [`request.setMethod()`](#request.setMethod()) methods. Changes to the request path or method will impact how the request is routed and can be used for rewrite rules.
+    - [`request.payload`](#request.payload) is `undefined` and can be overridden with any non-`undefined` value to bypass payload processing.
     - [`request.route`](#request.route) is unassigned.
     - [`request.url`](#request.url) can be `null` if the incoming request path is invalid.
     - [`request.path`](#request.path) can be an invalid path.
@@ -3807,7 +3806,7 @@ the same. The following is the complete list of steps a request can go through:
     - based on the route [`auth`](#route.options.auth) option.
 
 - _**Payload processing**_
-    - based on the route [`payload`](#route.options.payload) option.
+    - based on the route [`payload`](#route.options.payload) option and if [`request.payload`](#request.payload) has not been overridden in _**onRequest**_.
     - error handling based on [`failAction`](#route.options.payload.failAction).
 
 - _**Payload authentication**_
@@ -4859,22 +4858,19 @@ The request method in lower case (e.g. `'get'`, `'post'`).
 
 Access: read only.
 
-The parsed content-type header. Only available when payload parsing enabled and no
-  payload error occurred.
+The parsed content-type header. Only available when payload parsing enabled and no  payload error occurred.
 
 #### <a name="request.orig" /> `request.orig`
 
 Access: read only.
 
-An object containing the values of `params`, `query`, `payload` and `state` before any validation
-modifications made. Only set when input validation is performed.
+An object containing the values of `params`, `query`, `payload` and `state` before any validation modifications made. Only set when input validation is performed.
 
 #### <a name="request.params" /> `request.params`
 
 Access: read only.
 
-An object where each key is a path parameter name with matching value as described in
-[Path parameters](#path-parameters).
+An object where each key is a path parameter name with matching value as described in [Path parameters](#path-parameters).
 
 #### <a name="request.paramsArray" /> `request.paramsArray`
 
@@ -4890,32 +4886,27 @@ The request URI's [pathname](https://nodejs.org/api/url.html#url_urlobject_pathn
 
 #### <a name="request.payload" /> `request.payload`
 
-Access: read only.
+Access: read only / write in `'onRequest'` extension method.
 
-The request payload based on the route `payload.output` and `payload.parse` settings.
+The request payload based on the route `payload.output` and `payload.parse` settings. Set to `undefined` in `'onRequest'` extension methods and can be overridden to any non-`undefined` value to bypass payload processing.
 
 #### <a name="request.plugins" /> `request.plugins`
 
 Access: read / write.
 
-Plugin-specific state. Provides a place to store and pass request-level plugin data. The `plugins`
-is an object where each key is a plugin name and the value is the state.
+Plugin-specific state. Provides a place to store and pass request-level plugin data. The `plugins` is an object where each key is a plugin name and the value is the state.
 
 #### <a name="request.pre" /> `request.pre`
 
 Access: read only.
 
-An object where each key is the name assigned by a [route pre-handler methods](#route.options.pre)
-function. The values are the raw values provided to the continuation function as argument. For the
-wrapped response object, use `responses`.
+An object where each key is the name assigned by a [route pre-handler methods](#route.options.pre) function. The values are the raw values provided to the continuation function as argument. For the wrapped response object, use `responses`.
 
 #### <a name="request.response" /> `request.response`
 
 Access: read / write (see limitations below).
 
-The response object when set. The object can be modified but must not be assigned another object.
-To replace the response with another from within an [extension point](#server.ext()), return a new response value. Contains `null` when no response has
-been set (e.g. when a request terminates prematurely when the client disconnects).
+The response object when set. The object can be modified but must not be assigned another object. To replace the response with another from within an [extension point](#server.ext()), return a new response value. Contains `null` when no response has been set (e.g. when a request terminates prematurely when the client disconnects).
 
 #### <a name="request.preResponses" /> `request.preResponses`
 
@@ -4927,16 +4918,13 @@ Same as `pre` but represented as the response object created by the pre method.
 
 Access: read only.
 
-An object where each key is a query parameter name and each matching value is the parameter value
-or an array of values if a parameter repeats. Can be modified indirectly via
-[request.setUrl](#request.setUrl()).
+An object where each key is a query parameter name and each matching value is the parameter value or an array of values if a parameter repeats. Can be modified indirectly via [request.setUrl](#request.setUrl()).
 
 #### <a name="request.raw" /> `request.raw`
 
 Access: read only.
 
-An object containing the Node HTTP server objects. **Direct interaction with these raw objects is
-not recommended.**
+An object containing the Node HTTP server objects. **Direct interaction with these raw objects is not recommended.**
 - `req` - the node request object.
 - `res` - the node response object.
 
@@ -4962,8 +4950,7 @@ The server object.
 
 Access: read only.
 
-An object containing parsed HTTP state information (cookies) where each key is the cookie name and
-value is the matching cookie content after processing using any registered cookie definition.
+An object containing parsed HTTP state information (cookies) where each key is the cookie name and value is the matching cookie content after processing using any registered cookie definition.
 
 #### <a name="request.url" /> `request.url`
 
@@ -4977,29 +4964,21 @@ Returns a [`response`](#response-object) which you can pass into the [reply inte
 - `source` - the value to set as the source of the [reply interface](#response-toolkit), optional.
 - `options` - optional object with the following optional properties:
     - `variety` - a sting name of the response type (e.g. `'file'`).
-    - `prepare` - a function with the signature `async function(response)` used to prepare the
-      response after it is returned by a [lifecycle method](#lifecycle-methods) such as setting a
-      file descriptor, where:
+    - `prepare` - a function with the signature `async function(response)` used to prepare the response after it is returned by a [lifecycle method](#lifecycle-methods) such as setting a file descriptor, where:
         - `response` - the response object being prepared.
         - must return the prepared response object (new object or `response`).
         - may throw an error which is used as the prepared response.
-    - `marshal` - a function with the signature `async function(response)` used to prepare the
-      response for transmission to the client before it is sent, where:
+    - `marshal` - a function with the signature `async function(response)` used to prepare the response for transmission to the client before it is sent, where:
         - `response` - the response object being marshaled.
-        - must return the prepared value (not as response object) which can be any value accepted
-          by the [`h.response()`](#h.response()) `value` argument.
+        - must return the prepared value (not as response object) which can be any value accepted by the [`h.response()`](#h.response()) `value` argument.
         - may throw an error which is used as the marshaled value.
-    - `close` - a function with the signature `function(response)` used to close the resources
-      opened by the response object (e.g. file handlers), where:
+    - `close` - a function with the signature `function(response)` used to close the resources opened by the response object (e.g. file handlers), where:
         - `response` - the response object being marshaled.
         - should not throw errors (which are logged but otherwise ignored).
 
 ### <a name="request.active()" /> `request.active()`
 
-Returns `true` when the request is active and processing should continue and `false` when the
-request terminated early or completed its lifecycle. Useful when request processing is a
-resource-intensive operation and should be terminated early if the request is no longer active
-(e.g. client disconnected or aborted early).
+Returns `true` when the request is active and processing should continue and `false` when the request terminated early or completed its lifecycle. Useful when request processing is a resource-intensive operation and should be terminated early if the request is no longer active (e.g. client disconnected or aborted early).
 
 ```js
 const Hapi = require('@hapi/hapi');
