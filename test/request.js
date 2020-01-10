@@ -242,6 +242,37 @@ describe('Request', () => {
         expect(res3.result).to.match(/10$/);
     });
 
+    it('can serialize request.info with JSON.stringify()', async () => {
+
+        const server = Hapi.server();
+
+        const handler = (request) => {
+
+            const actual = JSON.stringify(request.info);
+            const expected = JSON.stringify({
+                acceptEncoding: request.info.acceptEncoding,
+                completed: request.info.completed,
+                cors: request.info.cors,
+                host: request.info.host,
+                hostname: request.info.hostname,
+                id: request.info.id,
+                received: request.info.received,
+                referrer: request.info.referrer,
+                remoteAddress: request.info.remoteAddress,
+                remotePort: request.info.remotePort,
+                responded: request.info.responded
+            });
+
+            expect(actual).to.equal(expected);
+            return 'ok';
+        };
+
+        server.route({ method: 'GET', path: '/', handler });
+
+        const res = await server.inject({ url: '/' });
+        expect(res.result).to.equal('ok');
+    });
+
     describe('active()', () => {
 
         it('exits handler early when request is no longer active', { retry: true }, async () => {
