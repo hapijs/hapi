@@ -1071,6 +1071,23 @@ describe('Request', () => {
             expect(res.payload).to.equal(url + '|/page|something');
         });
 
+        it('sets root url', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request) => request.url.pathname });
+
+            const onRequest = (request, h) => {
+
+                request.setUrl('/');
+                return h.continue;
+            };
+
+            server.ext('onRequest', onRequest);
+
+            const res = await server.inject('/a/b/c');
+            expect(res.result).to.equal('/');
+        });
+
         it('updates host info', async () => {
 
             const url = 'http://redirected:321/';
