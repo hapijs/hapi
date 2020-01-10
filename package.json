@@ -40,7 +40,7 @@
     "@hapi/joi-legacy-test": "npm:@hapi/joi@15.x.x",
     "@hapi/lab": "22.x.x",
     "@hapi/wreck": "17.x.x",
-    "@hapi/vision": "5.x.x",
+    "@hapi/vision": "6.x.x",
     "handlebars": "4.x.x"
   },
   "scripts": {
