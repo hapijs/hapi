@@ -1,5 +1,5 @@
 {
-  "name": "@hapi/hapi",
+  "name": "@commercial/hapi",
   "description": "HTTP Server framework",
   "homepage": "https://hapijs.com",
   "version": "19.0.2",
@@ -48,5 +48,5 @@
     "test-tap": "lab -a @hapi/code -r tap -o tests.tap -m 5000",
     "test-cov-html": "lab -a @hapi/code -r html -o coverage.html -m 5000"
   },
-  "license": "BSD-3-Clause"
+  "license": "SEE LICENSE IN LICENSE.md"
 }
