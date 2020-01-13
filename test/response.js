@@ -87,6 +87,14 @@ describe('Response', () => {
         expect(res.headers['content-type']).to.equal('text/plain; something=something; charset=utf-8');
     });
 
+    it('retains empty string', async () => {
+
+        const server = Hapi.server();
+        server.route({ method: 'GET', path: '/', handler: () => '' });
+        const res = await server.inject('/');
+        expect(res.result).to.equal('');
+    });
+
     describe('_setSource()', () => {
 
         it('returns an empty string response', async () => {
