@@ -35,6 +35,22 @@ describe('CORS', () => {
         server.route({ method: 'GET', path: '/', handler });
 
         const res = await server.inject({ method: 'OPTIONS', url: '/', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } });
+        expect(res.statusCode).to.equal(204);
+        expect(res.headers['access-control-allow-origin']).to.equal('http://example.com/');
+    });
+
+    it('returns OPTIONS response with correct status code for pre-defined emptyStatusCode', async () => {
+
+        const handler = function () {
+
+            throw Boom.badRequest();
+        };
+
+        const server = Hapi.server({ routes: { cors: true } });
+        server.route({ method: 'GET', path: '/', handler, options: { response: { emptyStatusCode: 200 } } });
+
+        const res = await server.inject({ method: 'OPTIONS', url: '/', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } });
+        expect(res.statusCode).to.equal(200);
         expect(res.headers['access-control-allow-origin']).to.equal('http://example.com/');
     });
 
