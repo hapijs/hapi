@@ -348,6 +348,23 @@ describe('CORS', () => {
             expect(res.headers.vary).to.equal('x-test,origin,accept-encoding');
         });
 
+        it('prevents simple forged CORS requests', async () => {
+
+            const handler = (request, h) => {
+
+                return h.response('Tada').header('vary', 'x-test');
+            };
+
+            const server = Hapi.server({ compression: { minBytes: 1 }, routes: { cors: { origin: ['http://*.example.com'] } } });
+            server.route({ method: 'GET', path: '/', handler });
+
+            const res = await server.inject({ url: '/', headers: { origin: 'http://evil.com/.example.com' } });
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Tada');
+            expect(res.headers['access-control-allow-origin']).to.not.exist();
+        });
+
         it('returns matching CORS origin wildcard when more than one wildcard', async () => {
 
             const handler = (request, h) => {
