@@ -15,8 +15,8 @@
     "web"
   ],
   "dependencies": {
-    "@hapi/accept": "4.x.x",
-    "@hapi/ammo": "4.x.x",
+    "@hapi/accept": "5.x.x",
+    "@hapi/ammo": "5.x.x",
     "@hapi/boom": "9.x.x",
     "@hapi/bounce": "2.x.x",
     "@hapi/call": "7.x.x",
