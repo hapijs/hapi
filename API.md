@@ -142,6 +142,12 @@ Default value: the operating system hostname and if not available, to `'localhos
 The public hostname or IP address. Used to set [`server.info.host`](#server.info) and
 [`server.info.uri`](#server.info) and as [`address`](#server.options.address) is none provided.
 
+### <a name="server.options.info.remote" /> `server.options.info.remote`
+
+Default value: `false`.
+
+If `true`, the `request.info.remoteAddress` and `request.info.remotePort` are populated when the request is received which can consume more resource (but is ok if the information is needed, especially for aborted requests). When `false`, the fields are only populated upon demand (but will be `undefined` if accessed after the request is aborted).
+
 #### <a name="server.options.listener" /> `server.options.listener`
 
 Default value: none.

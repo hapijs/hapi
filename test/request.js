@@ -410,14 +410,16 @@ describe('Request', () => {
                 return stream;
             };
 
-            const server = Hapi.server();
+            const server = Hapi.server({ info: { remote: true } });
             server.route({ method: 'GET', path: '/', handler });
 
             let disconnected = 0;
+            let info;
             const onRequest = (request, h) => {
 
                 request.events.once('disconnect', () => {
 
+                    info = request.info;
                     ++disconnected;
                 });
 
@@ -462,6 +464,8 @@ describe('Request', () => {
             });
 
             await server.stop();
+            expect(info.remotePort).to.exist();
+            expect(info.remoteAddress).to.exist();
         });
 
         it('handles aborted requests (pre response)', async () => {
