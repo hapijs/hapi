@@ -2,7 +2,7 @@
   "name": "@commercial/hapi",
   "description": "HTTP Server framework",
   "homepage": "https://hapijs.com",
-  "version": "18.4.0",
+  "version": "18.4.1",
   "repository": "git://github.com/hapijs/hapi",
   "main": "lib/index.js",
   "keywords": [
@@ -15,11 +15,11 @@
     "lib"
   ],
   "dependencies": {
-    "@hapi/accept": "3.x.x",
-    "@hapi/ammo": "3.x.x",
+    "@hapi/accept": "^3.2.4",
+    "@hapi/ammo": "^3.1.2",
     "@hapi/boom": "7.x.x",
     "@hapi/bounce": "1.x.x",
-    "@hapi/call": "5.x.x",
+    "@hapi/call": "^5.1.3",
     "@hapi/catbox": "10.x.x",
     "@hapi/catbox-memory": "4.x.x",
     "@hapi/heavy": "6.x.x",
@@ -30,7 +30,7 @@
     "@hapi/shot": "4.x.x",
     "@hapi/somever": "2.x.x",
     "@hapi/statehood": "6.x.x",
-    "@hapi/subtext": "6.x.x",
+    "@hapi/subtext": "^6.1.3",
     "@hapi/teamwork": "3.x.x",
     "@hapi/topo": "3.x.x"
   },
