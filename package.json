@@ -15,8 +15,8 @@
     "web"
   ],
   "dependencies": {
-    "@hapi/accept": "5.x.x",
-    "@hapi/ammo": "5.x.x",
+    "@hapi/accept": "^5.0.1",
+    "@hapi/ammo": "^5.0.1",
     "@hapi/boom": "9.x.x",
     "@hapi/bounce": "2.x.x",
     "@hapi/call": "8.x.x",
@@ -29,8 +29,8 @@
     "@hapi/podium": "4.x.x",
     "@hapi/shot": "5.x.x",
     "@hapi/somever": "3.x.x",
-    "@hapi/statehood": "7.x.x",
-    "@hapi/subtext": "7.x.x",
+    "@hapi/statehood": "^7.0.2",
+    "@hapi/subtext": "^7.0.3",
     "@hapi/teamwork": "4.x.x",
     "@hapi/topo": "5.x.x"
   },

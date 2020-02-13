@@ -531,7 +531,7 @@ describe('Payload', () => {
         expect(res.statusCode).to.equal(415);
     });
 
-    it('returns parsed multipart data', async () => {
+    it('returns parsed multipart data (route)', async () => {
 
         const multipartPayload =
             '--AaB03x\r\n' +
@@ -576,6 +576,60 @@ describe('Payload', () => {
 
         const server = Hapi.server();
         server.route({ method: 'POST', path: '/echo', handler, options: { payload: { multipart: true } } });
+
+        const res = await server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } });
+        expect(Object.keys(res.result).length).to.equal(3);
+        expect(res.result.field1).to.exist();
+        expect(res.result.field1.length).to.equal(2);
+        expect(res.result.field1[1]).to.equal('Repeated name segment');
+        expect(res.result.pics).to.exist();
+    });
+
+    it('returns parsed multipart data (server)', async () => {
+
+        const multipartPayload =
+            '--AaB03x\r\n' +
+            'content-disposition: form-data; name="x"\r\n' +
+            '\r\n' +
+            'First\r\n' +
+            '--AaB03x\r\n' +
+            'content-disposition: form-data; name="x"\r\n' +
+            '\r\n' +
+            'Second\r\n' +
+            '--AaB03x\r\n' +
+            'content-disposition: form-data; name="x"\r\n' +
+            '\r\n' +
+            'Third\r\n' +
+            '--AaB03x\r\n' +
+            'content-disposition: form-data; name="field1"\r\n' +
+            '\r\n' +
+            'Joe Blow\r\nalmost tricked you!\r\n' +
+            '--AaB03x\r\n' +
+            'content-disposition: form-data; name="field1"\r\n' +
+            '\r\n' +
+            'Repeated name segment\r\n' +
+            '--AaB03x\r\n' +
+            'content-disposition: form-data; name="pics"; filename="file1.txt"\r\n' +
+            'Content-Type: text/plain\r\n' +
+            '\r\n' +
+            '... contents of file1.txt ...\r\r\n' +
+            '--AaB03x--\r\n';
+
+        const handler = (request) => {
+
+            const result = {};
+            const keys = Object.keys(request.payload);
+            for (let i = 0; i < keys.length; ++i) {
+                const key = keys[i];
+                const value = request.payload[key];
+                result[key] = value._readableState ? true : value;
+            }
+
+            return result;
+        };
+
+        const server = Hapi.server({ routes: { payload: { multipart: true } } });
+        server.route({ method: 'POST', path: '/echo', handler });
 
         const res = await server.inject({ method: 'POST', url: '/echo', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } });
         expect(Object.keys(res.result).length).to.equal(3);
