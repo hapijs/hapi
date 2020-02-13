@@ -2,7 +2,7 @@
   "name": "@commercial/hapi",
   "description": "HTTP Server framework",
   "homepage": "https://hapijs.com",
-  "version": "17.9.1",
+  "version": "17.9.2",
   "repository": "git://github.com/hapijs/hapi",
   "main": "lib/index.js",
   "keywords": [
