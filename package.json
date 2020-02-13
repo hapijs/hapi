@@ -16,9 +16,9 @@
   ],
   "dependencies": {
     "@commercial/accept": "2.x.x",
-    "@commercial/ammo": "2.x.x",
+    "@commercial/ammo": "^2.1.1",
     "@commercial/boom": "5.x.x",
-    "@commercial/call": "4.x.x",
+    "@commercial/call": "^4.1.1",
     "@commercial/catbox": "7.x.x",
     "@commercial/catbox-memory": "2.x.x",
     "@commercial/cryptiles": "3.x.x",
@@ -32,7 +32,7 @@
     "@commercial/shot": "3.x.x",
     "@commercial/somever": "1.x.x",
     "@commercial/statehood": "5.x.x",
-    "@commercial/subtext": "5.x.x",
+    "@commercial/subtext": "^5.1.2",
     "@commercial/topo": "2.x.x"
   },
   "devDependencies": {
