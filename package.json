@@ -24,7 +24,7 @@
     "@hapi/catbox-memory": "4.x.x",
     "@hapi/heavy": "6.x.x",
     "@hapi/hoek": "8.x.x",
-    "@hapi/joi": "15.x.x",
+    "@hapi/joi": "15.x.x - 16.x.x",
     "@hapi/mimos": "4.x.x",
     "@hapi/podium": "3.x.x",
     "@hapi/shot": "4.x.x",
