@@ -4401,7 +4401,7 @@ Return value: the current response object.
 
 Sets the HTTP 'Content-Type' header where:
 
-- `value` - is the mime type.
+- `mimeType` - is the mime type.
 
 Return value: the current response object.
 
