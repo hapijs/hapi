@@ -37,7 +37,6 @@
   "devDependencies": {
     "@hapi/code": "8.x.x",
     "@hapi/inert": "6.x.x",
-    "@hapi/joi-legacy-test": "npm:@hapi/joi@15.x.x",
     "@hapi/lab": "22.x.x",
     "@hapi/wreck": "17.x.x",
     "@hapi/vision": "6.x.x",

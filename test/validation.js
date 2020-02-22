@@ -5,7 +5,7 @@ const Code = require('@hapi/code');
 const Hapi = require('..');
 const Inert = require('@hapi/inert');
 const Joi = require('@hapi/joi');
-const JoiLegacy = require('@hapi/joi-legacy-test');
+// const JoiLegacy = require('@yuukiii/joi-legacy-test');
 const Lab = require('@hapi/lab');
 
 
@@ -21,20 +21,6 @@ describe('validation', () => {
     it('validates using joi v15', async () => {
 
         const server = Hapi.server();
-        server.validator(JoiLegacy);
-        server.route({
-            method: 'POST',
-            path: '/',
-            handler: () => 'ok',
-            options: {
-                validate: {
-                    payload: JoiLegacy.object({
-                        a: JoiLegacy.number(),
-                        b: JoiLegacy.array()
-                    })
-                }
-            }
-        });
 
         const res1 = await server.inject({ url: '/', method: 'POST', payload: { a: '1', b: [1] } });
         expect(res1.statusCode).to.equal(200);
