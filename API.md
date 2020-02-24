@@ -140,7 +140,7 @@ output set the `log` or `request` to `false`. To display all server logs, set th
 Default value: the operating system hostname and if not available, to `'localhost'`.
 
 The public hostname or IP address. Used to set [`server.info.host`](#server.info) and
-[`server.info.uri`](#server.info) and as [`address`](#server.options.address) is none provided.
+[`server.info.uri`](#server.info) and as [`address`](#server.options.address) if none is provided.
 
 ### <a name="server.options.info.remote" /> `server.options.info.remote`
 
