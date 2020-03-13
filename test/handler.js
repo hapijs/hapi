@@ -135,6 +135,28 @@ describe('handler', () => {
             const res = await server.inject('/domain');
             expect(res.statusCode).to.equal(500);
         });
+
+        it('returns 500 on custom function error', async () => {
+
+            const server = Hapi.server({ debug: false });
+
+            const onPreHandler = function (request, h) {
+
+                request.app.custom = () => {
+
+                    throw new Error('oops');
+                };
+
+                return h.continue;
+            };
+
+            server.ext('onPreHandler', onPreHandler);
+
+            server.route({ method: 'GET', path: '/', handler: (request) => request.app.custom() });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+        });
     });
 
     describe('prerequisitesConfig()', () => {
