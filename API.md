@@ -4889,6 +4889,11 @@ A plugin is an object with the following properties:
 - `dependencies` - (optional) a string or an array of strings indicating a plugin dependency. Same
   as setting dependencies via [`server.dependency()`](#server.dependency()).
 
+- `requirements` - (optional) object declaring the plugin supported [semver range](https://semver.org/) for:
+
+  - `node` runtime [semver range](https://nodejs.org/en/about/releases/) string.
+  - `hapi` framework [semver range](#server.version) string.
+
 - `once` - (optional) if `true`, will only register the plugin once per server. If set, overrides
   the `once` option passed to [`server.register()`](#server.register()). Defaults to no override.
 
