@@ -20,7 +20,7 @@
     "@hapi/boom": "9.x.x",
     "@hapi/bounce": "2.x.x",
     "@hapi/call": "8.x.x",
-    "@hapi/catbox": "11.x.x",
+    "@hapi/catbox": "^11.1.0",
     "@hapi/catbox-memory": "5.x.x",
     "@hapi/heavy": "7.x.x",
     "@hapi/hoek": "9.x.x",

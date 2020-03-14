@@ -61,7 +61,7 @@ Sets up server-side caching providers. Every server includes a default cache for
 application state. By default, a simple memory-based cache is created which has limited capacity
 and capabilities.
 
-**hapi** uses [**catbox**](https://github.com/hapijs/catbox) for its cache implementation which
+**hapi** uses [**catbox**](https://hapi.dev/family/catbox/api) for its cache implementation which
 includes support for common storage solutions (e.g. Redis, MongoDB, Memcached, Riak, among others).
 Caching is only utilized if [methods](#server.methods) and [plugins](#plugins) explicitly store
 their state in the cache.
@@ -70,7 +70,7 @@ The server cache configuration only defines the storage container itself. The co
 assigned one or more (array):
 
 - a class or prototype function (usually obtained by calling `require()` on a **catbox** strategy
-    such as `require('@hapi/catbox-redis')`). A new **catbox** [client](https://github.com/hapijs/catbox#client)
+    such as `require('@hapi/catbox-redis')`). A new **catbox** [client](https://hapi.dev/family/catbox/api#client)
     will be created internally using this constructor.
 
 - a configuration object with the following:
@@ -166,38 +166,29 @@ Default value: `{ sampleInterval: 0 }`.
 
 Server excessive load handling limits where:
 
-- `sampleInterval` - the frequency of sampling in milliseconds. When set to `0`, the other load
-  options are ignored. Defaults to `0` (no sampling).
+- `sampleInterval` - the frequency of sampling in milliseconds. When set to `0`, the other load options are ignored. Defaults to `0` (no sampling).
 
-- `maxHeapUsedBytes` - maximum V8 heap size over which incoming requests are rejected with an HTTP
-  Server Timeout (503) response. Defaults to `0` (no limit).
+- `maxHeapUsedBytes` - maximum V8 heap size over which incoming requests are rejected with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
 
-- `maxRssBytes` - maximum process RSS size over which incoming requests are rejected with an HTTP
-  Server Timeout (503) response. Defaults to `0` (no limit).
+- `maxRssBytes` - maximum process RSS size over which incoming requests are rejected with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
 
-- `maxEventLoopDelay` - maximum event loop delay duration in milliseconds over which incoming
-  requests are rejected with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
+- `maxEventLoopDelay` - maximum event loop delay duration in milliseconds over which incoming requests are rejected with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
 
 #### <a name="server.options.mime" /> `server.options.mime`
 
 Default value: none.
 
-Options passed to the [**mimos**](https://github.com/hapijs/mimos) module when generating the mime
-database used by the server (and accessed via [`server.mime`](#server.mime)):
+Options passed to the [**mimos**](https://hapi.dev/family/mimos/api) module when generating the mime database used by the server (and accessed via [`server.mime`](#server.mime)):
 
-- `override` - an object hash that is merged into the built in mime information specified
-  [here](https://github.com/jshttp/mime-db). Each key value pair represents a single mime object.
-  Each override value must contain:
+- `override` - an object hash that is merged into the built in mime information specified [here](https://github.com/jshttp/mime-db). Each key value pair represents a single mime object. Each override value must contain:
 
     - `key` - the lower-cased mime-type string (e.g. `'application/javascript'`).
 
-    - `value` - an object following the specifications outlined [here](https://github.com/jshttp/mime-db#data-structure).
-      Additional values include:
+    - `value` - an object following the specifications outlined [here](https://github.com/jshttp/mime-db#data-structure). Additional values include:
 
         - `type` - specify the `type` value of result objects, defaults to `key`.
 
-        - `predicate` - method with signature `function(mime)` when this mime type is found in the
-          database, this function will execute to allows customizations.
+        - `predicate` - method with signature `function(mime)` when this mime type is found in the database, this function will execute to allows customizations.
 
 ```js
 const options = {
@@ -438,7 +429,7 @@ console.log(server.decorations.toolkit);            // ['success']
 
 Access: **podium** public interface.
 
-The server events emitter. Utilizes the [**podium**](https://github.com/hapijs/podium) with support
+The server events emitter. Utilizes the [**podium**](https://hapi.dev/family/podium/api) with support
 for event criteria validation, channels, and filters.
 
 Use the following methods to interact with `server.events`:
@@ -1162,7 +1153,7 @@ exports.plugin = {
 
 Provisions a cache segment within the server cache facility where:
 
-- `options` - [**catbox** policy](https://github.com/hapijs/catbox#policy) configuration where:
+- `options` - [**catbox** policy](https://hapi.dev/family/catbox/api#policy) configuration where:
 
     - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was
       saved in the cache. Cannot be used together with `expiresAt`.
@@ -1213,6 +1204,8 @@ Provisions a cache segment within the server cache facility where:
 
     - `shared` - if `true`, allows multiple cache provisions to share the same segment. Default to
       `false`.
+
+Return value: a [**catbox** policy](https://hapi.dev/family/catbox/api#policy) object.
 
 ```js
 const Hapi = require('@hapi/hapi');
@@ -1513,7 +1506,7 @@ Register custom application events where:
           registrations, only the first configuration is used. Defaults to `false` (a duplicate
           registration will throw an error).
 
-    - a [**podium**](https://github.com/hapijs/podium) emitter object.
+    - a [**podium**](https://hapi.dev/family/podium/api) emitter object.
 
     - an array containing any of the above.
 
@@ -1847,7 +1840,7 @@ Injects a request into the server simulating an incoming HTTP request without ma
 socket connection. Injection is useful for testing purposes as well as for invoking routing logic
 internally without the overhead and limitations of the network stack.
 
-The method utilizes the [**shot**](https://github.com/hapijs/shot) module for performing
+The method utilizes the [**shot**](https://hapi.dev/family/shot/api) module for performing
 injections, with some additional options and response properties:
 
 - `options` - can be assigned a string with the requested URI, or an object with:
@@ -2453,16 +2446,16 @@ across multiple requests. Registers a cookie definitions where:
         - `'base64'` - string value is encoded using Base64.
         - `'base64json'` - object value is JSON-stringified then encoded using Base64.
         - `'form'` - object value is encoded using the _x-www-form-urlencoded_ method.
-        - `'iron'` - Encrypts and sign the value using [**iron**](https://github.com/hueniverse/iron).
+        - `'iron'` - Encrypts and sign the value using [**iron**](https://hapi.dev/family/iron/api).
 
     - `sign` - an object used to calculate an HMAC for cookie integrity validation. This does not provide privacy, only a mean to verify that the cookie value was generated by the server. Redundant when `'iron'` encoding is used. Options are:
 
-        - `integrity` - algorithm options. Defaults to [`require('iron').defaults.integrity`](https://github.com/hueniverse/iron#options).
+        - `integrity` - algorithm options. Defaults to [`require('iron').defaults.integrity`](https://hapi.dev/family/iron/api/#options).
         - `password` - password used for HMAC key generation (must be at least 32 characters long).
 
     - `password` - password used for `'iron'` encoding (must be at least 32 characters long).
 
-    - `iron` - options for `'iron'` encoding. Defaults to [`require('iron').defaults`](https://github.com/hueniverse/iron#options).
+    - `iron` - options for `'iron'` encoding. Defaults to [`require('iron').defaults`](https://hapi.dev/family/iron/api/#options).
 
     - `ignoreErrors` - if `true`, errors are ignored and treated as missing cookies.
 
@@ -2470,7 +2463,7 @@ across multiple requests. Registers a cookie definitions where:
 
     - `strictHeader` - if `false`, allows any cookie value including values in violation of [RFC 6265](https://tools.ietf.org/html/rfc6265). Defaults to `true`.
 
-    - `passThrough` - used by proxy plugins (e.g. [**h2o2**](https://github.com/hapijs/h2o2)).
+    - `passThrough` - used by proxy plugins (e.g. [**h2o2**](https://hapi.dev/family/h2o2/api)).
 
     - `contextualize` - a function using the signature `async function(definition, request)` used to override a request-specific cookie settings where:
 
@@ -2711,7 +2704,7 @@ The authentication mode. Available values:
 Default value: `false`, unless the scheme requires payload authentication.
 
 If set, the incoming request payload is authenticated after it is processed. Requires a strategy
-with payload authentication support (e.g. [Hawk](#https://github.com/hueniverse/hawk)). Cannot be
+with payload authentication support (e.g. [Hawk](https://hapi.dev/family/hawk/api)). Cannot be
 set to a value other than `'required'` when the scheme sets the authentication `options.payload` to
 `true`.
 
@@ -2884,7 +2877,7 @@ string payload or escaping it after stringification. Supports the following:
 
 - `suffix` - string suffix added after conversion to JSON string. Defaults to no suffix.
 
-- `escape` - calls [`Hoek.jsonEscape()`](https://github.com/hapijs/hoek/blob/master/API.md#escapejsonstring)
+- `escape` - calls [`Hoek.jsonEscape()`](https://hapi.dev/family/hoek/api/#escapejsonstring)
   after conversion to JSON string. Defaults to `false`.
 
 ### <a name="route.options.jsonp" /> `route.options.jsonp`
@@ -3003,7 +2996,7 @@ The processed payload format. The value must be one of:
   `headers` properties. Note that payload streams for multipart payloads are a synthetic interface
   created on top of the entire mutlipart content loaded into memory. To avoid loading large
   multipart payloads into memory, set [`parse`](#route.options.payload.parse) to `false` and handle
-  the multipart payload in the handler using a streaming parser (e.g. [**pez**](https://github.com/hapijs/pez)).
+  the multipart payload in the handler using a streaming parser (e.g. [**pez**](https://hapi.dev/family/pez/api)).
 
 - `'file'` - the incoming payload is written to temporary file in the directory specified by the
   [`uploads`](#route.options.payload.uploads) settings. If the payload is 'multipart/form-data' and
@@ -3184,12 +3177,7 @@ If `true`, applies the validation rule changes to the response payload.
 
 Default value: none.
 
-[**joi**](https://github.com/hapijs/joi) options object pass to the validation function. Useful to
-set global options such as `stripUnknown` or `abortEarly` (the complete list is available
-[here](https://github.com/hapijs/joi/blob/master/API.md#validatevalue-schema-options-callback)).
-If a custom validation function is defined via [`schema`](#route.options.response.schema) or
-[`status`](#route.options.response.status) then `options` can an arbitrary object that will be
-passed to this function as the second argument.
+[**joi**](https://hapi.dev/family/joi/api) options object pass to the validation function. Useful to set global options such as `stripUnknown` or `abortEarly`. If a custom validation function is defined via [`schema`](#route.options.response.schema) or [`status`](#route.options.response.status) then `options` can an arbitrary object that will be passed to this function as the second argument.
 
 #### <a name="route.options.response.ranges" /> `route.options.response.ranges`
 
@@ -3213,7 +3201,7 @@ The default response payload validation rules (for all non-error responses) expr
 
 - `false` - no payload allowed.
 
-- a [**joi**](https://github.com/hapijs/joi) validation object. The [`options`](#route.options.response.options)
+- a [**joi**](https://hapi.dev/family/joi/api) validation object. The [`options`](#route.options.response.options)
   along with the request context (`{ headers, params, query, payload, state, app, auth }`) are passed to
   the validation function.
 
@@ -3376,7 +3364,7 @@ Validation rules for incoming request headers:
 
 - `true` - any headers allowed (no validation performed).
 
-- a [**joi**](https://github.com/hapijs/joi) validation object.
+- a [**joi**](https://hapi.dev/family/joi/api) validation object.
 
 - a validation function using the signature `async function(value, options)` where:
 
@@ -3393,9 +3381,8 @@ Note that all header field names must be in lowercase to match the headers norma
 
 Default value: none.
 
-An options object passed to the [**joi**](https://github.com/hapijs/joi) rules or the custom
-validation methods. Used for setting global options such as `stripUnknown` or `abortEarly` (the
-complete list is available [here](https://github.com/hapijs/joi/blob/master/API.md#validatevalue-schema-options-callback)).
+An options object passed to the [**joi**](https://hapi.dev/family/joi/api) rules or the custom
+validation methods. Used for setting global options such as `stripUnknown` or `abortEarly`.
 
 If a custom validation function (see `headers`, `params`, `query`, or `payload` above) is defined
 then `options` can an arbitrary object that will be passed to this function as the second
@@ -3422,7 +3409,7 @@ extracting any parameters, and storing them in [`request.params`](#request.param
 
 - `true` - any path parameter value allowed (no validation performed).
 
-- a [**joi**](https://github.com/hapijs/joi) validation object.
+- a [**joi**](https://hapi.dev/family/joi/api) validation object.
 
 - a validation function using the signature `async function(value, options)` where:
 
@@ -3447,7 +3434,7 @@ Validation rules for incoming request payload (request body), where:
 
 - `false` - no payload allowed.
 
-- a [**joi**](https://github.com/hapijs/joi) validation object.
+- a [**joi**](https://hapi.dev/family/joi/api) validation object.
     - Note that empty payloads are represented by a `null` value. If a validation schema is
       provided and empty payload are allowed, the schema must be explicitly defined by setting the
       rule to a **joi** schema with `null` allowed (e.g.
@@ -3478,7 +3465,7 @@ Validation rules for incoming request URI query component (the key-value part of
 
 - `false` - no query parameter value allowed.
 
-- a [**joi**](https://github.com/hapijs/joi) validation object.
+- a [**joi**](https://hapi.dev/family/joi/api) validation object.
 
 - a validation function using the signature `async function(value, options)` where:
 
@@ -3503,7 +3490,7 @@ Validation rules for incoming cookies. The `cookie` header is parsed and decoded
 
 - `false` - no cookies allowed.
 
-- a [**joi**](https://github.com/hapijs/joi) validation object.
+- a [**joi**](https://hapi.dev/family/joi/api) validation object.
 
 - a validation function using the signature `async function(value, options)` where:
 
@@ -3656,7 +3643,7 @@ The return value must be one of:
 - `Buffer` object
 - `Error` object
     - plain `Error`.
-    - a [`Boom`](https://github.com/hapijs/boom) object.
+    - a [`Boom`](https://hapi.dev/family/boom/api) object.
 - `Stream` object
     - must be compatible with the "streams2" API and not be in `objectMode`.
     - if the stream object has a `statusCode` property, that status code will be used as
@@ -3764,7 +3751,7 @@ values:
 
 #### Errors
 
-**hapi** uses the [**boom**](https://github.com/hapijs/boom) error library for all its internal
+**hapi** uses the [**boom**](https://hapi.dev/family/boom/api) error library for all its internal
 error generation. **boom** provides an expressive interface to return HTTP errors. Any error
 thrown by a [lifecycle method](#lifecycle-methods) is converted into a **boom** object and defaults to status
 code `500` if the error is not already a **boom** object.
@@ -3846,7 +3833,7 @@ const handler = function (request, h) {
 
 When a different error representation is desired, such as an HTML page or a different payload
 format, the `'onPreResponse'` extension point may be used to identify errors and replace them with
-a different response object, as in this example using [Vision's](https://github.com/hapijs/vision)
+a different response object, as in this example using [Vision's](https://hapi.dev/family/vision/api)
 `.view()` [response toolkit](#response-toolkit) property.
 
 ```js
