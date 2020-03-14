@@ -3671,7 +3671,7 @@ The return value must be one of:
       (auth scheme only).
 - a promise object that resolve to any of the above values
 
-Any error thrown by a lifecycle method will be used as the response object. While errors and valid
+Any error thrown by a lifecycle method will be used as the [response object](#response-object). While errors and valid
 values can be returned, it is recommended to throw errors. Throwing non-error values will generate
 a Bad Implementation (500) error response.
 
@@ -3833,7 +3833,7 @@ const handler = function (request, h) {
 
 When a different error representation is desired, such as an HTML page or a different payload
 format, the `'onPreResponse'` extension point may be used to identify errors and replace them with
-a different response object, as in this example using [Vision's](https://hapi.dev/family/vision/api)
+a different [response object](#response-object), as in this example using [Vision's](https://hapi.dev/family/vision/api)
 `.view()` [response toolkit](#response-toolkit) property.
 
 ```js
@@ -3941,7 +3941,7 @@ Return value: an internal authentication object.
 
 Sets the response 'ETag' and 'Last-Modified' headers and checks for any conditional request headers
 to decide if the response is going to qualify for an HTTP 304 (Not Modified). If the entity values
-match the request conditions, `h.entity()` returns a response object for the lifecycle method to
+match the request conditions, `h.entity()` returns a [response object](#response-object) for the lifecycle method to
 return as its value which will set a 304 response. Otherwise, it sets the provided entity headers
 and returns `undefined`. The method arguments are:
 
@@ -4086,6 +4086,14 @@ Default value: `{}`.
 Application-specific state. Provides a safe place to store application data without potential
 conflicts with the framework. Should not be used by [plugins](#plugins) which should use
 [`plugins[name]`](#response.plugins).
+
+##### <a name="response.contentType" /> `response.contentType`
+
+Access: read.
+
+Default value: none.
+
+Provides a preview of the response HTTP Content-Type header based on the implicit response type, any explicit Content-Type header set, and any content character-set defined. The returned value is only a preview as the content type can change later both internally and by user code (it represents current response state). The value is `null` if no implicit type can be determined.
 
 ##### <a name="response.events" /> `response.events`
 
@@ -4646,7 +4654,7 @@ An object where each key is the name assigned by a [route pre-handler methods](#
 
 Access: read / write (see limitations below).
 
-The response object when set. The object can be modified but must not be assigned another object. To replace the response with another from within an [extension point](#server.ext()), return a new response value. Contains `null` when no response has been set (e.g. when a request terminates prematurely when the client disconnects).
+The response object when set. The object can be modified but must not be assigned another object. To replace the response with another from within an [extension point](#server.ext()), return a new response value. Contains an error when a request terminates prematurely when the client disconnects.
 
 #### <a name="request.preResponses" /> `request.preResponses`
 
