@@ -533,6 +533,7 @@ The internally generated events are (identified by their `tags`):
 - `auth` `scope` `error` - the request authenticated but failed to meet the scope requirements.
 - `auth` `entity` `user` `error` - the request authenticated but included an application entity when a user entity was required.
 - `auth` `entity` `app` `error` - the request authenticated but included a user entity when an application entity was required.
+- `ext` `error` - an `onPostResponse` extension handler errored.
 - `handler` `error` - the route handler returned an error. Includes the execution duration and the error message.
 - `pre` `error` - a pre method was executed and returned an error. Includes the execution duration, assignment key, and error.
 - `internal` `error` - an HTTP 500 error response was assigned to the request.
@@ -1483,28 +1484,15 @@ Register custom application events where:
 
         - `name` - the event name string (required).
 
-        - `channels` - a string or array of strings specifying the event channels available.
-          Defaults to no channel restrictions (event updates can specify a channel or not).
+        - `channels` - a string or array of strings specifying the event channels available. Defaults to no channel restrictions (event updates can specify a channel or not).
 
-        - `clone` - if `true`, the `data` object passed to [`server.events.emit()`](#server.events.emit())
-          is cloned before it is passed to the listeners (unless an override specified by each
-          listener). Defaults to `false` (`data` is passed as-is).
+        - `clone` - if `true`, the `data` object passed to [`server.events.emit()`](#server.events.emit()) is cloned before it is passed to the listeners (unless an override specified by each listener). Defaults to `false` (`data` is passed as-is).
 
-        - `spread` - if `true`, the `data` object passed to [`server.event.emit()`](#server.event.emit())
-          must be an array and the `listener` method is called with each array element passed as a
-          separate argument (unless an override specified by each listener). This should only be
-          used when the emitted data structure is known and predictable. Defaults to `false` (`data`
-          is emitted as a single argument regardless of its type).
+        - `spread` - if `true`, the `data` object passed to [`server.event.emit()`](#server.event.emit()) must be an array and the `listener` method is called with each array element passed as a separate argument (unless an override specified by each listener). This should only be used when the emitted data structure is known and predictable. Defaults to `false` (`data` is emitted as a single argument regardless of its type).
 
-        - `tags` - if `true` and the `criteria` object passed to [`server.event.emit()`](#server.event.emit())
-          includes `tags`, the tags are mapped to an object (where each tag string is the key and
-          the value is `true`) which is appended to the arguments list at the end. A configuration
-          override can be set by each listener. Defaults to `false`.
+        - `tags` - if `true` and the `criteria` object passed to [`server.event.emit()`](#server.event.emit()) includes `tags`, the tags are mapped to an object (where each tag string is the key and the value is `true`) which is appended to the arguments list at the end. A configuration override can be set by each listener. Defaults to `false`.
 
-        - `shared` - if `true`, the same event `name` can be registered multiple times where the
-          second registration is ignored. Note that if the registration config is changed between
-          registrations, only the first configuration is used. Defaults to `false` (a duplicate
-          registration will throw an error).
+        - `shared` - if `true`, the same event `name` can be registered multiple times where the second registration is ignored. Note that if the registration config is changed between registrations, only the first configuration is used. Defaults to `false` (a duplicate registration will throw an error).
 
     - a [**podium**](https://hapi.dev/family/podium/api) emitter object.
 
@@ -1536,15 +1524,11 @@ Emits a custom application event to all the subscribed listeners where:
         - `channel` - the channel name string.
         - `tags` - a tag string or array of tag strings.
 
-- `data` - the value emitted to the subscribers. If `data` is a function, the function signature
-  is `function()` and it called once to generate (return value) the actual data emitted to the
-  listeners. If no listeners match the event, the `data` function is not invoked.
+- `data` - the value emitted to the subscribers. If `data` is a function, the function signature is `function()` and it called once to generate (return value) the actual data emitted to the listeners. If no listeners match the event, the `data` function is not invoked.
 
 Return value: none.
 
-Note that events must be registered before they can be emitted or subscribed to by calling
-[`server.event(events)`](#server.event()). This is done to detect event name misspelling and
-invalid event activities.
+Note that events must be registered before they can be emitted or subscribed to by calling [`server.event(events)`](#server.event()). This is done to detect event name misspelling and invalid event activities.
 
 ```js
 const Hapi = require('@hapi/hapi');
@@ -1780,12 +1764,13 @@ async function example() {
 }
 ```
 
-### <a name="server.ext.args()" /> `server.ext(event, method, [options])`
+### <a name="server.ext.args()" /> `server.ext(event, [method], [options])`
 
-Registers a single extension event using the same properties as used in
-[`server.ext(events)`](#server.ext()), but passed as arguments.
+Registers a single extension event using the same properties as used in [`server.ext(events)`](#server.ext()), but passed as arguments.
 
-Return value: none.
+The `method` may be omitted or passed `null` which will cause the function to return a promise. The promise is resolved with the `request` object on the first invocation of the extension point. This is primarily used for writing tests without having to write custom handlers just to handle a single event.
+
+Return value: a promise if `method` is omitted, otherwise `undefined`.
 
 ```js
 const Hapi = require('@hapi/hapi');
@@ -3614,6 +3599,11 @@ the same. The following is the complete list of steps a request can go through:
 
 - _**Finalize request**_
     - emits `'response'` event.
+
+- _**onPostResponse**_
+    - return value is ignored since the response is already set.
+    - emits a [`'request'` event](#server.events.request) on the `'error'` channel if an error is returned.
+    - all extension handlers are executed even if some error.
 
 ### Lifecycle methods
 
