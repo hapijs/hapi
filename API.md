@@ -1764,11 +1764,11 @@ async function example() {
 }
 ```
 
-### <a name="server.ext.args()" /> `server.ext(event, [method], [options])`
+### <a name="server.ext.args()" /> `server.ext(event, [method, [options]])`
 
 Registers a single extension event using the same properties as used in [`server.ext(events)`](#server.ext()), but passed as arguments.
 
-The `method` may be omitted or passed `null` which will cause the function to return a promise. The promise is resolved with the `request` object on the first invocation of the extension point. This is primarily used for writing tests without having to write custom handlers just to handle a single event.
+The `method` may be omitted (if `options` isn't present) or passed `null` which will cause the function to return a promise. The promise is resolved with the `request` object on the first invocation of the extension point. This is primarily used for writing tests without having to write custom handlers just to handle a single event.
 
 Return value: a promise if `method` is omitted, otherwise `undefined`.
 
@@ -3604,6 +3604,7 @@ the same. The following is the complete list of steps a request can go through:
     - return value is ignored since the response is already set.
     - emits a [`'request'` event](#server.events.request) on the `'error'` channel if an error is returned.
     - all extension handlers are executed even if some error.
+    - note that since the handlers are executed in serial (each is `await`ed), care must be taken to avoid blocking execution if other extension handlers expect to be called immediately when the response is sent. If an _**onPostResponse**_ handler is performing IO, it should defer that activity to another tick and return immediately (either without a return value or without a promise that is solve to resolve).
 
 ### Lifecycle methods
 
