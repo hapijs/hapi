@@ -3792,7 +3792,7 @@ following properties:
     - `headers` - an object containing any HTTP headers where each key is a header name and value
       is the header content.
 
-    - `payload` - the formatted object used as the response payload (stringified). Can be directly
+    - `payload` - the formatted object used as the response payload. Can be directly
       manipulated but any changes will be lost
       if `reformat()` is called. Any content allowed and by default includes the following content:
 
