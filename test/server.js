@@ -945,6 +945,17 @@ describe('Server', () => {
             expect(res.result).to.equal('b');
         });
 
+        it('returns promise on empty ext handler', async () => {
+
+            const server = Hapi.server();
+            const ext = server.ext('onRequest');
+            server.route({ path: '/', method: 'GET', handler: () => 'ok' });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('ok');
+            const request = await ext;
+            expect(request.response.source).to.equal('ok');
+        });
+
         it('adds multiple ext functions with complex dependencies', async () => {
 
             // Generate a plugin with a specific index and ext dependencies.

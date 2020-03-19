@@ -69,10 +69,10 @@ describe('Payload', () => {
         const server = Hapi.server();
         server.route({ method: 'POST', path: '/', options: { handler } });
 
-        const log = server.events.once('response');
+        const responded = server.ext('onPostResponse');
 
         server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { close: true, end: false } });
-        const [request] = await log;
+        const request = await responded;
         expect(request._isReplied).to.equal(true);
         expect(request.response.output.statusCode).to.equal(500);
     });
