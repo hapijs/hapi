@@ -367,6 +367,34 @@ describe('Server', () => {
             expect(res.result).to.equal(server.info.uri + '!');
         });
 
+        it('decorates response', async () => {
+
+            const server = Hapi.server();
+
+            const custom = function () {
+
+                return this.header('custom', 'test');
+            };
+
+            server.decorate('response', 'custom', custom);
+
+            server.ext('onPreResponse', (request, h) => {
+
+                request.response.custom();
+                return h.continue;
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: () => null
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(204);
+            expect(res.headers.custom).to.equal('test');
+        });
+
         it('decorates toolkit', async () => {
 
             const server = Hapi.server();

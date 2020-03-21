@@ -409,6 +409,7 @@ not be modified directly, but only through [`server.decorate`](#server.decorate(
 Contains:
 
 - `request` - decorations on the [request object](#request).
+- `response` - decorations on the [response object](#response-object).
 - `toolkit` - decorations on the [response toolkit](#response-toolkit).
 - `server` - decorations on the [server](#server) object.
 
@@ -1284,6 +1285,7 @@ Extends various framework interfaces with custom methods where:
 
     - `'handler'` - adds a new handler type to be used in [routes handlers](#route.options.handler).
     - `'request'` - adds methods to the [Request object](#request).
+    - `'response'` - adds methods to the [Response object](#response-object).
     - `'server'` - adds methods to the [Server](#server) object.
     - `'toolkit'` - adds methods to the [response toolkit](#response-toolkit).
 
