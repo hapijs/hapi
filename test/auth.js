@@ -255,7 +255,10 @@ describe('authentication', () => {
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', { users: { steve: {} } });
+
             server.auth.default({ strategy: 'default' });
+            expect(server.auth.settings.default).to.equal({ strategies: ['default'], mode: 'required' });
+
             server.route({ method: 'GET', path: '/', handler: (request) => request.auth.credentials.user });
 
             const res1 = await server.inject('/');
@@ -1006,6 +1009,34 @@ describe('authentication', () => {
                     auth: {
                         scope: ['c', 'd']
                     }
+                }
+            });
+
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(403);
+            expect(res.result.message).to.equal('Insufficient scope');
+        });
+
+        it('uses default scope when no scope override is set', async () => {
+
+            const server = Hapi.server();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('a', 'custom', { users: { steve: { scope: ['two'] } } });
+            server.auth.default({
+                strategy: 'a',
+                access: {
+                    scope: 'one'
+                }
+            });
+
+            server.route({
+                path: '/',
+                method: 'GET',
+                options: {
+                    auth: {
+                        mode: 'required'
+                    },
+                    handler: () => 'ok'
                 }
             });
 
