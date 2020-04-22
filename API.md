@@ -2600,7 +2600,7 @@ Registers a server validation module used to compile raw validation rules into v
 
 Return value: none.
 
-Note: the validator is only used when validation rules are not pre-compiled schemas. When a validation rules is a function or schema object, the rule is used as-is and the validator is not used.
+Note: the validator is only used when validation rules are not pre-compiled schemas. When a validation rules is a function or schema object, the rule is used as-is and the validator is not used. Note that setting a validator inside a plugin, will cause the validator to only be applied to routes set up by the plugin.
 
 ```js
 const Hapi = require('@hapi/hapi');
