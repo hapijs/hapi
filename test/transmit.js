@@ -2,7 +2,6 @@
 
 const ChildProcess = require('child_process');
 const Fs = require('fs');
-const Http = require('http');
 const Path = require('path');
 const Stream = require('stream');
 const Zlib = require('zlib');
@@ -1274,56 +1273,6 @@ describe('transmission', () => {
             await server.stop();
         });
 
-        it('does not leak stream data when request aborts before stream drains', async () => {
-
-            const server = Hapi.server();
-
-            let destroyed = false;
-            const team = new Teamwork.Team();
-            const handler = (request) => {
-
-                const stream = new Stream.Readable();
-
-                stream.destroy = undefined;    // Node 8 streams comes with a destroy method – disable for this test
-
-                stream._read = function (size) {
-
-                    const chunk = new Array(size).join('x');
-
-                    if (destroyed) {
-                        this.push(chunk);
-                        this.push(null);
-                    }
-                    else {
-
-                        setTimeout(() => {
-
-                            this.push(chunk);
-                        }, 10);
-                    }
-                };
-
-                stream.once('end', () => team.attend());
-                return stream;
-            };
-
-            server.route({ method: 'GET', path: '/', handler });
-
-            await server.start();
-
-            const res = await Wreck.request('GET', 'http://localhost:' + server.info.port);
-            res.on('data', (chunk) => {
-
-                if (!destroyed) {
-                    destroyed = true;
-                    res.destroy();
-                }
-            });
-
-            await team.work;
-            await server.stop();
-        });
-
         it('does not leak classic stream data when passed to request and aborted', async () => {
 
             const server = Hapi.server({ debug: false });
@@ -1417,8 +1366,7 @@ describe('transmission', () => {
                     }, timeout);
                 };
 
-                stream.once('error', () => team.attend());          // Node 8
-                stream.once('close', () => team.attend());          // Node 10
+                stream.once('close', () => team.attend());
                 return stream;
             };
 
@@ -1428,64 +1376,6 @@ describe('transmission', () => {
 
             const res = await Wreck.request('GET', 'http://localhost:' + server.info.port);
             res.on('data', (chunk) => { });
-
-            await team.work;
-            await server.stop();
-        });
-
-        it('does not leak stream data when request aborts before stream is returned', async () => {
-
-            const server = Hapi.server();
-            const team = new Teamwork.Team();
-
-            const handler = async (request) => {
-
-                clientRequest.abort();
-
-                const stream = new Stream.Readable();
-                let responded = false;
-
-                stream.destroy = undefined;    // Node 8 streams comes with a destroy method – disable for this test
-
-                stream._read = function (size) {
-
-                    const chunk = new Array(size).join('x');
-
-                    if (responded) {
-                        this.push(chunk);
-                        this.push(null);
-                    }
-                    else {
-                        setTimeout(() => {
-
-                            responded = true;
-                            this.push(chunk);
-                        }, 10);
-                    }
-                };
-
-                stream.once('end', () => {
-
-                    expect(responded).to.be.true();
-                    team.attend();
-                });
-
-                await Hoek.wait(100);
-                return stream;
-            };
-
-            server.route({ method: 'GET', path: '/', handler });
-
-            await server.start();
-
-            const clientRequest = Http.request({
-                hostname: 'localhost',
-                port: server.info.port,
-                method: 'GET'
-            });
-
-            clientRequest.on('error', () => { /* NOP */ });
-            clientRequest.end();
 
             await team.work;
             await server.stop();
