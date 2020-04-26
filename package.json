@@ -45,7 +45,8 @@
     "@hapi/wreck": "17.x.x",
     "@hapi/vision": "^6.0.1",
     "handlebars": "4.x.x",
-    "joi": "17.x.x"
+    "joi": "17.x.x",
+    "legacy-readable-stream": "npm:readable-stream@^1.0.34"
   },
   "scripts": {
     "test": "lab -a @hapi/code -t 100 -L -m 5000",
