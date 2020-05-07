@@ -2024,7 +2024,7 @@ Registers a [server method](#server.methods) where:
       registered. Ignored if the method is an arrow function.
 
     - `cache` - the same cache configuration used in [`server.cache()`](#server.cache()). The
-      `generateTimeout` option is required.
+      `generateTimeout` option is required, and the `generateFunc` options is not allowed.
 
     - `generateKey` - a function used to generate a unique key (for caching) from the arguments
       passed to the method function (the `flags` argument is not passed as input). The server
