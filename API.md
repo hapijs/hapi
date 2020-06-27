@@ -142,7 +142,7 @@ Default value: the operating system hostname and if not available, to `'localhos
 The public hostname or IP address. Used to set [`server.info.host`](#server.info) and
 [`server.info.uri`](#server.info) and as [`address`](#server.options.address) if none is provided.
 
-### <a name="server.options.info.remote" /> `server.options.info.remote`
+#### <a name="server.options.info.remote" /> `server.options.info.remote`
 
 Default value: `false`.
 
