@@ -4,6 +4,9 @@
   "homepage": "http://hapijs.com",
   "version": "16.8.2",
   "repository": "git://github.com/hapijs/hapi",
+  "engines": {
+    "node": ">=6.0.0"
+  },
   "main": "lib/index.js",
   "keywords": [
     "framework",
@@ -15,25 +18,25 @@
     "lib"
   ],
   "dependencies": {
-    "@commercial/accept": "2.x.x",
+    "@commercial/accept": "^2.2.2",
     "@commercial/ammo": "^2.1.1",
-    "@commercial/boom": "5.x.x",
+    "@commercial/boom": "^5.3.1",
     "@commercial/call": "^4.1.1",
-    "@commercial/catbox": "7.x.x",
-    "@commercial/catbox-memory": "2.x.x",
-    "@commercial/cryptiles": "3.x.x",
-    "@commercial/heavy": "4.x.x",
-    "@commercial/hoek": "4.x.x",
-    "@commercial/iron": "4.x.x",
-    "@commercial/items": "2.x.x",
-    "@commercial/joi": "12.x.x",
-    "@commercial/mimos": "3.x.x",
-    "@commercial/podium": "1.x.x",
-    "@commercial/shot": "3.x.x",
-    "@commercial/somever": "1.x.x",
-    "@commercial/statehood": "5.x.x",
+    "@commercial/catbox": "^7.2.0",
+    "@commercial/catbox-memory": "^2.1.0",
+    "@commercial/cryptiles": "^3.2.0",
+    "@commercial/heavy": "^4.1.0",
+    "@commercial/hoek": "^4.3.0",
+    "@commercial/iron": "^4.1.0",
+    "@commercial/items": "^2.2.0",
+    "@commercial/joi": "^12.1.0",
+    "@commercial/mimos": "^3.1.0",
+    "@commercial/podium": "^1.4.0",
+    "@commercial/shot": "^3.5.1",
+    "@commercial/somever": "^1.1.0",
+    "@commercial/statehood": "^5.1.0",
     "@commercial/subtext": "^5.1.2",
-    "@commercial/topo": "2.x.x"
+    "@commercial/topo": "^2.1.0"
   },
   "devDependencies": {
     "code": "4.x.x",
@@ -41,7 +44,7 @@
     "inert": "4.x.x",
     "lab": "14.x.x",
     "vision": "4.x.x",
-    "@commercial/wreck": "12.x.x"
+    "@commercial/wreck": "^12.6.1"
   },
   "scripts": {
     "test": "lab -a code -t 100 -L -m 3000 -l"

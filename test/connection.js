@@ -429,14 +429,17 @@ describe('Connection', () => {
                 const req = Wreck.request('GET', `https://localhost:${server.info.port}/`, { rejectUnauthorized: false }, (err, res) => {
 
                     expect(err).to.exist();
-                    server.listener.getConnections((err, count2) => {
+                    setTimeout(() => {
 
-                        expect(err).to.not.exist();
-                        expect(count2).to.equal(0);
-                        expect(Object.keys(server.connections[0]._connections).length).to.equal(0);
-                        expect(count).to.equal(1);
-                        server.stop(done);
-                    });
+                        server.listener.getConnections((err, count2) => {
+
+                            expect(err).to.not.exist();
+                            expect(count2).to.equal(0);
+                            expect(Object.keys(server.connections[0]._connections).length).to.equal(0);
+                            expect(count).to.equal(1);
+                            server.stop(done);
+                        });
+                    }, 100);
                 });
 
                 setTimeout(() => {
@@ -619,31 +622,34 @@ describe('Connection', () => {
                     socket2.connect(server.info.port, '127.0.0.1');
                     TLS.connect({ socket: socket2, rejectUnauthorized: false }, () => {
 
-                        server.listener.getConnections((err, count1) => {
+                        setTimeout(() => {
 
-                            expect(err).to.not.exist();
-                            expect(count1).to.equal(2);
-                            expect(Object.keys(server.connections[0]._connections).length).to.equal(2);
-
-                            server.stop((err) => {
+                            server.listener.getConnections((err, count1) => {
 
                                 expect(err).to.not.exist();
+                                expect(count1).to.equal(2);
+                                expect(Object.keys(server.connections[0]._connections).length).to.equal(2);
 
-                                setTimeout(() => {
+                                server.stop((err) => {
 
-                                    server.listener.getConnections((err, count2) => {
+                                    expect(err).to.not.exist();
 
-                                        expect(err).to.not.exist();
-                                        expect(count2).to.equal(0);
-                                        expect(Object.keys(server.connections[0]._connections).length).to.equal(0);
-                                        done();
-                                    });
-                                }, 10);
+                                    setTimeout(() => {
+
+                                        server.listener.getConnections((err, count2) => {
+
+                                            expect(err).to.not.exist();
+                                            expect(count2).to.equal(0);
+                                            expect(Object.keys(server.connections[0]._connections).length).to.equal(0);
+                                            done();
+                                        });
+                                    }, 10);
+                                });
+
+                                socket1.end();
+                                socket2.end();
                             });
-
-                            socket1.end();
-                            socket2.end();
-                        });
+                        }, 100);
                     });
                 });
             });

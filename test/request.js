@@ -1392,7 +1392,7 @@ describe('Request', () => {
                 console.error = orig;
                 expect(arguments[0]).to.equal('Debug:');
                 expect(arguments[1]).to.equal('implementation');
-                expect(arguments[2]).to.equal('\n    [Cannot display object: Converting circular structure to JSON]');
+                expect(arguments[2]).to.match(/Cannot display object: Converting circular structure to JSON/);
                 done();
             };
 
