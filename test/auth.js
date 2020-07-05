@@ -2,7 +2,7 @@
 
 const Path = require('path');
 
-const Boom = require('@hapi/boom');
+const Boom = require('@commercial/boom');
 const Code = require('@hapi/code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');

@@ -1,6 +1,6 @@
 'use strict';
 
-const Boom = require('@hapi/boom');
+const Boom = require('@commercial/boom');
 const CatboxMemory = require('@commercial/catbox-memory');
 const Code = require('@hapi/code');
 const Hapi = require('..');

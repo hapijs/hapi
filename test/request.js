@@ -5,13 +5,13 @@ const Net = require('net');
 const Stream = require('stream');
 const Url = require('url');
 
-const Boom = require('@hapi/boom');
+const Boom = require('@commercial/boom');
 const Code = require('@hapi/code');
 const Hapi = require('..');
 const Hoek = require('@commercial/hoek');
 const Lab = require('@hapi/lab');
-const Teamwork = require('@hapi/teamwork');
-const Wreck = require('@hapi/wreck');
+const Teamwork = require('@commercial/teamwork');
+const Wreck = require('@commercial/wreck');
 
 
 const internals = {};
