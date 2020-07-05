@@ -1,52 +1,55 @@
 {
-  "name": "@commercial/hapi",
-  "description": "HTTP Server framework",
-  "homepage": "https://hapijs.com",
-  "version": "18.4.1",
-  "repository": "git://github.com/hapijs/hapi",
-  "main": "lib/index.js",
-  "keywords": [
-    "framework",
-    "http",
-    "api",
-    "web"
-  ],
-  "files": [
-    "lib"
-  ],
-  "dependencies": {
-    "@hapi/accept": "^3.2.4",
-    "@hapi/ammo": "^3.1.2",
-    "@hapi/boom": "7.x.x",
-    "@hapi/bounce": "1.x.x",
-    "@hapi/call": "^5.1.3",
-    "@hapi/catbox": "10.x.x",
-    "@hapi/catbox-memory": "4.x.x",
-    "@hapi/heavy": "6.x.x",
-    "@hapi/hoek": "8.x.x",
-    "@hapi/joi": "15.x.x",
-    "@hapi/mimos": "4.x.x",
-    "@hapi/podium": "3.x.x",
-    "@hapi/shot": "4.x.x",
-    "@hapi/somever": "2.x.x",
-    "@hapi/statehood": "6.x.x",
-    "@hapi/subtext": "^6.1.3",
-    "@hapi/teamwork": "3.x.x",
-    "@hapi/topo": "3.x.x"
-  },
-  "devDependencies": {
-    "@hapi/code": "6.x.x",
-    "@hapi/inert": "5.x.x",
-    "@hapi/joi-next-test": "npm:@hapi/joi@16.x.x",
-    "@hapi/lab": "20.x.x",
-    "@hapi/wreck": "15.x.x",
-    "@hapi/vision": "5.x.x",
-    "handlebars": "4.x.x"
-  },
-  "scripts": {
-    "test": "lab -a @hapi/code -t 100 -L -m 5000",
-    "test-tap": "lab -a @hapi/code -r tap -o tests.tap -m 5000",
-    "test-cov-html": "lab -a @hapi/code -r html -o coverage.html -m 5000"
-  },
-  "license": "SEE LICENSE IN LICENSE.md"
+    "name": "@commercial/hapi",
+    "description": "HTTP Server framework",
+    "homepage": "https://hapijs.com",
+    "version": "18.4.1",
+    "repository": "git://github.com/hapijs/hapi",
+    "engines": {
+        "node": ">=8.0.0"
+    },
+    "main": "lib/index.js",
+    "keywords": [
+        "framework",
+        "http",
+        "api",
+        "web"
+    ],
+    "files": [
+        "lib"
+    ],
+    "dependencies": {
+        "@commercial/accept": "^3.2.4",
+        "@commercial/ammo": "^3.1.2",
+        "@commercial/boom": "^7.4.11",
+        "@commercial/bounce": "^1.3.2",
+        "@commercial/call": "^5.1.3",
+        "@commercial/catbox": "^10.2.3",
+        "@commercial/catbox-memory": "^4.1.1",
+        "@commercial/heavy": "^6.2.2",
+        "@commercial/hoek": "^8.5.1",
+        "@commercial/joi": "^15.1.1",
+        "@commercial/mimos": "^4.1.1",
+        "@commercial/podium": "^3.4.3",
+        "@commercial/shot": "^4.1.2",
+        "@commercial/somever": "^2.1.1",
+        "@commercial/statehood": "^6.1.2",
+        "@commercial/subtext": "^6.1.3",
+        "@commercial/teamwork": "^3.3.1",
+        "@commercial/topo": "^3.1.6"
+    },
+        "devDependencies": {
+        "@commercial/wreck": "15.x.x",
+        "@hapi/code": "6.x.x",
+        "@hapi/inert": "5.x.x",
+        "@hapi/joi-next-test": "npm:@hapi/joi@16.x.x",
+        "@hapi/lab": "20.x.x",
+        "@hapi/vision": "5.x.x",
+        "handlebars": "4.x.x"
+    },
+    "scripts": {
+        "test": "lab -a @hapi/code -t 100 -L -m 5000",
+        "test-tap": "lab -a @hapi/code -r tap -o tests.tap -m 5000",
+        "test-cov-html": "lab -a @hapi/code -r html -o coverage.html -m 5000"
+    },
+    "license": "SEE LICENSE IN LICENSE.md"
 }
