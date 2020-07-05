@@ -2,7 +2,7 @@
     "name": "@commercial/hapi",
     "description": "HTTP Server framework",
     "homepage": "https://hapijs.com",
-    "version": "18.4.1",
+    "version": "18.4.2",
     "repository": "git://github.com/hapijs/hapi",
     "engines": {
         "node": ">=8.0.0"
@@ -37,7 +37,7 @@
         "@commercial/teamwork": "^3.3.1",
         "@commercial/topo": "^3.1.6"
     },
-        "devDependencies": {
+    "devDependencies": {
         "@commercial/wreck": "15.x.x",
         "@hapi/code": "6.x.x",
         "@hapi/inert": "5.x.x",
