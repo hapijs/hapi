@@ -813,6 +813,19 @@ describe('Server', () => {
                 { id: 'plugin', channel: 'y', update: 3 }
             ]);
         });
+
+        it('filters log by tags', async () => {
+
+            const server = Hapi.server();
+            const log = server.events.once({ name: 'log', filter: ['x'] });
+            server.log('a');
+            server.log(['b']);
+            server.log(['c', 'x'], 'test 1');
+            server.log(['d', 'x'], 'test 2');
+
+            const [event] = await log;
+            expect(event.data).to.equal('test 1');
+        });
     });
 
     describe('expose()', () => {

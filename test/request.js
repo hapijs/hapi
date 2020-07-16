@@ -477,6 +477,9 @@ describe('Request', () => {
                 handler: () => null
             });
 
+            const codes = [];
+            server.events.on('response', (request) => codes.push(Boom.isBoom(request.response) ? request.response.output.statusCode : request.response.statusCode));
+
             const team = new Teamwork.Team();
             const onRequest = (request, h) => {
 
@@ -505,6 +508,8 @@ describe('Request', () => {
 
             await team.work;
             await server.stop();
+
+            expect(codes).to.equal([204, 204, 499]);
         });
 
         it('returns empty params array when none present', async () => {
@@ -2030,7 +2035,7 @@ describe('Request', () => {
             expect(res.statusCode).to.equal(200);
         });
 
-        it('creates null response when request is aborted while draining payload', async () => {
+        it('creates error response when request is aborted while draining payload', async () => {
 
             const server = Hapi.server({ routes: { timeout: { server: false } } });
             await server.start();
@@ -2051,6 +2056,7 @@ describe('Request', () => {
                 method: 'GET',
                 headers: { 'content-length': 42 }
             });
+
             req.on('error', Hoek.ignore);
             req.flushHeaders();
 
@@ -2058,7 +2064,7 @@ describe('Request', () => {
             req.abort();
             const [request] = await log;
 
-            expect(request.response).to.equal(null);
+            expect(request.response.output.statusCode).to.equal(499);
 
             await server.stop({ timeout: 1 });
         });
