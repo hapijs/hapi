@@ -367,6 +367,34 @@ describe('Server', () => {
             expect(res.result).to.equal(server.info.uri + '!');
         });
 
+        it('decorates response', async () => {
+
+            const server = Hapi.server();
+
+            const custom = function () {
+
+                return this.header('custom', 'test');
+            };
+
+            server.decorate('response', 'custom', custom);
+
+            server.ext('onPreResponse', (request, h) => {
+
+                request.response.custom();
+                return h.continue;
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: () => null
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(204);
+            expect(res.headers.custom).to.equal('test');
+        });
+
         it('decorates toolkit', async () => {
 
             const server = Hapi.server();
@@ -943,6 +971,17 @@ describe('Server', () => {
             expect(internals.routesList(server)).to.equal(['/b']);
             const res = await server.inject('/a');
             expect(res.result).to.equal('b');
+        });
+
+        it('returns promise on empty ext handler', async () => {
+
+            const server = Hapi.server();
+            const ext = server.ext('onRequest');
+            server.route({ path: '/', method: 'GET', handler: () => 'ok' });
+            const res = await server.inject('/');
+            expect(res.result).to.equal('ok');
+            const request = await ext;
+            expect(request.response.source).to.equal('ok');
         });
 
         it('adds multiple ext functions with complex dependencies', async () => {

@@ -1196,13 +1196,15 @@ describe('Response', () => {
             });
 
             await server.initialize();
+
             const res1 = await server.inject('/stream');
-
             expect(res1.statusCode).to.equal(500);
-            const res2 = await server.inject('/writable');
 
+            const res2 = await server.inject('/writable');
             expect(res2.statusCode).to.equal(500);
+
             await Hoek.wait(10);
+
             expect(updates).to.equal(2);
         });
 

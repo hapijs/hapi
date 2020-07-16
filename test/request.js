@@ -371,7 +371,7 @@ describe('Request', () => {
 
             const server = Hapi.server();
 
-            const log = server.events.once('response');
+            const responded = server.ext('onPostResponse');
             const ext = (request) => {
 
                 return Hoek.block();
@@ -383,8 +383,38 @@ describe('Request', () => {
             const res = await server.inject('/');
             expect(res.result.statusCode).to.equal(500);
 
-            const [request] = await log;
+            const request = await responded;
             expect(request.response._error).to.be.an.error('onPostHandler timed out');
+        });
+
+        it('logs error responses on onPostResponse ext error', async () => {
+
+            const server = Hapi.server();
+
+            const ext1 = () => {
+
+                throw new Error('oops1');
+            };
+
+            server.ext('onPostResponse', ext1);
+
+            const ext2 = () => {
+
+                throw new Error('oops2');
+            };
+
+            server.ext('onPostResponse', ext2);
+
+            server.route({ method: 'GET', path: '/', handler: () => 'OK' });
+
+            const log = server.events.few({ name: 'request', channels: 'internal', filter: 'ext', count: 2 });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+
+            const [[, event1], [, event2]] = await log;
+            expect(event1.error).to.be.an.error('oops1');
+            expect(event2.error).to.be.an.error('oops2');
         });
 
         it('handles aborted requests (during response)', async () => {
@@ -478,7 +508,7 @@ describe('Request', () => {
             });
 
             const codes = [];
-            server.events.on('response', (request) => codes.push(Boom.isBoom(request.response) ? request.response.output.statusCode : request.response.statusCode));
+            server.ext('onPostResponse', (request) => codes.push(Boom.isBoom(request.response) ? request.response.output.statusCode : request.response.statusCode));
 
             const team = new Teamwork.Team();
             const onRequest = (request, h) => {

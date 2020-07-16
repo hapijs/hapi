@@ -142,7 +142,7 @@ Default value: the operating system hostname and if not available, to `'localhos
 The public hostname or IP address. Used to set [`server.info.host`](#server.info) and
 [`server.info.uri`](#server.info) and as [`address`](#server.options.address) if none is provided.
 
-### <a name="server.options.info.remote" /> `server.options.info.remote`
+#### <a name="server.options.info.remote" /> `server.options.info.remote`
 
 Default value: `false`.
 
@@ -409,6 +409,7 @@ not be modified directly, but only through [`server.decorate`](#server.decorate(
 Contains:
 
 - `request` - decorations on the [request object](#request).
+- `response` - decorations on the [response object](#response-object).
 - `toolkit` - decorations on the [response toolkit](#response-toolkit).
 - `server` - decorations on the [server](#server) object.
 
@@ -533,6 +534,7 @@ The internally generated events are (identified by their `tags`):
 - `auth` `scope` `error` - the request authenticated but failed to meet the scope requirements.
 - `auth` `entity` `user` `error` - the request authenticated but included an application entity when a user entity was required.
 - `auth` `entity` `app` `error` - the request authenticated but included a user entity when an application entity was required.
+- `ext` `error` - an `onPostResponse` extension handler errored.
 - `handler` `error` - the route handler returned an error. Includes the execution duration and the error message.
 - `pre` `error` - a pre method was executed and returned an error. Includes the execution duration, assignment key, and error.
 - `internal` `error` - an HTTP 500 error response was assigned to the request.
@@ -1030,7 +1032,7 @@ server.auth.strategy('default', 'custom');
 server.route({
     method: 'GET',
     path: '/',
-    config: {
+    options: {
         auth: 'default',
         handler: function (request, h) {
 
@@ -1283,6 +1285,7 @@ Extends various framework interfaces with custom methods where:
 
     - `'handler'` - adds a new handler type to be used in [routes handlers](#route.options.handler).
     - `'request'` - adds methods to the [Request object](#request).
+    - `'response'` - adds methods to the [Response object](#response-object).
     - `'server'` - adds methods to the [Server](#server) object.
     - `'toolkit'` - adds methods to the [response toolkit](#response-toolkit).
 
@@ -1483,28 +1486,15 @@ Register custom application events where:
 
         - `name` - the event name string (required).
 
-        - `channels` - a string or array of strings specifying the event channels available.
-          Defaults to no channel restrictions (event updates can specify a channel or not).
+        - `channels` - a string or array of strings specifying the event channels available. Defaults to no channel restrictions (event updates can specify a channel or not).
 
-        - `clone` - if `true`, the `data` object passed to [`server.events.emit()`](#server.events.emit())
-          is cloned before it is passed to the listeners (unless an override specified by each
-          listener). Defaults to `false` (`data` is passed as-is).
+        - `clone` - if `true`, the `data` object passed to [`server.events.emit()`](#server.events.emit()) is cloned before it is passed to the listeners (unless an override specified by each listener). Defaults to `false` (`data` is passed as-is).
 
-        - `spread` - if `true`, the `data` object passed to [`server.event.emit()`](#server.event.emit())
-          must be an array and the `listener` method is called with each array element passed as a
-          separate argument (unless an override specified by each listener). This should only be
-          used when the emitted data structure is known and predictable. Defaults to `false` (`data`
-          is emitted as a single argument regardless of its type).
+        - `spread` - if `true`, the `data` object passed to [`server.event.emit()`](#server.event.emit()) must be an array and the `listener` method is called with each array element passed as a separate argument (unless an override specified by each listener). This should only be used when the emitted data structure is known and predictable. Defaults to `false` (`data` is emitted as a single argument regardless of its type).
 
-        - `tags` - if `true` and the `criteria` object passed to [`server.event.emit()`](#server.event.emit())
-          includes `tags`, the tags are mapped to an object (where each tag string is the key and
-          the value is `true`) which is appended to the arguments list at the end. A configuration
-          override can be set by each listener. Defaults to `false`.
+        - `tags` - if `true` and the `criteria` object passed to [`server.event.emit()`](#server.event.emit()) includes `tags`, the tags are mapped to an object (where each tag string is the key and the value is `true`) which is appended to the arguments list at the end. A configuration override can be set by each listener. Defaults to `false`.
 
-        - `shared` - if `true`, the same event `name` can be registered multiple times where the
-          second registration is ignored. Note that if the registration config is changed between
-          registrations, only the first configuration is used. Defaults to `false` (a duplicate
-          registration will throw an error).
+        - `shared` - if `true`, the same event `name` can be registered multiple times where the second registration is ignored. Note that if the registration config is changed between registrations, only the first configuration is used. Defaults to `false` (a duplicate registration will throw an error).
 
     - a [**podium**](https://hapi.dev/family/podium/api) emitter object.
 
@@ -1536,15 +1526,11 @@ Emits a custom application event to all the subscribed listeners where:
         - `channel` - the channel name string.
         - `tags` - a tag string or array of tag strings.
 
-- `data` - the value emitted to the subscribers. If `data` is a function, the function signature
-  is `function()` and it called once to generate (return value) the actual data emitted to the
-  listeners. If no listeners match the event, the `data` function is not invoked.
+- `data` - the value emitted to the subscribers. If `data` is a function, the function signature is `function()` and it called once to generate (return value) the actual data emitted to the listeners. If no listeners match the event, the `data` function is not invoked.
 
 Return value: none.
 
-Note that events must be registered before they can be emitted or subscribed to by calling
-[`server.event(events)`](#server.event()). This is done to detect event name misspelling and
-invalid event activities.
+Note that events must be registered before they can be emitted or subscribed to by calling [`server.event(events)`](#server.event()). This is done to detect event name misspelling and invalid event activities.
 
 ```js
 const Hapi = require('@hapi/hapi');
@@ -1780,12 +1766,13 @@ async function example() {
 }
 ```
 
-### <a name="server.ext.args()" /> `server.ext(event, method, [options])`
+### <a name="server.ext.args()" /> `server.ext(event, [method, [options]])`
 
-Registers a single extension event using the same properties as used in
-[`server.ext(events)`](#server.ext()), but passed as arguments.
+Registers a single extension event using the same properties as used in [`server.ext(events)`](#server.ext()), but passed as arguments.
 
-Return value: none.
+The `method` may be omitted (if `options` isn't present) or passed `null` which will cause the function to return a promise. The promise is resolved with the `request` object on the first invocation of the extension point. This is primarily used for writing tests without having to write custom handlers just to handle a single event.
+
+Return value: a promise if `method` is omitted, otherwise `undefined`.
 
 ```js
 const Hapi = require('@hapi/hapi');
@@ -1983,7 +1970,7 @@ const server = Hapi.server();
 server.route({
     method: 'GET',
     path: '/',
-    config: {
+    options: {
         id: 'root',
         handler: () => 'ok'
     }
@@ -2008,7 +1995,7 @@ const server = Hapi.server();
 server.route({
     method: 'GET',
     path: '/',
-    config: {
+    options: {
         id: 'root',
         handler: () => 'ok'
     }
@@ -2037,7 +2024,7 @@ Registers a [server method](#server.methods) where:
       registered. Ignored if the method is an arrow function.
 
     - `cache` - the same cache configuration used in [`server.cache()`](#server.cache()). The
-      `generateTimeout` option is required.
+      `generateTimeout` option is required, and the `generateFunc` options is not allowed.
 
     - `generateKey` - a function used to generate a unique key (for caching) from the arguments
       passed to the method function (the `flags` argument is not passed as input). The server
@@ -2258,7 +2245,7 @@ const user = {
     }
 };
 
-server.route({ method: 'GET', path: '/user', config: user });
+server.route({ method: 'GET', path: '/user', options: user });
 
 // An array of routes
 
@@ -2613,7 +2600,7 @@ Registers a server validation module used to compile raw validation rules into v
 
 Return value: none.
 
-Note: the validator is only used when validation rules are not pre-compiled schemas. When a validation rules is a function or schema object, the rule is used as-is and the validator is not used.
+Note: the validator is only used when validation rules are not pre-compiled schemas. When a validation rules is a function or schema object, the rule is used as-is and the validator is not used. When setting a validator inside a plugin, the validator is only applied to routes set up by the plugin and plugins registered by it.
 
 ```js
 const Hapi = require('@hapi/hapi');
@@ -3122,7 +3109,7 @@ const pre3 = function (request, h) {
 server.route({
     method: 'GET',
     path: '/',
-    config: {
+    options: {
         pre: [
             [
                 // m1 and m2 executed in parallel
@@ -3615,6 +3602,12 @@ the same. The following is the complete list of steps a request can go through:
 - _**Finalize request**_
     - emits `'response'` event.
 
+- _**onPostResponse**_
+    - return value is ignored since the response is already set.
+    - emits a [`'request'` event](#server.events.request) on the `'error'` channel if an error is returned.
+    - all extension handlers are executed even if some error.
+    - note that since the handlers are executed in serial (each is `await`ed), care must be taken to avoid blocking execution if other extension handlers expect to be called immediately when the response is sent. If an _**onPostResponse**_ handler is performing IO, it should defer that activity to another tick and return immediately (either without a return value or without a promise that is solve to resolve).
+
 ### Lifecycle methods
 
 Lifecycle methods are the interface between the framework and the application. Many of the request
@@ -3671,7 +3664,7 @@ The return value must be one of:
       (auth scheme only).
 - a promise object that resolve to any of the above values
 
-Any error thrown by a lifecycle method will be used as the response object. While errors and valid
+Any error thrown by a lifecycle method will be used as the [response object](#response-object). While errors and valid
 values can be returned, it is recommended to throw errors. Throwing non-error values will generate
 a Bad Implementation (500) error response.
 
@@ -3801,7 +3794,7 @@ following properties:
     - `headers` - an object containing any HTTP headers where each key is a header name and value
       is the header content.
 
-    - `payload` - the formatted object used as the response payload (stringified). Can be directly
+    - `payload` - the formatted object used as the response payload. Can be directly
       manipulated but any changes will be lost
       if `reformat()` is called. Any content allowed and by default includes the following content:
 
@@ -3833,7 +3826,7 @@ const handler = function (request, h) {
 
 When a different error representation is desired, such as an HTML page or a different payload
 format, the `'onPreResponse'` extension point may be used to identify errors and replace them with
-a different response object, as in this example using [Vision's](https://hapi.dev/family/vision/api)
+a different [response object](#response-object), as in this example using [Vision's](https://hapi.dev/family/vision/api)
 `.view()` [response toolkit](#response-toolkit) property.
 
 ```js
@@ -3941,7 +3934,7 @@ Return value: an internal authentication object.
 
 Sets the response 'ETag' and 'Last-Modified' headers and checks for any conditional request headers
 to decide if the response is going to qualify for an HTTP 304 (Not Modified). If the entity values
-match the request conditions, `h.entity()` returns a response object for the lifecycle method to
+match the request conditions, `h.entity()` returns a [response object](#response-object) for the lifecycle method to
 return as its value which will set a 304 response. Otherwise, it sets the provided entity headers
 and returns `undefined`. The method arguments are:
 
@@ -3966,7 +3959,7 @@ const server = Hapi.server({ port: 80 });
 server.route({
     method: 'GET',
     path: '/',
-    config: {
+    options: {
         cache: { expiresIn: 5000 },
         handler: function (request, h) {
 
@@ -4086,6 +4079,14 @@ Default value: `{}`.
 Application-specific state. Provides a safe place to store application data without potential
 conflicts with the framework. Should not be used by [plugins](#plugins) which should use
 [`plugins[name]`](#response.plugins).
+
+##### <a name="response.contentType" /> `response.contentType`
+
+Access: read.
+
+Default value: none.
+
+Provides a preview of the response HTTP Content-Type header based on the implicit response type, any explicit Content-Type header set, and any content character-set defined. The returned value is only a preview as the content type can change later both internally and by user code (it represents current response state). The value is `null` if no implicit type can be determined.
 
 ##### <a name="response.events" /> `response.events`
 
@@ -4646,7 +4647,7 @@ An object where each key is the name assigned by a [route pre-handler methods](#
 
 Access: read / write (see limitations below).
 
-The response object when set. The object can be modified but must not be assigned another object. To replace the response with another from within an [extension point](#server.ext()), return a new response value. Contains `null` when no response has been set (e.g. when a request terminates prematurely when the client disconnects).
+The response object when set. The object can be modified but must not be assigned another object. To replace the response with another from within an [extension point](#server.ext()), return a new response value. Contains an error when a request terminates prematurely when the client disconnects.
 
 #### <a name="request.preResponses" /> `request.preResponses`
 
