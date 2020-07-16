@@ -27,7 +27,6 @@
     "@hapi/catbox-memory": "5.x.x",
     "@hapi/heavy": "7.x.x",
     "@hapi/hoek": "9.x.x",
-    "@hapi/joi": "17.x.x",
     "@hapi/mimos": "5.x.x",
     "@hapi/podium": "4.x.x",
     "@hapi/shot": "5.x.x",
@@ -35,7 +34,8 @@
     "@hapi/statehood": "^7.0.2",
     "@hapi/subtext": "^7.0.3",
     "@hapi/teamwork": "4.x.x",
-    "@hapi/topo": "5.x.x"
+    "@hapi/topo": "5.x.x",
+    "@hapi/validate": "^1.1.0"
   },
   "devDependencies": {
     "@hapi/code": "8.x.x",
@@ -44,7 +44,8 @@
     "@hapi/lab": "22.x.x",
     "@hapi/wreck": "17.x.x",
     "@hapi/vision": "6.x.x",
-    "handlebars": "4.x.x"
+    "handlebars": "4.x.x",
+    "joi": "17.x.x"
   },
   "scripts": {
     "test": "lab -a @hapi/code -t 100 -L -m 5000",
