@@ -6,15 +6,15 @@ const Path = require('path');
 const Stream = require('stream');
 const Zlib = require('zlib');
 
-const Boom = require('@hapi/boom');
-const Bounce = require('@hapi/bounce');
+const Boom = require('@commercial/boom');
+const Bounce = require('@commercial/bounce');
 const Code = require('@hapi/code');
 const Hapi = require('..');
-const Hoek = require('@hapi/hoek');
+const Hoek = require('@commercial/hoek');
 const Inert = require('@hapi/inert');
 const Lab = require('@hapi/lab');
-const Teamwork = require('@hapi/teamwork');
-const Wreck = require('@hapi/wreck');
+const Teamwork = require('@commercial/teamwork');
+const Wreck = require('@commercial/wreck');
 
 
 const internals = {};

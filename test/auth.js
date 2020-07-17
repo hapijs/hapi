@@ -2,11 +2,11 @@
 
 const Path = require('path');
 
-const Boom = require('@hapi/boom');
+const Boom = require('@commercial/boom');
 const Code = require('@hapi/code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
-const Hoek = require('@hapi/hoek');
+const Hoek = require('@commercial/hoek');
 const Lab = require('@hapi/lab');
 const Vision = require('@hapi/vision');
 

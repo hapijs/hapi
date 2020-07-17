@@ -8,7 +8,7 @@ const Handlebars = require('handlebars');
 const Hapi = require('..');
 const Inert = require('@hapi/inert');
 const Lab = require('@hapi/lab');
-const Teamwork = require('@hapi/teamwork');
+const Teamwork = require('@commercial/teamwork');
 const Vision = require('@hapi/vision');
 
 

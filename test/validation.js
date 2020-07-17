@@ -1,10 +1,10 @@
 'use strict';
 
-const Boom = require('@hapi/boom');
+const Boom = require('@commercial/boom');
 const Code = require('@hapi/code');
 const Hapi = require('..');
 const Inert = require('@hapi/inert');
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 const JoiLegacy = require('@hapi/joi-legacy-test');
 const Lab = require('@hapi/lab');
 
