@@ -1134,6 +1134,20 @@ describe('Core', () => {
             expect(res.result).to.be.true();
         });
 
+        it('sets `request.isInjected = true` for requests created via `server.inject`', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request) => request.isInjected });
+
+            const options = {
+                url: '/'
+            };
+
+            const res = await server.inject(options);
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.be.true();
+        });
+
         it('sets app settings', async () => {
 
             const server = Hapi.server();

@@ -4581,6 +4581,12 @@ Request information:
 
 Note that the `request.info` object is not meant to be modified.
 
+#### <a name="request.isInjected" /> `request.isInjected`
+
+Access: read only.
+
+When `true`, indicates request was created via [`server.inject`](#server.inject()).  Defaults to `false`.
+
 #### <a name="request.logs" /> `request.logs`
 
 Access: read only.
