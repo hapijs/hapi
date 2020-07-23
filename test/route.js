@@ -450,20 +450,20 @@ describe('Route', () => {
         expect(res.payload).to.contain('hapi');
     });
 
-    it('throws when server timeout is more then socket timeout', () => {
+    it('allows server timeout more then socket timeout', () => {
 
         expect(() => {
 
             Hapi.server({ routes: { timeout: { server: 60000, socket: 12000 } } });
-        }).to.throw('Server timeout must be shorter than socket timeout');
+        }).to.not.throw();
     });
 
-    it('throws when server timeout is more then socket timeout (node default)', () => {
+    it('allows server timeout more then socket timeout (node default)', () => {
 
         expect(() => {
 
             Hapi.server({ routes: { timeout: { server: 6000000 } } });
-        }).to.throw('Server timeout must be shorter than socket timeout');
+        }).to.not.throw();
     });
 
     it('ignores large server timeout when socket timeout disabled', () => {
