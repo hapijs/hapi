@@ -304,7 +304,7 @@ describe('Request', () => {
 
             await server.start();
 
-            const req = Http.get(server.info.uri, (res) => { });
+            const req = Http.get(`http://localhost:${server.info.port}/`, (res) => { });
             req.on('error', Hoek.ignore);
 
             await Hoek.wait(50);
@@ -878,7 +878,7 @@ describe('Request', () => {
 
             await server.start();
 
-            const req = Http.get(server.info.uri, (res) => { });
+            const req = Http.get(`http://localhost:${server.info.port}/`, (res) => { });
             req.on('error', Hoek.ignore);
 
             await team.work;
