@@ -1153,12 +1153,12 @@ describe('Core', () => {
             const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: (request) => {
 
-                try {
+                const illegalAssignment = () => {
+
                     request.isInjected = false;
-                }
-                catch (e) {
-                    // silence error to keep unit test output clean.  We expect above line to fail because isInjected() is getter type
-                }
+                };
+
+                expect(illegalAssignment).to.throw('Cannot set property isInjected of [object Object] which has only a getter');
 
                 return request.isInjected;
             } });
