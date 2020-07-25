@@ -4585,7 +4585,7 @@ Note that the `request.info` object is not meant to be modified.
 
 Access: read only.
 
-`true` if the request was created via [`server.inject`](#server.inject()), and `false` otherwise.
+`true` if the request was created via [`server.inject()`](#server.inject()), and `false` otherwise.
 
 #### <a name="request.logs" /> `request.logs`
 
