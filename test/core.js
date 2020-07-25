@@ -1151,25 +1151,25 @@ describe('Core', () => {
         it('`request.isInjected` access is read-only', async () => {
 
             const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', handler: (request) => {
+            let request = null;
+            server.route({ method: 'GET', path: '/', handler: (_request) => {
 
-                const illegalAssignment = () => {
-
-                    request.isInjected = false;
-                };
-
-                expect(illegalAssignment).to.throw('Cannot set property isInjected of [object Object] which has only a getter');
-
-                return request.isInjected;
+                request = _request; // hoist request object to perform illegal assignment assertion
+                return true;
             } });
 
             const options = {
                 url: '/'
             };
 
-            const res = await server.inject(options);
-            expect(res.statusCode).to.equal(200);
-            expect(res.result).to.be.true();
+            await server.inject(options); // invokes side effect from handler to hoist request object for assertion
+
+            const illegalAssignment = () => {
+
+                request.isInjected = false;
+            };
+
+            expect(illegalAssignment).to.throw('Cannot set property isInjected of [object Object] which has only a getter');
         });
 
         it('sets `request.isInjected = false` for normal request', async () => {
