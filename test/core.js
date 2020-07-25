@@ -1148,6 +1148,30 @@ describe('Core', () => {
             expect(res.result).to.be.true();
         });
 
+        it('`request.isInjected` access is read-only', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request) => {
+
+                try {
+                    request.isInjected = false;
+                }
+                catch (e) {
+                    // silence error to keep unit test output clean.  We expect above line to fail because isInjected() is getter type
+                }
+
+                return request.isInjected;
+            } });
+
+            const options = {
+                url: '/'
+            };
+
+            const res = await server.inject(options);
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.be.true();
+        });
+
         it('sets `request.isInjected = false` for normal request', async () => {
 
             const server = Hapi.server();
