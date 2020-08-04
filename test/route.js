@@ -326,6 +326,22 @@ describe('Route', () => {
         expect(called).to.be.false();
     });
 
+    it('throws error when the default routes payload validation is set without payload parsing', () => {
+
+        expect(() => {
+
+            Hapi.server({ routes: {  validate: { payload: {}, validator: Joi }, payload: { parse: false } } });
+        }).to.throw('Route payload must be set to \'parse\' when payload validation enabled');
+    });
+
+    it('throws error when the default routes state validation is set without state parsing', () => {
+
+        expect(() => {
+
+            Hapi.server({ routes: {  validate: { state: {}, validator: Joi }, state: { parse: false } } });
+        }).to.throw('Route state must be set to \'parse\' when state validation enabled');
+    });
+
     it('ignores default validation on GET', async () => {
 
         const server = Hapi.server({ routes: { validate: { payload: { a: Joi.required() }, validator: Joi } } });
