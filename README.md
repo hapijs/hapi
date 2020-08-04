@@ -4,7 +4,7 @@
 
 # @hapi/hapi
 
-# The Simple, Secure Framework Developers Trust
+#### The Simple, Secure Framework Developers Trust
 
 Build powerful, scalable applications, with minimal overhead and full out-of-the-box functionality - your code, your way.
 
