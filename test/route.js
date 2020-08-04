@@ -466,6 +466,22 @@ describe('Route', () => {
         expect(res.payload).to.contain('hapi');
     });
 
+    it('allows payload timeout more then socket timeout', () => {
+
+        expect(() => {
+
+            Hapi.server({ routes: { payload: { timeout: 60000 }, timeout: { socket: 12000 } } });
+        }).to.not.throw();
+    });
+
+    it('allows payload timeout more then socket timeout (node default)', () => {
+
+        expect(() => {
+
+            Hapi.server({ routes: { payload: { timeout: 6000000 } } });
+        }).to.not.throw();
+    });
+
     it('allows server timeout more then socket timeout', () => {
 
         expect(() => {
