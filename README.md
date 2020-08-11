@@ -1,5 +1,3 @@
-## The hapi project is changing direction... [Find out more](https://github.com/hapijs/hapi/issues/4111).
-
 <img src="https://raw.githubusercontent.com/hapijs/assets/master/images/hapi.png" width="400px" />
 
 # @hapi/hapi
