@@ -523,5 +523,15 @@ describe('Headers', () => {
             const res = await server.inject('/?callback=me');
             expect(res.payload).to.equal('test');
         });
+
+        it('does not set content-type by default on 204 response', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request, h) => h.response().code(204) });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(204);
+            expect(res.headers['content-type']).to.equal(undefined);
+        });
     });
 });
