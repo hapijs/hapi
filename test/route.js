@@ -326,6 +326,22 @@ describe('Route', () => {
         expect(called).to.be.false();
     });
 
+    it('throws error when the default routes payload validation is set without payload parsing', () => {
+
+        expect(() => {
+
+            Hapi.server({ routes: {  validate: { payload: {}, validator: Joi }, payload: { parse: false } } });
+        }).to.throw('Route payload must be set to \'parse\' when payload validation enabled');
+    });
+
+    it('throws error when the default routes state validation is set without state parsing', () => {
+
+        expect(() => {
+
+            Hapi.server({ routes: {  validate: { state: {}, validator: Joi }, state: { parse: false } } });
+        }).to.throw('Route state must be set to \'parse\' when state validation enabled');
+    });
+
     it('ignores default validation on GET', async () => {
 
         const server = Hapi.server({ routes: { validate: { payload: { a: Joi.required() }, validator: Joi } } });
@@ -450,20 +466,36 @@ describe('Route', () => {
         expect(res.payload).to.contain('hapi');
     });
 
-    it('throws when server timeout is more then socket timeout', () => {
+    it('allows payload timeout more then socket timeout', () => {
+
+        expect(() => {
+
+            Hapi.server({ routes: { payload: { timeout: 60000 }, timeout: { socket: 12000 } } });
+        }).to.not.throw();
+    });
+
+    it('allows payload timeout more then socket timeout (node default)', () => {
+
+        expect(() => {
+
+            Hapi.server({ routes: { payload: { timeout: 6000000 } } });
+        }).to.not.throw();
+    });
+
+    it('allows server timeout more then socket timeout', () => {
 
         expect(() => {
 
             Hapi.server({ routes: { timeout: { server: 60000, socket: 12000 } } });
-        }).to.throw('Server timeout must be shorter than socket timeout');
+        }).to.not.throw();
     });
 
-    it('throws when server timeout is more then socket timeout (node default)', () => {
+    it('allows server timeout more then socket timeout (node default)', () => {
 
         expect(() => {
 
             Hapi.server({ routes: { timeout: { server: 6000000 } } });
-        }).to.throw('Server timeout must be shorter than socket timeout');
+        }).to.not.throw();
     });
 
     it('ignores large server timeout when socket timeout disabled', () => {
