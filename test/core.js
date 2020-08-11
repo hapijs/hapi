@@ -1116,7 +1116,7 @@ describe('Core', () => {
             expect(options.auth.artifacts).to.exist();
         });
 
-        it('sets isInjected', async () => {
+        it('sets `request.auth.isInjected = true` when `auth` option is defined', async () => {
 
             const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: (request) => request.auth.isInjected });
@@ -1132,6 +1132,57 @@ describe('Core', () => {
             const res = await server.inject(options);
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.be.true();
+        });
+
+        it('sets `request.isInjected = true` for requests created via `server.inject`', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request) => request.isInjected });
+
+            const options = {
+                url: '/'
+            };
+
+            const res = await server.inject(options);
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.be.true();
+        });
+
+        it('`request.isInjected` access is read-only', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request) => {
+
+                const illegalAssignment = () => {
+
+                    request.isInjected = false;
+                };
+
+                expect(illegalAssignment).to.throw('Cannot set property isInjected of [object Object] which has only a getter');
+
+                return request.isInjected;
+            } });
+
+            const options = {
+                url: '/'
+            };
+
+            const res = await server.inject(options);
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.be.true();
+        });
+
+        it('sets `request.isInjected = false` for normal request', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request) => request.isInjected });
+
+            await server.start();
+
+            const { payload } = await Wreck.get(`http://localhost:${server.info.port}/`);
+            expect(payload.toString()).to.equal('false');
+
+            await server.stop();
         });
 
         it('sets app settings', async () => {
