@@ -33,7 +33,7 @@
     "@hapi/somever": "3.x.x",
     "@hapi/statehood": "^7.0.3",
     "@hapi/subtext": "^7.0.3",
-    "@hapi/teamwork": "4.x.x",
+    "@hapi/teamwork": "5.x.x",
     "@hapi/topo": "5.x.x",
     "@hapi/validate": "^1.1.0"
   },
