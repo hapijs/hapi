@@ -29,7 +29,7 @@
     "@hapi/hoek": "9.x.x",
     "@hapi/mimos": "5.x.x",
     "@hapi/podium": "^4.1.1",
-    "@hapi/shot": "^5.0.1",
+    "@hapi/shot": "^5.0.2",
     "@hapi/somever": "3.x.x",
     "@hapi/statehood": "^7.0.3",
     "@hapi/subtext": "^7.0.3",
