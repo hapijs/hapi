@@ -44,7 +44,7 @@
     "@hapi/lab": "23.x.x",
     "@hapi/wreck": "17.x.x",
     "@hapi/vision": "^6.0.1",
-    "handlebars": "4.x.x",
+    "handlebars": "^4.5.3",
     "joi": "17.x.x"
   },
   "scripts": {
