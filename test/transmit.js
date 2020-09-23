@@ -566,7 +566,7 @@ describe('transmission', () => {
             });
 
             const [request] = await log;
-            expect(request.response.isBoom).to.be.true()
+            expect(request.response.isBoom).to.be.true();
             expect(request.response.output.statusCode).to.equal(499);
             expect(request.info.completed).to.be.above(0);
             expect(request.info.responded).to.equal(0);
