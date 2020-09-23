@@ -548,6 +548,7 @@ describe('transmission', () => {
             server.ext('onRequest', onRequest);
 
             // Use state autoValue function to intercept marshal stage
+
             server.state('always', {
                 autoValue() {
 
