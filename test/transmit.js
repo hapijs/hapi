@@ -565,8 +565,11 @@ describe('transmission', () => {
                 client.write('GET / HTTP/1.1\r\n\r\n');
             });
 
-            const response = await log;
-            expect(response).to.exist();
+            const [request] = await log;
+            expect(request.response.isBoom).to.be.true()
+            expect(request.response.output.statusCode).to.equal(499);
+            expect(request.info.completed).to.be.above(0);
+            expect(request.info.responded).to.equal(0);
         });
     });
 
