@@ -2,6 +2,7 @@
 
 const ChildProcess = require('child_process');
 const Fs = require('fs');
+const Net = require('net');
 const Path = require('path');
 const Stream = require('stream');
 const Zlib = require('zlib');
@@ -530,6 +531,45 @@ describe('transmission', () => {
             const res = await server.inject('/public/transmit.js');
             expect(res.statusCode).to.equal(200);
             expect(res.headers['cache-control']).to.be.undefined();
+        });
+
+        it('does not crash when request is aborted', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: () => 'ok' });
+
+            const team = new Teamwork.Team();
+            const onRequest = (request, h) => {
+
+                request.events.once('disconnect', () => team.attend());
+                return h.continue;
+            };
+
+            server.ext('onRequest', onRequest);
+
+            // Use state autoValue function to intercept marshal stage
+
+            server.state('always', {
+                autoValue() {
+
+                    client.destroy();
+                    return team.work;               // Continue once the request has been aborted
+                }
+            });
+
+            await server.start();
+
+            const log = server.events.once('response');
+            const client = Net.connect(server.info.port, () => {
+
+                client.write('GET / HTTP/1.1\r\n\r\n');
+            });
+
+            const [request] = await log;
+            expect(request.response.isBoom).to.be.true();
+            expect(request.response.output.statusCode).to.equal(499);
+            expect(request.info.completed).to.be.above(0);
+            expect(request.info.responded).to.equal(0);
         });
     });
 
