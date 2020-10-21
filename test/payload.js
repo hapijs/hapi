@@ -5,6 +5,7 @@ const Http = require('http');
 const Path = require('path');
 const Zlib = require('zlib');
 
+const Boom = require('@hapi/boom');
 const Code = require('@hapi/code');
 const Hapi = require('..');
 const Hoek = require('@hapi/hoek');
@@ -288,6 +289,48 @@ describe('Payload', () => {
         const payload = '0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789';
         await server.inject({ method: 'POST', url: '/', payload });
         expect(peeked).to.be.true();
+    });
+
+    it('propagates peek errors', async () => {
+
+        const ext = (request, h) => {
+
+            request.events.once('peek', () => {
+
+                throw Boom.badRequest();
+            });
+
+            return h.continue;
+        };
+
+        const server = Hapi.server();
+        server.ext('onRequest', ext);
+        server.route({ method: 'POST', path: '/', options: { handler: () => null, payload: { parse: false } } });
+
+        const payload = '0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789';
+        const res = await server.inject({ method: 'POST', url: '/', payload });
+        expect(res.statusCode).to.equal(400);
+    });
+
+    it('propagates finish errors', async () => {
+
+        const ext = (request, h) => {
+
+            request.events.once('finish', () => {
+
+                throw Boom.badRequest();
+            });
+
+            return h.continue;
+        };
+
+        const server = Hapi.server();
+        server.ext('onRequest', ext);
+        server.route({ method: 'POST', path: '/', options: { handler: () => null, payload: { parse: false } } });
+
+        const payload = '0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789';
+        const res = await server.inject({ method: 'POST', url: '/', payload });
+        expect(res.statusCode).to.equal(400);
     });
 
     it('handles gzipped payload', async () => {
