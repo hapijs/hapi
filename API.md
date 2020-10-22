@@ -3230,7 +3230,7 @@ If `true`, applies the validation rule changes to the response payload.
 
 Default value: none.
 
-[**joi**](https://hapi.dev/family/joi/api) options object pass to the validation function. Useful to set global options such as `stripUnknown` or `abortEarly`. If a custom validation function is defined via [`schema`](#route.options.response.schema) or [`status`](#route.options.response.status) then `options` can an arbitrary object that will be passed to this function as the second argument.
+[**joi**](https://joi.dev/api) options object pass to the validation function. Useful to set global options such as `stripUnknown` or `abortEarly`. If a custom validation function is defined via [`schema`](#route.options.response.schema) or [`status`](#route.options.response.status) then `options` can an arbitrary object that will be passed to this function as the second argument.
 
 #### <a name="route.options.response.ranges" /> `route.options.response.ranges`
 
@@ -3254,7 +3254,7 @@ The default response payload validation rules (for all non-error responses) expr
 
 - `false` - no payload allowed.
 
-- a [**joi**](https://hapi.dev/family/joi/api) validation object. The [`options`](#route.options.response.options)
+- a [**joi**](https://joi.dev/api) validation object. The [`options`](#route.options.response.options)
   along with the request context (`{ headers, params, query, payload, state, app, auth }`) are passed to
   the validation function.
 
@@ -3417,7 +3417,7 @@ Validation rules for incoming request headers:
 
 - `true` - any headers allowed (no validation performed).
 
-- a [**joi**](https://hapi.dev/family/joi/api) validation object.
+- a [**joi**](https://joi.dev/api) validation object.
 
 - a validation function using the signature `async function(value, options)` where:
 
@@ -3434,7 +3434,7 @@ Note that all header field names must be in lowercase to match the headers norma
 
 Default value: none.
 
-An options object passed to the [**joi**](https://hapi.dev/family/joi/api) rules or the custom
+An options object passed to the [**joi**](https://joi.dev/api) rules or the custom
 validation methods. Used for setting global options such as `stripUnknown` or `abortEarly`.
 
 If a custom validation function (see `headers`, `params`, `query`, or `payload` above) is defined
@@ -3462,7 +3462,7 @@ extracting any parameters, and storing them in [`request.params`](#request.param
 
 - `true` - any path parameter value allowed (no validation performed).
 
-- a [**joi**](https://hapi.dev/family/joi/api) validation object.
+- a [**joi**](https://joi.dev/api) validation object.
 
 - a validation function using the signature `async function(value, options)` where:
 
@@ -3487,7 +3487,7 @@ Validation rules for incoming request payload (request body), where:
 
 - `false` - no payload allowed.
 
-- a [**joi**](https://hapi.dev/family/joi/api) validation object.
+- a [**joi**](https://joi.dev/api) validation object.
     - Note that empty payloads are represented by a `null` value. If a validation schema is
       provided and empty payload are allowed, the schema must be explicitly defined by setting the
       rule to a **joi** schema with `null` allowed (e.g.
@@ -3518,7 +3518,7 @@ Validation rules for incoming request URI query component (the key-value part of
 
 - `false` - no query parameter value allowed.
 
-- a [**joi**](https://hapi.dev/family/joi/api) validation object.
+- a [**joi**](https://joi.dev/api) validation object.
 
 - a validation function using the signature `async function(value, options)` where:
 
@@ -3543,7 +3543,7 @@ Validation rules for incoming cookies. The `cookie` header is parsed and decoded
 
 - `false` - no cookies allowed.
 
-- a [**joi**](https://hapi.dev/family/joi/api) validation object.
+- a [**joi**](https://joi.dev/api) validation object.
 
 - a validation function using the signature `async function(value, options)` where:
 
