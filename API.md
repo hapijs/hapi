@@ -3207,7 +3207,7 @@ only used for logging as the request has already ended.
 
 #### <a name="route.options.response.emptyStatusCode" /> `route.options.response.emptyStatusCode`
 
- Default value: `200`.
+ Default value: `204`.
 
 The default HTTP status code when the payload is considered empty. Value can be `200` or `204`.
 Note that a `200` status code is converted to a `204` only at the time of response transmission
