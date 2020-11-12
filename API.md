@@ -266,7 +266,7 @@ Defines server handling of the request path query component.
 
 Default value: none.
 
-Sets a query parameters parser method using the signature `function(searchParams)` where:
+Sets a query parameters parser method using the signature `function(query)` where:
 
 - `query` - an object containing the incoming [`request.query`](#request.query) parameters.
 - the method must return an object where each key is a parameter and matching value is the
