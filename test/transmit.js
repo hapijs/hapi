@@ -725,7 +725,11 @@ describe('transmission', () => {
 
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
+            expect(res.statusMessage).to.equal('Internal Server Error');
             expect(res.result.message).to.equal('An internal server error occurred');
+            expect(res.raw.res.statusCode).to.equal(200);
+            expect(res.raw.res.statusMessage).to.equal('OK');
+            expect(res.rawPayload.toString()).to.equal('success');
 
             const [request] = await log;
             expect(request.response.statusCode).to.equal(500);
@@ -747,7 +751,7 @@ describe('transmission', () => {
                     this.isDone = true;
 
                     this.push('something');
-                    this.emit('error', new Error());
+                    setImmediate(() => this.emit('error', new Error()));
                 };
 
                 return stream;
@@ -758,10 +762,11 @@ describe('transmission', () => {
             server.route({ method: 'GET', path: '/', handler });
 
             await server.start();
-            await expect(Wreck.request('GET', 'http://localhost:' + server.info.port + '/')).to.reject();
+            const err = await expect(Wreck.get('http://localhost:' + server.info.port + '/')).to.reject();
             await server.stop();
 
             const [request] = await log;
+            expect(err.data.res.statusCode).to.equal(200);
             expect(request.response.statusCode).to.equal(500);
             expect(request.info.completed).to.be.above(0);
             expect(request.info.responded).to.equal(0);
@@ -1223,6 +1228,10 @@ describe('transmission', () => {
 
             const res = await server.inject({ url: '/stream', headers: { 'Accept-Encoding': 'gzip' } });
             expect(res.statusCode).to.equal(499);
+            expect(res.statusMessage).to.equal('Unknown');
+            expect(res.raw.res.statusCode).to.equal(204);
+            expect(res.raw.res.statusMessage).to.equal('No Content');
+            expect(res.rawPayload.toString()).to.equal('here is the response');
 
             const [request] = await log;
             expect(request.response.statusCode).to.equal(499);
