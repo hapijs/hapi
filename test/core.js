@@ -838,7 +838,7 @@ describe('Core', () => {
             expect(timer.elapsed()).to.be.below(300);
         });
 
-        it('immediately destroys idle keep-alive connections', async () => {
+        it('immediately destroys idle keep-alive connections', { retry: true }, async () => {
 
             const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: () => null });

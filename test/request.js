@@ -275,10 +275,11 @@ describe('Request', () => {
 
     describe('active()', () => {
 
-        it('exits handler early when request is no longer active', { retry: true }, async () => {
+        it('exits handler early when request is no longer active', async () => {
 
             const server = Hapi.server();
             const team = new Teamwork.Team();
+            const team2 = new Teamwork.Team();
 
             let rounds = 0;
             server.route({
@@ -287,6 +288,7 @@ describe('Request', () => {
                 options: {
                     handler: async (request, h) => {
 
+                        team2.attend();
                         for (let i = 0; i < 100; ++i) {
                             ++rounds;
                             await Hoek.wait(10);
@@ -306,8 +308,7 @@ describe('Request', () => {
 
             const req = Http.get(server.info.uri, (res) => { });
             req.on('error', Hoek.ignore);
-
-            await Hoek.wait(50);
+            await team2.work;
             req.abort();
             await server.stop();
 
@@ -498,7 +499,7 @@ describe('Request', () => {
             expect(info.remoteAddress).to.exist();
         });
 
-        it('handles aborted requests (pre response)', async () => {
+        it('handles aborted requests (pre response)', { retry: true }, async () => {
 
             const server = Hapi.server();
             server.route({
