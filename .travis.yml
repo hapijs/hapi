@@ -1,7 +1,0 @@
-version: ~> 1.0
-
-
-import:
-  - hapijs/ci-config-travis:node_js.yml@main
-  - hapijs/ci-config-travis:install.yml@main
-  - hapijs/ci-config-travis:os.yml@main
