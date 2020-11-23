@@ -1,79 +1,10 @@
-# Leaders
+# Top Sponsors
 
-- Alexander Alimovs
-- Alvin Lumowa
-- Andreas Zeuch
-- Andres Garcia / Florence Healthcare
-- Auth0
-- Benjamin Flesch / StriveWire
-- Biao Xie
-- Bryan Sapot
-- Chords
-- Christian Giacomi
-- CNN Digital
-- CodePilot.ai
-- Condé Nast Technology
-- Contentful
-- Creative Artists Agency
-- Dave Hyndman
-- David Roncancio
-- Dmitry Savinkov
-- Elba Sánchez Márquez
-- Eric Lanehart
 - Fabian Gündel / DataWrapper.de
-- [gitconnected](https://gitconnected.com)
-- Greg Allen / First + Third
-- Healthline Media
-- Jeremy Whitbred
-- John Brett
-- Julian Lannigan
-- Lob
-- Louis Beltramo
-- Luke Bond
-- Mahesh Babu R
-- Manny Pamintuan
-- Marie Clemenssy
-- Max Fierro
-- Nicklas Laine Overgaard
-- NZZ Visuals
-- Oakley Hall
-- Paulo Vieira
-- Peter Ka
-- [quickytools](https://www.quickytools.com)
-- Raffi Minassian
-- Raquel Hernandez
-- Robert McGuinness
-- Rocky Jaiswal
-- Saul Maddox
-- Seth Holladay
-- Shane Warren
-- Srikanth Minnam
-- Sven Lito
-- Tim Boudreau
-- Trey Huffine
-- Umut Şirin
-- Viswanadha Pratap Kondoju
-- Yehor Sergeenko
+- Devin Stewart
 
-# Supporters
+# Backers
 
-- Adam Recvlohe
-- Adilson Schmitt Junior
-- Alexander Springer
-- Amit Lahav
-- Checkly
-- Chris St
-- Daniel Cassidy
-- Dave Stevens
-- Domenic Denicola
-- Essau Ramirez
-- Finnegan
-- Geraint Corneu
-- Marcos Bérgamo
-- Nathan Buchar
-- Nathan Heskew
-- PIer Bover
-- Robin van der Vleuten
-- Sheridan Tighe
-- Troy Whiteley
-- Wouter De Loose
+- Aori Nevo
+- Zack McCartney
+
