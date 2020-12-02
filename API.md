@@ -1196,7 +1196,7 @@ Provisions a cache segment within the server cache facility where:
       for a given id, before a subsequent `generateFunc` call is allowed. Defaults to `0` (no
       blocking of concurrent `generateFunc` calls beyond `staleTimeout`).
 
-    - `cache` - the cache name configured in [`server.cache`](#server.config.cache). Defaults to
+    - `cache` - the cache name configured in [`server.cache`](#server.options.cache). Defaults to
       the default cache.
 
     - `segment` - string segment name, used to isolate cached items within the cache partition.
@@ -1223,7 +1223,7 @@ async function example() {
 
 ### <a name="server.cache.provision()" /> `await server.cache.provision(options)`
 
-Provisions a server cache as described in [`server.cache`](#server.config.cache) where:
+Provisions a server cache as described in [`server.cache`](#server.options.cache) where:
 
 - `options` - same as the server [`cache`](#server.options.cache) configuration options.
 
