@@ -991,12 +991,13 @@ describe('Core', () => {
             const events = [];
 
             server.events.on('closing', () => events.push('closing'));
+            server.events.on('stop', () => events.push('stop'));
             server._core.listener.on('close', () => events.push('close'));
 
             await server.start();
             await server.stop();
 
-            expect(events).to.equal(['closing', 'close']);
+            expect(events).to.equal(['closing', 'close', 'stop']);
         });
     });
 
