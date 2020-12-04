@@ -984,6 +984,20 @@ describe('Core', () => {
             await server.stop();
             await server.stop();
         });
+
+        it('emits a closing event before the server\'s listener close event is emitted', async () => {
+
+            const server = Hapi.server();
+            const events = [];
+
+            server.events.on('closing', () => events.push('closing'));
+            server._core.listener.on('close', () => events.push('close'));
+
+            await server.start();
+            await server.stop();
+
+            expect(events).to.equal(['closing', 'close']);
+        });
     });
 
     describe('_dispatch()', () => {
