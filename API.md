@@ -597,7 +597,7 @@ server.events.on('start', () => {
 
 ##### <a name="server.events.closing" /> `'closing'` Event
 
-The `'closing'` event type is emitted when the server is stopped using [`server.stop()`](#server.stop()) but before all underlying connections have been closed, and thus before the [`'stop'`](#server.events.stop) event is triggered.
+The `'closing'` event type is emitted when the server is stopped using [`server.stop()`](#server.stop()). It is triggered when incoming requests are no longer accepted but before all underlying active connections have been closed, and thus before the [`'stop'`](#server.events.stop) event is triggered.
 The `'closing'` event handler uses the function signature `function()`.
 
 ```js
