@@ -1,0 +1,27 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu, windows, macos]
+        node: ['*', '14', '12']
+
+    runs-on: ${{ matrix.os }}-latest
+    name: ${{ matrix.os }} node@${{ matrix.node }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node }}
+      - name: install
+        run: npm install
+      - name: test
+        run: npm test
