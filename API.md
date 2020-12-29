@@ -2670,7 +2670,7 @@ Note: the validator is only used when validation rules are not pre-compiled sche
 
 ```js
 const Hapi = require('@hapi/hapi');
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 
 async function example() {
 
