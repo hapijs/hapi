@@ -203,7 +203,7 @@ describe('Server', () => {
             const cache = server.cache({ segment: 'test', expiresIn: 1000 });
 
             expect(server.caches._default.shared).to.equal(false);
-            expect(server.caches._default.segments.test).to.be.shallow.equal(cache);
+            expect(server.caches._default.segments.test).to.shallow.equal(cache);
         });
 
         it('shows cache segments within named cache provision', async () => {
