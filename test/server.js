@@ -195,6 +195,37 @@ describe('Server', () => {
         });
     });
 
+    describe('caches', () => {
+
+        it('shows cache segments within default cache provision', () => {
+
+            const server = Hapi.server();
+            const cache = server.cache({ segment: 'test', expiresIn: 1000 });
+
+            expect(server.caches._default.shared).to.be.equal(false);
+            expect(server.caches._default.segments.test).to.be.equal(cache);
+        });
+
+        it('shows cache segments within named cache provision', async () => {
+
+            const server = Hapi.server();
+            await server.cache.provision({ provider: CatboxMemory, name: 'named' });
+            const cache = server.cache({ cache: 'named', segment: 'test', expiresIn: 1000 });
+
+            expect(server.caches.named.shared).to.be.equal(false);
+            expect(server.caches.named.segments.test).to.be.equal(cache);
+        });
+
+        it('shows cache segments within shared cache provision', async () => {
+
+            const server = Hapi.server();
+            await server.cache.provision({ provider: CatboxMemory, name: 'shared', shared: true });
+            server.cache({ cache: 'shared', segment: 'test', expiresIn: 1000 });
+
+            expect(server.caches.shared.shared).to.be.equal(true);
+        });
+    });
+
     describe('cache.provision()', () => {
 
         it('provisions a server cache (before initialization)', async () => {
