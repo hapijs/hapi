@@ -202,8 +202,8 @@ describe('Server', () => {
             const server = Hapi.server();
             const cache = server.cache({ segment: 'test', expiresIn: 1000 });
 
-            expect(server.caches._default.shared).to.be.equal(false);
-            expect(server.caches._default.segments.test).to.be.equal(cache);
+            expect(server.caches._default.shared).to.equal(false);
+            expect(server.caches._default.segments.test).to.be.shallow.equal(cache);
         });
 
         it('shows cache segments within named cache provision', async () => {
@@ -212,8 +212,8 @@ describe('Server', () => {
             await server.cache.provision({ provider: CatboxMemory, name: 'named' });
             const cache = server.cache({ cache: 'named', segment: 'test', expiresIn: 1000 });
 
-            expect(server.caches.named.shared).to.be.equal(false);
-            expect(server.caches.named.segments.test).to.be.equal(cache);
+            expect(server.caches.named.shared).to.equal(false);
+            expect(server.caches.named.segments.test).to.shallow.equal(cache);
         });
 
         it('shows cache segments within shared cache provision', async () => {
@@ -222,7 +222,7 @@ describe('Server', () => {
             await server.cache.provision({ provider: CatboxMemory, name: 'common', shared: true });
             server.cache({ cache: 'common', segment: 'test', expiresIn: 1000 });
 
-            expect(server.caches.common.shared).to.be.equal(true);
+            expect(server.caches.common.shared).to.equal(true);
         });
     });
 
