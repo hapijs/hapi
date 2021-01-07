@@ -400,21 +400,20 @@ Access: read only.
 Contains the default authentication configuration if a default strategy was set via
 [`server.auth.default()`](#server.auth.default()).
 
-#### <a name="server.caches" /> `server.caches`
+#### <a name="server.cache.policies" /> `server.cache.policies`
 
 Access: read only.
 
-An object containing the cache provisions, where each key is a cache name and the values are objects with the following properties:
-
-- `segments` - an object where each key is a segment name and the values are [cache policies](https://hapi.dev/family/catbox/api#policy) created with [server.cache()](#server.cache()).
-- `shared` - indicates if the cache provision allows shared segments.
+An array containing the [cache policies](https://hapi.dev/family/catbox/api#policy) created with [server.cache()](#server.cache()).
 
 ```js
 const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 const cache = server.cache({ segment: 'countries', expiresIn: 60 * 60 * 1000 });
 
-console.log(server.caches['_default'].segments.countries === cache);  // true
+const policy = server.cache.policies.find((policy) => policy.segment === 'countries' && policy.cache === '_default');
+
+console.log(policy === cache);  // true
 ```
 
 #### <a name="server.decorations" /> `server.decorations`

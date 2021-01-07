@@ -195,15 +195,15 @@ describe('Server', () => {
         });
     });
 
-    describe('caches', () => {
+    describe('cache.policies', () => {
 
         it('shows cache segments within default cache provision', () => {
 
             const server = Hapi.server();
             const cache = server.cache({ segment: 'test', expiresIn: 1000 });
 
-            expect(server.caches._default.shared).to.equal(false);
-            expect(server.caches._default.segments.test).to.shallow.equal(cache);
+            const test = server.cache.policies.find((policy) => policy._segment === 'test' && policy.cache === '_default');
+            expect(test).to.shallow.equal(cache);
         });
 
         it('shows cache segments within named cache provision', async () => {
@@ -212,17 +212,20 @@ describe('Server', () => {
             await server.cache.provision({ provider: CatboxMemory, name: 'named' });
             const cache = server.cache({ cache: 'named', segment: 'test', expiresIn: 1000 });
 
-            expect(server.caches.named.shared).to.equal(false);
-            expect(server.caches.named.segments.test).to.shallow.equal(cache);
+            const named = server.cache.policies.find((policy) => policy._segment === 'test' && policy.cache === 'named');
+            expect(named).to.shallow.equal(cache);
         });
 
         it('shows cache segments within shared cache provision', async () => {
 
             const server = Hapi.server();
             await server.cache.provision({ provider: CatboxMemory, name: 'common', shared: true });
-            server.cache({ cache: 'common', segment: 'test', expiresIn: 1000 });
+            const cacheA = server.cache({ cache: 'common', segment: 'test', expiresIn: 1000 });
+            const cacheB = server.cache({ cache: 'common', segment: 'test', expiresIn: 2000 });
 
-            expect(server.caches.common.shared).to.equal(true);
+            const policies = server.cache.policies.filter((policy) => policy._segment === 'test' && policy.cache === 'common');
+            expect(policies[0]).to.shallow.equal(cacheA);
+            expect(policies[1]).to.shallow.equal(cacheB);
         });
     });
 

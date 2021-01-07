@@ -347,12 +347,12 @@ describe('Core', () => {
 
             const engine = new CatboxMemory();
             const server = Hapi.server({ cache: { engine, name: 'test1' } });
-            expect(server._core.caches.clients.get('test1').connection).to.shallow.equal(engine);
+            expect(server._core.cache.caches.get('test1').client.connection).to.shallow.equal(engine);
 
             // Active provision
 
             await server.cache.provision({ engine, name: 'test2' });
-            expect(server._core.caches.clients.get('test2').connection).to.shallow.equal(engine);
+            expect(server._core.cache.caches.get('test2').client.connection).to.shallow.equal(engine);
 
             // Active provision but indirect constructor
 
@@ -363,7 +363,7 @@ describe('Core', () => {
 
             const ref = {};
             await server.cache.provision({ provider: { constructor: Provider, options: { ref } }, name: 'test3' });
-            expect(server._core.caches.clients.get('test3').connection.settings.ref).to.shallow.equal(ref);
+            expect(server._core.cache.caches.get('test3').client.connection.settings.ref).to.shallow.equal(ref);
         });
     });
 
