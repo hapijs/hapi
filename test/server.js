@@ -202,7 +202,7 @@ describe('Server', () => {
             const server = Hapi.server();
             const cache = server.cache({ segment: 'test', expiresIn: 1000 });
 
-            const test = server.cache.policies.find((policy) => policy._segment === 'test' && policy.cache === '_default');
+            const test = server.cache.policies.find((policy) => policy.segment === 'test' && policy.client.name === undefined);
             expect(test).to.shallow.equal(cache);
         });
 
@@ -212,7 +212,7 @@ describe('Server', () => {
             await server.cache.provision({ provider: CatboxMemory, name: 'named' });
             const cache = server.cache({ cache: 'named', segment: 'test', expiresIn: 1000 });
 
-            const named = server.cache.policies.find((policy) => policy._segment === 'test' && policy.cache === 'named');
+            const named = server.cache.policies.find((policy) => policy.segment === 'test' && policy.client.name === 'named');
             expect(named).to.shallow.equal(cache);
         });
 
@@ -223,7 +223,7 @@ describe('Server', () => {
             const cacheA = server.cache({ cache: 'common', segment: 'test', expiresIn: 1000 });
             const cacheB = server.cache({ cache: 'common', segment: 'test', expiresIn: 2000 });
 
-            const policies = server.cache.policies.filter((policy) => policy._segment === 'test' && policy.cache === 'common');
+            const policies = server.cache.policies.filter((policy) => policy.segment === 'test' && policy.client.name === 'common');
             expect(policies[0]).to.shallow.equal(cacheA);
             expect(policies[1]).to.shallow.equal(cacheB);
         });

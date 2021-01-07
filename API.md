@@ -411,7 +411,7 @@ const Hapi = require('@hapi/hapi');
 const server = Hapi.server({ port: 80 });
 const cache = server.cache({ segment: 'countries', expiresIn: 60 * 60 * 1000 });
 
-const policy = server.cache.policies.find((policy) => policy.segment === 'countries' && policy.cache === '_default');
+const policy = server.cache.policies.find((policy) => policy.segment === 'countries');
 
 console.log(policy === cache);  // true
 ```
