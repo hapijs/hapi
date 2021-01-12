@@ -1838,6 +1838,10 @@ injections, with some additional options and response properties:
       (e.g. `'example.com:8080'`), it is used to automatically set an HTTP 'Host' header, unless
       one was specified in `headers`.
 
+    - `authority` - (optional) a string specifying the HTTP 'Host' header value. Only used if 'Host'
+      is not specified in `headers` and the `url` does not include an authority component.
+      Default is inferred from runtime server information.
+
     - `headers` - (optional) an object with optional request headers where each key is the header
       name and the value is the header content. Defaults to no additions to the default **shot**
       headers.
