@@ -483,7 +483,7 @@ The internally generated events are (identified by their `tags`):
 ##### <a name="server.events.policy" /> `'policy'` Event
 
 The `'policy'` event type is emitted when a server [cache policy](https://hapi.dev/module/catbox/api#policy)
-is created via [`server.cache()`](#server.cache()).
+is created via [`server.cache()`](#server.cache()) or a [`server.method()`](#server.method()) with caching enabled is registered.
 The `'policy'` event handler uses the function signature `function(policy, cache, segment)` where:
 
 - `policy` - the [cache policy](https://hapi.dev/module/catbox/api#policy).
