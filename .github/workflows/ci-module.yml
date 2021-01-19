@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - citgm-fixes-run-ci
   pull_request:
 
 jobs:
@@ -11,8 +12,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu, windows, macos]
-        node: ['*', '14', '12']
+        os: [macos]
+        node: ['14']
 
     runs-on: ${{ matrix.os }}-latest
     name: ${{ matrix.os }} node@${{ matrix.node }}
