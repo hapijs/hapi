@@ -4,6 +4,7 @@ const Http = require('http');
 const Net = require('net');
 const Stream = require('stream');
 const Url = require('url');
+const Events = require('events');
 
 const Boom = require('@hapi/boom');
 const Code = require('@hapi/code');
@@ -275,45 +276,64 @@ describe('Request', () => {
 
     describe('active()', () => {
 
-        it('exits handler early when request is no longer active', async () => {
+        it('exits handler early when request is no longer active', { retry: true }, async (flags) => {
+
+            const onCleanup = [];
+            flags.onCleanup = async () => {
+
+                for (const cleanup of onCleanup) {
+                    await cleanup();
+                }
+            };
+
+            let testComplete = false;
+            onCleanup.unshift(() => {
+
+                testComplete = true;
+            });
 
             const server = Hapi.server();
-            const team = new Teamwork.Team();
-            const team2 = new Teamwork.Team();
+            const enterHandlerTeam = new Teamwork.Team();
+            const leaveHandlerTeam = new Teamwork.Team();
 
-            let rounds = 0;
             server.route({
                 method: 'GET',
                 path: '/',
                 options: {
                     handler: async (request, h) => {
 
-                        team2.attend();
-                        for (let i = 0; i < 100; ++i) {
-                            ++rounds;
-                            await Hoek.wait(10);
+                        enterHandlerTeam.attend();
 
-                            if (!request.active()) {
-                                break;
-                            }
+                        while (request.active() && !testComplete) {
+                            await Hoek.wait(10);
                         }
 
-                        team.attend();
+                        leaveHandlerTeam.attend({
+                            active: request.active(),
+                            testComplete
+                        });
+
                         return null;
                     }
                 }
             });
 
             await server.start();
+            onCleanup.unshift(async () => await server.stop());
 
-            const req = Http.get(server.info.uri, (res) => { });
+            const req = Http.get(server.info.uri, Hoek.ignore);
+
             req.on('error', Hoek.ignore);
-            await team2.work;
-            req.abort();
-            await server.stop();
+            onCleanup.unshift(() => req.off('error', Hoek.ignore));
 
-            await team.work;
-            expect(rounds).to.be.below(10);
+            await enterHandlerTeam.work;
+            req.abort();
+            const note = await leaveHandlerTeam.work;
+
+            expect(note).to.equal({
+                active: false,
+                testComplete: false
+            });
         });
     });
 
@@ -847,10 +867,10 @@ describe('Request', () => {
 
     describe('_postCycle()', () => {
 
-        it('skips onPreResponse when validation terminates request', async () => {
+        it('skips onPreResponse when validation terminates request', { retry: true }, async (flags) => {
 
             const server = Hapi.server();
-            const team = new Teamwork.Team();
+            const abortedReqTeam = new Teamwork.Team();
 
             let called = false;
             server.ext('onPreResponse', (request, h) => {
@@ -863,14 +883,23 @@ describe('Request', () => {
                 method: 'GET',
                 path: '/',
                 options: {
-                    handler: () => null,
+                    handler: (request) => {
+
+                        // Stash raw so that we can access it on response validation
+                        Object.assign(request.app, request.raw);
+
+                        return null;
+                    },
                     response: {
                         status: {
-                            200: async () => {
+                            200: async (_, { context }) => {
 
                                 req.abort();
-                                await Hoek.wait(10);
-                                team.attend();
+
+                                const raw = context.app.request;
+                                await Events.once(raw.req, 'aborted');
+
+                                abortedReqTeam.attend();
                             }
                         }
                     }
@@ -878,13 +907,18 @@ describe('Request', () => {
             });
 
             await server.start();
+            flags.onCleanup = async () => await server.stop();
 
-            const req = Http.get(server.info.uri, (res) => { });
+            const req = Http.get(server.info.uri, Hoek.ignore);
             req.on('error', Hoek.ignore);
 
-            await team.work;
-            await Hoek.wait(100);
+            await abortedReqTeam.work;
+
+            // Drain pending requests
             await server.stop();
+
+            // In case server is still running lifecycle after abort and drain
+            await Hoek.wait(100);
 
             expect(called).to.be.false();
         });
@@ -2279,12 +2313,21 @@ describe('Request', () => {
             expect(res.statusCode).to.equal(200);
         });
 
-        it('handles race condition between equal client and server timeouts', async () => {
+        it('handles race condition between equal client and server timeouts', async (flags) => {
+
+            const onCleanup = [];
+            flags.onCleanup = async () => {
+
+                for (const cleanup of onCleanup) {
+                    await cleanup();
+                }
+            };
 
             const server = Hapi.server({ routes: { timeout: { server: 100 }, payload: { timeout: 100 } } });
             server.route({ method: 'POST', path: '/timeout', options: { handler: Hoek.block } });
 
             await server.start();
+            onCleanup.unshift(async () => await server.stop({ timeout: 1 }));
 
             const timer = new Hoek.Bench();
             const options = {
@@ -2294,26 +2337,17 @@ describe('Request', () => {
                 method: 'POST'
             };
 
-            await new Promise(async (resolve) => {
+            const res = await new Promise((resolve, reject) => {
 
-                const req = Http.request(options, (res) => {
-
-                    expect([503, 408]).to.contain(res.statusCode);
-                    expect(timer.elapsed()).to.be.at.least(80);
-                    resolve();
-                });
-
-                req.on('error', (err) => {
-
-                    expect(err).to.not.exist();
-                });
+                const req = Http.request(options, resolve);
+                req.once('error', reject);
 
                 req.write('\n');
-                await Hoek.wait(200);
-                req.end();
+                onCleanup.unshift(() => req.end());
             });
 
-            await server.stop({ timeout: 1 });
+            expect([503, 408]).to.contain(res.statusCode);
+            expect(timer.elapsed()).to.be.at.least(80);
         });
     });
 
