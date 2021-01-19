@@ -104,7 +104,7 @@ describe('transmission', () => {
                 cmd.on('error', (err) => {
 
                     // Allow the test to pass on platforms with no lsof
-                    Bounce.ignore(err, { errno: 'ENOENT' });
+                    Bounce.ignore(err, { code: 'ENOENT' });
                 });
 
                 cmd.stdout.on('data', (buffer) => {
@@ -145,7 +145,7 @@ describe('transmission', () => {
                 cmd.on('error', (err) => {
 
                     // Allow the test to pass on platforms with no lsof
-                    Bounce.ignore(err, { errno: 'ENOENT' });
+                    Bounce.ignore(err, { code: 'ENOENT' });
                 });
 
                 cmd.stdout.on('data', (buffer) => {
