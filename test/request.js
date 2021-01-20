@@ -278,22 +278,19 @@ describe('Request', () => {
 
         it('exits handler early when request is no longer active', { retry: true }, async (flags) => {
 
+            let testComplete = false;
+
             const onCleanup = [];
             flags.onCleanup = async () => {
+
+                testComplete = true;
 
                 for (const cleanup of onCleanup) {
                     await cleanup();
                 }
             };
 
-            let testComplete = false;
-            onCleanup.unshift(() => {
-
-                testComplete = true;
-            });
-
             const server = Hapi.server();
-            const enterHandlerTeam = new Teamwork.Team();
             const leaveHandlerTeam = new Teamwork.Team();
 
             server.route({
@@ -302,7 +299,7 @@ describe('Request', () => {
                 options: {
                     handler: async (request, h) => {
 
-                        enterHandlerTeam.attend();
+                        req.abort();
 
                         while (request.active() && !testComplete) {
                             await Hoek.wait(10);
@@ -319,15 +316,11 @@ describe('Request', () => {
             });
 
             await server.start();
-            onCleanup.unshift(async () => await server.stop());
+            onCleanup.unshift(() => server.stop());
 
             const req = Http.get(server.info.uri, Hoek.ignore);
-
             req.on('error', Hoek.ignore);
-            onCleanup.unshift(() => req.off('error', Hoek.ignore));
 
-            await enterHandlerTeam.work;
-            req.abort();
             const note = await leaveHandlerTeam.work;
 
             expect(note).to.equal({
@@ -870,7 +863,6 @@ describe('Request', () => {
         it('skips onPreResponse when validation terminates request', { retry: true }, async (flags) => {
 
             const server = Hapi.server();
-            const abortedReqTeam = new Teamwork.Team();
 
             let called = false;
             server.ext('onPreResponse', (request, h) => {
@@ -898,8 +890,6 @@ describe('Request', () => {
 
                                 const raw = context.app.request;
                                 await Events.once(raw.req, 'aborted');
-
-                                abortedReqTeam.attend();
                             }
                         }
                     }
@@ -907,18 +897,12 @@ describe('Request', () => {
             });
 
             await server.start();
-            flags.onCleanup = async () => await server.stop();
+            flags.onCleanup = () => server.stop();
 
             const req = Http.get(server.info.uri, Hoek.ignore);
             req.on('error', Hoek.ignore);
 
-            await abortedReqTeam.work;
-
-            // Drain pending requests
-            await server.stop();
-
-            // In case server is still running lifecycle after abort and drain
-            await Hoek.wait(100);
+            await server.events.once('response');
 
             expect(called).to.be.false();
         });
@@ -2327,24 +2311,27 @@ describe('Request', () => {
             server.route({ method: 'POST', path: '/timeout', options: { handler: Hoek.block } });
 
             await server.start();
-            onCleanup.unshift(async () => await server.stop({ timeout: 1 }));
+            onCleanup.unshift(() => server.stop());
 
             const timer = new Hoek.Bench();
             const options = {
-                hostname: '127.0.0.1',
+                hostname: 'localhost',
                 port: server.info.port,
                 path: '/timeout',
                 method: 'POST'
             };
 
-            const res = await new Promise((resolve, reject) => {
+            const req = Http.request(options);
+            onCleanup.unshift(() => req.destroy());
 
-                const req = Http.request(options, resolve);
-                req.once('error', reject);
+            req.on('error', (err) => {
 
-                req.write('\n');
-                onCleanup.unshift(() => req.end());
+                expect(err).to.not.exist();
             });
+
+            req.write('\n');
+
+            const [res] = await Events.once(req, 'response');
 
             expect([503, 408]).to.contain(res.statusCode);
             expect(timer.elapsed()).to.be.at.least(80);
