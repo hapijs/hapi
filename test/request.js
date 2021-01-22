@@ -863,6 +863,7 @@ describe('Request', () => {
         it('skips onPreResponse when validation terminates request', { retry: true }, async (flags) => {
 
             const server = Hapi.server();
+            const abortedReqTeam = new Teamwork.Team();
 
             let called = false;
             server.ext('onPreResponse', (request, h) => {
@@ -890,6 +891,8 @@ describe('Request', () => {
 
                                 const raw = context.app.request;
                                 await Events.once(raw.req, 'aborted');
+
+                                abortedReqTeam.attend();
                             }
                         }
                     }
@@ -901,6 +904,8 @@ describe('Request', () => {
 
             const req = Http.get(server.info.uri, Hoek.ignore);
             req.on('error', Hoek.ignore);
+
+            await abortedReqTeam.work;
 
             await server.events.once('response');
 
@@ -2324,17 +2329,14 @@ describe('Request', () => {
             const req = Http.request(options);
             onCleanup.unshift(() => req.destroy());
 
-            req.on('error', (err) => {
-
-                expect(err).to.not.exist();
-            });
-
             req.write('\n');
 
             const [res] = await Events.once(req, 'response');
 
             expect([503, 408]).to.contain(res.statusCode);
             expect(timer.elapsed()).to.be.at.least(80);
+
+            await Events.once(req, 'close'); // Ensures that req closes without error
         });
     });
 
