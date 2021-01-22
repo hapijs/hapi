@@ -984,6 +984,59 @@ describe('Core', () => {
             await server.stop();
             await server.stop();
         });
+
+        it('emits a closing event before the server\'s listener close event is emitted', async () => {
+
+            const server = Hapi.server();
+            const events = [];
+
+            server.events.on('closing', () => events.push('closing'));
+            server.events.on('stop', () => events.push('stop'));
+            server._core.listener.on('close', () => events.push('close'));
+
+            await server.start();
+            await server.stop();
+
+            expect(events).to.equal(['closing', 'close', 'stop']);
+        });
+
+        it('emits a closing event before the close event when there is an active request being processed', async () => {
+
+            const server = Hapi.server();
+            const events = [];
+
+            let stop;
+            const handler = async () => {
+
+                stop = server.stop({ timeout: 200 });
+                await Hoek.wait(0);
+                return 'ok';
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+
+            server.events.on('closing', () => events.push('closing'));
+            server.events.on('stop', () => events.push('stop'));
+            server._core.listener.on('close', () => events.push('close'));
+
+            await server.start();
+
+            const agent = new Http.Agent({ keepAlive: true, maxSockets: 1 });
+
+            // ongoing active request
+            const first = Wreck.get('http://localhost:' + server.info.port + '/', { agent });
+            // denied incoming request
+            const second = Wreck.get('http://localhost:' + server.info.port + '/', { agent });
+
+            const { res, payload } = await first;
+            expect(res.headers.connection).to.equal('close');
+            expect(payload.toString()).to.equal('ok');
+
+            await expect(second).to.reject();
+            await expect(stop).to.not.reject();
+
+            expect(events).to.equal(['closing', 'close', 'stop']);
+        });
     });
 
     describe('_dispatch()', () => {
