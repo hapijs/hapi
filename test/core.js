@@ -11,7 +11,6 @@ const Stream = require('stream');
 const TLS = require('tls');
 
 const Boom = require('@hapi/boom');
-const Bounce = require('@hapi/bounce');
 const CatboxMemory = require('@hapi/catbox-memory');
 const Code = require('@hapi/code');
 const Handlebars = require('handlebars');
@@ -22,6 +21,7 @@ const Lab = require('@hapi/lab');
 const Vision = require('@hapi/vision');
 const Wreck = require('@hapi/wreck');
 
+const Common = require('./common');
 
 const internals = {};
 
@@ -1732,7 +1732,7 @@ describe('Core', () => {
                 expect(res.result.isBoom).to.equal(true);
             });
 
-            it('cleans unused file stream when response is overridden', { skip: process.platform === 'win32' }, async () => {
+            it('cleans unused file stream when response is overridden', { skip: !Common.hasLsof }, async () => {
 
                 const server = Hapi.server();
                 await server.register(Inert);
@@ -1754,12 +1754,6 @@ describe('Core', () => {
 
                     const cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
                     let lsof = '';
-
-                    cmd.on('error', (err) => {
-
-                        // Allow the test to pass on platforms with no lsof
-                        Bounce.ignore(err, { errno: 'ENOENT' });
-                    });
 
                     cmd.stdout.on('data', (buffer) => {
 
