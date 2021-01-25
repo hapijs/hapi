@@ -1,5 +1,6 @@
 'use strict';
 
+const Catbox = require('@hapi/catbox');
 const CatboxMemory = require('@hapi/catbox-memory');
 const Code = require('@hapi/code');
 const Hapi = require('..');
@@ -206,6 +207,43 @@ describe('Methods', () => {
 
         const result2 = await server.methods.test(1);
         expect(result2.gen).to.equal(0);
+    });
+
+    it('emits a cache policy event on cached methods with default cache provision', async () => {
+
+        const method = function (id) {
+
+            return { id };
+        };
+
+        const server = Hapi.server();
+        const cachePolicyEvent = server.events.once('cachePolicy');
+
+        server.method('test', method, { cache: { expiresIn: 1000, generateTimeout: 10 } });
+
+        const [policy, cacheName, segment] = await cachePolicyEvent;
+        expect(policy).to.be.instanceOf(Catbox.Policy);
+        expect(cacheName).to.equal(undefined);
+        expect(segment).to.equal('#test');
+    });
+
+    it('emits a cache policy event on cached methods with named cache provision', async () => {
+
+        const method = function (id) {
+
+            return { id };
+        };
+
+        const server = Hapi.server();
+        await server.cache.provision({ provider: CatboxMemory, name: 'named' });
+        const cachePolicyEvent = server.events.once('cachePolicy');
+
+        server.method('test', method, { cache: { cache: 'named', expiresIn: 1000, generateTimeout: 10 } });
+
+        const [policy, cacheName, segment] = await cachePolicyEvent;
+        expect(policy).to.be.instanceOf(Catbox.Policy);
+        expect(cacheName).to.equal('named');
+        expect(segment).to.equal('#test');
     });
 
     it('caches method value (async)', async () => {
