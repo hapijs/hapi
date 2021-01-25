@@ -8,7 +8,6 @@ const Stream = require('stream');
 const Zlib = require('zlib');
 
 const Boom = require('@hapi/boom');
-const Bounce = require('@hapi/bounce');
 const Code = require('@hapi/code');
 const Hapi = require('..');
 const Hoek = require('@hapi/hoek');
@@ -17,6 +16,7 @@ const Lab = require('@hapi/lab');
 const Teamwork = require('@hapi/teamwork');
 const Wreck = require('@hapi/wreck');
 
+const Common = require('./common');
 
 const internals = {};
 
@@ -86,7 +86,7 @@ describe('transmission', () => {
             expect(res.statusCode).to.equal(200);
         });
 
-        it('closes file handlers when not reading file stream', { skip: process.platform === 'win32' }, async () => {
+        it('closes file handlers when not reading file stream', { skip: !Common.hasLsof }, async () => {
 
             const server = Hapi.server();
             await server.register(Inert);
@@ -100,12 +100,6 @@ describe('transmission', () => {
 
                 const cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
                 let lsof = '';
-
-                cmd.on('error', (err) => {
-
-                    // Allow the test to pass on platforms with no lsof
-                    Bounce.ignore(err, { errno: 'ENOENT' });
-                });
 
                 cmd.stdout.on('data', (buffer) => {
 
@@ -128,7 +122,7 @@ describe('transmission', () => {
             });
         });
 
-        it('closes file handlers when not using a manually open file stream', { skip: process.platform === 'win32' }, async () => {
+        it('closes file handlers when not using a manually open file stream', { skip: !Common.hasLsof }, async () => {
 
             const server = Hapi.server();
             server.route({ method: 'GET', path: '/file', handler: (request, h) => h.response(Fs.createReadStream(__dirname + '/../package.json')).header('etag', 'abc') });
@@ -141,12 +135,6 @@ describe('transmission', () => {
 
                 const cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
                 let lsof = '';
-
-                cmd.on('error', (err) => {
-
-                    // Allow the test to pass on platforms with no lsof
-                    Bounce.ignore(err, { errno: 'ENOENT' });
-                });
 
                 cmd.stdout.on('data', (buffer) => {
 
