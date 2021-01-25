@@ -480,20 +480,20 @@ The internally generated events are (identified by their `tags`):
 - `connection` `client` `error` - a `clientError` event was received from the HTTP or HTTPS
   listener. The event data is the error object received.
 
-##### <a name="server.events.policy" /> `'policy'` Event
+##### <a name="server.events.cachePolicy" /> `'cachePolicy'` Event
 
-The `'policy'` event type is emitted when a server [cache policy](https://hapi.dev/module/catbox/api#policy)
+The `'cachePolicy'` event type is emitted when a server [cache policy](https://hapi.dev/module/catbox/api#policy)
 is created via [`server.cache()`](#server.cache()) or a [`server.method()`](#server.method()) with caching enabled is registered.
-The `'policy'` event handler uses the function signature `function(policy, cache, segment)` where:
+The `'cachePolicy'` event handler uses the function signature `function(cachePolicy, cache, segment)` where:
 
-- `policy` - the [cache policy](https://hapi.dev/module/catbox/api#policy).
-- `cache` - The [cache provision](#server.options.cache) name used when the policy was created or `undefined` if the default cache was used.
-- `segment` - The segment name used when the policy was created.
+- `cachePolicy` - the catbox [cache policy](https://hapi.dev/module/catbox/api#policy).
+- `cache` - the [cache provision](#server.options.cache) name used when the policy was created or `undefined` if the default cache was used.
+- `segment` - the segment name used when the policy was created.
 
 ```js
-server.events.on('policy', (policy, cache, segment) => {
+server.events.on('cachePolicy', (cachePolicy, cache, segment) => {
 
-    console.log(`New policy created using cache: ${cache === undefined ? 'default' : cache} and segment: ${segment}`);
+    console.log(`New cache policy created using cache: ${cache === undefined ? 'default' : cache} and segment: ${segment}`);
 });
 ```
 
