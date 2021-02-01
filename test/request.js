@@ -676,6 +676,36 @@ describe('Request', () => {
             expect(request.response.statusCode).to.equal(200);
         });
 
+        it('generate response event (POST)', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'POST', path: '/', handler: () => 'ok' });
+
+            const log = server.events.once('response');
+            await server.inject({ method: 'POST', url: '/' });
+            const [request] = await log;
+            expect(request.info.responded).to.be.min(request.info.received);
+            expect(request.response.source).to.equal('ok');
+            expect(request.response.statusCode).to.equal(200);
+        });
+
+        it('generate response event (POST via connection)', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'POST', path: '/', handler: () => 'ok' });
+            await server.start();
+
+            const log = server.events.once('response');
+            const { payload } = await Wreck.post(server.info.uri);
+            expect(payload.toString()).to.equal('ok');
+
+            const [request] = await log;
+            expect(request.info.responded).to.be.min(request.info.received);
+            expect(request.response.source).to.equal('ok');
+            expect(request.response.statusCode).to.equal(200);
+            await server.stop({ timeout: 1 });
+        });
+
         it('closes response after server timeout', async () => {
 
             const team = new Teamwork();
