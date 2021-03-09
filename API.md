@@ -3080,7 +3080,7 @@ The processed payload format. The value must be one of:
   values are presented as text while files are provided as streams. File streams from a
   'multipart/form-data' upload will also have a `hapi` property containing the `filename` and
   `headers` properties. Note that payload streams for multipart payloads are a synthetic interface
-  created on top of the entire mutlipart content loaded into memory. To avoid loading large
+  created on top of the entire multipart content loaded into memory. To avoid loading large
   multipart payloads into memory, set [`parse`](#route.options.payload.parse) to `false` and handle
   the multipart payload in the handler using a streaming parser (e.g. [**pez**](https://hapi.dev/family/pez/api)).
 
