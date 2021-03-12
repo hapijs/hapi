@@ -543,8 +543,10 @@ describe('transmission', () => {
                     const close = new Teamwork.Team();
                     request.raw.res.once('close', () => close.attend());
 
-                    client.destroy();               // Will trigger abort then close. Prior to node v15.7.0 the res close came
-                    await close.work;               // asynchronously after req abort, but since then it comes in the same tick.
+                    // Will trigger abort then close. Prior to node v15.7.0 the res close came
+                    // asynchronously after req abort, but since then it comes in the same tick.
+                    client.destroy();
+                    await close.work;
 
                     return team.work;               // Continue marshalling once the request has been aborted and response closed.
                 }
