@@ -512,7 +512,7 @@ describe('Request', () => {
             expect(info.remoteAddress).to.exist();
         });
 
-        it('handles aborted requests (pre response)', { retry: true }, async () => {
+        it('handles aborted requests (before response)', { retry: true }, async (flags) => {
 
             const server = Hapi.server();
             server.route({
@@ -533,15 +533,26 @@ describe('Request', () => {
 
             server.ext('onRequest', onRequest);
 
-            const onPreHandler = (request, h) => {
+            let firstRequest = true;
+            const onPreHandler = async (request, h) => {
 
-                client.destroy();
+                if (firstRequest) {
+                    client.destroy();
+                    firstRequest = false;
+                }
+                else {
+                    // To avoid timing differences between node versions, ensure that
+                    // the second and third requests always experience the disconnect
+                    await team.work;
+                }
+
                 return h.continue;
             };
 
             server.ext('onPreHandler', onPreHandler);
 
             await server.start();
+            flags.onCleanup = () => server.stop();
 
             const client = Net.connect(server.info.port, () => {
 
@@ -553,7 +564,7 @@ describe('Request', () => {
             await team.work;
             await server.stop();
 
-            expect(codes).to.equal([204, 204, 499]);
+            expect(codes).to.equal([204, 499, 499]);
         });
 
         it('returns empty params array when none present', async () => {
