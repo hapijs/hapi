@@ -29,7 +29,7 @@
     "@hapi/hoek": "9.x.x",
     "@hapi/mimos": "5.x.x",
     "@hapi/podium": "^4.1.1",
-    "@hapi/shot": "^5.0.1",
+    "@hapi/shot": "^5.0.5",
     "@hapi/somever": "3.x.x",
     "@hapi/statehood": "^7.0.3",
     "@hapi/subtext": "^7.0.3",
@@ -42,8 +42,8 @@
     "@hapi/inert": "^6.0.2",
     "@hapi/joi-legacy-test": "npm:@hapi/joi@15.x.x",
     "@hapi/lab": "24.x.x",
-    "@hapi/wreck": "17.x.x",
     "@hapi/vision": "^6.0.1",
+    "@hapi/wreck": "17.x.x",
     "handlebars": "^4.5.3",
     "joi": "17.x.x"
   },
