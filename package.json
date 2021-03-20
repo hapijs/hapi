@@ -2,7 +2,7 @@
   "name": "@hapi/hapi",
   "description": "HTTP Server framework",
   "homepage": "https://hapi.dev",
-  "version": "20.1.0",
+  "version": "20.1.1",
   "repository": "git://github.com/hapijs/hapi",
   "main": "lib/index.js",
   "engines": {
@@ -29,7 +29,7 @@
     "@hapi/hoek": "^9.0.4",
     "@hapi/mimos": "^5.0.0",
     "@hapi/podium": "^4.1.1",
-    "@hapi/shot": "^5.0.1",
+    "@hapi/shot": "^5.0.5",
     "@hapi/somever": "^3.0.0",
     "@hapi/statehood": "^7.0.3",
     "@hapi/subtext": "^7.0.3",

@@ -538,10 +538,17 @@ describe('transmission', () => {
             // Use state autoValue function to intercept marshal stage
 
             server.state('always', {
-                autoValue() {
+                async autoValue(request) {
 
+                    const close = new Teamwork.Team();
+                    request.raw.res.once('close', () => close.attend());
+
+                    // Will trigger abort then close. Prior to node v15.7.0 the res close came
+                    // asynchronously after req abort, but since then it comes in the same tick.
                     client.destroy();
-                    return team.work;               // Continue once the request has been aborted
+                    await close.work;
+
+                    return team.work;               // Continue marshalling once the request has been aborted and response closed.
                 }
             });
 
