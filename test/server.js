@@ -193,6 +193,33 @@ describe('Server', () => {
             const value2 = await server.plugins.test.get('a');
             expect(value2).to.equal(null);
         });
+
+        it('emits a cache policy event with default cache provision', async () => {
+
+            const server = Hapi.server();
+            const cachePolicyEvent = server.events.once('cachePolicy');
+
+            const cache = server.cache({ segment: 'test', expiresIn: 1000 });
+
+            const [policy, cacheName, segment] = await cachePolicyEvent;
+            expect(policy).to.shallow.equal(cache);
+            expect(cacheName).to.equal(undefined);
+            expect(segment).to.equal('test');
+        });
+
+        it('emits a cache policy event with named cache provision', async () => {
+
+            const server = Hapi.server();
+            await server.cache.provision({ provider: CatboxMemory, name: 'named' });
+            const cachePolicyEvent = server.events.once('cachePolicy');
+
+            const cache = server.cache({ cache: 'named', segment: 'test', expiresIn: 1000 });
+
+            const [policy, cacheName, segment] = await cachePolicyEvent;
+            expect(policy).to.shallow.equal(cache);
+            expect(cacheName).to.equal('named');
+            expect(segment).to.equal('test');
+        });
     });
 
     describe('cache.provision()', () => {

@@ -11,7 +11,6 @@ const Stream = require('stream');
 const TLS = require('tls');
 
 const Boom = require('@hapi/boom');
-const Bounce = require('@hapi/bounce');
 const CatboxMemory = require('@hapi/catbox-memory');
 const Code = require('@hapi/code');
 const Handlebars = require('handlebars');
@@ -22,6 +21,7 @@ const Lab = require('@hapi/lab');
 const Vision = require('@hapi/vision');
 const Wreck = require('@hapi/wreck');
 
+const Common = require('./common');
 
 const internals = {};
 
@@ -838,7 +838,7 @@ describe('Core', () => {
             expect(timer.elapsed()).to.be.below(300);
         });
 
-        it('immediately destroys idle keep-alive connections', async () => {
+        it('immediately destroys idle keep-alive connections', { retry: true }, async () => {
 
             const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler: () => null });
@@ -983,6 +983,59 @@ describe('Core', () => {
             const server = Hapi.server();
             await server.stop();
             await server.stop();
+        });
+
+        it('emits a closing event before the server\'s listener close event is emitted', async () => {
+
+            const server = Hapi.server();
+            const events = [];
+
+            server.events.on('closing', () => events.push('closing'));
+            server.events.on('stop', () => events.push('stop'));
+            server._core.listener.on('close', () => events.push('close'));
+
+            await server.start();
+            await server.stop();
+
+            expect(events).to.equal(['closing', 'close', 'stop']);
+        });
+
+        it('emits a closing event before the close event when there is an active request being processed', async () => {
+
+            const server = Hapi.server();
+            const events = [];
+
+            let stop;
+            const handler = async () => {
+
+                stop = server.stop({ timeout: 200 });
+                await Hoek.wait(0);
+                return 'ok';
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+
+            server.events.on('closing', () => events.push('closing'));
+            server.events.on('stop', () => events.push('stop'));
+            server._core.listener.on('close', () => events.push('close'));
+
+            await server.start();
+
+            const agent = new Http.Agent({ keepAlive: true, maxSockets: 1 });
+
+            // ongoing active request
+            const first = Wreck.get('http://localhost:' + server.info.port + '/', { agent });
+            // denied incoming request
+            const second = Wreck.get('http://localhost:' + server.info.port + '/', { agent });
+
+            const { res, payload } = await first;
+            expect(res.headers.connection).to.equal('close');
+            expect(payload.toString()).to.equal('ok');
+
+            await expect(second).to.reject();
+            await expect(stop).to.not.reject();
+
+            expect(events).to.equal(['closing', 'close', 'stop']);
         });
     });
 
@@ -1679,7 +1732,7 @@ describe('Core', () => {
                 expect(res.result.isBoom).to.equal(true);
             });
 
-            it('cleans unused file stream when response is overridden', { skip: process.platform === 'win32' }, async () => {
+            it('cleans unused file stream when response is overridden', { skip: !Common.hasLsof }, async () => {
 
                 const server = Hapi.server();
                 await server.register(Inert);
@@ -1701,12 +1754,6 @@ describe('Core', () => {
 
                     const cmd = ChildProcess.spawn('lsof', ['-p', process.pid]);
                     let lsof = '';
-
-                    cmd.on('error', (err) => {
-
-                        // Allow the test to pass on platforms with no lsof
-                        Bounce.ignore(err, { errno: 'ENOENT' });
-                    });
 
                     cmd.stdout.on('data', (buffer) => {
 
