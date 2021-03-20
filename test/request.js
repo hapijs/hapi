@@ -984,7 +984,7 @@ describe('Request', () => {
             expect(called).to.be.false();
         });
 
-        it('closes response after server timeout', async () => {
+        it('destroys response after server timeout', async () => {
 
             const team = new Teamwork.Team();
             const handler = async (request) => {
@@ -998,7 +998,7 @@ describe('Request', () => {
                     this.push(null);
                 };
 
-                stream.close = () => team.attend();
+                stream._destroy = () => team.attend();
                 return stream;
             };
 
