@@ -41,7 +41,7 @@
     "@hapi/code": "^8.0.0",
     "@hapi/inert": "^6.0.2",
     "@hapi/joi-legacy-test": "npm:@hapi/joi@^15.0.0",
-    "@hapi/lab": "^24.0.0",
+    "@hapi/lab": "^24.2.0",
     "@hapi/vision": "^6.0.1",
     "@hapi/wreck": "^17.0.0",
     "handlebars": "^4.7.4",
