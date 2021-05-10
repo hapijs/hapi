@@ -4325,7 +4325,7 @@ Return value: the current response object.
 
 Sets the 'Content-Type' HTTP header 'charset' property where:
 
-- `charset` - the charset property value.
+- `charset` - the charset property value. When `charset` value is falsy, it will prevent hapi from using its default charset setting.
 
 Return value: the current response object.
 
