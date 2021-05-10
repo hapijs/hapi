@@ -27,7 +27,7 @@
     "@hapi/catbox-memory": "^5.0.0",
     "@hapi/heavy": "^7.0.1",
     "@hapi/hoek": "^9.0.4",
-    "@hapi/mimos": "^5.0.0",
+    "@hapi/mimos": "^6.0.0",
     "@hapi/podium": "^4.1.1",
     "@hapi/shot": "^5.0.5",
     "@hapi/somever": "^3.0.0",
