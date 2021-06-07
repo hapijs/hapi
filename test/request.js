@@ -346,7 +346,7 @@ describe('Request', () => {
 
             const res = await server.inject('invalid');
             expect(res.statusCode).to.equal(400);
-            expect(res.result.message).to.equal('Invalid URL: invalid');
+            expect(res.result.message).to.equal('Invalid URL');
         });
 
         it('returns boom response on ext error', async () => {
