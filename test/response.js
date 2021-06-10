@@ -1290,6 +1290,37 @@ describe('Response', () => {
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
         });
+
+        it('is only called once for returned responses', async () => {
+
+            let calls = 0;
+            const pre = (request, h) => {
+
+                const prepare = (response) => {
+
+                    ++calls;
+                    return response;
+                };
+
+                return request.generateResponse(null, { prepare });
+            };
+
+            const server = Hapi.server();
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    pre: [
+                        { method: pre, assign: 'p' }
+                    ],
+                    handler: (request) => request.preResponses.p
+                }
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(204);
+            expect(calls).to.equal(1);
+        });
     });
 
     describe('_tap()', () => {
