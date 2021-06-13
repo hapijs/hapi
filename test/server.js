@@ -6,6 +6,7 @@ const Zlib = require('zlib');
 const Boom = require('@hapi/boom');
 const CatboxMemory = require('@hapi/catbox-memory');
 const Code = require('@hapi/code');
+const Common = require('./common');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
 const Hoek = require('@hapi/hoek');
@@ -1342,6 +1343,94 @@ describe('Server', () => {
 
                 server.ext('onPreStart', () => { });
             }).to.throw('Cannot add onPreStart (after) extension after the server was initialized');
+        });
+    });
+
+    describe('logger', () => {
+
+        it('can set pino logger with settings', async () => {
+
+            const std = Common.captureStd();
+            const options = {
+                logger: {
+                    type: 'pino',
+                    stdout: std.out
+                }
+            };
+
+            const server = Hapi.server(options);
+            server.route({ method: 'GET', path: '/foo', handler: () => 'ok' });
+            await server.initialize();
+
+            const res = await server.inject({ method: 'GET', url: '/foo' });
+            expect(res.result).to.exist();
+
+            const result = std.complete();
+            expect(result.stdOutput).to.contain('GET /foo');
+            expect(result.stdOutput).to.contain('request completed');
+            expect(result.errOutput).to.be.empty();
+        });
+
+        it('uses std logger by default', async () => {
+
+            const std = Common.captureStd();
+            const options = {
+                logger: {
+                    stdout: std.out,
+                    stderr: std.err
+                }
+            };
+
+            const server = Hapi.server(options);
+            server.route({ method: 'GET', path: '/foo', handler: () => 'ok' });
+            await server.initialize();
+
+            const res = await server.inject({ method: 'GET', url: '/notfound' });
+            expect(res.result).to.exist();
+
+            const result = std.complete();
+            expect(result.stdOutput).to.contain('GET /notfound');
+            expect(result.stdOutput).to.contain('request completed');
+            expect(result.errOutput).to.contain('404');
+        });
+
+        it('will error with invalid logger type', () => {
+
+            const options = {
+                logger: {
+                    level: 'emergency',
+                    type: 'invalid'
+                }
+            };
+
+            expect(() => {
+
+                Hapi.server(options);
+            }).to.throw();
+        });
+
+        it('can disable logging with false setting', () => {
+
+            const options = {
+                logger: false
+            };
+
+            expect(() => {
+
+                Hapi.server(options);
+            }).to.not.throw();
+        });
+
+        it('can enable logging with true setting', () => {
+
+            const options = {
+                logger: true
+            };
+
+            expect(() => {
+
+                Hapi.server(options);
+            }).to.not.throw();
         });
     });
 
