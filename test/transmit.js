@@ -1190,7 +1190,9 @@ describe('transmission', () => {
             await log;
         });
 
-        it('stops processing the stream when the request closes', async () => {
+        it('stops processing the stream when the connection closes', async () => {
+
+            let stream;
 
             const ErrStream = class extends Stream.Readable {
 
@@ -1198,30 +1200,35 @@ describe('transmission', () => {
 
                     super();
                     this.request = request;
+                    this.reads = 0;
                 }
 
                 _read(size) {
 
-                    if (this.isDone) {
-                        return;
+                    if (this.reads === 0) {
+                        this.push('here is the response');
+                        this.request.raw.res.destroy();
                     }
+                    else {
+                        // "Inifitely" push more content
 
-                    this.isDone = true;
-                    this.push('here is the response');
-                    process.nextTick(() => {
-
-                        this.request.raw.req.emit('close');
                         process.nextTick(() => {
 
-                            this.push(null);
+                            this.push('.');
                         });
-                    });
+                    }
+
+                    ++this.reads;
                 }
             };
 
             const server = Hapi.server();
             const log = server.events.once('response');
-            server.route({ method: 'GET', path: '/stream', handler: (request, h) => h.response(new ErrStream(request)).bytes(0) });
+            server.route({ method: 'GET', path: '/stream', handler: (request, h) => {
+
+                stream = new ErrStream(request);
+                return h.response(stream).bytes(0);
+            } });
 
             const res = await server.inject({ url: '/stream', headers: { 'Accept-Encoding': 'gzip' } });
             expect(res.statusCode).to.equal(499);
@@ -1234,6 +1241,8 @@ describe('transmission', () => {
             expect(request.response.statusCode).to.equal(499);
             expect(request.info.completed).to.be.above(0);
             expect(request.info.responded).to.equal(0);
+
+            expect(stream.reads).to.equal(2);
         });
 
         it('does not truncate the response when stream finishes before response is done', async () => {
