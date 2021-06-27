@@ -1354,7 +1354,11 @@ describe('Server', () => {
             const options = {
                 logger: {
                     type: 'pino',
-                    stdout: std.out
+                    level: 'debug',
+                    stdout: std.out,
+                    additionalFields: {
+                        custom: 'field'
+                    }
                 }
             };
 
@@ -1368,6 +1372,8 @@ describe('Server', () => {
             const result = std.complete();
             expect(result.stdOutput).to.contain('GET /foo');
             expect(result.stdOutput).to.contain('request completed');
+            expect(result.stdOutput).to.contain('custom');
+            expect(result.stdOutput).to.contain('field');
             expect(result.errOutput).to.be.empty();
         });
 
@@ -1376,8 +1382,8 @@ describe('Server', () => {
             const std = Common.captureStd();
             const options = {
                 logger: {
-                    stdout: std.out,
-                    stderr: std.err
+                    stderr: std.err,
+                    stdout: std.out
                 }
             };
 
@@ -1391,6 +1397,30 @@ describe('Server', () => {
             const result = std.complete();
             expect(result.stdOutput).to.contain('GET /notfound');
             expect(result.stdOutput).to.contain('request completed');
+            expect(result.errOutput).to.contain('404');
+        });
+
+        it('can change log level', async () => {
+
+            const std = Common.captureStd();
+            const options = {
+                logger: {
+                    level: 'error',
+                    stderr: std.err,
+                    stdout: std.out
+                }
+            };
+
+            const server = Hapi.server(options);
+            server.route({ method: 'GET', path: '/foo', handler: () => 'ok' });
+            await server.initialize();
+
+            const res = await server.inject({ method: 'GET', url: '/notfound' });
+            expect(res.result).to.exist();
+
+            const result = std.complete();
+            expect(result.stdOutput).to.not.contain('GET /notfound');
+            expect(result.stdOutput).to.not.contain('request completed');
             expect(result.errOutput).to.contain('404');
         });
 

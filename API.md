@@ -174,6 +174,32 @@ Server excessive load handling limits where:
 
 - `maxEventLoopDelay` - maximum event loop delay duration in milliseconds over which incoming requests are rejected with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
 
+#### <a name="server.options.logger" /> `server.options.logger`
+
+Default value: `false`.
+
+Configure a logger for the server. `logger` can be a boolean to enable or disable
+a default logger. For example, to enable logging with the default options set
+`logger: true`. Otherwise `logger` can be an object with the following options:
+
+- `additionalFields` - object that contains key/values to include with each log statement.
+For example, to output the running server module path you can provide
+`additionalFields: { path: module.path }`. Defaults to `undefined`.
+
+- `level` - sets the highest log level to include in output. Any level below the specified
+level will be included. Valid values are `'emergency', 'alert', 'critical', 'error', 'warning', 'notice', 'info', 'debug'`. Defaults to `'info'`.
+
+- `stderr` - sets the output Writable stream for any output that would be directed to `stderr`.
+Typically, this will include any output below level `'warning'`, depending on the type of
+logger specified (pino sends all output to `stdout`). Defaults to `process.stderr`.
+
+- `stdout` - sets the output Writable stream for any output that would be directed to `stdout`.
+Defaults to `process.stdout`.
+
+- `type` - the logger type to use to format output. Valid values are `'pino'` and `'std'`. Both will use a newline delimited JSON structure. Defaults to `'std'`.
+  - `'pino'` - used to format output in pino compatible levels and structure.
+  - `'std'` - will use both `stderr` and `stdout` as output streams and uses Systemd output levels.
+
 #### <a name="server.options.mime" /> `server.options.mime`
 
 Default value: none.
