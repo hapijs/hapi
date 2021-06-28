@@ -7,11 +7,13 @@ const Net = require('net');
 const Path = require('path');
 const Stream = require('stream');
 const Zlib = require('zlib');
+const Events = require('events');
 
 const Boom = require('@hapi/boom');
 const Code = require('@hapi/code');
 const Hapi = require('..');
 const Hoek = require('@hapi/hoek');
+const Bounce = require('@hapi/bounce');
 const Inert = require('@hapi/inert');
 const Lab = require('@hapi/lab');
 const LegacyReadableStream = require('legacy-readable-stream');
@@ -1190,7 +1192,9 @@ describe('transmission', () => {
             await log;
         });
 
-        it('stops processing the stream when the request closes', async () => {
+        it('stops processing the stream when the connection closes', async () => {
+
+            let stream;
 
             const ErrStream = class extends Stream.Readable {
 
@@ -1198,30 +1202,35 @@ describe('transmission', () => {
 
                     super();
                     this.request = request;
+                    this.reads = 0;
                 }
 
                 _read(size) {
 
-                    if (this.isDone) {
-                        return;
+                    if (this.reads === 0) {
+                        this.push('here is the response');
+                        this.request.raw.res.destroy();
                     }
+                    else {
+                        // "Inifitely" push more content
 
-                    this.isDone = true;
-                    this.push('here is the response');
-                    process.nextTick(() => {
-
-                        this.request.raw.req.emit('close');
                         process.nextTick(() => {
 
-                            this.push(null);
+                            this.push('.');
                         });
-                    });
+                    }
+
+                    ++this.reads;
                 }
             };
 
             const server = Hapi.server();
             const log = server.events.once('response');
-            server.route({ method: 'GET', path: '/stream', handler: (request, h) => h.response(new ErrStream(request)).bytes(0) });
+            server.route({ method: 'GET', path: '/stream', handler: (request, h) => {
+
+                stream = new ErrStream(request);
+                return h.response(stream).bytes(0);
+            } });
 
             const res = await server.inject({ url: '/stream', headers: { 'Accept-Encoding': 'gzip' } });
             expect(res.statusCode).to.equal(499);
@@ -1234,6 +1243,8 @@ describe('transmission', () => {
             expect(request.response.statusCode).to.equal(499);
             expect(request.info.completed).to.be.above(0);
             expect(request.info.responded).to.equal(0);
+
+            expect(stream.reads).to.equal(2);
         });
 
         it('does not truncate the response when stream finishes before response is done', async () => {
@@ -1911,6 +1922,63 @@ describe('transmission', () => {
             server.route({ method: 'GET', path: '/', handler });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
+        });
+
+        it('permits ending reading request stream while transmitting response.', async (flags) => {
+
+            const server = Hapi.server();
+
+            server.route({
+                method: 'post',
+                path: '/',
+                options: {
+                    payload: {
+                        output: 'stream'
+                    }
+                },
+                handler: (request, h) => {
+
+                    const stream = new Stream.PassThrough();
+
+                    // Start transmitting stream response...
+                    stream.push('hello ');
+
+                    Bounce.background(async () => {
+
+                        await Events.once(request.raw.res, 'pipe');
+
+                        // ...but also only read and end the request once the response is transmitting...
+                        request.raw.req.on('data', Hoek.ignore);
+                        await Events.once(request.raw.req, 'end');
+
+                        // ...and finally end the intended response once the request stream has ended.
+                        stream.end('world');
+                    });
+
+                    return h.response(stream);
+                }
+            });
+
+            flags.onCleanup = () => server.stop();
+            await server.start();
+
+            const req = Http.request({
+                hostname: 'localhost',
+                port: server.info.port,
+                method: 'post'
+            });
+
+            req.end('{}');
+
+            const [res] = await Events.once(req, 'response');
+
+            let result = '';
+            for await (const chunk of res) {
+                result += chunk.toString();
+            }
+
+            // If not permitted then result will be "hello " without "world"
+            expect(result).to.equal('hello world');
         });
     });
 
