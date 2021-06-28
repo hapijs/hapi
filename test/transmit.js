@@ -7,11 +7,13 @@ const Net = require('net');
 const Path = require('path');
 const Stream = require('stream');
 const Zlib = require('zlib');
+const Events = require('events');
 
 const Boom = require('@hapi/boom');
 const Code = require('@hapi/code');
 const Hapi = require('..');
 const Hoek = require('@hapi/hoek');
+const Bounce = require('@hapi/bounce');
 const Inert = require('@hapi/inert');
 const Lab = require('@hapi/lab');
 const LegacyReadableStream = require('legacy-readable-stream');
@@ -1920,6 +1922,63 @@ describe('transmission', () => {
             server.route({ method: 'GET', path: '/', handler });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
+        });
+
+        it('permits ending reading request stream while transmitting response.', async (flags) => {
+
+            const server = Hapi.server();
+
+            server.route({
+                method: 'post',
+                path: '/',
+                options: {
+                    payload: {
+                        output: 'stream'
+                    }
+                },
+                handler: (request, h) => {
+
+                    const stream = new Stream.PassThrough();
+
+                    // Start transmitting stream response...
+                    stream.push('hello ');
+
+                    Bounce.background(async () => {
+
+                        await Events.once(request.raw.res, 'pipe');
+
+                        // ...but also only read and end the request once the response is transmitting...
+                        request.raw.req.on('data', Hoek.ignore);
+                        await Events.once(request.raw.req, 'end');
+
+                        // ...and finally end the intended response once the request stream has ended.
+                        stream.end('world');
+                    });
+
+                    return h.response(stream);
+                }
+            });
+
+            flags.onCleanup = () => server.stop();
+            await server.start();
+
+            const req = Http.request({
+                hostname: 'localhost',
+                port: server.info.port,
+                method: 'post'
+            });
+
+            req.end('{}');
+
+            const [res] = await Events.once(req, 'response');
+
+            let result = '';
+            for await (const chunk of res) {
+                result += chunk.toString();
+            }
+
+            // If not permitted then result will be "hello " without "world"
+            expect(result).to.equal('hello world');
         });
     });
 
