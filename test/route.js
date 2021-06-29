@@ -246,6 +246,37 @@ describe('Route', () => {
         expect(res.result.message).to.equal('Invalid request payload JSON format');
     });
 
+    it('logs datailed errors and returns default errors', async () => {
+
+        const server = Hapi.server();
+        server.route({
+            method: 'POST',
+            path: '/',
+            handler: () => 'ok',
+            options: {
+                payload: {
+                    parse: true,
+                    failAction: 'log-and-error'
+                }
+            }
+        });
+
+        let logged;
+        server.events.on({ name: 'request', channels: 'internal' }, (request, event, tags) => {
+
+            if (tags.payload && tags.error) {
+                logged = event;
+            }
+        });
+
+        const res = await server.inject({ method: 'POST', url: '/', payload: '{a:"abc"}' });
+        expect(res.statusCode).to.equal(400);
+        expect(res.result.message).to.equal('Invalid request payload JSON format');
+        expect(logged).to.be.an.object();
+        expect(logged.error).to.be.an.error('Invalid request payload JSON format');
+        expect(logged.error.data).to.be.an.error(SyntaxError, /^Unexpected token a/);
+    });
+
     it('replaces payload parsing errors with custom handler', async () => {
 
         const server = Hapi.server();
