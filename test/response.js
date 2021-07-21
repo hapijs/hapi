@@ -1553,16 +1553,4 @@ describe('Response', () => {
             await finish;
         });
     });
-
-    describe('Payload', () => {
-
-        it('streams empty string', async () => {
-
-            const server = Hapi.server({ compression: { minBytes: 1 } });
-            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler: () => '' } });
-
-            const res = await server.inject({ url: '/?callback=me', headers: { 'Accept-Encoding': 'gzip' } });
-            expect(res.statusCode).to.equal(200);
-        });
-    });
 });
