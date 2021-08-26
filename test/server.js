@@ -2941,6 +2941,34 @@ describe('Server', () => {
             expect(res3.result).to.equal('<h1>grabbed</h1>');
         });
     });
+
+    describe('Diagnostics channel', () => {
+
+        it('Fires server event on server creation', async () => {
+
+            // If diagnostics_channel is not supported (node 12), skip test
+            try {
+                require('diagnostics_channel');
+            }
+            catch {
+                return Promise.resolve();
+            }
+
+            const DiagnosticsChannel = require('diagnostics_channel');
+
+            const serverChannel = DiagnosticsChannel.channel('hapi:server');
+            return await new Promise((resolve) => {
+
+                serverChannel.subscribe((server) => {
+
+                    expect(server).to.exist();
+                    resolve();
+                });
+
+                new Hapi.Server();
+            });
+        });
+    });
 });
 
 
