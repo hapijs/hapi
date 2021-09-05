@@ -228,6 +228,48 @@ describe('authentication', () => {
 
             expect(server.auth.api.xyz.x).to.equal(5);
         });
+
+        it('has its own realm', async () => {
+
+            const implementation = function (server) {
+
+                return {
+                    authenticate: (_, h) => h.authenticated({ credentials: server.realm })
+                };
+            };
+
+            const server = Hapi.server();
+
+            server.auth.scheme('custom', implementation);
+            server.auth.strategy('root', 'custom');
+
+            let pluginA;
+
+            await server.register({
+                name: 'plugin-a',
+                register(srv) {
+
+                    pluginA = srv;
+
+                    srv.auth.strategy('a', 'custom');
+                }
+            });
+
+
+            const handler = (request) => request.auth.credentials;
+            server.route({ method: 'GET', path: '/a', handler, options: { auth: 'a' } });
+            server.route({ method: 'GET', path: '/root', handler, options: { auth: 'root' } });
+
+            const { result: realm1 } = await server.inject('/a');
+            expect(realm1.plugin).to.be.undefined();
+            expect(realm1).to.not.shallow.equal(server.realm);
+            expect(realm1.parent).to.shallow.equal(pluginA.realm);
+
+            const { result: realm2 } = await server.inject('/root');
+            expect(realm2.plugin).to.be.undefined();
+            expect(realm2).to.not.shallow.equal(server.realm);
+            expect(realm2.parent).to.shallow.equal(server.realm);
+        });
     });
 
     describe('default()', () => {
