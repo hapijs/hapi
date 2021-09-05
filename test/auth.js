@@ -255,7 +255,6 @@ describe('authentication', () => {
                 }
             });
 
-
             const handler = (request) => request.auth.credentials;
             server.route({ method: 'GET', path: '/a', handler, options: { auth: 'a' } });
             server.route({ method: 'GET', path: '/root', handler, options: { auth: 'root' } });
