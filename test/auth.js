@@ -42,7 +42,7 @@ describe('authentication', () => {
             strategy: 'default',
             mode: 'required',
             error: null
-        });
+        }, { symbols: false });
     });
 
     it('disables authentication on a route', async () => {
@@ -1100,7 +1100,7 @@ describe('authentication', () => {
                 strategy: 'default',
                 mode: 'required',
                 error: null
-            });
+            }, { symbols: false });
         });
 
         it('matches scope (access array)', async () => {
@@ -1756,6 +1756,28 @@ describe('authentication', () => {
             });
 
             const res = await server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom optionalPayload' } });
+            expect(res.statusCode).to.equal(204);
+        });
+
+        it('skips required payload authentication when disabled on injection', async () => {
+
+            const server = Hapi.server();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom');
+            server.auth.default('default');
+            server.route({
+                method: 'POST',
+                path: '/',
+                options: {
+                    handler: (request) => null,
+                    auth: {
+                        mode: 'try',
+                        payload: true
+                    }
+                }
+            });
+
+            const res = await server.inject({ method: 'POST', url: '/', auth: { credentials: { payload: Boom.internal('payload error') }, payload: false, strategy: 'default' } });
             expect(res.statusCode).to.equal(204);
         });
 

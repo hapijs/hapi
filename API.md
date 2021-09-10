@@ -1893,6 +1893,10 @@ injections, with some additional options and response properties:
           and are validated directly as if they were received via an authentication scheme.
           Defaults to no artifacts.
 
+        - `payload` - (optional) disables payload authentication when set to false.
+          Only required when an authentication strategy requires payload authentication.
+          Defaults to `true`.
+
     - `app` - (optional) sets the initial value of `request.app`, defaults to `{}`.
 
     - `plugins` - (optional) sets the initial value of `request.plugins`, defaults to `{}`.
