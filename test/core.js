@@ -20,10 +20,13 @@ const Inert = require('@hapi/inert');
 const Lab = require('@hapi/lab');
 const Vision = require('@hapi/vision');
 const Wreck = require('@hapi/wreck');
+const Somever = require('@hapi/somever');
 
 const Common = require('./common');
 
-const internals = {};
+const internals = {
+    isNode16OrHigher: Somever.match(process.version, '>=16')
+};
 
 
 const { describe, it } = exports.lab = Lab.script();
@@ -335,7 +338,8 @@ describe('Core', () => {
             expect(res.statusCode).to.equal(500);
 
             const [, event] = await log;
-            expect(event.error.message).to.equal('Cannot read property \'here\' of null');
+            const expectedErrorMessage = internals.isNode16OrHigher ? 'Cannot read properties of null (reading \'here\')' : 'Cannot read property \'here\' of null';
+            expect(event.error.message).to.equal(expectedErrorMessage);
         });
     });
 
