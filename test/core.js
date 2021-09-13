@@ -25,7 +25,7 @@ const Somever = require('@hapi/somever');
 const Common = require('./common');
 
 const internals = {
-    isNode16OrHigher: Somever.match(process.version, '>=16')
+    isNode16OrHigher: Somever.match(process.version, '>=16.9.0')
 };
 
 

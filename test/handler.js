@@ -9,7 +9,7 @@ const Somever = require('@hapi/somever');
 
 
 const internals = {
-    isNode16OrHigher: Somever.match(process.version, '>=16')
+    isNode16OrHigher: Somever.match(process.version, '>=16.9.0')
 };
 
 
