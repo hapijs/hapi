@@ -25,6 +25,7 @@ const Somever = require('@hapi/somever');
 const Common = require('./common');
 
 const internals = {
+    // needed to handle changes in error output
     isNode16OrHigher: Somever.match(process.version, '>=16.9.0')
 };
 
