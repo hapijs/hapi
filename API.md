@@ -160,6 +160,15 @@ If the `listener` needs to be manually started, set [`autoListen`](#server.optio
 
 If the `listener` uses TLS, set [`tls`](#server.options.tls) to `true`.
 
+#### <a name="server.options.http2" /> `server.options.http2`
+
+Default value: `false`.
+
+If `true`, hapi will use http2 instead of http/https.
+
+If a certificate is specified, the http2 server will be tls-enabled (h2),
+otherwise it will listen in cleartext mode (h2c).
+
 #### <a name="server.options.load" /> `server.options.load`
 
 Default value: `{ sampleInterval: 0 }`.
