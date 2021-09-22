@@ -2,7 +2,7 @@
   "name": "@hapi/hapi",
   "description": "HTTP Server framework",
   "homepage": "https://hapi.dev",
-  "version": "20.1.5",
+  "version": "20.2.0",
   "repository": "git://github.com/hapijs/hapi",
   "main": "lib/index.js",
   "engines": {
@@ -17,6 +17,11 @@
     "api",
     "web"
   ],
+  "eslintConfig": {
+    "extends": [
+      "plugin:@hapi/module"
+    ]
+  },
   "dependencies": {
     "@hapi/accept": "^5.0.1",
     "@hapi/ammo": "^5.0.1",
@@ -39,6 +44,7 @@
   },
   "devDependencies": {
     "@hapi/code": "^8.0.0",
+    "@hapi/eslint-plugin": "*",
     "@hapi/inert": "^6.0.2",
     "@hapi/joi-legacy-test": "npm:@hapi/joi@^15.0.0",
     "@hapi/lab": "^24.2.0",

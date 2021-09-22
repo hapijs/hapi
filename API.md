@@ -964,7 +964,7 @@ Registers an authentication scheme where:
 
 - `name` - the scheme name.
 - `scheme` - the method implementing the scheme with signature `function(server, options)` where:
-    - `server` - a reference to the server object the scheme is added to.
+    - `server` - a reference to the server object the scheme is added to. Each auth strategy is given its own [`server.realm`](#server.realm) whose parent is the realm of the `server` in the call to [`server.auth.strategy()`](#server.auth.strategy()).
     - `options` - (optional) the scheme `options` argument passed to
       [`server.auth.strategy()`](#server.auth.strategy()) when instantiation a strategy.
 
@@ -1892,6 +1892,10 @@ injections, with some additional options and response properties:
           information. The `artifacts` are used to bypass the default authentication strategies,
           and are validated directly as if they were received via an authentication scheme.
           Defaults to no artifacts.
+
+        - `payload` - (optional) disables payload authentication when set to false.
+          Only required when an authentication strategy requires payload authentication.
+          Defaults to `true`.
 
     - `app` - (optional) sets the initial value of `request.app`, defaults to `{}`.
 

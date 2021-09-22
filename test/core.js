@@ -23,6 +23,7 @@ const Wreck = require('@hapi/wreck');
 
 const Common = require('./common');
 
+
 const internals = {};
 
 
@@ -335,7 +336,7 @@ describe('Core', () => {
             expect(res.statusCode).to.equal(500);
 
             const [, event] = await log;
-            expect(event.error.message).to.equal('Cannot read property \'here\' of null');
+            expect(event.error.message).to.include(['Cannot read prop', 'null', 'here']);
         });
     });
 
