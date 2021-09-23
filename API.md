@@ -162,7 +162,7 @@ If the `listener` uses TLS, set [`tls`](#server.options.tls) to `true`.
 
 #### <a name="server.options.load" /> `server.options.load`
 
-Default value: `{ sampleInterval: 0 }`.
+Default value: `{ sampleInterval: 0, maxHeapUsedBytes: 0, maxRssBytes: 0, maxEventLoopDelay: 0 }`.
 
 Server excessive load handling limits where:
 
