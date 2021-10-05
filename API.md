@@ -1946,6 +1946,9 @@ Return value: a response object with the following properties:
 
 - `request` - the [request object](#request).
 
+Throws a Boom error if the request processing fails. The partial response object is exposed on
+the `data` property.
+
 ```js
 const Hapi = require('@hapi/hapi');
 
