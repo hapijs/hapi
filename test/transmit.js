@@ -561,7 +561,7 @@ describe('transmission', () => {
             const log = server.events.once('response');
             const client = Net.connect(server.info.port, () => {
 
-                client.write('GET / HTTP/1.1\r\n\r\n');
+                client.write('GET / HTTP/1.1\r\naccept-encoding: gzip\r\n\r\n');
             });
 
             const [request] = await log;
@@ -712,7 +712,7 @@ describe('transmission', () => {
 
                     this.isDone = true;
                     this.push('success');
-                    setImmediate(() => this.emit('error', new Error()));
+                    setImmediate(() => this.emit('error', new Error('stream error')));
                 };
 
                 return stream;
@@ -722,16 +722,17 @@ describe('transmission', () => {
             server.route({ method: 'GET', path: '/', handler });
             const log = server.events.once('response');
 
-            const res = await server.inject('/');
-            expect(res.statusCode).to.equal(500);
-            expect(res.statusMessage).to.equal('Internal Server Error');
-            expect(res.result.message).to.equal('An internal server error occurred');
-            expect(res.raw.res.statusCode).to.equal(200);
-            expect(res.raw.res.statusMessage).to.equal('OK');
-            expect(res.rawPayload.toString()).to.equal('success');
+            const err = await expect(server.inject('/')).to.reject(Boom.Boom);
+            expect(err.output.statusCode).to.equal(499);
+            expect(err.output.payload.error).to.equal('Unknown');
+            expect(err.output.payload.message).to.equal('Response error');
+            expect(err.data.request.response.message).to.equal('stream error');
+            expect(err.data.request.raw.res.statusCode).to.equal(200);
+            expect(err.data.request.raw.res.statusMessage).to.equal('OK');
 
             const [request] = await log;
-            expect(request.response.statusCode).to.equal(500);
+            expect(request.response.message).to.equal('stream error');
+            expect(request.response.output.statusCode).to.equal(500);
             expect(request.info.completed).to.be.above(0);
             expect(request.info.responded).to.equal(0);
         });
@@ -750,7 +751,7 @@ describe('transmission', () => {
                     this.isDone = true;
 
                     this.push('something');
-                    setImmediate(() => this.emit('error', new Error()));
+                    setImmediate(() => this.emit('error', new Error('stream error')));
                 };
 
                 return stream;
@@ -766,7 +767,8 @@ describe('transmission', () => {
 
             const [request] = await log;
             expect(err.data.res.statusCode).to.equal(200);
-            expect(request.response.statusCode).to.equal(500);
+            expect(request.response.message).to.equal('stream error');
+            expect(request.response.output.statusCode).to.equal(500);
             expect(request.info.completed).to.be.above(0);
             expect(request.info.responded).to.equal(0);
         });
@@ -1232,15 +1234,15 @@ describe('transmission', () => {
                 return h.response(stream).bytes(0);
             } });
 
-            const res = await server.inject({ url: '/stream', headers: { 'Accept-Encoding': 'gzip' } });
-            expect(res.statusCode).to.equal(499);
-            expect(res.statusMessage).to.equal('Unknown');
-            expect(res.raw.res.statusCode).to.equal(204);
-            expect(res.raw.res.statusMessage).to.equal('No Content');
-            expect(res.rawPayload.toString()).to.equal('here is the response');
+            const err = await expect(server.inject({ url: '/stream', headers: { 'Accept-Encoding': 'gzip' } })).to.reject(Boom.Boom);
+            expect(err.output.statusCode).to.equal(499);
+            expect(err.output.payload.error).to.equal('Unknown');
+            expect(err.output.payload.message).to.equal('Request close');
+            expect(err.data.request.raw.res.statusCode).to.equal(204);
+            expect(err.data.request.raw.res.statusMessage).to.equal('No Content');
 
             const [request] = await log;
-            expect(request.response.statusCode).to.equal(499);
+            expect(request.response.output.statusCode).to.equal(499);
             expect(request.info.completed).to.be.above(0);
             expect(request.info.responded).to.equal(0);
 
@@ -2056,7 +2058,7 @@ describe('transmission', () => {
 
     describe('chain()', () => {
 
-        it('handles stream errors on the response after the response has been piped (http)', async () => {
+        it('handles stream errors on the response after the response has been piped', async () => {
 
             const handler = (request, h) => {
 
@@ -2079,8 +2081,8 @@ describe('transmission', () => {
             const server = Hapi.server({ compression: { minBytes: 1 } });
             server.route({ method: 'GET', path: '/', handler });
 
-            const res = await server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } });
-            expect(res.statusCode).to.equal(500);
+            const err = await expect(server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } })).to.reject(Boom.Boom);
+            expect(err.output.statusCode).to.equal(499);
         });
     });
 });
