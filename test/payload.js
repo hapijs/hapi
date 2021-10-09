@@ -77,6 +77,54 @@ describe('Payload', () => {
         expect(request.response.output.statusCode).to.equal(500);
     });
 
+    it('handles aborted request mid-lifecycle step', async (flags) => {
+
+        let req = null;
+        const server = Hapi.server();
+
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: async (request) => {
+
+                req.destroy();
+
+                await request.events.once('disconnect');
+
+                return 'ok';
+            }
+        });
+
+        // Register post handler that should not be called
+
+        let post = 0;
+        server.ext('onPostHandler', () => {
+
+            ++post;
+        });
+
+        flags.onCleanup = () => server.stop();
+        await server.start();
+
+        req = Http.request({
+            hostname: 'localhost',
+            port: server.info.port,
+            method: 'get'
+        });
+
+        req.on('error', Hoek.ignore);
+        req.end();
+
+        const [request] = await server.events.once('response');
+
+        expect(request.response.isBoom).to.be.true();
+        expect(request.response.output.statusCode).to.equal(499);
+        expect(request.info.completed).to.be.above(0);
+        expect(request.info.responded).to.equal(0);
+
+        expect(post).to.equal(0);
+    });
+
     it('handles aborted request', { retry: true }, async () => {
 
         const server = Hapi.server();

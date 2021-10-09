@@ -33,7 +33,13 @@ const expect = Code.expect;
 
 describe('Core', () => {
 
-    it('sets connections defaults', () => {
+    it('sets app settings defaults', () => {
+
+        const server = Hapi.server();
+        expect(server.settings.app).to.equal({});
+    });
+
+    it('sets app settings', () => {
 
         const server = Hapi.server({ app: { message: 'test defaults' } });
         expect(server.settings.app.message).to.equal('test defaults');

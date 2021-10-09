@@ -162,7 +162,7 @@ If the `listener` uses TLS, set [`tls`](#server.options.tls) to `true`.
 
 #### <a name="server.options.load" /> `server.options.load`
 
-Default value: `{ sampleInterval: 0 }`.
+Default value: `{ sampleInterval: 0, maxHeapUsedBytes: 0, maxRssBytes: 0, maxEventLoopDelay: 0 }`.
 
 Server excessive load handling limits where:
 
@@ -1945,6 +1945,9 @@ Return value: a response object with the following properties:
     string).
 
 - `request` - the [request object](#request).
+
+Throws a Boom error if the request processing fails. The partial response object is exposed on
+the `data` property.
 
 ```js
 const Hapi = require('@hapi/hapi');
