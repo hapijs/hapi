@@ -4819,7 +4819,7 @@ Returns a [`response`](#response-object) which you can pass into the [reply inte
     - `variety` - a sting name of the response type (e.g. `'file'`).
     - `prepare` - a function with the signature `async function(response)` used to prepare the response after it is returned by a [lifecycle method](#lifecycle-methods) such as setting a file descriptor, where:
         - `response` - the response object being prepared.
-        - must return the prepared response object (new object or `response`).
+        - must return the prepared response object (`response`).
         - may throw an error which is used as the prepared response.
     - `marshal` - a function with the signature `async function(response)` used to prepare the response for transmission to the client before it is sent, where:
         - `response` - the response object being marshaled.
