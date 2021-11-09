@@ -1196,8 +1196,7 @@ describe('transmission', () => {
             await log;
         });
 
-        // NOTE do not merge with this skip. Can be removed once fix in node v17.1.0 is released.
-        it.skip('stops processing the stream when the connection closes', async () => {
+        it('stops processing the stream when the connection closes', async () => {
 
             let stream;
 
