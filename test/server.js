@@ -14,17 +14,20 @@ const Lab = require('@hapi/lab');
 const Vision = require('@hapi/vision');
 const Wreck = require('@hapi/wreck');
 
+const Common = require('./common');
 const Pkg = require('../package.json');
 
 
 const internals = {};
 
 
-const { describe, it } = exports.lab = Lab.script();
+const { describe, it, before } = exports.lab = Lab.script();
 const expect = Code.expect;
 
 
 describe('Server', () => {
+
+    before(Common.setDefaultDnsOrder);
 
     describe('auth', () => {
 

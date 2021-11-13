@@ -11,15 +11,18 @@ const Hoek = require('@hapi/hoek');
 const Lab = require('@hapi/lab');
 const Wreck = require('@hapi/wreck');
 
+const Common = require('./common');
 
 const internals = {};
 
 
-const { describe, it } = exports.lab = Lab.script();
+const { describe, it, before } = exports.lab = Lab.script();
 const expect = Code.expect;
 
 
 describe('Payload', () => {
+
+    before(Common.setDefaultDnsOrder);
 
     it('sets payload', async () => {
 
