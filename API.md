@@ -4673,7 +4673,7 @@ Request information:
 
 - `hostname` - the hostname part of the 'Host' header (e.g. 'example.com').
 
-- `id` - a unique request identifier (using the format '{now}:{connection.info.id}:{5 digits counter}').
+- `id` - a unique request identifier (using the format '{now}:{server.info.id}:{5 digits counter}').
 
 - `received` - request reception timestamp.
 
