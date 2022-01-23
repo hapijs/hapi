@@ -4813,8 +4813,8 @@ The parsed request URI.
 
 ### <a name="request.generateResponse()" /> `request.generateResponse(source, [options])`
 
-Returns a [`response`](#response-object) which you can pass into the [reply interface](#response-toolkit) where:
-- `source` - the value to set as the source of the [reply interface](#response-toolkit), optional.
+Returns a [`response`](#response-object) which you can pass to [h.response()](#h.response()) where:
+- `source` - the value to set as the source of [h.response()](#h.response()), optional.
 - `options` - optional object with the following optional properties:
     - `variety` - a sting name of the response type (e.g. `'file'`).
     - `prepare` - a function with the signature `async function(response)` used to prepare the response after it is returned by a [lifecycle method](#lifecycle-methods) such as setting a file descriptor, where:
