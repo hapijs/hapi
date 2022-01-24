@@ -25,11 +25,13 @@ const Common = require('./common');
 const internals = {};
 
 
-const { describe, it } = exports.lab = Lab.script();
+const { describe, it, before } = exports.lab = Lab.script();
 const expect = Code.expect;
 
 
 describe('transmission', () => {
+
+    before(Common.setDefaultDnsOrder);
 
     describe('send()', () => {
 

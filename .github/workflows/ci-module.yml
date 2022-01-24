@@ -5,24 +5,8 @@ on:
     branches:
       - master
   pull_request:
+  workflow_dispatch:
 
 jobs:
   test:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu, windows, macos]
-        node: ['*', '14', '12']
-
-    runs-on: ${{ matrix.os }}-latest
-    name: ${{ matrix.os }} node@${{ matrix.node }}
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node }}
-          check-latest: ${{ matrix.node == '*' }}
-      - name: install
-        run: npm install
-      - name: test
-        run: npm test
+    uses: hapijs/.github/.github/workflows/ci-module.yml@master
