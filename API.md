@@ -3994,7 +3994,7 @@ responsibility to write and end the response directly via [`request.raw.res`](#r
 Access: read only.
 
 A response symbol. When returned by a lifecycle method, the request lifecycle skips to the
-finalizing step after calling `request.raw.res.end())` to close the the node response stream.
+finalizing step after calling `request.raw.res.end())` to close the node response stream.
 
 ##### <a name="h.context" /> `h.context`
 
