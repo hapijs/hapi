@@ -2973,21 +2973,6 @@ string payload or escaping it after stringification. Supports the following:
 - `escape` - calls [`Hoek.jsonEscape()`](https://hapi.dev/family/hoek/api/#escapejsonstring)
   after conversion to JSON string. Defaults to `false`.
 
-### <a name="route.options.jsonp" /> `route.options.jsonp`
-
-Default value: none.
-
-Enables JSONP support by setting the value to the query parameter name containing the function name
-used to wrap the response payload.
-
-For example, if the value is `'callback'`, a request comes in with `'callback=me'`, and the JSON
-response is `'{ "a":"b" }'`, the payload will be `'me({ "a":"b" });'`. Cannot be used with stream
-responses.
-
-The 'Content-Type' response header is set to `'text/javascript'` and the 'X-Content-Type-Options'
-response header is set to `'nosniff'`, and will override those headers even if explicitly set by
-[`response.type()`](#response.type()).
-
 ### <a name="route.options.log" /> `route.options.log`
 
 Default value: `{ collect: false }`.
@@ -3615,18 +3600,11 @@ the same. The following is the complete list of steps a request can go through:
     - [`request.route`](#request.route) is unassigned.
     - [`request.url`](#request.url) can be `null` if the incoming request path is invalid.
     - [`request.path`](#request.path) can be an invalid path.
-    - JSONP configuration is ignored for any response returned from the extension point since no
-      route is matched yet and the JSONP configuration is unavailable.
 
 - _**Route lookup**_
     - lookup based on `request.path` and `request.method`.
     - skips to _**onPreResponse**_ if no route is found or if the path violates the HTTP
       specification.
-
-- _**JSONP processing**_
-    - based on the route [`jsonp`](#route.options.jsonp) option.
-    - parses JSONP parameter from [`request.query`](#request.query).
-    - skips to _**Response validation**_ on error.
 
 - _**Cookies processing**_
     - based on the route [`state`](#route.options.state) option.
@@ -3661,10 +3639,6 @@ the same. The following is the complete list of steps a request can go through:
 - _**Path parameters validation**_
     - based on the route [`validate.params`](#route.options.validate.params) option.
     - error handling based on [`failAction`](#route.options.validate.failAction).
-
-- _**JSONP cleanup**_
-    - based on the route [`jsonp`](#route.options.jsonp) option.
-    - remove the JSONP parameter from [`request.query`](#request.query).
 
 - _**Query validation**_
     - based on the route [`validate.query`](#route.options.validate.query) option.
