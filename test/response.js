@@ -1195,14 +1195,14 @@ describe('Response', () => {
             expect(res1.statusCode).to.equal(500);
 
             const [, event1] = await log1;
-            expect(event1.error).to.be.an.error('Cannot reply with a stream-like object that is not an instance of Stream.Readable.');
+            expect(event1.error).to.be.an.error('Cannot reply with a stream-like object that is not an instance of Stream.Readable');
 
             const log2 = server.events.once({ name: 'request', channels: 'error' });
             const res2 = await server.inject('/writable');
             expect(res2.statusCode).to.equal(500);
 
             const [, event2] = await log2;
-            expect(event2.error).to.be.an.error('Cannot reply with a stream-like object that is not an instance of Stream.Readable.');
+            expect(event2.error).to.be.an.error('Cannot reply with a stream-like object that is not an instance of Stream.Readable');
         });
 
         it('errors on an http client stream response', async () => {
@@ -1224,7 +1224,7 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(500);
 
             const [, event] = await log;
-            expect(event.error).to.be.an.error('Cannot reply with a stream-like object that is not an instance of Stream.Readable.');
+            expect(event.error).to.be.an.error('Cannot reply with a stream-like object that is not an instance of Stream.Readable');
         });
 
         it('errors on a legacy readable stream response', async () => {
@@ -1255,7 +1255,7 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(500);
 
             const [, event] = await log;
-            expect(event.error).to.be.an.error('Cannot reply with a stream-like object that is not an instance of Stream.Readable.');
+            expect(event.error).to.be.an.error('Cannot reply with a stream-like object that is not an instance of Stream.Readable');
         });
 
         it('errors on objectMode stream response', async () => {
