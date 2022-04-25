@@ -1080,6 +1080,37 @@ describe('Core', () => {
 
             await server.stop();
         });
+
+        it('doesn\'t setup listeners for cleanStop when socket is missing', async () => {
+
+            const server = Hapi.server();
+
+            server.route({
+                method: 'get',
+                path: '/',
+                handler: (request) => request.raw.res.listenerCount('finish')
+            });
+
+            const { result: normalFinishCount } = await server.inject('/');
+
+            const { _dispatch } = server._core;
+
+            server._core._dispatch = (opts) => {
+
+                const fn = _dispatch.call(server._core, opts);
+
+                return (req, res) => {
+
+                    req.socket = null;
+
+                    fn(req, res);
+                };
+            };
+
+            const { result: missingSocketFinishCount } = await server.inject('/');
+
+            expect(missingSocketFinishCount).to.be.lessThan(normalFinishCount);
+        });
     });
 
     describe('inject()', () => {
