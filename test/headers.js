@@ -213,7 +213,7 @@ describe('Headers', () => {
             expect(res.result).to.equal('Test');
             expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
             expect(res.headers['x-frame-options']).to.equal('DENY');
-            expect(res.headers['x-xss-protection']).to.equal('1; mode=block');
+            expect(res.headers['x-xss-protection']).to.equal('0');
             expect(res.headers['x-download-options']).to.equal('noopen');
             expect(res.headers['x-content-type-options']).to.equal('nosniff');
         });
@@ -243,7 +243,7 @@ describe('Headers', () => {
             expect(res.result).to.equal('Test');
             expect(res.headers['strict-transport-security']).to.not.exist();
             expect(res.headers['x-frame-options']).to.equal('DENY');
-            expect(res.headers['x-xss-protection']).to.equal('1; mode=block');
+            expect(res.headers['x-xss-protection']).to.equal('0');
             expect(res.headers['x-download-options']).to.equal('noopen');
             expect(res.headers['x-content-type-options']).to.equal('nosniff');
         });
@@ -335,7 +335,7 @@ describe('Headers', () => {
             expect(res.result).to.equal('Test');
             expect(res.headers['x-frame-options']).to.not.exist();
             expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
-            expect(res.headers['x-xss-protection']).to.equal('1; mode=block');
+            expect(res.headers['x-xss-protection']).to.equal('0');
             expect(res.headers['x-download-options']).to.equal('noopen');
             expect(res.headers['x-content-type-options']).to.equal('nosniff');
         });
@@ -416,6 +416,36 @@ describe('Headers', () => {
             expect(res.result).to.exist();
             expect(res.result).to.equal('Test');
             expect(res.headers['x-content-type-options']).to.not.exist();
+        });
+
+        it('sets the x-xss-protection header when security.xss is enabled', async () => {
+
+            const server = Hapi.server({ routes: { security: { xss: 'enabled' } } });
+            server.route({ method: 'GET', path: '/', handler: () => 'Test' });
+
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['x-xss-protection']).to.equal('1; mode=block');
+            expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
+            expect(res.headers['x-frame-options']).to.equal('DENY');
+            expect(res.headers['x-download-options']).to.equal('noopen');
+            expect(res.headers['x-content-type-options']).to.equal('nosniff');
+        });
+
+        it('sets the x-xss-protection header when security.xss is disabled', async () => {
+
+            const server = Hapi.server({ routes: { security: { xss: 'disabled' } } });
+            server.route({ method: 'GET', path: '/', handler: () => 'Test' });
+
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['x-xss-protection']).to.equal('0');
+            expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
+            expect(res.headers['x-frame-options']).to.equal('DENY');
+            expect(res.headers['x-download-options']).to.equal('noopen');
+            expect(res.headers['x-content-type-options']).to.equal('nosniff');
         });
 
         it('does not set the x-xss-protection header when security.xss is false', async () => {

@@ -3345,13 +3345,17 @@ following options:
           otherwise this field is ignored. If `rule` is `'allow-from'` but `source` is unset, the
           rule will be automatically changed to `'sameorigin'`.
 
-- `xss` - boolean that controls the 'X-XSS-PROTECTION' header for Internet Explorer. Defaults to
-  `true` which sets the header to equal `'1; mode=block'`.
-    - Note: this setting can create a security vulnerability in versions of Internet Exploere below
-      8, as well as unpatched versions of IE8. See [here](https://hackademix.net/2009/11/21/ies-xss-filter-creates-xss-vulnerabilities/)
-      and [here](https://technet.microsoft.com/library/security/ms10-002) for more information. If
-      you actively support old versions of IE, it may be wise to explicitly set this flag to
-      `false`.
+- `xss` - controls the 'X-XSS-Protection' header, where:
+
+    - `'disable'` - the header will be set to `'0'`.  This is the default value.
+    - `'enable'` - the header will be set to `'1; mode=block'`.
+    - `false` - the header will be omitted.
+
+    Note: when enabled, this setting can create a security vulnerabilities in versions of Internet Explorer
+    below 8, unpatched versions of IE8, and browsers that employ an XSS filter/auditor. See
+    [here](https://hackademix.net/2009/11/21/ies-xss-filter-creates-xss-vulnerabilities/),
+    [here](https://technet.microsoft.com/library/security/ms10-002), and
+    [here](https://blog.innerht.ml/the-misunderstood-x-xss-protection/) for more information.
 
 - `noOpen` - boolean controlling the 'X-Download-Options' header for Internet Explorer, preventing
   downloads from executing in your context. Defaults to `true` setting the header to `'noopen'`.
