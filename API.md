@@ -3439,7 +3439,8 @@ Default value: `'error'` (return a Bad Request (400) error response).
 
 A [`failAction` value](#lifecycle-failAction) which determines how to handle failed validations.
 When set to a function, the `err` argument includes the type of validation error under
-`err.output.payload.validation.source`.
+`err.output.payload.validation.source`. The default error that would otherwise have been logged
+ or returned can be accessed under `err.data.defaultError`.
 
 #### <a name="route.options.validate.headers" /> `route.options.validate.headers`
 
