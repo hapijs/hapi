@@ -2894,6 +2894,9 @@ object with the following options:
 - `credentials` - if `true`, allows user credentials to be sent
   ('Access-Control-Allow-Credentials'). Defaults to `false`.
 
+ - `preflightStatusCode` - the status code used for CORS preflight responses, either `200` or `204`.
+   Defaults to `200`.
+
 ### <a name="route.options.description" /> `route.options.description`
 
 Default value: none.
