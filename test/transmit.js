@@ -16,7 +16,6 @@ const Hoek = require('@hapi/hoek');
 const Bounce = require('@hapi/bounce');
 const Inert = require('@hapi/inert');
 const Lab = require('@hapi/lab');
-const LegacyReadableStream = require('legacy-readable-stream');
 const Teamwork = require('@hapi/teamwork');
 const Wreck = require('@hapi/wreck');
 
@@ -1332,84 +1331,6 @@ describe('transmission', () => {
 
             await team.work;
             await server.stop();
-        });
-
-        it('close() stream when no destroy() method', async () => {
-
-            const server = Hapi.server();
-
-            const team = new Teamwork.Team();
-            const handler = (request) => {
-
-                const stream = new LegacyReadableStream.Readable();
-                stream._read = function (size) {
-
-                    const chunk = new Array(size).join('x');
-
-                    setTimeout(() => {
-
-                        this.push(chunk);
-                    }, 10);
-                };
-
-                stream.close = () => team.attend();
-
-                return stream;
-            };
-
-            server.route({ method: 'GET', path: '/', handler });
-
-            await server.start();
-
-            const res = await Wreck.request('GET', 'http://localhost:' + server.info.port);
-            res.once('data', (chunk) => {
-
-                res.destroy();
-            });
-
-            await team.work;
-            await server.stop();
-
-            expect(res.statusCode).to.equal(200);
-        });
-
-        it('unpipe() stream when no destroy() or close() method', async () => {
-
-            const server = Hapi.server();
-
-            const team = new Teamwork.Team();
-            const handler = (request) => {
-
-                const stream = new LegacyReadableStream.Readable();
-                stream._read = function (size) {
-
-                    const chunk = new Array(size).join('x');
-
-                    setTimeout(() => {
-
-                        this.push(chunk);
-                    }, 10);
-                };
-
-                stream.unpipe = () => team.attend();
-
-                return stream;
-            };
-
-            server.route({ method: 'GET', path: '/', handler });
-
-            await server.start();
-
-            const res = await Wreck.request('GET', 'http://localhost:' + server.info.port);
-            res.once('data', (chunk) => {
-
-                res.destroy();
-            });
-
-            await team.work;
-            await server.stop();
-
-            expect(res.statusCode).to.equal(200);
         });
 
         it('changes etag when content-encoding set manually', async () => {

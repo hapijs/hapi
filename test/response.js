@@ -7,6 +7,7 @@ const Stream = require('stream');
 
 const Code = require('@hapi/code');
 const Handlebars = require('handlebars');
+const LegacyReadableStream = require('legacy-readable-stream');
 const Hapi = require('..');
 const Inert = require('@hapi/inert');
 const Lab = require('@hapi/lab');
@@ -1194,14 +1195,14 @@ describe('Response', () => {
             expect(res1.statusCode).to.equal(500);
 
             const [, event1] = await log1;
-            expect(event1.error).to.be.an.error('Stream must have a readable interface');
+            expect(event1.error).to.be.an.error('Cannot reply with a stream-like object that is not an instance of Stream.Readable');
 
             const log2 = server.events.once({ name: 'request', channels: 'error' });
             const res2 = await server.inject('/writable');
             expect(res2.statusCode).to.equal(500);
 
             const [, event2] = await log2;
-            expect(event2.error).to.be.an.error('Stream must have a readable interface');
+            expect(event2.error).to.be.an.error('Cannot reply with a stream-like object that is not an instance of Stream.Readable');
         });
 
         it('errors on an http client stream response', async () => {
@@ -1223,7 +1224,38 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(500);
 
             const [, event] = await log;
-            expect(event.error).to.be.an.error('Stream must have a readable interface');
+            expect(event.error).to.be.an.error('Cannot reply with a stream-like object that is not an instance of Stream.Readable');
+        });
+
+        it('errors on a legacy readable stream response', async () => {
+
+            const streamHandler = () => {
+
+                const stream = new LegacyReadableStream.Readable();
+                stream._read = function (size) {
+
+                    const chunk = new Array(size).join('x');
+
+                    setTimeout(() => {
+
+                        this.push(chunk);
+                    }, 10);
+                };
+
+                return stream;
+            };
+
+            const server = Hapi.server({ debug: false });
+            server.route({ method: 'GET', path: '/stream', handler: streamHandler });
+
+            const log = server.events.once({ name: 'request', channels: 'error' });
+
+            await server.initialize();
+            const res = await server.inject('/stream');
+            expect(res.statusCode).to.equal(500);
+
+            const [, event] = await log;
+            expect(event.error).to.be.an.error('Cannot reply with a stream-like object that is not an instance of Stream.Readable');
         });
 
         it('errors on objectMode stream response', async () => {
