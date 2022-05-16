@@ -34,7 +34,7 @@
     "@hapi/hoek": "^9.0.4",
     "@hapi/mimos": "^6.0.0",
     "@hapi/podium": "^4.1.1",
-    "@hapi/shot": "^5.0.5",
+    "@hapi/shot": "6.0.0-beta.1",
     "@hapi/somever": "^3.0.0",
     "@hapi/statehood": "^7.0.3",
     "@hapi/subtext": "^7.0.3",
@@ -43,11 +43,11 @@
     "@hapi/validate": "^1.1.1"
   },
   "devDependencies": {
-    "@hapi/code": "^8.0.0",
+    "@hapi/code": "9.0.0-beta.0",
     "@hapi/eslint-plugin": "*",
     "@hapi/inert": "^6.0.2",
     "@hapi/joi-legacy-test": "npm:@hapi/joi@^15.0.0",
-    "@hapi/lab": "^24.4.0",
+    "@hapi/lab": "25.0.0-beta.0",
     "@hapi/vision": "^6.0.1",
     "@hapi/wreck": "^17.0.0",
     "handlebars": "^4.7.4",
