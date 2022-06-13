@@ -1,7 +1,8 @@
 'use strict';
 
 const ChildProcess = require('child_process');
-const Dns = require('dns');
+const Http = require('http');
+const Net = require('net');
 
 const internals = {};
 
@@ -17,11 +18,15 @@ internals.hasLsof = () => {
     return true;
 };
 
+internals.hasIPv6 = () => {
+
+    const server = Http.createServer().listen();
+    const { address } = server.address();
+    server.close();
+
+    return Net.isIPv6(address);
+};
+
 exports.hasLsof = internals.hasLsof();
 
-exports.setDefaultDnsOrder = () => {
-    // Resolve localhost to ipv4 address on node v17
-    if (Dns.setDefaultResultOrder) {
-        Dns.setDefaultResultOrder('ipv4first');
-    }
-};
+exports.hasIPv6 = internals.hasIPv6();

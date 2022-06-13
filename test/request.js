@@ -20,13 +20,11 @@ const Common = require('./common');
 const internals = {};
 
 
-const { describe, it, before } = exports.lab = Lab.script();
+const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
 
 
 describe('Request.Generator', () => {
-
-    before(Common.setDefaultDnsOrder);
 
     it('decorates request multiple times', async () => {
 
@@ -131,17 +129,19 @@ describe('Request', () => {
 
         const handler = (request) => {
 
-            let expectedClientAddress = '127.0.0.1';
-            if (Net.isIPv6(server.listener.address().address)) {
-                expectedClientAddress = '::ffff:127.0.0.1';
-            }
-
-            expect(request.info.remoteAddress).to.equal(expectedClientAddress);
-            expect(request.info.remotePort).to.be.above(0);
-
             // Call twice to reuse cached values
 
-            expect(request.info.remoteAddress).to.equal(expectedClientAddress);
+            if (Common.hasIPv6) {
+                // ::ffff:127.0.0.1 on node v14 and v16, ::1 on node v18.
+                expect(request.info.remoteAddress).to.match(/^::ffff:127\.0\.0\.1|::1$/);
+                expect(request.info.remoteAddress).to.match(/^::ffff:127\.0\.0\.1|::1$/);
+            }
+            else {
+                expect(request.info.remoteAddress).to.equal('127.0.0.1');
+                expect(request.info.remoteAddress).to.equal('127.0.0.1');
+            }
+
+            expect(request.info.remotePort).to.be.above(0);
             expect(request.info.remotePort).to.be.above(0);
 
             return 'ok';
