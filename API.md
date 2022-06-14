@@ -26,11 +26,11 @@ All options are optionals.
 
 #### <a name="server.options.address" /> `server.options.address`
 
-Default value: `'0.0.0.0'` (all available network interfaces).
+Default value: `'::'` if IPv6 is available, otherwise `'0.0.0.0'` (i.e. all available network interfaces).
 
 Sets the hostname or IP address the server will listen on. If not configured, defaults to
 [`host`](#server.options.host) if present, otherwise to all available network interfaces. Set to
-`'127.0.0.1'` or `'localhost'` to restrict the server to only those coming from the same host.
+`'127.0.0.1'`, `'::1'`, or `'localhost'` to restrict the server to only those coming from the same host.
 
 #### <a name="server.options.app" /> `server.options.app`
 
