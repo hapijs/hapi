@@ -123,7 +123,7 @@ describe('Request.Generator', () => {
 
 describe('Request', () => {
 
-    it('sets client address', async () => {
+    it('sets client address (default)', async (flags) => {
 
         const server = Hapi.server();
 
@@ -132,9 +132,9 @@ describe('Request', () => {
             // Call twice to reuse cached values
 
             if (Common.hasIPv6) {
-                // ::ffff:127.0.0.1 on node v14 and v16, ::1 on node v18.
-                expect(request.info.remoteAddress).to.match(/^::ffff:127\.0\.0\.1|::1$/);
-                expect(request.info.remoteAddress).to.match(/^::ffff:127\.0\.0\.1|::1$/);
+                // 127.0.0.1 on node v14 and v16, ::1 on node v18 since DNS resolved to IPv6.
+                expect(request.info.remoteAddress).to.match(/^127\.0\.0\.1|::1$/);
+                expect(request.info.remoteAddress).to.match(/^127\.0\.0\.1|::1$/);
             }
             else {
                 expect(request.info.remoteAddress).to.equal('127.0.0.1');
@@ -147,13 +147,79 @@ describe('Request', () => {
             return 'ok';
         };
 
-        server.route({ method: 'GET', path: '/', handler });
+        server.route({ method: 'get', path: '/', handler });
 
         await server.start();
+        flags.onCleanup = () => server.stop();
 
         const { payload } = await Wreck.get('http://localhost:' + server.info.port);
         expect(payload.toString()).to.equal('ok');
-        await server.stop();
+    });
+
+    it('sets client address (ipv4)', async (flags) => {
+
+        const server = Hapi.server();
+
+        const handler = (request) => {
+
+            Object.defineProperty(request.raw.req.socket, 'remoteAddress', {
+                value: '100.100.100.100'
+            });
+
+            return request.info.remoteAddress;
+        };
+
+        server.route({ method: 'get', path: '/', handler });
+
+        await server.start();
+        flags.onCleanup = () => server.stop();
+
+        const { payload } = await Wreck.get('http://localhost:' + server.info.port);
+        expect(payload.toString()).to.equal('100.100.100.100');
+    });
+
+    it('sets client address (ipv6)', async (flags) => {
+
+        const server = Hapi.server();
+
+        const handler = (request) => {
+
+            Object.defineProperty(request.raw.req.socket, 'remoteAddress', {
+                value: '::ffff:0:0:0:0:1'
+            });
+
+            return request.info.remoteAddress;
+        };
+
+        server.route({ method: 'get', path: '/', handler });
+
+        await server.start();
+        flags.onCleanup = () => server.stop();
+
+        const { payload } = await Wreck.get('http://localhost:' + server.info.port);
+        expect(payload.toString()).to.equal('::ffff:0:0:0:0:1');
+    });
+
+    it('sets client address (ipv4-mapped ipv6)', async (flags) => {
+
+        const server = Hapi.server();
+
+        const handler = (request) => {
+
+            Object.defineProperty(request.raw.req.socket, 'remoteAddress', {
+                value: '::ffff:100.100.100.100'
+            });
+
+            return request.info.remoteAddress;
+        };
+
+        server.route({ method: 'get', path: '/', handler });
+
+        await server.start();
+        flags.onCleanup = () => server.stop();
+
+        const { payload } = await Wreck.get('http://localhost:' + server.info.port);
+        expect(payload.toString()).to.equal('100.100.100.100');
     });
 
     it('sets port to nothing when not available', async () => {
