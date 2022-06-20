@@ -12,7 +12,7 @@ const Stream = require('stream');
 const TLS = require('tls');
 
 const Boom = require('@hapi/boom');
-const CatboxMemory = require('@hapi/catbox-memory');
+const { Engine: CatboxMemory } = require('@hapi/catbox-memory');
 const Code = require('@hapi/code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');

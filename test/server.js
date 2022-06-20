@@ -4,7 +4,7 @@ const Path = require('path');
 const Zlib = require('zlib');
 
 const Boom = require('@hapi/boom');
-const CatboxMemory = require('@hapi/catbox-memory');
+const { Engine: CatboxMemory } = require('@hapi/catbox-memory');
 const Code = require('@hapi/code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
