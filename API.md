@@ -1539,11 +1539,11 @@ async function example() {
     const server = Hapi.server({ port: 80 });
     server.event('test');
     server.events.on('test', (update) => console.log(update));
-    await server.events.emit('test', 'hello');
+    await server.events.gauge('test', 'hello');
 }
 ```
 
-### <a name="server.events.emit()" /> `await server.events.emit(criteria, data)`
+### <a name="server.events.emit()" /> `server.events.emit(criteria, data)`
 
 Emits a custom application event to all the subscribed listeners where:
 
@@ -1569,7 +1569,7 @@ async function example() {
     const server = Hapi.server({ port: 80 });
     server.event('test');
     server.events.on('test', (update) => console.log(update));
-    await server.events.emit('test', 'hello');          // await is optional
+    server.events.emit('test', 'hello');
 }
 ```
 
@@ -1633,7 +1633,7 @@ async function example() {
     const server = Hapi.server({ port: 80 });
     server.event('test');
     server.events.on('test', (update) => console.log(update));
-    await server.events.emit('test', 'hello');
+    server.events.emit('test', 'hello');
 }
 ```
 
@@ -1651,8 +1651,8 @@ async function example() {
     const server = Hapi.server({ port: 80 });
     server.event('test');
     server.events.once('test', (update) => console.log(update));
-    await server.events.emit('test', 'hello');
-    await server.events.emit('test', 'hello');       // Ignored
+    server.events.emit('test', 'hello');
+    server.events.emit('test', 'hello');       // Ignored
 }
 ```
 
@@ -1670,10 +1670,16 @@ async function example() {
     const server = Hapi.server({ port: 80 });
     server.event('test');
     const pending = server.events.once('test');
-    await server.events.emit('test', 'hello');
+    server.events.emit('test', 'hello');
     const update = await pending;
 }
 ```
+
+### <a name="server.events.gauge()" /> `await server.events.gauge(criteria, data)`
+
+Behaves identically to [`server.events.emit()`](#server.events.emit()), but also returns an array of the results of all the event listeners that run. The return value is that of `Promise.allSettled()`, where each item in the resulting array is `{ status: 'fulfilled', value }` in the case of a successful handler, or `{ status: 'rejected', reason }` in the case of a handler that throws.
+
+Please note that system errors such as a `TypeError` are not handled specially, and it's recommended to scrutinize any rejections using something like [bounce](https://hapi.dev/module/bounce/).
 
 ### <a name="server.expose()" /> `server.expose(key, value, [options])`
 

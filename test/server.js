@@ -4,7 +4,7 @@ const Path = require('path');
 const Zlib = require('zlib');
 
 const Boom = require('@hapi/boom');
-const CatboxMemory = require('@hapi/catbox-memory');
+const { Engine: CatboxMemory } = require('@hapi/catbox-memory');
 const Code = require('@hapi/code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
@@ -858,7 +858,7 @@ describe('Server', () => {
 
             server.events.emit('test', 1);
             server.events.emit({ name: 'test', channel: 'x' }, 2);
-            await plugin.events.emit({ name: 'test', channel: 'y' }, 3);
+            plugin.events.emit({ name: 'test', channel: 'y' }, 3);
 
             expect(updates).to.equal([
                 { id: 'server', update: 1 },
