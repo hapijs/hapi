@@ -1461,6 +1461,7 @@ describe('Request', () => {
         it('handles hostname in HTTP request resource', async () => {
 
             const server = Hapi.server({ debug: false });
+            const team = new Teamwork.Team();
 
             let hostname;
             server.route({
@@ -1469,13 +1470,14 @@ describe('Request', () => {
                 handler: (request) => {
 
                     hostname = request.info.hostname;
+                    team.attend();
                     return null;
                 }
             });
 
             await server.start();
             const socket = Net.createConnection(server.info.port, '127.0.0.1', () => socket.write('GET http://host.com\r\n\r\n'));
-            await Hoek.wait(10);
+            await team.work;
             socket.destroy();
             await server.stop();
             expect(hostname).to.equal('host.com');

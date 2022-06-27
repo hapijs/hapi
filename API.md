@@ -1907,7 +1907,7 @@ injections, with some additional options and response properties:
 
     - `plugins` - (optional) sets the initial value of `request.plugins`, defaults to `{}`.
 
-    - `allowInternals` - (optional) allows access to routes with `config.isInternal` set to `true`.
+    - `allowInternals` - (optional) allows access to routes with `options.isInternal` set to `true`.
       Defaults to `false`.
 
     - `remoteAddress` - (optional) sets the remote address for the incoming connection.
