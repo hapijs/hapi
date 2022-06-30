@@ -572,6 +572,35 @@ describe('transmission', () => {
             expect(request.info.completed).to.be.above(0);
             expect(request.info.responded).to.equal(0);
         });
+
+        it('does not crash when request is invalid and JSON payload triggers parse error', async () => {
+
+            const server = Hapi.server();
+            server.route({ 
+                method: 'POST',
+                path: '/',
+                options: { payload: { parse: true } },
+                handler: (req, h) => 'ok'
+            });
+            await server.start();
+            const log = server.events.once('response');
+            const client = Net.connect(server.info.port, () => {
+
+                client.write('POST / HTTP/1.1\r\n');
+                client.write('Host: localhost\r\n');
+                client.write('Content-Length: 5\r\n');
+                client.write('Transfer Encoding:chunked\r\n');
+                client.write('\r\n');
+                client.write('1\r\n');
+                client.write('Z\n\Q\n\n');
+                client.end();
+            });
+
+            const [request] = await log;
+            expect(request._isReplied).to.equal(true);
+            expect(request.response.statusCode).to.equal(400);
+            expect(request.info.completed).to.be.above(0);
+        });
     });
 
     describe('transmit()', () => {
