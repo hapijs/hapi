@@ -2790,6 +2790,24 @@ describe('Server', () => {
             await expect(server.register(test)).to.not.reject();
         });
 
+        it('validates node version, allowing prereleases', async (flags) => {
+
+            const test = {
+                name: 'test',
+                requirements: {
+                    node: '>=8.x.x'
+                },
+                register: function (srv, options) { }
+            };
+
+            const origVersion = process.version;
+            Object.defineProperty(process, 'version', { value: 'v100.0.0-beta' });
+            flags.onCleanup = () => Object.defineProperty(process, 'version', { value: origVersion });
+
+            const server = Hapi.server();
+            await expect(server.register(test)).to.not.reject();
+        });
+
         it('errors on invalid node version', async () => {
 
             const test = {
@@ -2818,6 +2836,21 @@ describe('Server', () => {
             await expect(server.register(test)).to.not.reject();
         });
 
+        it('validates hapi version, allowing prereleases', async () => {
+
+            const test = {
+                name: 'test',
+                requirements: {
+                    hapi: '>=17.x.x'
+                },
+                register: function (srv, options) { }
+            };
+
+            const server = Hapi.server();
+            server.version = '100.0.0-beta';
+            await expect(server.register(test)).to.not.reject();
+        });
+
         it('errors on invalid hapi version', async () => {
 
             const test = {
@@ -2830,6 +2863,37 @@ describe('Server', () => {
 
             const server = Hapi.server();
             await expect(server.register(test)).to.reject(`Plugin test requires hapi version 4.x.x but found ${Pkg.version}`);
+        });
+
+        it('validates plugin version, allowing prereleases', async () => {
+
+            const a = {
+                name: 'a',
+                version: '0.1.2',
+                dependencies: {
+                    b: '>=3.x.x',
+                    c: '>=2.x.x'
+                },
+                register: Hoek.ignore
+            };
+
+            const b = {
+                name: 'b',
+                version: '4.0.0-beta',
+                register: Hoek.ignore
+            };
+
+            const c = {
+                name: 'c',
+                version: '2.3.4',
+                register: Hoek.ignore
+            };
+
+            const server = Hapi.server();
+            await server.register(b);
+            await server.register(c);
+            await server.register(a);
+            await expect(server.initialize()).to.not.reject();
         });
 
         it('errors on invalid plugin version', async () => {

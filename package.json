@@ -35,7 +35,7 @@
     "@hapi/mimos": "^7.0.0",
     "@hapi/podium": "^5.0.0",
     "@hapi/shot": "^6.0.0",
-    "@hapi/somever": "^4.0.0",
+    "@hapi/somever": "^4.1.0",
     "@hapi/statehood": "^8.0.0",
     "@hapi/subtext": "^8.0.0",
     "@hapi/teamwork": "^6.0.0",
