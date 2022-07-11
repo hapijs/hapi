@@ -835,7 +835,7 @@ describe('Core', () => {
             await server.start();
 
             const socket = await internals.socket(server);
-            socket.write('GET / HTTP/1.0\nHost: test\n\n');
+            socket.write('GET / HTTP/1.0\r\nHost: test\r\n\r\n');
             await Hoek.wait(10);
 
             const count1 = await internals.countConnections(server);
@@ -853,7 +853,7 @@ describe('Core', () => {
             await server.start();
 
             const socket = await internals.socket(server);
-            socket.write('GET / HTTP/1.0\nHost: test\n\n');
+            socket.write('GET / HTTP/1.0\r\nHost: test\r\n\r\n');
             await Hoek.wait(10);
 
             const count1 = await internals.countConnections(server);
@@ -874,7 +874,7 @@ describe('Core', () => {
             await server.start();
 
             const socket = await internals.socket(server);
-            socket.write('GET / HTTP/1.1\nHost: test\nConnection: Keep-Alive\n\n\n');
+            socket.write('GET / HTTP/1.1\r\nHost: test\r\nConnection: Keep-Alive\r\n\r\n\r\n');
             await new Promise((resolve) => socket.on('data', resolve));
 
             const count = await internals.countConnections(server);
@@ -892,7 +892,7 @@ describe('Core', () => {
             await server.start();
 
             const socket = await internals.socket(server);
-            socket.write('GET / HTTP/1.0\nHost: test\n\n');
+            socket.write('GET / HTTP/1.0\r\nHost: test\r\n\r\n');
             await Hoek.wait(10);
 
             const count1 = await internals.countConnections(server);
