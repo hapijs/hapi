@@ -61,7 +61,7 @@ describe('handler', () => {
             server.route({ method: 'GET', path: '/', handler });
             server.on('request-error', (request, err) => {
 
-                expect(err.message).to.equal('Uncaught error: Cannot read property \'here\' of null');
+                expect(err.message).to.equal('Uncaught error: Cannot read properties of null (reading \'here\')' );
                 done();
             });
 
