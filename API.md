@@ -437,8 +437,8 @@ Use the following methods to interact with `server.events`:
 
 - [`server.event(events)`](#server.event()) - register application events.
 - [`server.events.emit(criteria, data)`](#server.events.emit()) - emit server events.
-- [`server.events.on(criteria, listener)`](#server.events.on()) - subscribe to all events.
-- [`server.events.once(criteria, listener)`](#server.events.once()) - subscribe to
+- [`server.events.on(criteria, listener, context)`](#server.events.on()) - subscribe to all events.
+- [`server.events.once(criteria, listener, context)`](#server.events.once()) - subscribe to
 
 Other methods include: `server.events.removeListener(name, listener)`,
 `server.events.removeAllListeners(name)`, and `server.events.hasListeners(name)`.
@@ -1573,7 +1573,7 @@ async function example() {
 }
 ```
 
-### <a name="server.events.on()" /> `server.events.on(criteria, listener)`
+### <a name="server.events.on()" /> `server.events.on(criteria, listener, context)`
 
 Subscribe to an event where:
 
@@ -1622,6 +1622,7 @@ Subscribe to an event where:
 
 - `listener` - the handler method set to receive event updates. The function signature depends on
   the event argument, and the `spread` and `tags` options.
+- `context` - an object that binds to the listener handler.
 
 Return value: none.
 
@@ -1637,7 +1638,7 @@ async function example() {
 }
 ```
 
-### <a name="server.events.once()" /> `server.events.once(criteria, listener)`
+### <a name="server.events.once()" /> `server.events.once(criteria, listener, context)`
 
 Same as calling [`server.events.on()`](#server.events.on()) with the `count` option set to `1`.
 
