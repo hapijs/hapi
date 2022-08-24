@@ -438,7 +438,7 @@ Use the following methods to interact with `server.events`:
 - [`server.event(events)`](#server.event()) - register application events.
 - [`server.events.emit(criteria, data)`](#server.events.emit()) - emit server events.
 - [`server.events.on(criteria, listener, context)`](#server.events.on()) - subscribe to all events.
-- [`server.events.once(criteria, listener, context)`](#server.events.once()) - subscribe to
+- [`server.events.once(criteria, listener, context)`](#server.events.once()) - subscribe to a single event.
 
 Other methods include: `server.events.removeListener(name, listener)`,
 `server.events.removeAllListeners(name)`, and `server.events.hasListeners(name)`.
