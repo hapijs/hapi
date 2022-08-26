@@ -5,6 +5,7 @@
   "version": "20.2.2",
   "repository": "git://github.com/hapijs/hapi",
   "main": "lib/index.js",
+  "types": "lib/types.d.ts",
   "engines": {
     "node": ">=12.0.0"
   },
@@ -34,7 +35,7 @@
     "@hapi/hoek": "^9.0.4",
     "@hapi/mimos": "^6.0.0",
     "@hapi/podium": "^4.1.1",
-    "@hapi/shot": "^5.0.5",
+    "@hapi/shot": "^6.0.0",
     "@hapi/somever": "^3.0.0",
     "@hapi/statehood": "^7.0.4",
     "@hapi/subtext": "^7.0.3",
@@ -43,6 +44,8 @@
     "@hapi/validate": "^1.1.1"
   },
   "devDependencies": {
+    "@types/node": "^16",
+    "typescript": "^4.8.2",
     "@hapi/code": "^8.0.0",
     "@hapi/eslint-plugin": "*",
     "@hapi/inert": "^6.0.2",
