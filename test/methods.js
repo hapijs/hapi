@@ -1,7 +1,7 @@
 'use strict';
 
 const Catbox = require('@hapi/catbox');
-const CatboxMemory = require('@hapi/catbox-memory');
+const { Engine: CatboxMemory } = require('@hapi/catbox-memory');
 const Code = require('@hapi/code');
 const Hapi = require('..');
 const Hoek = require('@hapi/hoek');

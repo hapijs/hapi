@@ -26,11 +26,11 @@ All options are optionals.
 
 #### <a name="server.options.address" /> `server.options.address`
 
-Default value: `'0.0.0.0'` (all available network interfaces).
+Default value: `'::'` if IPv6 is available, otherwise `'0.0.0.0'` (i.e. all available network interfaces).
 
 Sets the hostname or IP address the server will listen on. If not configured, defaults to
 [`host`](#server.options.host) if present, otherwise to all available network interfaces. Set to
-`'127.0.0.1'` or `'localhost'` to restrict the server to only those coming from the same host.
+`'127.0.0.1'`, `'::1'`, or `'localhost'` to restrict the server to only those coming from the same host.
 
 #### <a name="server.options.app" /> `server.options.app`
 
@@ -1539,11 +1539,11 @@ async function example() {
     const server = Hapi.server({ port: 80 });
     server.event('test');
     server.events.on('test', (update) => console.log(update));
-    await server.events.emit('test', 'hello');
+    await server.events.gauge('test', 'hello');
 }
 ```
 
-### <a name="server.events.emit()" /> `await server.events.emit(criteria, data)`
+### <a name="server.events.emit()" /> `server.events.emit(criteria, data)`
 
 Emits a custom application event to all the subscribed listeners where:
 
@@ -1569,7 +1569,7 @@ async function example() {
     const server = Hapi.server({ port: 80 });
     server.event('test');
     server.events.on('test', (update) => console.log(update));
-    await server.events.emit('test', 'hello');          // await is optional
+    server.events.emit('test', 'hello');
 }
 ```
 
@@ -1634,7 +1634,7 @@ async function example() {
     const server = Hapi.server({ port: 80 });
     server.event('test');
     server.events.on('test', (update) => console.log(update));
-    await server.events.emit('test', 'hello');
+    server.events.emit('test', 'hello');
 }
 ```
 
@@ -1652,8 +1652,8 @@ async function example() {
     const server = Hapi.server({ port: 80 });
     server.event('test');
     server.events.once('test', (update) => console.log(update));
-    await server.events.emit('test', 'hello');
-    await server.events.emit('test', 'hello');       // Ignored
+    server.events.emit('test', 'hello');
+    server.events.emit('test', 'hello');       // Ignored
 }
 ```
 
@@ -1671,10 +1671,16 @@ async function example() {
     const server = Hapi.server({ port: 80 });
     server.event('test');
     const pending = server.events.once('test');
-    await server.events.emit('test', 'hello');
+    server.events.emit('test', 'hello');
     const update = await pending;
 }
 ```
+
+### <a name="server.events.gauge()" /> `await server.events.gauge(criteria, data)`
+
+Behaves identically to [`server.events.emit()`](#server.events.emit()), but also returns an array of the results of all the event listeners that run. The return value is that of `Promise.allSettled()`, where each item in the resulting array is `{ status: 'fulfilled', value }` in the case of a successful handler, or `{ status: 'rejected', reason }` in the case of a handler that throws.
+
+Please note that system errors such as a `TypeError` are not handled specially, and it's recommended to scrutinize any rejections using something like [bounce](https://hapi.dev/module/bounce/).
 
 ### <a name="server.expose()" /> `server.expose(key, value, [options])`
 
@@ -2895,6 +2901,9 @@ object with the following options:
 - `credentials` - if `true`, allows user credentials to be sent
   ('Access-Control-Allow-Credentials'). Defaults to `false`.
 
+ - `preflightStatusCode` - the status code used for CORS preflight responses, either `200` or `204`.
+   Defaults to `200`.
+
 ### <a name="route.options.description" /> `route.options.description`
 
 Default value: none.
@@ -2973,21 +2982,6 @@ string payload or escaping it after stringification. Supports the following:
 
 - `escape` - calls [`Hoek.jsonEscape()`](https://hapi.dev/family/hoek/api/#escapejsonstring)
   after conversion to JSON string. Defaults to `false`.
-
-### <a name="route.options.jsonp" /> `route.options.jsonp`
-
-Default value: none.
-
-Enables JSONP support by setting the value to the query parameter name containing the function name
-used to wrap the response payload.
-
-For example, if the value is `'callback'`, a request comes in with `'callback=me'`, and the JSON
-response is `'{ "a":"b" }'`, the payload will be `'me({ "a":"b" });'`. Cannot be used with stream
-responses.
-
-The 'Content-Type' response header is set to `'text/javascript'` and the 'X-Content-Type-Options'
-response header is set to `'nosniff'`, and will override those headers even if explicitly set by
-[`response.type()`](#response.type()).
 
 ### <a name="route.options.log" /> `route.options.log`
 
@@ -3361,13 +3355,17 @@ following options:
           otherwise this field is ignored. If `rule` is `'allow-from'` but `source` is unset, the
           rule will be automatically changed to `'sameorigin'`.
 
-- `xss` - boolean that controls the 'X-XSS-PROTECTION' header for Internet Explorer. Defaults to
-  `true` which sets the header to equal `'1; mode=block'`.
-    - Note: this setting can create a security vulnerability in versions of Internet Exploere below
-      8, as well as unpatched versions of IE8. See [here](https://hackademix.net/2009/11/21/ies-xss-filter-creates-xss-vulnerabilities/)
-      and [here](https://technet.microsoft.com/library/security/ms10-002) for more information. If
-      you actively support old versions of IE, it may be wise to explicitly set this flag to
-      `false`.
+- `xss` - controls the 'X-XSS-Protection' header, where:
+
+    - `'disable'` - the header will be set to `'0'`.  This is the default value.
+    - `'enable'` - the header will be set to `'1; mode=block'`.
+    - `false` - the header will be omitted.
+
+    Note: when enabled, this setting can create a security vulnerabilities in versions of Internet Explorer
+    below 8, unpatched versions of IE8, and browsers that employ an XSS filter/auditor. See
+    [here](https://hackademix.net/2009/11/21/ies-xss-filter-creates-xss-vulnerabilities/),
+    [here](https://technet.microsoft.com/library/security/ms10-002), and
+    [here](https://blog.innerht.ml/the-misunderstood-x-xss-protection/) for more information.
 
 - `noOpen` - boolean controlling the 'X-Download-Options' header for Internet Explorer, preventing
   downloads from executing in your context. Defaults to `true` setting the header to `'noopen'`.
@@ -3448,7 +3446,8 @@ Default value: `'error'` (return a Bad Request (400) error response).
 
 A [`failAction` value](#lifecycle-failAction) which determines how to handle failed validations.
 When set to a function, the `err` argument includes the type of validation error under
-`err.output.payload.validation.source`.
+`err.output.payload.validation.source`. The default error that would otherwise have been logged
+ or returned can be accessed under `err.data.defaultError`.
 
 #### <a name="route.options.validate.headers" /> `route.options.validate.headers`
 
@@ -3616,18 +3615,11 @@ the same. The following is the complete list of steps a request can go through:
     - [`request.route`](#request.route) is unassigned.
     - [`request.url`](#request.url) can be `null` if the incoming request path is invalid.
     - [`request.path`](#request.path) can be an invalid path.
-    - JSONP configuration is ignored for any response returned from the extension point since no
-      route is matched yet and the JSONP configuration is unavailable.
 
 - _**Route lookup**_
     - lookup based on `request.path` and `request.method`.
     - skips to _**onPreResponse**_ if no route is found or if the path violates the HTTP
       specification.
-
-- _**JSONP processing**_
-    - based on the route [`jsonp`](#route.options.jsonp) option.
-    - parses JSONP parameter from [`request.query`](#request.query).
-    - skips to _**Response validation**_ on error.
 
 - _**Cookies processing**_
     - based on the route [`state`](#route.options.state) option.
@@ -3662,10 +3654,6 @@ the same. The following is the complete list of steps a request can go through:
 - _**Path parameters validation**_
     - based on the route [`validate.params`](#route.options.validate.params) option.
     - error handling based on [`failAction`](#route.options.validate.failAction).
-
-- _**JSONP cleanup**_
-    - based on the route [`jsonp`](#route.options.jsonp) option.
-    - remove the JSONP parameter from [`request.query`](#request.query).
 
 - _**Query validation**_
     - based on the route [`validate.query`](#route.options.validate.query) option.

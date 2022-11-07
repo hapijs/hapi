@@ -59,7 +59,7 @@ describe('CORS', () => {
         server.route({ method: 'GET', path: '/b', handler: () => 'ok' });
 
         const res1 = await server.inject({ method: 'OPTIONS', url: '/a', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } });
-        expect(res1.statusCode).to.equal(204);
+        expect(res1.statusCode).to.equal(200);
         expect(res1.result).to.be.null();
         expect(res1.headers['access-control-allow-origin']).to.equal('http://example.com/');
 
@@ -77,12 +77,12 @@ describe('CORS', () => {
         server.route({ method: 'GET', path: '/c', handler: () => 'ok' });
 
         const res1 = await server.inject({ method: 'OPTIONS', url: '/a', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } });
-        expect(res1.statusCode).to.equal(204);
+        expect(res1.statusCode).to.equal(200);
         expect(res1.result).to.be.null();
         expect(res1.headers['access-control-allow-origin']).to.equal('http://example.com/');
 
         const res2 = await server.inject({ method: 'OPTIONS', url: '/b', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } });
-        expect(res2.statusCode).to.equal(204);
+        expect(res2.statusCode).to.equal(200);
         expect(res2.result).to.be.null();
         expect(res2.headers['access-control-allow-origin']).to.equal('http://example.com/');
 
@@ -99,7 +99,7 @@ describe('CORS', () => {
         server.route({ method: 'POST', path: '/a', handler: () => 'ok', options: { cors: true } });
 
         const res = await server.inject({ method: 'OPTIONS', url: '/a', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } });
-        expect(res.statusCode).to.equal(204);
+        expect(res.statusCode).to.equal(200);
         expect(res.result).to.be.null();
         expect(res.headers['access-control-allow-origin']).to.equal('http://example.com/');
     });
@@ -111,12 +111,12 @@ describe('CORS', () => {
         server.route({ method: 'GET', path: '/b', handler: () => 'ok' });
 
         const res1 = await server.inject({ method: 'OPTIONS', url: '/a', headers: { origin: 'a', 'access-control-request-method': 'GET' } });
-        expect(res1.statusCode).to.equal(204);
+        expect(res1.statusCode).to.equal(200);
         expect(res1.result).to.be.null();
         expect(res1.headers['access-control-allow-origin']).to.equal('a');
 
         const res2 = await server.inject({ method: 'OPTIONS', url: '/b', headers: { origin: 'b', 'access-control-request-method': 'GET' } });
-        expect(res2.statusCode).to.equal(204);
+        expect(res2.statusCode).to.equal(200);
         expect(res2.result).to.be.null();
         expect(res2.headers['access-control-allow-origin']).to.equal('b');
     });
@@ -143,7 +143,7 @@ describe('CORS', () => {
         expect(res1.headers['access-control-allow-credentials']).to.equal('true');
 
         const res2 = await server.inject({ method: 'OPTIONS', url: '/', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } });
-        expect(res2.statusCode).to.equal(204);
+        expect(res2.statusCode).to.equal(200);
         expect(res2.result).to.equal(null);
         expect(res2.headers['access-control-allow-credentials']).to.equal('true');
 
@@ -219,7 +219,7 @@ describe('CORS', () => {
             expect(res1.headers['access-control-allow-origin']).to.equal('http://example.com/');
 
             const res2 = await server.inject({ method: 'OPTIONS', url: '/', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } });
-            expect(res2.statusCode).to.equal(204);
+            expect(res2.statusCode).to.equal(200);
             expect(res2.result).to.be.null();
             expect(res2.headers['access-control-allow-origin']).to.equal('http://example.com/');
         });
@@ -242,7 +242,7 @@ describe('CORS', () => {
             server.route({ method: 'GET', path: '/', handler: () => 'ok' });
 
             const res = await server.inject({ method: 'OPTIONS', url: '/', headers: { origin: 'http://test.example.com', 'access-control-request-method': 'GET' } });
-            expect(res.statusCode).to.equal(204);
+            expect(res.statusCode).to.equal(200);
             expect(res.payload.length).to.equal(0);
             expect(res.headers['access-control-allow-origin']).to.equal('http://test.example.com');
         });
@@ -377,7 +377,7 @@ describe('CORS', () => {
             expect(res1.headers['access-control-expose-headers']).to.not.exist();
 
             const res2 = await server.inject({ method: 'OPTIONS', url: '/', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } });
-            expect(res2.statusCode).to.equal(204);
+            expect(res2.statusCode).to.equal(200);
             expect(res2.headers['access-control-allow-origin']).to.equal('http://example.com/');
             expect(res2.headers['access-control-expose-headers']).to.not.exist();
         });
@@ -465,7 +465,7 @@ describe('CORS', () => {
                 }
             });
 
-            expect(res.statusCode).to.equal(204);
+            expect(res.statusCode).to.equal(200);
             expect(res.headers['access-control-allow-origin']).to.equal('*');
 
         });
@@ -484,7 +484,7 @@ describe('CORS', () => {
                 }
             });
 
-            expect(res.statusCode).to.equal(204);
+            expect(res.statusCode).to.equal(200);
             expect(res.headers['access-control-allow-origin']).to.equal('*');
         });
 
@@ -503,7 +503,7 @@ describe('CORS', () => {
                 }
             });
 
-            expect(res.statusCode).to.equal(204);
+            expect(res.statusCode).to.equal(200);
             expect(res.headers['access-control-allow-headers']).to.equal('Accept,Authorization,Content-Type,If-None-Match');
         });
 
@@ -522,7 +522,7 @@ describe('CORS', () => {
                 }
             });
 
-            expect(res.statusCode).to.equal(204);
+            expect(res.statusCode).to.equal(200);
             expect(res.headers['access-control-allow-headers']).to.equal('Accept,Authorization,Content-Type,If-None-Match');
         });
 
@@ -541,9 +541,38 @@ describe('CORS', () => {
                 }
             });
 
-            expect(res.statusCode).to.equal(204);
+            expect(res.statusCode).to.equal(200);
             expect(res.headers['access-control-allow-headers']).to.equal('Accept,Authorization,Content-Type,If-None-Match,Origin');
             expect(res.headers['access-control-expose-headers']).to.equal('WWW-Authenticate,Server-Authorization');
+        });
+
+        it('responds with configured preflight status code', async () => {
+
+            const server = Hapi.server({ routes: { cors: { preflightStatusCode: 204 } } });
+            server.route({ method: 'GET', path: '/204', handler: () => 'ok', options: { cors: true } });
+            server.route({ method: 'GET', path: '/200', handler: () => 'ok', options: { cors: { preflightStatusCode: 200 } } });
+
+            const res1 = await server.inject({
+                method: 'OPTIONS',
+                url: '/204',
+                headers: {
+                    origin: 'http://test.example.com',
+                    'access-control-request-method': 'GET'
+                }
+            });
+
+            expect(res1.statusCode).to.equal(204);
+
+            const res2 = await server.inject({
+                method: 'OPTIONS',
+                url: '/200',
+                headers: {
+                    origin: 'http://test.example.com',
+                    'access-control-request-method': 'GET'
+                }
+            });
+
+            expect(res2.statusCode).to.equal(200);
         });
 
         it('matches allowed headers (Origin implicit)', async () => {
@@ -561,7 +590,7 @@ describe('CORS', () => {
                 }
             });
 
-            expect(res.statusCode).to.equal(204);
+            expect(res.statusCode).to.equal(200);
             expect(res.headers['access-control-allow-headers']).to.equal('Accept,Authorization,Content-Type,If-None-Match');
         });
 
@@ -594,7 +623,7 @@ describe('CORS', () => {
             });
 
             const res = await server.inject({ method: 'OPTIONS', url: '/', headers: { origin: 'http://example.com/', 'access-control-request-method': 'GET' } });
-            expect(res.statusCode).to.equal(204);
+            expect(res.statusCode).to.equal(200);
             expect(res.headers['access-control-allow-credentials']).to.equal('true');
         });
 
@@ -609,7 +638,7 @@ describe('CORS', () => {
             });
 
             const res = await server.inject({ method: 'OPTIONS', url: 'http://example.com:4000/', headers: { origin: 'http://localhost', 'access-control-request-method': 'POST' } });
-            expect(res.statusCode).to.equal(204);
+            expect(res.statusCode).to.equal(200);
             expect(res.headers['access-control-allow-methods']).to.equal('POST');
         });
     });

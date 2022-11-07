@@ -16,7 +16,6 @@ const Hoek = require('@hapi/hoek');
 const Bounce = require('@hapi/bounce');
 const Inert = require('@hapi/inert');
 const Lab = require('@hapi/lab');
-const LegacyReadableStream = require('legacy-readable-stream');
 const Teamwork = require('@hapi/teamwork');
 const Wreck = require('@hapi/wreck');
 
@@ -25,13 +24,11 @@ const Common = require('./common');
 const internals = {};
 
 
-const { describe, it, before } = exports.lab = Lab.script();
+const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
 
 
 describe('transmission', () => {
-
-    before(Common.setDefaultDnsOrder);
 
     describe('send()', () => {
 
@@ -360,138 +357,6 @@ describe('transmission', () => {
 
             const res = await server.inject('/stream');
             expect(res.statusCode).to.equal(201);
-        });
-
-        it('returns an JSONP response', async () => {
-
-            const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler: () => ({ some: 'value' }) } });
-
-            const res = await server.inject('/?callback=me');
-            expect(res.payload).to.equal('/**/me({"some":"value"});');
-            expect(res.headers['content-length']).to.equal(25);
-            expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
-        });
-
-        it('returns an JSONP response with no payload', async () => {
-
-            const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler: () => null } });
-
-            const res = await server.inject('/?callback=me');
-            expect(res.payload).to.equal('/**/me();');
-            expect(res.headers['content-length']).to.equal(9);
-            expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
-        });
-
-        it('returns an JSONP response (no charset)', async () => {
-
-            const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler: (request, h) => h.response({ some: 'value' }).charset('') } });
-
-            const res = await server.inject('/?callback=me');
-            expect(res.payload).to.equal('/**/me({"some":"value"});');
-            expect(res.headers['content-length']).to.equal(25);
-            expect(res.headers['content-type']).to.equal('text/javascript');
-        });
-
-        it('returns a X-Content-Type-Options: nosniff header on JSONP responses', async () => {
-
-            const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler: () => ({ some: 'value' }) } });
-
-            const res = await server.inject('/?callback=me');
-            expect(res.payload).to.equal('/**/me({"some":"value"});');
-            expect(res.headers['x-content-type-options']).to.equal('nosniff');
-        });
-
-        it('returns a normal response when JSONP enabled but not requested', async () => {
-
-            const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler: () => ({ some: 'value' }) } });
-
-            const res = await server.inject('/');
-            expect(res.payload).to.equal('{"some":"value"}');
-        });
-
-        it('returns an JSONP response with compression', async () => {
-
-            const server = Hapi.server({ compression: { minBytes: 1 } });
-            server.route({
-                method: 'GET',
-                path: '/user/{name*2}',
-                options: {
-                    handler: (request) => {
-
-                        const parts = request.params.name.split('/');
-                        return { first: parts[0], last: parts[1] };
-                    },
-                    jsonp: 'callback'
-                }
-            });
-
-            const res = await server.inject({ url: '/user/1/2?callback=docall', headers: { 'accept-encoding': 'gzip' } });
-            expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
-            expect(res.headers['content-encoding']).to.equal('gzip');
-            expect(res.headers.vary).to.equal('accept-encoding');
-
-            const uncompressed = await internals.uncompress('unzip', res.rawPayload);
-            expect(uncompressed.toString()).to.equal('/**/docall({"first":"1","last":"2"});');
-        });
-
-        it('returns an JSONP response when response is a buffer', async () => {
-
-            const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler: () => Buffer.from('value') } });
-
-            const res = await server.inject('/?callback=me');
-            expect(res.payload).to.equal('/**/me(value);');
-            expect(res.headers['content-length']).to.equal(14);
-        });
-
-        it('returns response on bad JSONP parameter', async () => {
-
-            const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler: () => ({ some: 'value' }) } });
-
-            const res = await server.inject('/?callback=me*');
-            expect(res.result).to.exist();
-            expect(res.result.message).to.equal('Invalid JSONP parameter value');
-        });
-
-        it('returns an JSONP handler error', async () => {
-
-            const handler = () => {
-
-                throw Boom.badRequest('wrong');
-            };
-
-            const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler } });
-
-            const res = await server.inject('/?callback=me');
-            expect(res.payload).to.equal('/**/me({"statusCode":400,"error":"Bad Request","message":"wrong"});');
-            expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
-        });
-
-        it('returns an JSONP state error', async () => {
-
-            const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler: () => 'ok' } });
-
-            let validState = false;
-            const preResponse = (request, h) => {
-
-                validState = request.state && typeof request.state === 'object';
-                return h.continue;
-            };
-
-            server.ext('onPreResponse', preResponse);
-
-            const res = await server.inject({ method: 'GET', url: '/?callback=me', headers: { cookie: '+' } });
-            expect(res.payload).to.equal('/**/me({"statusCode":400,"error":"Bad Request","message":"Invalid cookie header"});');
-            expect(res.headers['content-type']).to.equal('text/javascript; charset=utf-8');
-            expect(validState).to.equal(true);
         });
 
         it('sets specific caching headers', async () => {
@@ -1464,84 +1329,6 @@ describe('transmission', () => {
 
             await team.work;
             await server.stop();
-        });
-
-        it('close() stream when no destroy() method', async () => {
-
-            const server = Hapi.server();
-
-            const team = new Teamwork.Team();
-            const handler = (request) => {
-
-                const stream = new LegacyReadableStream.Readable();
-                stream._read = function (size) {
-
-                    const chunk = new Array(size).join('x');
-
-                    setTimeout(() => {
-
-                        this.push(chunk);
-                    }, 10);
-                };
-
-                stream.close = () => team.attend();
-
-                return stream;
-            };
-
-            server.route({ method: 'GET', path: '/', handler });
-
-            await server.start();
-
-            const res = await Wreck.request('GET', 'http://localhost:' + server.info.port);
-            res.once('data', (chunk) => {
-
-                res.destroy();
-            });
-
-            await team.work;
-            await server.stop();
-
-            expect(res.statusCode).to.equal(200);
-        });
-
-        it('unpipe() stream when no destroy() or close() method', async () => {
-
-            const server = Hapi.server();
-
-            const team = new Teamwork.Team();
-            const handler = (request) => {
-
-                const stream = new LegacyReadableStream.Readable();
-                stream._read = function (size) {
-
-                    const chunk = new Array(size).join('x');
-
-                    setTimeout(() => {
-
-                        this.push(chunk);
-                    }, 10);
-                };
-
-                stream.unpipe = () => team.attend();
-
-                return stream;
-            };
-
-            server.route({ method: 'GET', path: '/', handler });
-
-            await server.start();
-
-            const res = await Wreck.request('GET', 'http://localhost:' + server.info.port);
-            res.once('data', (chunk) => {
-
-                res.destroy();
-            });
-
-            await team.work;
-            await server.stop();
-
-            expect(res.statusCode).to.equal(200);
         });
 
         it('changes etag when content-encoding set manually', async () => {

@@ -1,12 +1,11 @@
 'use strict';
 
 const Boom = require('@hapi/boom');
-const CatboxMemory = require('@hapi/catbox-memory');
+const { Engine: CatboxMemory } = require('@hapi/catbox-memory');
 const Code = require('@hapi/code');
 const Hapi = require('..');
 const Inert = require('@hapi/inert');
 const Lab = require('@hapi/lab');
-const Wreck = require('@hapi/wreck');
 
 
 const internals = {};
@@ -214,7 +213,7 @@ describe('Headers', () => {
             expect(res.result).to.equal('Test');
             expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
             expect(res.headers['x-frame-options']).to.equal('DENY');
-            expect(res.headers['x-xss-protection']).to.equal('1; mode=block');
+            expect(res.headers['x-xss-protection']).to.equal('0');
             expect(res.headers['x-download-options']).to.equal('noopen');
             expect(res.headers['x-content-type-options']).to.equal('nosniff');
         });
@@ -244,7 +243,7 @@ describe('Headers', () => {
             expect(res.result).to.equal('Test');
             expect(res.headers['strict-transport-security']).to.not.exist();
             expect(res.headers['x-frame-options']).to.equal('DENY');
-            expect(res.headers['x-xss-protection']).to.equal('1; mode=block');
+            expect(res.headers['x-xss-protection']).to.equal('0');
             expect(res.headers['x-download-options']).to.equal('noopen');
             expect(res.headers['x-content-type-options']).to.equal('nosniff');
         });
@@ -336,7 +335,7 @@ describe('Headers', () => {
             expect(res.result).to.equal('Test');
             expect(res.headers['x-frame-options']).to.not.exist();
             expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
-            expect(res.headers['x-xss-protection']).to.equal('1; mode=block');
+            expect(res.headers['x-xss-protection']).to.equal('0');
             expect(res.headers['x-download-options']).to.equal('noopen');
             expect(res.headers['x-content-type-options']).to.equal('nosniff');
         });
@@ -417,6 +416,36 @@ describe('Headers', () => {
             expect(res.result).to.exist();
             expect(res.result).to.equal('Test');
             expect(res.headers['x-content-type-options']).to.not.exist();
+        });
+
+        it('sets the x-xss-protection header when security.xss is enabled', async () => {
+
+            const server = Hapi.server({ routes: { security: { xss: 'enabled' } } });
+            server.route({ method: 'GET', path: '/', handler: () => 'Test' });
+
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['x-xss-protection']).to.equal('1; mode=block');
+            expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
+            expect(res.headers['x-frame-options']).to.equal('DENY');
+            expect(res.headers['x-download-options']).to.equal('noopen');
+            expect(res.headers['x-content-type-options']).to.equal('nosniff');
+        });
+
+        it('sets the x-xss-protection header when security.xss is disabled', async () => {
+
+            const server = Hapi.server({ routes: { security: { xss: 'disabled' } } });
+            server.route({ method: 'GET', path: '/', handler: () => 'Test' });
+
+            const res = await server.inject({ url: '/' });
+            expect(res.result).to.exist();
+            expect(res.result).to.equal('Test');
+            expect(res.headers['x-xss-protection']).to.equal('0');
+            expect(res.headers['strict-transport-security']).to.equal('max-age=15768000');
+            expect(res.headers['x-frame-options']).to.equal('DENY');
+            expect(res.headers['x-download-options']).to.equal('noopen');
+            expect(res.headers['x-content-type-options']).to.equal('nosniff');
         });
 
         it('does not set the x-xss-protection header when security.xss is false', async () => {
@@ -511,17 +540,6 @@ describe('Headers', () => {
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
             expect(res.headers['content-type']).to.equal('text/html');
-        });
-
-        it('returns a normal response when JSONP requested but stream returned', async () => {
-
-            const server = Hapi.server();
-            const stream = Wreck.toReadableStream('test');
-            stream.size = 4;                                    // Non function for coverage
-            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler: () => stream } });
-
-            const res = await server.inject('/?callback=me');
-            expect(res.payload).to.equal('test');
         });
 
         it('does not set content-type by default on 204 response', async () => {

@@ -3,6 +3,7 @@ name: ci
 on:
   push:
     branches:
+      - v21
       - master
   pull_request:
   workflow_dispatch:
@@ -10,3 +11,5 @@ on:
 jobs:
   test:
     uses: hapijs/.github/.github/workflows/ci-module.yml@master
+    with:
+      min-node-version: 14

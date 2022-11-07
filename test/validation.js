@@ -571,6 +571,36 @@ describe('validation', () => {
             expect(res.result).to.equal('Got error in query where a is bad');
         });
 
+        it('makes default error available in failAction', async () => {
+
+            const server = Hapi.server();
+            server.validator(Joi);
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: () => 'ok',
+                options: {
+                    validate: {
+                        query: {
+                            a: Joi.string().min(2)
+                        },
+                        failAction: function (request, h, err) {
+
+                            err.data.defaultError.output.payload.message += ': ' + err.output.payload.validation.keys.join(', ');
+
+                            throw err.data.defaultError;
+                        }
+                    }
+                }
+            });
+
+            const res = await server.inject('/?a=1');
+            expect(res.statusCode).to.equal(400);
+            expect(res.result).to.contain({
+                message: 'Invalid request query input: a'
+            });
+        });
+
         it('catches error thrown in failAction', async () => {
 
             const server = Hapi.server({ debug: false });
