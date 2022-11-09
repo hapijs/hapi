@@ -162,7 +162,7 @@ If the `listener` uses TLS, set [`tls`](#server.options.tls) to `true`.
 
 #### <a name="server.options.load" /> `server.options.load`
 
-Default value: `{ sampleInterval: 0, maxHeapUsedBytes: 0, maxRssBytes: 0, maxEventLoopDelay: 0 }`.
+Default value: `{ sampleInterval: 0, maxHeapUsedBytes: 0, maxRssBytes: 0, maxEventLoopDelay: 0, maxEventLoopUtilization: 0 }`.
 
 Server excessive load handling limits where:
 
@@ -173,6 +173,8 @@ Server excessive load handling limits where:
 - `maxRssBytes` - maximum process RSS size over which incoming requests are rejected with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
 
 - `maxEventLoopDelay` - maximum event loop delay duration in milliseconds over which incoming requests are rejected with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
+
+- `maxEventLoopUtilization` - maximum event loop utilization value over which incoming requests are rejected with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
 
 #### <a name="server.options.mime" /> `server.options.mime`
 
@@ -705,6 +707,7 @@ An object containing the process load metrics (when [`load.sampleInterval`](#ser
 is enabled):
 
 - `eventLoopDelay` - event loop delay milliseconds.
+- `eventLoopUtilization` - current event loop utilization value.
 - `heapUsed` - V8 heap usage.
 - `rss` - RSS memory usage.
 

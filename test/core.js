@@ -2098,6 +2098,7 @@ describe('Core', () => {
 
             await server.inject('/');
             expect(server.load.eventLoopDelay).to.be.above(0);
+            expect(server.load.eventLoopUtilization).to.be.above(0);
             expect(server.load.heapUsed).to.be.above(1024 * 1024);
             expect(server.load.rss).to.be.above(1024 * 1024);
             await server.stop();
