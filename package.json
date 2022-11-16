@@ -5,6 +5,7 @@
   "version": "21.0.0",
   "repository": "git://github.com/hapijs/hapi",
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "engines": {
     "node": ">=14.15.0"
   },
@@ -50,12 +51,14 @@
     "@hapi/lab": "^25.0.1",
     "@hapi/vision": "^6.0.1",
     "@hapi/wreck": "^18.0.0",
+    "@types/node": "^18.11.9",
     "handlebars": "^4.7.4",
     "joi": "^17.0.0",
-    "legacy-readable-stream": "npm:readable-stream@^1.0.34"
+    "legacy-readable-stream": "npm:readable-stream@^1.0.34",
+    "typescript": "^4.9.3"
   },
   "scripts": {
-    "test": "lab -a @hapi/code -t 100 -L -m 5000",
+    "test": "lab -a @hapi/code -t 100 -L -m 5000 -Y",
     "test-tap": "lab -a @hapi/code -r tap -o tests.tap -m 5000",
     "test-cov-html": "lab -a @hapi/code -r html -o coverage.html -m 5000"
   },
