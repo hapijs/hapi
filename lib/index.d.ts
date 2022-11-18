@@ -3085,6 +3085,15 @@ export interface ServerOptions {
      */
     host?: string | undefined;
 
+    info?: {
+        /**
+         * @default false.
+         * If true, the request.info.remoteAddress and request.info.remotePort are populated when the request is received which can consume more resource (but is ok if the information is needed,
+         * especially for aborted requests). When false, the fields are only populated upon demand (but will be undefined if accessed after the request is aborted).
+         */
+        remote?: boolean;
+    }
+
     /**
      * @default none.
      * An optional node HTTP (or HTTPS) http.Server object (or an object with a compatible interface).
