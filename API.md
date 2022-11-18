@@ -2509,7 +2509,8 @@ async function example() {
 
     const server = Hapi.server({ port: 80 });
     await server.start();
-    }
+    console.log('Server started at: ' + server.info.uri);
+}
 ```
 
 ### <a name="server.state()" /> `server.state(name, [options])`
