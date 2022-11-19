@@ -761,16 +761,6 @@ export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
     json?: Json.StringifyArguments;
 
     /**
-     * @default none.
-     * Enables JSONP support by setting the value to the query parameter name containing the function name used to wrap the response payload.
-     * For example, if the value is 'callback', a request comes in with 'callback=me', and the JSON response is '{ "a":"b" }', the payload will be 'me({ "a":"b" });'. Cannot be used with stream
-     * responses. The 'Content-Type' response header is set to 'text/javascript' and the 'X-Content-Type-Options' response header is set to 'nosniff', and will override those headers even if
-     * explicitly set by response.type().
-     * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsjsonp)
-     */
-    jsonp?: string;
-
-    /**
      * @default { collect: false }.
      * Request logging options:
      * collect - if true, request-level logs (both internal and application) are collected and accessible via request.logs.
