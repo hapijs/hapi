@@ -31,13 +31,6 @@ export namespace Utils {
 }
 
 /**
- *  User-extensible type for application specific state (`server.app`).
- */
-
-export interface ServerApplicationState {
-}
-
-/**
  *  User-extensible type for application specific state on requests (`request.app`).
  */
 

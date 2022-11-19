@@ -31,7 +31,7 @@ import {
     RulesProcessor,
     ServerRoute
 } from '../route';
-import { Lifecycle, ServerApplicationState, Utils } from '../utils';
+import { Lifecycle, Utils } from '../utils';
 import { ServerAuth } from './auth';
 import { ServerCache } from './cache';
 import { ServerEventsApplication, ServerEvents } from './events';
@@ -55,11 +55,18 @@ import { ServerOptions } from './options';
 import { ServerState, ServerStateCookieOptions } from './state';
 
 /**
+ *  User-extensible type for application specific state (`server.app`).
+ */
+
+export interface ServerApplicationState {
+}
+
+/**
  * The server object is the main application container. The server manages all incoming requests along with all
  * the facilities provided by the framework. Each server supports a single connection (e.g. listen to port 80).
  * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#server)
  */
-export class Server {
+export class Server<A = ServerApplicationState> {
     /**
      * Creates a new server object
      * @param options server configuration object.
@@ -73,7 +80,7 @@ export class Server {
      * Initialized with an empty object.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverapp)
      */
-    app: ServerApplicationState;
+    app: A;
 
     /**
      * Server Auth: properties and methods
@@ -637,4 +644,4 @@ export class Server {
 /**
  * Factory function to create a new server object (introduced in v17).
  */
-export function server(opts?: ServerOptions): Server;
+export function server<A = ServerApplicationState>(opts?: ServerOptions): Server<A>;

@@ -20,8 +20,17 @@ declare module '../..' {
     }
 }
 
-const server = createServer();
+interface ServerAppSpace {
+    multi?: number;
+}
+
+type MyServer = Server<ServerAppSpace>;
+
+const server = createServer<ServerAppSpace>();
 check.type<Server>(server);
+check.type<MyServer>(server);
+
+server.app.multi = 10;
 
 const route: ServerRoute = {
     method: 'GET',
@@ -38,14 +47,14 @@ interface TestPluginOptions {
 const plugin: Plugin<TestPluginOptions> = {
     name: 'test',
     version: '1.0.0',
-    register: function (server, options) {
+    register: function (srv: MyServer, options) {
 
         check.type<TestPluginOptions>(options);
         
-        server.expose({
+        srv.expose({
             add: function (a: number, b: number) {
 
-                return a + b + options.x;
+                return (a + b + options.x) * srv.app.multi!;
             }
         });
     }
@@ -54,5 +63,5 @@ const plugin: Plugin<TestPluginOptions> = {
 await server.register({ plugin, options: { x: 10 } });
 
 const sum = server.plugins.test.add(1, 2);
-expect(sum).to.equal(13);
+expect(sum).to.equal(130);
 check.type<number>(sum);
