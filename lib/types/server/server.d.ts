@@ -537,10 +537,10 @@ export class Server<A = ServerApplicationState> {
      * @return Return value: none.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-await-serverregisterplugins-options)
      */
-    register<T>(plugin: ServerRegisterPluginObject<T>, options?: ServerRegisterOptions): Promise<void>;
-    register<T, U, V, W, X, Y, Z>(plugins: ServerRegisterPluginObjectArray<T, U, V, W, X, Y, Z>, options?: ServerRegisterOptions): Promise<void>;
-    register(plugins: ServerRegisterPluginObject<any>[], options?: ServerRegisterOptions): Promise<void>;
-    register(plugins: Plugin<any> | Plugin<any>[], options?: ServerRegisterOptions): Promise<void>;
+    register<T>(plugin: ServerRegisterPluginObject<T>, options?: ServerRegisterOptions): Promise<Server>;
+    register<T, U, V, W, X, Y, Z>(plugins: ServerRegisterPluginObjectArray<T, U, V, W, X, Y, Z>, options?: ServerRegisterOptions): Promise<Server>;
+    register(plugins: ServerRegisterPluginObject<any>[], options?: ServerRegisterOptions): Promise<Server>;
+    register(plugins: Plugin<any> | Plugin<any>[], options?: ServerRegisterOptions): Promise<Server>;
 
     /**
      * Adds a route where:
