@@ -1,7 +1,7 @@
 
 import { Podium } from '@hapi/podium';
 
-import { PluginsStates } from './plugin';
+import { PluginsStates, ServerRealm } from './plugin';
 import {
     UserCredentials,
     AppCredentials,
@@ -14,7 +14,7 @@ import {
     Request
 } from './request';
 import { PeekListener, ResponseApplicationState, Lifecycle, Json, Utils } from './utils';
-import { ServerStateCookieOptions, ServerRealm } from './server';
+import { ServerStateCookieOptions } from './server';
 
 /**
  * Access: read only and the public podium interface.

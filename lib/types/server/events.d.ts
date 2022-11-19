@@ -1,0 +1,226 @@
+import { Podium } from '@hapi/podium';
+
+import { Request, RequestRoute } from '../request';
+
+/**
+ * an event name string.
+ * an event options object.
+ * a podium emitter object.
+ * For context [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-servereventevents)
+ */
+export type ServerEventsApplication = string | ServerEventsApplicationObject | Podium;
+
+/**
+ * Object that it will be used in Event
+ * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-servereventevents)
+ */
+export interface ServerEventsApplicationObject {
+    /** the event name string (required). */
+    name: string;
+    /** a string or array of strings specifying the event channels available. Defaults to no channel restrictions (event updates can specify a channel or not). */
+    channels?: string | string[] | undefined;
+    /**
+     * if true, the data object passed to server.events.emit() is cloned before it is passed to the listeners (unless an override specified by each listener). Defaults to false (data is passed as-is).
+     */
+    clone?: boolean | undefined;
+    /**
+     * if true, the data object passed to server.event.emit() must be an array and the listener method is called with each array element passed as a separate argument (unless an override specified
+     * by each listener). This should only be used when the emitted data structure is known and predictable. Defaults to false (data is emitted as a single argument regardless of its type).
+     */
+    spread?: boolean | undefined;
+    /**
+     * if true and the criteria object passed to server.event.emit() includes tags, the tags are mapped to an object (where each tag string is the key and the value is true) which is appended to
+     * the arguments list at the end. A configuration override can be set by each listener. Defaults to false.
+     */
+    tags?: boolean | undefined;
+    /**
+     * if true, the same event name can be registered multiple times where the second registration is ignored. Note that if the registration config is changed between registrations, only the first
+     * configuration is used. Defaults to false (a duplicate registration will throw an error).
+     */
+    shared?: boolean | undefined;
+}
+
+/**
+ * A criteria object with the following optional keys (unless noted otherwise):
+ * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-servereventsoncriteria-listener)
+ *
+ * The type parameter T is the type of the name of the event.
+ */
+export interface ServerEventCriteria<T> {
+    /** (required) the event name string. */
+    name: T;
+    /**
+     * a string or array of strings specifying the event channels to subscribe to. If the event registration specified a list of allowed channels, the channels array must match the allowed
+     * channels. If channels are specified, event updates without any channel designation will not be included in the subscription. Defaults to no channels filter.
+     */
+    channels?: string | string[] | undefined;
+    /** if true, the data object passed to server.event.emit() is cloned before it is passed to the listener method. Defaults to the event registration option (which defaults to false). */
+    clone?: boolean | undefined;
+    /**
+     * a positive integer indicating the number of times the listener can be called after which the subscription is automatically removed. A count of 1 is the same as calling server.events.once().
+     * Defaults to no limit.
+     */
+    count?: number | undefined;
+    /**
+     * filter - the event tags (if present) to subscribe to which can be one of:
+     * * a tag string.
+     * * an array of tag strings.
+     * * an object with the following:
+     * * * tags - a tag string or array of tag strings.
+     * * * all - if true, all tags must be present for the event update to match the subscription. Defaults to false (at least one matching tag).
+     */
+    filter?: string | string[] | { tags: string | string[]  | undefined, all?: boolean  | undefined } | undefined;
+    /**
+     * if true, and the data object passed to server.event.emit() is an array, the listener method is called with each array element passed as a separate argument. This should only be used
+     * when the emitted data structure is known and predictable. Defaults to the event registration option (which defaults to false).
+     */
+    spread?: boolean | undefined;
+    /**
+     * if true and the criteria object passed to server.event.emit() includes tags, the tags are mapped to an object (where each tag string is the key and the value is true) which is appended
+     * to the arguments list at the end. Defaults to the event registration option (which defaults to false).
+     */
+    tags?: boolean | undefined;
+}
+
+export interface LogEvent {
+    /** the event timestamp. */
+    timestamp: string;
+    /** an array of tags identifying the event (e.g. ['error', 'http']) */
+    tags: string[];
+    /** set to 'internal' for internally generated events, otherwise 'app' for events generated by server.log() */
+    channel: 'internal' | 'app';
+    /** the request identifier. */
+    request: string;
+    /** event-specific information. Available when event data was provided and is not an error. Errors are passed via error. */
+    data: object;
+    /** the error object related to the event if applicable. Cannot appear together with data */
+    error: object;
+}
+
+export interface RequestEvent {
+    /** the event timestamp. */
+    timestamp: string;
+    /** an array of tags identifying the event (e.g. ['error', 'http']) */
+    tags: string[];
+    /** set to 'internal' for internally generated events, otherwise 'app' for events generated by server.log() */
+    channel: 'internal' | 'app' | 'error';
+    /** event-specific information. Available when event data was provided and is not an error. Errors are passed via error. */
+    data: object;
+    /** the error object related to the event if applicable. Cannot appear together with data */
+    error: object;
+}
+
+export type LogEventHandler = (event: LogEvent, tags: { [key: string]: true }) => void;
+export type RequestEventHandler = (request: Request, event: RequestEvent, tags: { [key: string]: true }) => void;
+export type ResponseEventHandler = (request: Request) => void;
+export type RouteEventHandler = (route: RequestRoute) => void;
+export type StartEventHandler = () => void;
+export type StopEventHandler = () => void;
+
+export interface PodiumEvent<K extends string, T> {
+    emit(criteria: K, listener: (value: T) => void): void;
+
+    on(criteria: K, listener: (value: T) => void): void;
+
+    once(criteria: K, listener: (value: T) => void): void;
+
+    once(criteria: K): Promise<T>;
+
+    removeListener(criteria: K, listener: Podium.Listener): this;
+
+    removeAllListeners(criteria: K): this;
+
+    hasListeners(criteria: K): this;
+}
+
+/**
+ * Access: podium public interface.
+ * The server events emitter. Utilizes the podium with support for event criteria validation, channels, and filters.
+ * Use the following methods to interact with server.events:
+ * [server.event(events)](https://github.com/hapijs/hapi/blob/master/API.md#server.event()) - register application events.
+ * [server.events.emit(criteria, data)](https://github.com/hapijs/hapi/blob/master/API.md#server.events.emit()) - emit server events.
+ * [server.events.on(criteria, listener)](https://github.com/hapijs/hapi/blob/master/API.md#server.events.on()) - subscribe to all events.
+ * [server.events.once(criteria, listener)](https://github.com/hapijs/hapi/blob/master/API.md#server.events.once()) - subscribe to
+ * Other methods include: server.events.removeListener(name, listener), server.events.removeAllListeners(name), and server.events.hasListeners(name).
+ * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverevents)
+ */
+export interface ServerEvents extends Podium {
+    /**
+     * Subscribe to an event where:
+     * @param criteria - the subscription criteria which must be one of:
+     * * event name string which can be any of the built-in server events
+     * * a custom application event registered with server.event().
+     * * a criteria object
+     * @param listener - the handler method set to receive event updates. The function signature depends on the event argument, and the spread and tags options.
+     * @return Return value: none.
+     * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-servereventsoncriteria-listener)
+     * See ['log' event](https://github.com/hapijs/hapi/blob/master/API.md#-log-event)
+     * See ['request' event](https://github.com/hapijs/hapi/blob/master/API.md#-request-event)
+     * See ['response' event](https://github.com/hapijs/hapi/blob/master/API.md#-response-event)
+     * See ['route' event](https://github.com/hapijs/hapi/blob/master/API.md#-route-event)
+     * See ['start' event](https://github.com/hapijs/hapi/blob/master/API.md#-start-event)
+     * See ['stop' event](https://github.com/hapijs/hapi/blob/master/API.md#-stop-event)
+     */
+    on(criteria: 'log' | ServerEventCriteria<'log'>, listener: LogEventHandler): this;
+
+    on(criteria: 'request' | ServerEventCriteria<'request'>, listener: RequestEventHandler): this;
+
+    on(criteria: 'response' | ServerEventCriteria<'response'>, listener: ResponseEventHandler): this;
+
+    on(criteria: 'route' | ServerEventCriteria<'route'>, listener: RouteEventHandler): this;
+
+    on(criteria: 'start' | ServerEventCriteria<'start'>, listener: StartEventHandler): this;
+
+    on(criteria: 'stop' | ServerEventCriteria<'stop'>, listener: StopEventHandler): this;
+
+    /**
+     * Same as calling [server.events.on()](https://github.com/hapijs/hapi/blob/master/API.md#server.events.on()) with the count option set to 1.
+     * @param criteria - the subscription criteria which must be one of:
+     * * event name string which can be any of the built-in server events
+     * * a custom application event registered with server.event().
+     * * a criteria object
+     * @param listener - the handler method set to receive event updates. The function signature depends on the event argument, and the spread and tags options.
+     * @return Return value: none.
+     * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-servereventsoncecriteria-listener)
+     */
+    once(criteria: 'log' | ServerEventCriteria<'log'>, listener: LogEventHandler): this;
+
+    once(criteria: 'request' | ServerEventCriteria<'request'>, listener: RequestEventHandler): this;
+
+    once(criteria: 'response' | ServerEventCriteria<'response'>, listener: ResponseEventHandler): this;
+
+    once(criteria: 'route' | ServerEventCriteria<'route'>, listener: RouteEventHandler): this;
+
+    once(criteria: 'start' | ServerEventCriteria<'start'>, listener: StartEventHandler): this;
+
+    once(criteria: 'stop' | ServerEventCriteria<'stop'>, listener: StopEventHandler): this;
+
+    /**
+     * Same as calling server.events.on() with the count option set to 1.
+     * @param criteria - the subscription criteria which must be one of:
+     * * event name string which can be any of the built-in server events
+     * * a custom application event registered with server.event().
+     * * a criteria object
+     * @return Return value: a promise that resolves when the event is emitted.
+     * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-await-servereventsoncecriteria)
+     */
+    once(criteria: string | ServerEventCriteria<string>): Promise<any>;
+
+    /**
+     * The follow method is only mentioned in Hapi API. The doc about that method can be found [here](https://github.com/hapijs/podium/blob/master/API.md#podiumremovelistenername-listener)
+     * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverevents)
+     */
+    removeListener(name: string, listener: Podium.Listener): this;
+
+    /**
+     * The follow method is only mentioned in Hapi API. The doc about that method can be found [here](https://github.com/hapijs/podium/blob/master/API.md#podiumremovealllistenersname)
+     * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverevents)
+     */
+    removeAllListeners(name: string): this;
+
+    /**
+     * The follow method is only mentioned in Hapi API. The doc about that method can be found [here](https://github.com/hapijs/podium/blob/master/API.md#podiumhaslistenersname)
+     * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverevents)
+     */
+    hasListeners(name: string): boolean;
+}

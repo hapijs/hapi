@@ -1,4 +1,7 @@
+import { RequestRoute } from './request';
+import { RouteOptions } from './route';
 import { Server } from './server';
+import { Lifecycle } from './utils';
 
 /**
  * one of
@@ -108,3 +111,131 @@ export interface PluginBase<T> {
 }
 
 export type Plugin<T> = PluginBase<T> & (PluginNameVersion | PluginPackage);
+
+/**
+ * The realm object contains sandboxed server settings specific to each plugin or authentication strategy. When registering a plugin or an authentication scheme, a server object reference is provided
+ * with a new server.realm container specific to that registration. It allows each plugin to maintain its own settings without leaking and affecting other plugins. For example, a plugin can set a
+ * default file path for local resources without breaking other plugins' configured paths. When calling server.bind(), the active realm's settings.bind property is set which is then used by routes
+ * and extensions added at the same level (server root or plugin).
+ *
+ * https://github.com/hapijs/hapi/blob/master/API.md#server.realm
+ */
+export interface ServerRealm {
+    /** when the server object is provided as an argument to the plugin register() method, modifiers provides the registration preferences passed the server.register() method and includes: */
+    modifiers: {
+        /** routes preferences: */
+        route: {
+            /**
+             * the route path prefix used by any calls to server.route() from the server. Note that if a prefix is used and the route path is set to '/', the resulting path will not include
+             * the trailing slash.
+             */
+            prefix: string;
+            /** the route virtual host settings used by any calls to server.route() from the server. */
+            vhost: string;
+        }
+    };
+    /** the realm of the parent server object, or null for the root server. */
+    parent: ServerRealm | null;
+    /** the active plugin name (empty string if at the server root). */
+    plugin: string;
+    /** the plugin options object passed at registration. */
+    pluginOptions: object;
+    /** plugin-specific state to be shared only among activities sharing the same active state. plugins is an object where each key is a plugin name and the value is the plugin state. */
+    plugins: PluginsStates;
+    /** settings overrides */
+    settings: {
+        files: {
+            relativeTo: string;
+        };
+        bind: object;
+    };
+}
+
+/**
+ * Registration options (different from the options passed to the registration function):
+ * * once - if true, subsequent registrations of the same plugin are skipped without error. Cannot be used with plugin options. Defaults to false. If not set to true, an error will be thrown the
+ * second time a plugin is registered on the server.
+ * * routes - modifiers applied to each route added by the plugin:
+ * * * prefix - string added as prefix to any route path (must begin with '/'). If a plugin registers a child plugin the prefix is passed on to the child or is added in front of the child-specific
+ * prefix.
+ * * * vhost - virtual host string (or array of strings) applied to every route. The outer-most vhost overrides the any nested configuration.
+ * For reference [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-await-serverregisterplugins-options)
+ */
+export interface ServerRegisterOptions {
+    /**
+     * if true, subsequent registrations of the same plugin are skipped without error. Cannot be used with plugin options. Defaults to false. If not set to true, an error will be thrown the second
+     * time a plugin is registered on the server.
+     */
+    once?: boolean | undefined;
+    /**
+     * modifiers applied to each route added by the plugin:
+     */
+    routes?: {
+        /**
+         * string added as prefix to any route path (must begin with '/'). If a plugin registers a child plugin the prefix is passed on to the child or is added in front of the child-specific prefix.
+         */
+        prefix: string;
+        /**
+         * virtual host string (or array of strings) applied to every route. The outer-most vhost overrides the any nested configuration.
+         */
+        vhost?: string | string[] | undefined;
+    } | undefined;
+}
+
+/**
+ * An object with the following:
+ * * plugin - a plugin object.
+ * * options - (optional) options passed to the plugin during registration.
+ * * once - if true, subsequent registrations of the same plugin are skipped without error. Cannot be used with plugin options. Defaults to false. If not set to true, an error will be thrown the
+ * second time a plugin is registered on the server.
+ * * routes - modifiers applied to each route added by the plugin:
+ * * * prefix - string added as prefix to any route path (must begin with '/'). If a plugin registers a child plugin the prefix is passed on to the child or is added in front of the child-specific
+ * prefix.
+ * * * vhost - virtual host string (or array of strings) applied to every route. The outer-most vhost overrides the any nested configuration.
+ * For reference [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-await-serverregisterplugins-options)
+ *
+ * The type parameter T is the type of the plugin configuration options.
+ */
+export interface ServerRegisterPluginObject<T> extends ServerRegisterOptions {
+    /**
+     * a plugin object.
+     */
+    plugin: Plugin<T>;
+    /**
+     * options passed to the plugin during registration.
+     */
+    options?: T | undefined;
+}
+
+export type ServerRegisterPluginObjectArray<T, U, V, W, X, Y, Z> = Array<
+    ServerRegisterPluginObject<T> |
+    ServerRegisterPluginObject<U> |
+    ServerRegisterPluginObject<V> |
+    ServerRegisterPluginObject<W> |
+    ServerRegisterPluginObject<X> |
+    ServerRegisterPluginObject<Y> |
+    ServerRegisterPluginObject<Z>
+>;
+
+/**
+ * The method function can have a defaults object or function property. If the property is set to an object, that object is used as the default route config for routes using this handler.
+ * If the property is set to a function, the function uses the signature function(method) and returns the route default configuration.
+ */
+export interface HandlerDecorationMethod {
+    (route: RequestRoute, options: any): Lifecycle.Method;
+    defaults?: RouteOptions | ((method: any) => RouteOptions) | undefined;
+}
+
+/**
+ * The general case for decorators added via server.decorate.
+ */
+export type DecorationMethod<T> = (this: T, ...args: any[]) => any;
+
+/**
+ * An empty interface to allow typings of custom plugin properties.
+ */
+
+export interface PluginProperties {
+}
+
+export type DecorateName = string | symbol;
