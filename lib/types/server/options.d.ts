@@ -32,7 +32,7 @@ export interface ServerOptions {
      * restrict the server to only those coming from the same host.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serveroptionsaddress)
      */
-    address?: string | undefined;
+    address?: string;
 
     /**
      * @default {}.
@@ -41,7 +41,7 @@ export interface ServerOptions {
      * state.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serveroptionsapp)
      */
-    app?: ServerOptionsApp | undefined;
+    app?: ServerOptionsApp;
 
     /**
      * @default true.
@@ -49,7 +49,7 @@ export interface ServerOptions {
      * Cannot be set to true along with a port value.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serveroptionsautolisten)
      */
-    autoListen?: boolean | undefined;
+    autoListen?: boolean;
 
     /**
      * @default { engine: require('@hapi/catbox-memory' }.
@@ -68,13 +68,13 @@ export interface ServerOptions {
      * * * other options passed to the catbox strategy used. Other options are only passed to catbox when engine above is a class or function and ignored if engine is a catbox engine object).
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serveroptionscache)
      */
-    cache?: CacheProvider | ServerOptionsCache | ServerOptionsCache[] | undefined;
+    cache?: CacheProvider | ServerOptionsCache | ServerOptionsCache[];
 
     /**
      * @default { minBytes: 1024 }.
      * Defines server handling of content encoding requests. If false, response content encoding is disabled and no compression is performed by the server.
      */
-    compression?: boolean | ServerOptionsCompression | undefined;
+    compression?: boolean | ServerOptionsCompression;
 
     /**
      * @default { request: ['implementation'] }.
@@ -88,15 +88,15 @@ export interface ServerOptions {
      * false.
      */
     debug?: false | {
-        log?: string[] | false | undefined;
-        request?: string[] | false | undefined;
-    } | undefined;
+        log?: string[] | false;
+        request?: string[] | false;
+    };
 
     /**
      * @default the operating system hostname and if not available, to 'localhost'.
      * The public hostname or IP address. Used to set server.info.host and server.info.uri and as address is none provided.
      */
-    host?: string | undefined;
+    host?: string;
 
     info?: {
         /**
@@ -113,7 +113,7 @@ export interface ServerOptions {
      * If the listener needs to be manually started, set autoListen to false.
      * If the listener uses TLS, set tls to true.
      */
-    listener?: http.Server | undefined;
+    listener?: http.Server;
 
     /**
      * @default { sampleInterval: 0 }.
@@ -125,20 +125,20 @@ export interface ServerOptions {
      */
     load?: {
         /** the frequency of sampling in milliseconds. When set to 0, the other load options are ignored. Defaults to 0 (no sampling). */
-        sampleInterval?: number | undefined;
+        sampleInterval?: number;
 
         /** maximum V8 heap size over which incoming requests are rejected with an HTTP Server Timeout (503) response. Defaults to 0 (no limit). */
-        maxHeapUsedBytes?: number | undefined;
+        maxHeapUsedBytes?: number;
         /**
          * maximum process RSS size over which incoming requests are rejected with an HTTP Server Timeout (503) response. Defaults to 0 (no limit).
          */
-        maxRssBytes?: number | undefined;
+        maxRssBytes?: number;
         /**
          * maximum event loop delay duration in milliseconds over which incoming requests are rejected with an HTTP Server Timeout (503) response.
          * Defaults to 0 (no limit).
          */
-        maxEventLoopDelay?: number | undefined;
-    } | undefined;
+        maxEventLoopDelay?: number;
+    };
 
     /**
      * @default none.
@@ -150,21 +150,21 @@ export interface ServerOptions {
      * * * predicate - method with signature function(mime) when this mime type is found in the database, this function will execute to allows customizations.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serveroptionsmime)
      */
-    mime?: MimosOptions | undefined;
+    mime?: MimosOptions;
 
     /**
      * @default {}.
      * Plugin-specific configuration which can later be accessed via server.settings.plugins. plugins is an object where each key is a plugin name and the value is the configuration. Note the
      * difference between server.settings.plugins which is used to store static configuration values and server.plugins which is meant for storing run-time state.
      */
-    plugins?: PluginSpecificConfiguration | undefined;
+    plugins?: PluginSpecificConfiguration;
 
     /**
      * @default 0 (an ephemeral port).
      * The TCP port the server will listen to. Defaults the next available port when the server is started (and assigned to server.info.port).
      * If port is a string containing a '/' character, it is used as a UNIX domain socket path. If it starts with '\.\pipe', it is used as a Windows named pipe.
      */
-    port?: number | string | undefined;
+    port?: number | string;
 
     /**
      * @default { isCaseSensitive: true, stripTrailingSlash: false }.
@@ -173,15 +173,15 @@ export interface ServerOptions {
      * * stripTrailingSlash - removes trailing slashes on incoming paths. Defaults to false.
      */
     router?: {
-        isCaseSensitive?: boolean | undefined;
-        stripTrailingSlash?: boolean | undefined;
-    } | undefined;
+        isCaseSensitive?: boolean;
+        stripTrailingSlash?: boolean;
+    };
 
     /**
      * @default none.
      * A route options object used as the default configuration for every route.
      */
-    routes?: RouteOptions | undefined;
+    routes?: RouteOptions;
 
     /**
      * Default value:
@@ -198,25 +198,25 @@ export interface ServerOptions {
     // TODO I am not sure if I need to use all the server.state() definition (like the default value) OR only the options below. The v16 use "any" here.
     // state?: ServerStateCookieOptions;
     state?: {
-        strictHeader?: boolean | undefined,
-        ignoreErrors?: boolean | undefined,
-        isSecure?: boolean | undefined,
-        isHttpOnly?: boolean | undefined,
-        isSameSite?: SameSitePolicy | undefined,
-        encoding?: 'none' | 'base64' | 'base64json' | 'form' | 'iron' | undefined
+        strictHeader?: boolean,
+        ignoreErrors?: boolean,
+        isSecure?: boolean,
+        isHttpOnly?: boolean,
+        isSameSite?: SameSitePolicy,
+        encoding?: 'none' | 'base64' | 'base64json' | 'form' | 'iron'
     };
 
     /**
      * @default none.
      * Used to create an HTTPS connection. The tls object is passed unchanged to the node HTTPS server as described in the node HTTPS documentation.
      */
-    tls?: boolean | https.ServerOptions | undefined;
+    tls?: boolean | https.ServerOptions;
 
     /**
      * @default constructed from runtime server information.
      * The full public URI without the path (e.g. 'http://example.com:8080'). If present, used as the server server.info.uri, otherwise constructed from the server settings.
      */
-    uri?: string | undefined;
+    uri?: string;
 
     /**
      * Query parameter configuration.
@@ -227,5 +227,5 @@ export interface ServerOptions {
          * If the method throws, the error is used as the response or returned when `request.setUrl` is called.
          */
         parser(raw: Record<string, string>): Record<string, any>;
-    } | undefined;
+    };
 }

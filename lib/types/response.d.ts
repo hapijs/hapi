@@ -58,10 +58,10 @@ export interface ResponseEvents extends Podium {
  * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#response-object)
  */
 export interface ResponseObjectHeaderOptions {
-    append?: boolean | undefined;
-    separator?: string | undefined;
-    override?: boolean | undefined;
-    duplicate?: boolean | undefined;
+    append?: boolean;
+    separator?: string;
+    override?: boolean;
+    duplicate?: boolean;
 }
 
 /**
@@ -384,7 +384,7 @@ export interface AuthenticationData<
     ArtifactsExtra = AuthArtifacts
 > {
     credentials: MergeType<CredentialsExtra, AuthCredentials<AuthUser, AuthApp>>;
-    artifacts?: ArtifactsExtra | undefined;
+    artifacts?: ArtifactsExtra;
 }
 
 export interface Auth<
@@ -394,8 +394,8 @@ export interface Auth<
     ArtifactsExtra = AuthArtifacts
 > {
     readonly isAuth: true;
-    readonly error?: Error | null | undefined;
-    readonly data?: AuthenticationData<AuthUser, AuthApp, CredentialsExtra, ArtifactsExtra> | undefined;
+    readonly error?: Error | null;
+    readonly data?: AuthenticationData<AuthUser, AuthApp, CredentialsExtra, ArtifactsExtra>;
 }
 
 /**
@@ -486,7 +486,7 @@ export interface ResponseToolkit<Refs extends ReqRef = ReqRefDefaults> {
      * it should be used as the return value (but may be customize using the response methods).
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-hentityoptions)
      */
-    entity(options?: {etag?: string | undefined, modified?: string | undefined, vary?: boolean | undefined}): ResponseObject | undefined;
+    entity(options?: {etag?: string, modified?: string, vary?: boolean}): ResponseObject;
 
     /**
      * Redirects the client to the specified uri. Same as calling h.response().redirect(uri).

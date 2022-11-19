@@ -52,7 +52,7 @@ export interface RouteOptionsAccess {
      * must include at least one of scope or entity.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsauthaccess)
      */
-    access?: RouteOptionsAccessObject | RouteOptionsAccessObject[] | undefined;
+    access?: RouteOptionsAccessObject | RouteOptionsAccessObject[];
 
     /**
      * @default false (no scope requirements).
@@ -62,7 +62,7 @@ export interface RouteOptionsAccess {
      * properties on the request object (query, params, payload, and credentials) to populate a dynamic scope by using the '{' and '}' characters around the property name, such as 'user-{params.id}'.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsauthaccessscope)
      */
-    scope?: MergeType<InternalRouteOptionType, RouteOptionTypes>['Scope'] | undefined;
+    scope?: MergeType<InternalRouteOptionType, RouteOptionTypes>['Scope'];
 
     /**
      * @default 'any'.
@@ -73,7 +73,7 @@ export interface RouteOptionsAccess {
      * strategy.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsauthaccessentity)
      */
-    entity?: AccessEntity | undefined;
+    entity?: AccessEntity;
 
     /**
      * @default 'required'.
@@ -83,7 +83,7 @@ export interface RouteOptionsAccess {
      * * 'try' - similar to 'optional', any request credentials are attempted authentication, but if the credentials are invalid, the request proceeds regardless of the authentication error.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsauthmode)
      */
-    mode?: AuthMode | undefined;
+    mode?: AuthMode;
 
     /**
      * @default false, unless the scheme requires payload authentication.
@@ -94,21 +94,21 @@ export interface RouteOptionsAccess {
      * * 'optional' - payload authentication performed only when the client includes payload authentication information (e.g. hash attribute in Hawk).
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsauthpayload)
      */
-    payload?: false | 'required' | 'optional' | undefined;
+    payload?: false | 'required' | 'optional';
 
     /**
      * @default the default strategy set via server.auth.default().
      * An array of string strategy names in the order they should be attempted. Cannot be used together with strategy.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsauthstrategies)
      */
-    strategies?: (MergeType<InternalRouteOptionType, RouteOptionTypes>['Strategy'])[] | undefined;
+    strategies?: (MergeType<InternalRouteOptionType, RouteOptionTypes>['Strategy'])[];
 
     /**
      * @default the default strategy set via server.auth.default().
      * A string strategy names. Cannot be used together with strategies.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsauthstrategy)
      */
-    strategy?: MergeType<InternalRouteOptionType, RouteOptionTypes>['Strategy'] | undefined;
+    strategy?: MergeType<InternalRouteOptionType, RouteOptionTypes>['Strategy'];
 }
 
 /**
@@ -123,16 +123,16 @@ export interface RouteOptionsAccess {
  * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionscache)
  */
 export type RouteOptionsCache = {
-    privacy?: 'default' | 'public' | 'private' | undefined;
-    statuses?: number[] | undefined;
-    otherwise?: string | undefined;
+    privacy?: 'default' | 'public' | 'private';
+    statuses?: number[];
+    otherwise?: string;
 } & (
     {
-        expiresIn?: number | undefined;
+        expiresIn?: number;
         expiresAt?: undefined;
     } | {
     expiresIn?: undefined;
-    expiresAt?: string | undefined;
+    expiresAt?: string;
 } | {
     expiresIn?: undefined;
     expiresAt?: undefined;
@@ -161,32 +161,32 @@ export interface RouteOptionsCors {
      * character, or a single '*' origin string. If set to 'ignore', any incoming Origin header is ignored (present or not) and the 'Access-Control-Allow-Origin' header is set to '*'. Defaults to any
      * origin ['*'].
      */
-    origin?: string[] | '*' | 'ignore' | undefined;
+    origin?: string[] | '*' | 'ignore';
     /**
      * number of seconds the browser should cache the CORS response ('Access-Control-Max-Age'). The greater the value, the longer it will take before the browser checks for changes in policy.
      * Defaults to 86400 (one day).
      */
-    maxAge?: number | undefined;
+    maxAge?: number;
     /**
      * a strings array of allowed headers ('Access-Control-Allow-Headers'). Defaults to ['Accept', 'Authorization', 'Content-Type', 'If-None-Match'].
      */
-    headers?: string[] | undefined;
+    headers?: string[];
     /**
      * a strings array of additional headers to headers. Use this to keep the default headers in place.
      */
-    additionalHeaders?: string[] | undefined;
+    additionalHeaders?: string[];
     /**
      * a strings array of exposed headers ('Access-Control-Expose-Headers'). Defaults to ['WWW-Authenticate', 'Server-Authorization'].
      */
-    exposedHeaders?: string[] | undefined;
+    exposedHeaders?: string[];
     /**
      * a strings array of additional headers to exposedHeaders. Use this to keep the default headers in place.
      */
-    additionalExposedHeaders?: string[] | undefined;
+    additionalExposedHeaders?: string[];
     /**
      * if true, allows user credentials to be sent ('Access-Control-Allow-Credentials'). Defaults to false.
      */
-    credentials?: boolean | undefined;
+    credentials?: boolean;
 }
 
 /**
@@ -226,35 +226,35 @@ export interface RouteOptionsPayload {
      * above will not enable them to be parsed, and if parse is true, the request will result in an error response.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspayloadallow)
      */
-    allow?: string | string[] | undefined;
+    allow?: string | string[];
 
     /**
      * @default none.
      * An object where each key is a content-encoding name and each value is an object with the desired decoder settings. Note that encoder settings are set in compression.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspayloadcompression)
      */
-    compression?: Record<string, PayloadCompressionDecoderSettings> | undefined;
+    compression?: Record<string, PayloadCompressionDecoderSettings>;
 
     /**
      * @default 'application/json'.
      * The default content type if the 'Content-Type' request header is missing.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspayloaddefaultcontenttype)
      */
-    defaultContentType?: string | undefined;
+    defaultContentType?: string;
 
     /**
      * @default 'error' (return a Bad Request (400) error response).
      * A failAction value which determines how to handle payload parsing errors.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspayloadfailaction)
      */
-    failAction?: Lifecycle.FailAction | undefined;
+    failAction?: Lifecycle.FailAction;
 
     /**
      * @default 1048576 (1MB).
      * Limits the size of incoming payloads to the specified byte count. Allowing very large payloads may cause the server to run out of memory.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspayloadmaxbytes)
      */
-    maxBytes?: number | undefined;
+    maxBytes?: number;
 
     /**
      * @default none.
@@ -272,8 +272,7 @@ export interface RouteOptionsPayload {
         | false
         | {
               output: PayloadOutput | 'annotated';
-          }
-        | undefined;
+          };
 
     /**
      * @default 'data'.
@@ -289,14 +288,14 @@ export interface RouteOptionsPayload {
      * of which files are used (e.g. using the request.app object), and listening to the server 'response' event to perform cleanup.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspayloadoutput)
      */
-    output?: PayloadOutput | undefined;
+    output?: PayloadOutput;
 
     /**
      * @default none.
      * A mime type string overriding the 'Content-Type' header value received.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspayloadoverride)
      */
-    override?: string | undefined;
+    override?: string;
 
     /**
      * @default true.
@@ -307,7 +306,7 @@ export interface RouteOptionsPayload {
      * * 'gunzip' - the raw payload is returned unmodified after any known content encoding is decoded.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspayloadparse)
      */
-    parse?: boolean | 'gunzip' | undefined;
+    parse?: boolean | 'gunzip';
 
     /**
      * @default to 10000 (10 seconds).
@@ -315,14 +314,14 @@ export interface RouteOptionsPayload {
      * error response. Set to false to disable.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspayloadtimeout)
      */
-    timeout?: false | number | undefined;
+    timeout?: false | number;
 
     /**
      * @default os.tmpdir().
      * The directory used for writing file uploads.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspayloaduploads)
      */
-    uploads?: string | undefined;
+    uploads?: string;
 }
 
 /**
@@ -350,11 +349,11 @@ export interface RouteOptionsPreObject<Refs extends ReqRef = ReqRefDefaults> {
     /**
      * key name used to assign the response of the method to in request.pre and request.preResponses.
      */
-    assign?: keyof Refs['Pres'] | undefined;
+    assign?: keyof Refs['Pres'];
     /**
      * A failAction value which determine what to do when a pre-handler method throws an error. If assign is specified and the failAction setting is not 'error', the error will be assigned.
      */
-    failAction?: Lifecycle.FailAction | undefined;
+    failAction?: Lifecycle.FailAction;
 }
 
 export type ValidationObject = SchemaMap;
@@ -383,21 +382,21 @@ export interface RouteOptionsResponse {
      * response status code will remain 200 throughout the request lifecycle unless manually set).
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsresponseemptystatuscode)
      */
-    emptyStatusCode?: 200 | 204 | undefined;
+    emptyStatusCode?: 200 | 204;
 
     /**
      * @default 'error' (return an Internal Server Error (500) error response).
      * A failAction value which defines what to do when a response fails payload validation.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsresponsefailaction)
      */
-    failAction?: Lifecycle.FailAction | undefined;
+    failAction?: Lifecycle.FailAction;
 
     /**
      * @default false.
      * If true, applies the validation rule changes to the response payload.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsresponsemodify)
      */
-    modify?: boolean | undefined;
+    modify?: boolean;
 
     /**
      * @default none.
@@ -405,21 +404,21 @@ export interface RouteOptionsResponse {
      * custom validation function is defined via schema or status then options can an arbitrary object that will be passed to this function as the second argument.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsresponseoptions)
      */
-    options?: ValidationOptions | undefined; // TODO needs validation
+    options?: ValidationOptions; // TODO needs validation
 
     /**
      * @default true.
      * If false, payload range support is disabled.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsresponseranges)
      */
-    ranges?: boolean | undefined;
+    ranges?: boolean;
 
     /**
      * @default 100 (all responses).
      * The percent of response payloads validated (0 - 100). Set to 0 to disable all validation.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsresponsesample)
      */
-    sample?: number | undefined;
+    sample?: number;
 
     /**
      * @default true (no validation).
@@ -434,7 +433,7 @@ export interface RouteOptionsResponse {
      * output.payload. If an error is thrown, the error is processed according to failAction.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsresponseschema)
      */
-    schema?: RouteOptionsResponseSchema | undefined;
+    schema?: RouteOptionsResponseSchema;
 
     /**
      * @default none.
@@ -442,7 +441,7 @@ export interface RouteOptionsResponse {
      * status is set to an object where each key is a 3 digit HTTP status code and the value has the same definition as schema.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsresponsestatus)
      */
-    status?: Record<string, RouteOptionsResponseSchema> | undefined;
+    status?: Record<string, RouteOptionsResponseSchema>;
 
     /**
      * The default HTTP status code used to set a response error when the request is closed or aborted before the
@@ -452,7 +451,7 @@ export interface RouteOptionsResponse {
      * The value is only used for logging as the request has already ended.
      * @default 499
      */
-    disconnectStatusCode?: number | undefined;
+    disconnectStatusCode?: number;
 }
 
 /**
@@ -506,7 +505,7 @@ export interface RouteOptionsSecureObject {
          * a boolean specifying whether to add the 'preload' flag (used to submit domains inclusion in Chrome's HTTP Strict Transport Security (HSTS) preload list) to the header.
          */
         preload: boolean;
-    } | undefined;
+    };
     /**
      * controls the 'X-Frame-Options' header
      */
@@ -520,27 +519,27 @@ export interface RouteOptionsSecureObject {
          * to 'sameorigin'.
          */
         source: string;
-    } | undefined;
+    };
     /**
      * boolean that controls the 'X-XSS-PROTECTION' header for Internet Explorer. Defaults to true which sets the header to equal '1; mode=block'.
      * Note: this setting can create a security vulnerability in versions of Internet Explorer below 8, as well as unpatched versions of IE8. See here and here for more information. If you actively
      * support old versions of IE, it may be wise to explicitly set this flag to false.
      */
-    xss?: boolean | undefined;
+    xss?: boolean;
     /**
      * boolean controlling the 'X-Download-Options' header for Internet Explorer, preventing downloads from executing in your context. Defaults to true setting the header to 'noopen'.
      */
-    noOpen?: boolean | undefined;
+    noOpen?: boolean;
     /**
      * boolean controlling the 'X-Content-Type-Options' header. Defaults to true setting the header to its only and default option, 'nosniff'.
      */
-    noSniff?: boolean | undefined;
+    noSniff?: boolean;
 
     /**
      * Controls the `Referrer-Policy` header, which has the following possible values.
      * @default false Header will not be send.
      */
-    referrer?: false | ReferrerPolicy | undefined;
+    referrer?: false | ReferrerPolicy;
 }
 
 export type RouteOptionsSecure = boolean | RouteOptionsSecureObject;
@@ -556,14 +555,14 @@ export interface RouteOptionsValidate {
      * An optional object with error fields copied into every validation error response.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsvalidateerrorfields)
      */
-    errorFields?: object | undefined;
+    errorFields?: object;
 
     /**
      * @default 'error' (return a Bad Request (400) error response).
      * A failAction value which determines how to handle failed validations. When set to a function, the err argument includes the type of validation error under err.output.payload.validation.source.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsvalidatefailaction)
      */
-    failAction?: Lifecycle.FailAction | undefined;
+    failAction?: Lifecycle.FailAction;
 
     /**
      * Validation rules for incoming request headers:
@@ -572,7 +571,7 @@ export interface RouteOptionsValidate {
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsvalidateheaders)
      * @default true
      */
-    headers?: RouteOptionsResponseSchema | undefined;
+    headers?: RouteOptionsResponseSchema;
 
     /**
      * An options object passed to the joi rules or the custom validation methods. Used for setting global options such as stripUnknown or abortEarly (the complete list is available here).
@@ -585,7 +584,7 @@ export interface RouteOptionsValidate {
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsvalidateparams)
      * @default true
      */
-    options?: ValidationOptions | object | undefined;
+    options?: ValidationOptions | object;
 
     /**
      * Validation rules for incoming request path parameters, after matching the path against the route, extracting any parameters, and storing them in request.params, where:
@@ -599,7 +598,7 @@ export interface RouteOptionsValidate {
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsvalidateparams)
      * @default true
      */
-    params?: RouteOptionsResponseSchema | undefined;
+    params?: RouteOptionsResponseSchema;
 
     /**
      * Validation rules for incoming request payload (request body), where:
@@ -609,7 +608,7 @@ export interface RouteOptionsValidate {
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsvalidatepayload)
      * @default true
      */
-    payload?: RouteOptionsResponseSchema | undefined;
+    payload?: RouteOptionsResponseSchema;
 
     /**
      * Validation rules for incoming request URI query component (the key-value part of the URI between '?' and '#'). The query is parsed into its individual key-value pairs, decoded, and stored in
@@ -620,14 +619,14 @@ export interface RouteOptionsValidate {
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsvalidatequery)
      * @default true
      */
-    query?: RouteOptionsResponseSchema | undefined;
+    query?: RouteOptionsResponseSchema;
 
     /**
      * Validation rules for incoming cookies.
      * The cookie header is parsed and decoded into the request.state prior to validation.
      * @default true
      */
-    state?: RouteOptionsResponseSchema | undefined;
+    state?: RouteOptionsResponseSchema;
 }
 
 /**
@@ -647,14 +646,14 @@ export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
      * Application-specific route configuration state. Should not be used by plugins which should use options.plugins[name] instead.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsapp)
      */
-    app?: RouteOptionsApp | undefined;
+    app?: RouteOptionsApp;
 
     /**
      * @default null.
      * An object passed back to the provided handler (via this) when called. Ignored if the method is an arrow function.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsbind)
      */
-    bind?: MergeRefs<Refs>['Bind'] | undefined;
+    bind?: MergeRefs<Refs>['Bind'];
 
     /**
      * @default { privacy: 'default', statuses: [200], otherwise: 'no-cache' }.
@@ -670,13 +669,13 @@ export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
      * The default Cache-Control: no-cache header can be disabled by setting cache to false.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionscache)
      */
-    cache?: false | RouteOptionsCache | undefined;
+    cache?: false | RouteOptionsCache;
 
     /**
      * An object where each key is a content-encoding name and each value is an object with the desired encoder settings. Note that decoder settings are set in compression.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionscompression)
      */
-    compression?: Record<string, RouteCompressionEncoderSettings> | undefined;
+    compression?: Record<string, RouteCompressionEncoderSettings>;
 
     /**
      * @default false (no CORS headers).
@@ -694,7 +693,7 @@ export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
      * * credentials - if true, allows user credentials to be sent ('Access-Control-Allow-Credentials'). Defaults to false.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionscors)
      */
-    cors?: boolean | RouteOptionsCors | undefined;
+    cors?: boolean | RouteOptionsCors;
 
     /**
      * @default none.
@@ -702,7 +701,7 @@ export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
      * This setting is not available when setting server route defaults using server.options.routes.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsdescription)
      */
-    description?: string | undefined;
+    description?: string;
 
     /**
      * @default none.
@@ -713,7 +712,7 @@ export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
      */
     ext?: {
         [key in RouteRequestExtType]?: RouteExtObject | RouteExtObject[];
-    } | undefined;
+    };
 
     /**
      * @default { relativeTo: '.' }.
@@ -723,7 +722,7 @@ export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
      */
     files?: {
         relativeTo: string;
-    } | undefined;
+    };
 
     /**
      * @default none.
@@ -733,14 +732,14 @@ export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
      * generator. Note: handlers using a fat arrow style function cannot be bound to any bind property. Instead, the bound context is available under h.context.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionshandler)
      */
-    handler?: Lifecycle.Method<Refs> | object | undefined;
+    handler?: Lifecycle.Method<Refs> | object;
 
     /**
      * @default none.
      * An optional unique identifier used to look up the route using server.lookup(). Cannot be assigned to routes added with an array of methods.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsid)
      */
-    id?: string | undefined;
+    id?: string;
 
     /**
      * @default false.
@@ -748,7 +747,7 @@ export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
      * not be accessible to the outside world.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsisinternal)
      */
-    isInternal?: boolean | undefined;
+    isInternal?: boolean;
 
     /**
      * @default none.
@@ -759,7 +758,7 @@ export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
      * * escape - calls Hoek.jsonEscape() after conversion to JSON string. Defaults to false.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsjson)
      */
-    json?: Json.StringifyArguments | undefined;
+    json?: Json.StringifyArguments;
 
     /**
      * @default none.
@@ -769,7 +768,7 @@ export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
      * explicitly set by response.type().
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsjsonp)
      */
-    jsonp?: string | undefined;
+    jsonp?: string;
 
     /**
      * @default { collect: false }.
@@ -779,7 +778,7 @@ export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
      */
     log?: {
         collect: boolean;
-    } | undefined;
+    };
 
     /**
      * @default none.
@@ -787,20 +786,20 @@ export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
      * This setting is not available when setting server route defaults using server.options.routes.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsnotes)
      */
-    notes?: string | string[] | undefined;
+    notes?: string | string[];
 
     /**
      * Determines how the request payload is processed.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspayload)
      */
-    payload?: RouteOptionsPayload | undefined;
+    payload?: RouteOptionsPayload;
 
     /**
      * @default {}.
      * Plugin-specific configuration. plugins is an object where each key is a plugin name and the value is the plugin configuration.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsplugins)
      */
-    plugins?: PluginSpecificConfiguration | undefined;
+    plugins?: PluginSpecificConfiguration;
 
     /**
      * @default none.
@@ -820,19 +819,19 @@ export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
      * lifecycle methods.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspre)
      */
-    pre?: RouteOptionsPreArray<Refs> | undefined;
+    pre?: RouteOptionsPreArray<Refs>;
 
     /**
      * Processing rules for the outgoing response.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsresponse)
      */
-    response?: RouteOptionsResponse | undefined;
+    response?: RouteOptionsResponse;
 
     /**
      * @default false (security headers disabled).
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionssecurity)
      */
-    security?: RouteOptionsSecure | undefined;
+    security?: RouteOptionsSecure;
 
     /**
      * @default { parse: true, failAction: 'error' }.
@@ -842,9 +841,9 @@ export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsstate)
      */
     state?: {
-        parse?: boolean | undefined;
-        failAction?: Lifecycle.FailAction | undefined;
-    } | undefined;
+        parse?: boolean;
+        failAction?: Lifecycle.FailAction;
+    };
 
     /**
      * @default none.
@@ -852,7 +851,7 @@ export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
      * This setting is not available when setting server route defaults using server.options.routes.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionstags)
      */
-    tags?: string[] | undefined;
+    tags?: string[];
 
     /**
      * @default { server: false }.
@@ -864,42 +863,42 @@ export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
          * Response timeout in milliseconds. Sets the maximum time allowed for the server to respond to an incoming request before giving up and responding with a Service Unavailable (503) error
          * response.
          */
-        server?: boolean | number | undefined;
+        server?: boolean | number;
 
         /**
          * @default none (use node default of 2 minutes).
          * By default, node sockets automatically timeout after 2 minutes. Use this option to override this behavior. Set to false to disable socket timeouts.
          */
-        socket?: boolean | number | undefined;
-    } | undefined;
+        socket?: boolean | number;
+    };
 
     /**
      * @default { headers: true, params: true, query: true, payload: true, failAction: 'error' }.
      * Request input validation rules for various request components.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsvalidate)
      */
-    validate?: RouteOptionsValidate | undefined;
+    validate?: RouteOptionsValidate;
 }
 
 export interface AccessScopes {
-    forbidden?: string[] | undefined;
-    required?: string[] | undefined;
-    selection?: string[] | undefined;
+    forbidden?: string[];
+    required?: string[];
+    selection?: string[];
 }
 
 export interface AccessSetting {
-    entity?: AccessEntity | undefined;
+    entity?: AccessEntity;
     scope: AccessScopes | false;
 }
 
 export interface AuthSettings {
     strategies: string[];
     mode: AuthMode;
-    access?: AccessSetting[] | undefined;
+    access?: AccessSetting[];
 }
 
 export interface RouteSettings extends CommonRouteProperties {
-    auth?: AuthSettings | undefined;
+    auth?: AuthSettings;
 }
 
 /**
@@ -914,7 +913,7 @@ export interface RouteOptions<Refs extends ReqRef = ReqRefDefaults> extends Comm
      * an authentication configuration object.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsapp)
      */
-    auth?: false | string | RouteOptionsAccess | undefined;
+    auth?: false | string | RouteOptionsAccess;
 }
 
 export interface HandlerDecorations {}
@@ -972,21 +971,21 @@ export interface ServerRoute<Refs extends ReqRef = ReqRefDefaults> {
      * (optional) a domain string or an array of domain strings for limiting the route to only requests with a matching host header field. Matching is done against the hostname part of the header
      * only (excluding the port). Defaults to all hosts.
      */
-    vhost?: string | string[] | undefined;
+    vhost?: string | string[];
 
     /**
      * (required when handler is not set) the route handler function called to generate the response after successful authentication and validation.
      */
-    handler?: Lifecycle.Method<Refs> | HandlerDecorations | undefined;
+    handler?: Lifecycle.Method<Refs> | HandlerDecorations;
 
     /**
      * additional route options. The options value can be an object or a function that returns an object using the signature function(server) where server is the server the route is being added to
      * and this is bound to the current realm's bind option.
      */
-    options?: RouteOptions<Refs> | ((server: Server) => RouteOptions<Refs>) | undefined;
+    options?: RouteOptions<Refs> | ((server: Server) => RouteOptions<Refs>);
 
     /**
      * route custom rules object. The object is passed to each rules processor registered with server.rules(). Cannot be used if route.options.rules is defined.
      */
-    rules?: Refs['Rules'] | undefined;
+    rules?: Refs['Rules'];
 }

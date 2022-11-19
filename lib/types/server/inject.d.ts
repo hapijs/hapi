@@ -45,20 +45,20 @@ export interface ServerInjectOptions extends ShotRequestOptions {
          * The artifacts are used to bypass the default authentication strategies,
          * and are validated directly as if they were received via an authentication scheme. Defaults to no artifacts.
          */
-        artifacts?: AuthArtifacts | undefined;
-    } | undefined;
+        artifacts?: AuthArtifacts;
+    };
     /**
      * sets the initial value of request.app, defaults to {}.
      */
-    app?: RequestApplicationState | undefined;
+    app?: RequestApplicationState;
     /**
      * sets the initial value of request.plugins, defaults to {}.
      */
-    plugins?: PluginsStates | undefined;
+    plugins?: PluginsStates;
     /**
      * allows access to routes with config.isInternal set to true. Defaults to false.
      */
-    allowInternals?: boolean | undefined;
+    allowInternals?: boolean;
 }
 
 /**

@@ -42,13 +42,13 @@ export namespace Json {
      */
     interface StringifyArguments {
         /** the replacer function or array. Defaults to no action. */
-        replacer?: StringifyReplacer | undefined;
+        replacer?: StringifyReplacer;
         /** number of spaces to indent nested object keys. Defaults to no indentation. */
-        space?: StringifySpace | undefined;
+        space?: StringifySpace;
         /* string suffix added after conversion to JSON string. Defaults to no suffix. */
-        suffix?: string | undefined;
+        suffix?: string;
         /* calls Hoek.jsonEscape() after conversion to JSON string. Defaults to false. */
-        escape?: boolean | undefined;
+        escape?: boolean;
     }
 }
 

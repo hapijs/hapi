@@ -40,7 +40,7 @@ export interface ServerAuthSchemeObject<Refs extends ReqRef = ReqRefDefaults> {
     /**
      * optional object which is exposed via the [server.auth.api](https://github.com/hapijs/hapi/blob/master/API.md#server.auth.api) object.
      */
-    api?: MergeRefs<Refs>['AuthApi'] | undefined;
+    api?: MergeRefs<Refs>['AuthApi'];
 
     /**
      * A lifecycle method function called for each incoming request configured with the authentication scheme. The
@@ -96,8 +96,8 @@ export interface ServerAuthSchemeObject<Refs extends ReqRef = ReqRefDefaults> {
         /**
          * if true, requires payload validation as part of the scheme and forbids routes from disabling payload auth validation. Defaults to false.
          */
-        payload?: boolean | undefined;
-    } | undefined;
+        payload?: boolean;
+    };
 }
 
 /**

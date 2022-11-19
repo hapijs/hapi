@@ -35,16 +35,16 @@ export interface AuthCredentials<
      * The application scopes to be granted.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsauthaccessscope)
      */
-    scope?: string[] | undefined;
+    scope?: string[];
     /**
      * If set, will only work with routes that set `access.entity` to `user`.
      */
-    user?: MergeType<UserCredentials, AuthUser> | undefined;
+    user?: MergeType<UserCredentials, AuthUser>;
 
     /**
      * If set, will only work with routes that set `access.entity` to `app`.
      */
-    app?: MergeType<AppCredentials, AuthApp> | undefined;
+    app?: MergeType<AppCredentials, AuthApp>;
 }
 
 export interface AuthArtifacts {
@@ -159,7 +159,7 @@ export interface RequestInfo {
          * true if the request 'Origin' header matches the configured CORS restrictions. Set to false if no 'Origin' header is found or if it does not match. Note that this is only available after
          * the 'onRequest' extension point as CORS is configured per-route and no routing decisions are made at that point in the request lifecycle.
          */
-        isOriginMatch?: boolean | undefined;
+        isOriginMatch?: boolean;
     };
     /** content of the HTTP 'Host' header (e.g. 'example.com:8080'). */
     host: string;
@@ -199,7 +199,7 @@ export interface RequestRoute {
     path: string;
 
     /** the route vhost option if configured. */
-    vhost?: string | string[] | undefined;
+    vhost?: string | string[];
 
     /** the active realm associated with the route. */
     realm: ServerRealm;
@@ -478,7 +478,7 @@ export interface Request<Refs extends ReqRef = ReqRefDefaults> extends Podium {
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-requestgenerateresponsesource-options)
      */
     /* tslint:disable-next-line:max-line-length */
-    generateResponse(source: string | object | null, options?: { variety?: string | undefined; prepare?: ((response: ResponseObject) => Promise<ResponseObject>) | undefined; marshal?: ((response: ResponseObject) => Promise<ResponseValue>) | undefined; close?: ((response: ResponseObject) => void | undefined); }): ResponseObject;
+    generateResponse(source: string | object | null, options?: { variety?: string; prepare?: ((response: ResponseObject) => Promise<ResponseObject>); marshal?: ((response: ResponseObject) => Promise<ResponseValue>); close?: ((response: ResponseObject) => void); }): ResponseObject;
 
     /**
      * Logs request-specific events. When called, the server emits a 'request' event which can be used by other listeners or plugins. The arguments are:

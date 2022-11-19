@@ -11,9 +11,7 @@ import { Lifecycle } from './utils';
  * {@link https://www.npmjs.com/package/semver version range string} which must match the registered
  *  plugin version.
  */
-export type Dependencies = string | string[] | {
-    [key: string]: string;
-};
+export type Dependencies = string | string[] | Record<string, string>;
 
 /**
  * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverregistrations)
@@ -64,14 +62,41 @@ export interface PluginNameVersion {
      * optional plugin version. The version is only used informatively to enable other plugins to find out the versions loaded. The version should be the same as the one specified in the plugin's
      * 'package.json' file.
      */
-    version?: string | undefined;
+    version?: string;
 }
 
 export interface PluginPackage {
     /**
      * Alternatively, the name and version can be included via the pkg property containing the 'package.json' file for the module which already has the name and version included
      */
-    pkg: any;
+    pkg: PluginNameVersion;
+}
+
+export interface PluginBase<T> {
+    /**
+     * (required) the registration function with the signature async function(server, options) where:
+     * * server - the server object with a plugin-specific server.realm.
+     * * options - any options passed to the plugin during registration via server.register().
+     */
+    register: (server: Server, options: T) => void | Promise<void>;
+
+    /** (optional) if true, allows the plugin to be registered multiple times with the same server. Defaults to false. */
+    multiple?: boolean;
+
+    /** (optional) a string or an array of strings indicating a plugin dependency. Same as setting dependencies via server.dependency(). */
+    dependencies?: Dependencies;
+
+    /**
+     * Allows defining semver requirements for node and hapi.
+     * @default Allows all.
+     */
+    requirements?: {
+        node?: string;
+        hapi?: string;
+    };
+
+    /** once - (optional) if true, will only register the plugin once per server. If set, overrides the once option passed to server.register(). Defaults to no override. */
+    once?: boolean;
 }
 
 /**
@@ -83,33 +108,6 @@ export interface PluginPackage {
  *
  * The type T is the type of the plugin options.
  */
-export interface PluginBase<T> {
-    /**
-     * (required) the registration function with the signature async function(server, options) where:
-     * * server - the server object with a plugin-specific server.realm.
-     * * options - any options passed to the plugin during registration via server.register().
-     */
-    register: (server: Server, options: T) => void | Promise<void>;
-
-    /** (optional) if true, allows the plugin to be registered multiple times with the same server. Defaults to false. */
-    multiple?: boolean | undefined;
-
-    /** (optional) a string or an array of strings indicating a plugin dependency. Same as setting dependencies via server.dependency(). */
-    dependencies?: Dependencies | undefined;
-
-    /**
-     * Allows defining semver requirements for node and hapi.
-     * @default Allows all.
-     */
-    requirements?: {
-        node?: string | undefined;
-        hapi?: string | undefined;
-    } | undefined;
-
-    /** once - (optional) if true, will only register the plugin once per server. If set, overrides the once option passed to server.register(). Defaults to no override. */
-    once?: boolean | undefined;
-}
-
 export type Plugin<T> = PluginBase<T> & (PluginNameVersion | PluginPackage);
 
 /**
@@ -166,7 +164,7 @@ export interface ServerRegisterOptions {
      * if true, subsequent registrations of the same plugin are skipped without error. Cannot be used with plugin options. Defaults to false. If not set to true, an error will be thrown the second
      * time a plugin is registered on the server.
      */
-    once?: boolean | undefined;
+    once?: boolean;
     /**
      * modifiers applied to each route added by the plugin:
      */
@@ -178,8 +176,8 @@ export interface ServerRegisterOptions {
         /**
          * virtual host string (or array of strings) applied to every route. The outer-most vhost overrides the any nested configuration.
          */
-        vhost?: string | string[] | undefined;
-    } | undefined;
+        vhost?: string | string[];
+    };
 }
 
 /**
@@ -204,7 +202,7 @@ export interface ServerRegisterPluginObject<T> extends ServerRegisterOptions {
     /**
      * options passed to the plugin during registration.
      */
-    options?: T | undefined;
+    options?: T;
 }
 
 export type ServerRegisterPluginObjectArray<T, U, V, W, X, Y, Z> = (
@@ -223,7 +221,7 @@ export type ServerRegisterPluginObjectArray<T, U, V, W, X, Y, Z> = (
  */
 export interface HandlerDecorationMethod {
     (route: RequestRoute, options: any): Lifecycle.Method;
-    defaults?: RouteOptions | ((method: any) => RouteOptions) | undefined;
+    defaults?: RouteOptions | ((method: any) => RouteOptions);
 }
 
 /**
