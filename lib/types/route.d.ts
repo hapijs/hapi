@@ -4,7 +4,7 @@ import { ObjectSchema, ValidationOptions, SchemaMap, Schema } from 'joi';
 import { PluginSpecificConfiguration} from './plugin';
 import { MergeType, ReqRef, ReqRefDefaults, MergeRefs, AuthMode } from './request';
 import { RouteRequestExtType, RouteExtObject, Server } from './server';
-import { Utils, Lifecycle, Json } from './utils';
+import { Lifecycle, Json, HTTP_METHODS_PARTIAL } from './utils';
 
 /**
  * Overrides for `InternalRouteOptionType`. Extend this to have
@@ -101,7 +101,7 @@ export interface RouteOptionsAccess {
      * An array of string strategy names in the order they should be attempted. Cannot be used together with strategy.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsauthstrategies)
      */
-    strategies?: Array<MergeType<InternalRouteOptionType, RouteOptionTypes>['Strategy']> | undefined;
+    strategies?: (MergeType<InternalRouteOptionType, RouteOptionTypes>['Strategy'])[] | undefined;
 
     /**
      * @default the default strategy set via server.auth.default().
@@ -233,7 +233,7 @@ export interface RouteOptionsPayload {
      * An object where each key is a content-encoding name and each value is an object with the desired decoder settings. Note that encoder settings are set in compression.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspayloadcompression)
      */
-    compression?: Utils.Dictionary<PayloadCompressionDecoderSettings> | undefined;
+    compression?: Record<string, PayloadCompressionDecoderSettings> | undefined;
 
     /**
      * @default 'application/json'.
@@ -328,12 +328,12 @@ export interface RouteOptionsPayload {
 /**
  * For context [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspre)
  */
-export type RouteOptionsPreArray<Refs extends ReqRef = ReqRefDefaults> = Array<RouteOptionsPreAllOptions<Refs>>;
+export type RouteOptionsPreArray<Refs extends ReqRef = ReqRefDefaults> = RouteOptionsPreAllOptions<Refs>[];
 
 /**
  * For context [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspre)
  */
-export type RouteOptionsPreAllOptions<Refs extends ReqRef = ReqRefDefaults> = RouteOptionsPreObject<Refs> | Array<RouteOptionsPreObject<Refs>> | Lifecycle.Method<Refs>;
+export type RouteOptionsPreAllOptions<Refs extends ReqRef = ReqRefDefaults> = RouteOptionsPreObject<Refs> | RouteOptionsPreObject<Refs>[] | Lifecycle.Method<Refs>;
 
 /**
  * An object with:
@@ -442,7 +442,7 @@ export interface RouteOptionsResponse {
      * status is set to an object where each key is a 3 digit HTTP status code and the value has the same definition as schema.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsresponsestatus)
      */
-    status?: Utils.Dictionary<RouteOptionsResponseSchema> | undefined;
+    status?: Record<string, RouteOptionsResponseSchema> | undefined;
 
     /**
      * The default HTTP status code used to set a response error when the request is closed or aborted before the
@@ -676,7 +676,7 @@ export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
      * An object where each key is a content-encoding name and each value is an object with the desired encoder settings. Note that decoder settings are set in compression.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionscompression)
      */
-    compression?: Utils.Dictionary<RouteCompressionEncoderSettings> | undefined;
+    compression?: Record<string, RouteCompressionEncoderSettings> | undefined;
 
     /**
      * @default false (no CORS headers).
@@ -966,7 +966,7 @@ export interface ServerRoute<Refs extends ReqRef = ReqRefDefaults> {
      * (only when an exact match was not found, and any match with a specific method will be given a higher priority over a wildcard match). Can be assigned an array of methods which has the same
      * result as adding the same route with different methods manually.
      */
-    method: Utils.HTTP_METHODS_PARTIAL | Utils.HTTP_METHODS_PARTIAL[] | string | string[];
+    method: HTTP_METHODS_PARTIAL | HTTP_METHODS_PARTIAL[] | string | string[];
 
     /**
      * (optional) a domain string or an array of domain strings for limiting the route to only requests with a matching host header field. Matching is done against the hostname part of the header

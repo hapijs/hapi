@@ -207,7 +207,7 @@ export interface ServerRegisterPluginObject<T> extends ServerRegisterOptions {
     options?: T | undefined;
 }
 
-export type ServerRegisterPluginObjectArray<T, U, V, W, X, Y, Z> = Array<
+export type ServerRegisterPluginObjectArray<T, U, V, W, X, Y, Z> = (
     ServerRegisterPluginObject<T> |
     ServerRegisterPluginObject<U> |
     ServerRegisterPluginObject<V> |
@@ -215,7 +215,7 @@ export type ServerRegisterPluginObjectArray<T, U, V, W, X, Y, Z> = Array<
     ServerRegisterPluginObject<X> |
     ServerRegisterPluginObject<Y> |
     ServerRegisterPluginObject<Z>
->;
+)[];
 
 /**
  * The method function can have a defaults object or function property. If the property is set to an object, that object is used as the default route config for routes using this handler.

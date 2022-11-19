@@ -13,8 +13,14 @@ import {
     MergeRefs,
     Request
 } from './request';
-import { PeekListener, ResponseApplicationState, Lifecycle, Json, Utils } from './utils';
+import { PeekListener, Lifecycle, Json } from './utils';
 import { ServerStateCookieOptions } from './server';
+
+/**
+ *  User-extensible type for application specific state on responses (`response.app`).
+ */
+export interface ResponseApplicationState {
+}
 
 /**
  * Access: read only and the public podium interface.
@@ -88,7 +94,7 @@ export interface ResponseObject extends Podium {
      * Note that this is an incomplete list of headers to be included with the response. Additional headers will be added once the response is prepared for transmission.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-responseheaders)
      */
-    readonly headers: Utils.Dictionary<string | string[]>;
+    readonly headers: Record<string, string | string[]>;
 
     /**
      * @default {}.

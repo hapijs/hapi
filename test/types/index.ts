@@ -1,3 +1,6 @@
+import { types as lab } from '@hapi/lab';
+import { expect } from '@hapi/code';
+
 import {
     Plugin,
     Request,
@@ -7,10 +10,7 @@ import {
     server as createServer
 } from '../..';
 
-import * as Lab from '@hapi/lab';
-import { expect } from '@hapi/code';
-
-const { expect: check } = Lab.types;
+const { expect: check } = lab;
 
 declare module '../..' {
     interface PluginProperties {

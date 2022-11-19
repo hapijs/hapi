@@ -31,7 +31,7 @@ import {
     RulesProcessor,
     ServerRoute
 } from '../route';
-import { Lifecycle, Utils } from '../utils';
+import { HTTP_METHODS, Lifecycle } from '../utils';
 import { ServerAuth } from './auth';
 import { ServerCache } from './cache';
 import { ServerEventsApplication, ServerEvents } from './events';
@@ -57,7 +57,6 @@ import { ServerState, ServerStateCookieOptions } from './state';
 /**
  *  User-extensible type for application specific state (`server.app`).
  */
-
 export interface ServerApplicationState {
 }
 
@@ -444,7 +443,6 @@ export class Server<A = ServerApplicationState> {
      * * request - the request object.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-await-serverinjectoptions)
      */
-    // tslint:disable-next-line no-unnecessary-generics
     inject <Result = object>(options: string | ServerInjectOptions): Promise<ServerInjectResponse<Result>>;
 
     /**
@@ -476,7 +474,7 @@ export class Server<A = ServerApplicationState> {
      * @return Return value: the route information if found, otherwise null.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-servermatchmethod-path-host)
      */
-    match(method: Utils.HTTP_METHODS, path: string, host?: string): RequestRoute | null;
+    match(method: HTTP_METHODS, path: string, host?: string): RequestRoute | null;
 
     /**
      * Registers a server method where:
@@ -539,13 +537,10 @@ export class Server<A = ServerApplicationState> {
      * @return Return value: none.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-await-serverregisterplugins-options)
      */
-     /* tslint:disable-next-line:no-unnecessary-generics */
     register<T>(plugin: ServerRegisterPluginObject<T>, options?: ServerRegisterOptions): Promise<void>;
-    /* tslint:disable-next-line:no-unnecessary-generics */
     register<T, U, V, W, X, Y, Z>(plugins: ServerRegisterPluginObjectArray<T, U, V, W, X, Y, Z>, options?: ServerRegisterOptions): Promise<void>;
-    register(plugins: Array<ServerRegisterPluginObject<any>>, options?: ServerRegisterOptions): Promise<void>;
-    /* tslint:disable-next-line:unified-signatures */
-    register(plugins: Plugin<any> | Array<Plugin<any>>, options?: ServerRegisterOptions): Promise<void>;
+    register(plugins: ServerRegisterPluginObject<any>[], options?: ServerRegisterOptions): Promise<void>;
+    register(plugins: Plugin<any> | Plugin<any>[], options?: ServerRegisterOptions): Promise<void>;
 
     /**
      * Adds a route where:
@@ -565,9 +560,7 @@ export class Server<A = ServerApplicationState> {
      * Note that the options object is deeply cloned (with the exception of bind which is shallowly copied) and cannot contain any values that are unsafe to perform deep copy on.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverrouteroute)
      */
-
-    // tslint:disable-next-line:no-unnecessary-generics
-    route <Refs extends ReqRef = ReqRefDefaults>(route: ServerRoute<Refs> | Array<ServerRoute<Refs>>): void;
+    route <Refs extends ReqRef = ReqRefDefaults>(route: ServerRoute<Refs> | ServerRoute<Refs>[]): void;
 
     /**
      * Defines a route rules processor for converting route rules object into route configuration where:

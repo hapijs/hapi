@@ -10,7 +10,7 @@ import { ResponseObject } from '@hapi/shot';
 import { ResponseValue } from './response';
 import { RouteRules, RouteSettings } from './route';
 import { ServerAuthSchemeObjectApi } from './server';
-import { PeekListener, RequestApplicationState, Utils } from './utils';
+import { HTTP_METHODS_PARTIAL, HTTP_METHODS_PARTIAL_LOWERCASE, PeekListener } from './utils';
 
 /**
  * User extensible types user credentials.
@@ -193,7 +193,7 @@ export interface RequestInfo {
  */
 export interface RequestRoute {
     /** the route HTTP method. */
-    method: Utils.HTTP_METHODS_PARTIAL;
+    method: HTTP_METHODS_PARTIAL;
 
     /** the route path. */
     path: string;
@@ -247,12 +247,18 @@ export interface RequestQuery {
     [key: string]: any;
 }
 
+/**
+ *  User-extensible type for application specific state on requests (`request.app`).
+ */
+export interface RequestApplicationState {
+}
+
 export interface InternalRequestDefaults {
     Payload: stream.Readable | Buffer | string | object;
     Query: RequestQuery;
-    Params: Utils.Dictionary<any>;
-    Pres: Utils.Dictionary<any>;
-    Headers: Utils.Dictionary<any>;
+    Params: Record<string, any>;
+    Pres: Record<string, any>;
+    Headers: Record<string, any>;
     RequestApp: RequestApplicationState;
 
     AuthUser: UserCredentials;
@@ -361,7 +367,7 @@ export interface Request<Refs extends ReqRef = ReqRefDefaults> extends Podium {
     /**
      * The request method in lower case (e.g. 'get', 'post').
      */
-    readonly method: Utils.HTTP_METHODS_PARTIAL_LOWERCASE;
+    readonly method: HTTP_METHODS_PARTIAL_LOWERCASE;
 
     /**
      * The parsed content-type header. Only available when payload parsing enabled and no payload error occurred.
@@ -416,7 +422,7 @@ export interface Request<Refs extends ReqRef = ReqRefDefaults> extends Podium {
     /**
      * Same as pre but represented as the response object created by the pre method.
      */
-    readonly preResponses: Utils.Dictionary<any>;
+    readonly preResponses: Record<string, any>;
 
     /**
      * By default the object outputted from node's URL parse() method.
@@ -449,7 +455,7 @@ export interface Request<Refs extends ReqRef = ReqRefDefaults> extends Podium {
     /**
      * An object containing parsed HTTP state information (cookies) where each key is the cookie name and value is the matching cookie content after processing using any registered cookie definition.
      */
-    readonly state: Utils.Dictionary<any>;
+    readonly state: Record<string, any>;
 
     /**
      * The parsed request URI.
@@ -493,7 +499,7 @@ export interface Request<Refs extends ReqRef = ReqRefDefaults> extends Podium {
      * Can only be called from an 'onRequest' extension method.
      * [See docs](https://hapijs.com/api/17.0.1#-requestsetmethodmethod)
      */
-    setMethod(method: Utils.HTTP_METHODS_PARTIAL): void;
+    setMethod(method: HTTP_METHODS_PARTIAL): void;
 
     /**
      * Changes the request URI before the router begins processing the request where:

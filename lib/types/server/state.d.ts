@@ -2,7 +2,6 @@
 import { SealOptions, SealOptionsSub } from '@hapi/iron';
 
 import { Request } from '../request';
-import { Utils } from '../utils';
 
 export type SameSitePolicy = false | 'None' | 'Lax' | 'Strict';
 
@@ -134,5 +133,5 @@ export interface ServerState {
      * Note that this utility uses the server configuration but does not change the server state. It is provided for manual cookie parsing (e.g. when server parsing is disabled).
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-async-serverstatesparseheader)
      */
-    parse(header: string): Promise<Utils.Dictionary<string>>;
+    parse(header: string): Promise<Record<string, string>>;
 }

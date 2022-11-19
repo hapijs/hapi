@@ -6,7 +6,6 @@ import { MimosOptions } from '@hapi/mimos';
 import { PluginSpecificConfiguration } from '../plugin';
 import { RouteOptions } from '../route';
 import { CacheProvider, ServerOptionsCache } from './cache';
-import { Utils } from '../utils';
 import { SameSitePolicy } from './state';
 
 export interface ServerOptionsCompression {
@@ -227,6 +226,6 @@ export interface ServerOptions {
          * the method must return an object where each key is a parameter and matching value is the parameter value.
          * If the method throws, the error is used as the response or returned when `request.setUrl` is called.
          */
-        parser(raw: Utils.Dictionary<string>): Utils.Dictionary<any>;
+        parser(raw: Record<string, string>): Record<string, any>;
     } | undefined;
 }
