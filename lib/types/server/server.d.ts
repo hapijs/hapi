@@ -2,8 +2,21 @@ import * as http from 'http';
 import * as zlib from 'zlib';
 
 import { Root } from 'joi';
+import { Mimos } from '@hapi/mimos';
 
-import { Dependencies, PluginsListRegistered, Plugin, ServerRealm, ServerRegisterOptions, ServerRegisterPluginObject, ServerRegisterPluginObjectArray, DecorateName, DecorationMethod, HandlerDecorationMethod, PluginProperties } from '../plugin';
+import {
+    Dependencies,
+    PluginsListRegistered,
+    Plugin,
+    ServerRealm,
+    ServerRegisterOptions,
+    ServerRegisterPluginObject,
+    ServerRegisterPluginObjectArray,
+    DecorateName,
+    DecorationMethod,
+    HandlerDecorationMethod,
+    PluginProperties
+} from '../plugin';
 import {
     ReqRef,
     ReqRefDefaults,
@@ -18,18 +31,26 @@ import {
     RulesProcessor,
     ServerRoute
 } from '../route';
-import {
-    Lifecycle,
-    ServerApplicationState,
-    Utils
- } from '../utils';
+import { Lifecycle, ServerApplicationState, Utils } from '../utils';
 import { ServerAuth } from './auth';
 import { ServerCache } from './cache';
 import { ServerEventsApplication, ServerEvents } from './events';
-import { ServerExtEventsObject, ServerExtEventsRequestObject, ServerExtType, ServerExtPointFunction, ServerExtOptions, ServerRequestExtType } from './ext';
+import {
+    ServerExtEventsObject,
+    ServerExtEventsRequestObject,
+    ServerExtType,
+    ServerExtPointFunction,
+    ServerExtOptions,
+    ServerRequestExtType
+} from './ext';
 import { ServerInfo } from './info';
 import { ServerInjectOptions, ServerInjectResponse } from './inject';
-import { ServerMethod, ServerMethodOptions, ServerMethodConfigurationObject, ServerMethods } from './methods';
+import {
+    ServerMethod,
+    ServerMethodOptions,
+    ServerMethodConfigurationObject,
+    ServerMethods
+} from './methods';
 import { ServerOptions } from './options';
 import { ServerState, ServerStateCookieOptions } from './state';
 
@@ -184,7 +205,7 @@ export class Server {
      * modified directly but only through the [mime](https://github.com/hapijs/hapi/blob/master/API.md#server.options.mime) server setting.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-servermime)
      */
-    mime: any;
+    mime: Mimos;
 
     /**
      * An object containing the values exposed by each registered plugin where each key is a plugin name and the values
