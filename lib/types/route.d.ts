@@ -1,9 +1,9 @@
 
-import { ValidationOptions, SchemaMap, Schema } from 'joi';
+import { ObjectSchema, ValidationOptions, SchemaMap, Schema } from 'joi';
 
 import { PluginSpecificConfiguration} from './plugin';
 import { MergeType, ReqRef, ReqRefDefaults, MergeRefs, AuthMode } from './request';
-import { RouteRequestExtType, RouteExtObject } from './server';
+import { RouteRequestExtType, RouteExtObject, Server } from './server';
 import { Utils, Lifecycle, Json } from './utils';
 
 /**
@@ -915,4 +915,78 @@ export interface RouteOptions<Refs extends ReqRef = ReqRefDefaults> extends Comm
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsapp)
      */
     auth?: false | string | RouteOptionsAccess | undefined;
+}
+
+export interface HandlerDecorations {}
+
+export interface RouteRules {}
+
+export interface RulesInfo {
+    method: string;
+    path: string;
+    vhost: string;
+}
+
+export interface RulesOptions<Refs extends ReqRef = ReqRefDefaults> {
+    validate: {
+        schema?: ObjectSchema<MergeRefs<Refs>['Rules']> | Record<keyof MergeRefs<Refs>['Rules'], Schema>;
+        options?: ValidationOptions;
+    };
+}
+
+export interface RulesProcessor<Refs extends ReqRef = ReqRefDefaults> {
+    (rules: MergeRefs<Refs>['Rules'] | null, info: RulesInfo): Partial<RouteOptions<Refs>> | null;
+}
+
+/**
+ * A route configuration object or an array of configuration objects where each object contains:
+ * * path - (required) the absolute path used to match incoming requests (must begin with '/'). Incoming requests are compared to the configured paths based on the server's router configuration. The
+ * path can include named parameters enclosed in {} which will be matched against literal values in the request as described in Path parameters.
+ * * method - (required) the HTTP method. Typically one of 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', or 'OPTIONS'. Any HTTP method is allowed, except for 'HEAD'. Use '*' to match against any HTTP
+ * method (only when an exact match was not found, and any match with a specific method will be given a higher priority over a wildcard match). Can be assigned an array of methods which has the same
+ * result as adding the same route with different methods manually.
+ * * vhost - (optional) a domain string or an array of domain strings for limiting the route to only requests with a matching host header field. Matching is done against the hostname part of the
+ * header only (excluding the port). Defaults to all hosts.
+ * * handler - (required when handler is not set) the route handler function called to generate the response after successful authentication and validation.
+ * * options - additional route options. The options value can be an object or a function that returns an object using the signature function(server) where server is the server the route is being
+ * added to and this is bound to the current realm's bind option.
+ * * rules - route custom rules object. The object is passed to each rules processor registered with server.rules(). Cannot be used if route.options.rules is defined.
+ * For context [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverrouteroute)
+ */
+export interface ServerRoute<Refs extends ReqRef = ReqRefDefaults> {
+    /**
+     * (required) the absolute path used to match incoming requests (must begin with '/'). Incoming requests are compared to the configured paths based on the server's router configuration. The path
+     * can include named parameters enclosed in {} which will be matched against literal values in the request as described in Path parameters. For context [See
+     * docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverrouteroute) For context [See docs](https://github.com/hapijs/hapi/blob/master/API.md#path-parameters)
+     */
+    path: string;
+
+    /**
+     * (required) the HTTP method. Typically one of 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', or 'OPTIONS'. Any HTTP method is allowed, except for 'HEAD'. Use '*' to match against any HTTP method
+     * (only when an exact match was not found, and any match with a specific method will be given a higher priority over a wildcard match). Can be assigned an array of methods which has the same
+     * result as adding the same route with different methods manually.
+     */
+    method: Utils.HTTP_METHODS_PARTIAL | Utils.HTTP_METHODS_PARTIAL[] | string | string[];
+
+    /**
+     * (optional) a domain string or an array of domain strings for limiting the route to only requests with a matching host header field. Matching is done against the hostname part of the header
+     * only (excluding the port). Defaults to all hosts.
+     */
+    vhost?: string | string[] | undefined;
+
+    /**
+     * (required when handler is not set) the route handler function called to generate the response after successful authentication and validation.
+     */
+    handler?: Lifecycle.Method<Refs> | HandlerDecorations | undefined;
+
+    /**
+     * additional route options. The options value can be an object or a function that returns an object using the signature function(server) where server is the server the route is being added to
+     * and this is bound to the current realm's bind option.
+     */
+    options?: RouteOptions<Refs> | ((server: Server) => RouteOptions<Refs>) | undefined;
+
+    /**
+     * route custom rules object. The object is passed to each rules processor registered with server.rules(). Cannot be used if route.options.rules is defined.
+     */
+    rules?: Refs['Rules'] | undefined;
 }

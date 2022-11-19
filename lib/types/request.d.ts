@@ -5,11 +5,11 @@ import * as url from 'url';
 import { Boom } from '@hapi/boom';
 import { Podium } from '@hapi/podium';
 
-import { PluginsStates } from './plugin';
+import { PluginsStates, ServerRealm } from './plugin';
 import { ResponseObject } from '@hapi/shot';
 import { ResponseValue } from './response';
-import { RouteSettings } from './route';
-import { ServerRealm, ServerAuthSchemeObjectApi, RouteRules } from './server';
+import { RouteRules, RouteSettings } from './route';
+import { ServerAuthSchemeObjectApi } from './server';
 import { PeekListener, RequestApplicationState, Utils } from './utils';
 
 /**
