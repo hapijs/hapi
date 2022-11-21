@@ -12,14 +12,6 @@ import {
 
 const { expect: check } = lab;
 
-declare module '../..' {
-    interface PluginProperties {
-        test: {
-            add(a: number, b: number): number;
-        };
-    }
-}
-
 interface ServerAppSpace {
     multi?: number;
 }
@@ -44,7 +36,15 @@ interface TestPluginOptions {
     x: number;
 }
 
-const plugin: Plugin<TestPluginOptions> = {
+interface TestPluginDecorations {
+    plugins: {
+        test: {
+            add(a: number, b: number): number;
+        };
+    }
+}
+
+const plugin: Plugin<TestPluginOptions, TestPluginDecorations> = {
     name: 'test',
     version: '1.0.0',
     register: function (srv: MyServer, options) {
@@ -60,8 +60,8 @@ const plugin: Plugin<TestPluginOptions> = {
     }
 };
 
-await server.register({ plugin, options: { x: 10 } });
+const loadedServer = await server.register({ plugin, options: { x: 10 } });
 
-const sum = server.plugins.test.add(1, 2);
+const sum = loadedServer.plugins.test.add(1, 2);
 expect(sum).to.equal(130);
 check.type<number>(sum);

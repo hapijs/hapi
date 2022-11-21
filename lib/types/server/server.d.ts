@@ -15,7 +15,8 @@ import {
     DecorateName,
     DecorationMethod,
     HandlerDecorationMethod,
-    PluginProperties
+    PluginProperties,
+    ServerPluginDecorations
 } from '../plugin';
 import {
     ReqRef,
@@ -537,10 +538,11 @@ export class Server<A = ServerApplicationState> {
      * @return Return value: none.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-await-serverregisterplugins-options)
      */
-    register(plugins: Plugin<any> | Plugin<any>[], options?: ServerRegisterOptions): Promise<Server>;
-    register<T>(plugin: ServerRegisterPluginObject<T>, options?: ServerRegisterOptions): Promise<Server>;
-    register(plugins: ServerRegisterPluginObject<any>[], options?: ServerRegisterOptions): Promise<Server>;
-    register<T, U, V, W, X, Y, Z>(plugins: ServerRegisterPluginObjectArray<T, U, V, W, X, Y, Z>, options?: ServerRegisterOptions): Promise<Server>;
+    register<T, D extends ServerPluginDecorations>(plugins: Plugin<T, D>, options?: ServerRegisterOptions): Promise<Server<A> & D>;
+    register(plugins: Plugin<any>[], options?: ServerRegisterOptions): Promise<Server<A>>;
+    register<T, D extends ServerPluginDecorations>(plugin: ServerRegisterPluginObject<T, D>, options?: ServerRegisterOptions): Promise<Server<A> & D>;
+    register(plugins: ServerRegisterPluginObject<any>[], options?: ServerRegisterOptions): Promise<Server<A>>;
+    register<T, U, V, W, X, Y, Z>(plugins: ServerRegisterPluginObjectArray<T, U, V, W, X, Y, Z>, options?: ServerRegisterOptions): Promise<Server<A>>;
 
     /**
      * Adds a route where:

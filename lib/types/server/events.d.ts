@@ -162,16 +162,12 @@ export interface ServerEvents extends Podium {
      * See ['stop' event](https://github.com/hapijs/hapi/blob/master/API.md#-stop-event)
      */
     on(criteria: 'log' | ServerEventCriteria<'log'>, listener: LogEventHandler): this;
-
     on(criteria: 'request' | ServerEventCriteria<'request'>, listener: RequestEventHandler): this;
-
     on(criteria: 'response' | ServerEventCriteria<'response'>, listener: ResponseEventHandler): this;
-
     on(criteria: 'route' | ServerEventCriteria<'route'>, listener: RouteEventHandler): this;
-
     on(criteria: 'start' | ServerEventCriteria<'start'>, listener: StartEventHandler): this;
-
     on(criteria: 'stop' | ServerEventCriteria<'stop'>, listener: StopEventHandler): this;
+    on(criteria: string | ServerEventCriteria<string>, listener: (value: any) => void): this;
 
     /**
      * Same as calling [server.events.on()](https://github.com/hapijs/hapi/blob/master/API.md#server.events.on()) with the count option set to 1.
@@ -184,15 +180,10 @@ export interface ServerEvents extends Podium {
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-servereventsoncecriteria-listener)
      */
     once(criteria: 'log' | ServerEventCriteria<'log'>, listener: LogEventHandler): this;
-
     once(criteria: 'request' | ServerEventCriteria<'request'>, listener: RequestEventHandler): this;
-
     once(criteria: 'response' | ServerEventCriteria<'response'>, listener: ResponseEventHandler): this;
-
     once(criteria: 'route' | ServerEventCriteria<'route'>, listener: RouteEventHandler): this;
-
     once(criteria: 'start' | ServerEventCriteria<'start'>, listener: StartEventHandler): this;
-
     once(criteria: 'stop' | ServerEventCriteria<'stop'>, listener: StopEventHandler): this;
 
     /**

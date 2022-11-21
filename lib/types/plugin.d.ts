@@ -72,7 +72,12 @@ export interface PluginPackage {
     pkg: PluginNameVersion;
 }
 
-export interface PluginBase<T> {
+export interface ServerPluginDecorations {
+    plugins?: Record<string, any>;
+    methods?: Record<string, any>;
+}
+
+export interface PluginBase<T, _D extends ServerPluginDecorations> {
     /**
      * (required) the registration function with the signature async function(server, options) where:
      * * server - the server object with a plugin-specific server.realm.
@@ -108,7 +113,7 @@ export interface PluginBase<T> {
  *
  * The type T is the type of the plugin options.
  */
-export type Plugin<T> = PluginBase<T> & (PluginNameVersion | PluginPackage);
+export type Plugin<T, D extends ServerPluginDecorations = ServerPluginDecorations> = PluginBase<T, D> & (PluginNameVersion | PluginPackage);
 
 /**
  * The realm object contains sandboxed server settings specific to each plugin or authentication strategy. When registering a plugin or an authentication scheme, a server object reference is provided
@@ -180,9 +185,31 @@ export interface ServerRegisterOptions {
     };
 }
 
+export interface ServerRegisterPluginObjectDirect<T, D extends ServerPluginDecorations = ServerPluginDecorations> extends ServerRegisterOptions {
+    /**
+     * a plugin object.
+     */
+    plugin: Plugin<T, D>;
+    /**
+     * options passed to the plugin during registration.
+     */
+    options?: T;
+}
+
+export interface ServerRegisterPluginObjectWrapped<T, D extends ServerPluginDecorations = ServerPluginDecorations> extends ServerRegisterOptions {
+    /**
+     * a plugin object.
+     */
+    plugin: { plugin: Plugin<T, D> };
+    /**
+     * options passed to the plugin during registration.
+     */
+    options?: T;
+}
+
 /**
  * An object with the following:
- * * plugin - a plugin object.
+ * * plugin - a plugin object or a wrapped plugin loaded module.
  * * options - (optional) options passed to the plugin during registration.
  * * once - if true, subsequent registrations of the same plugin are skipped without error. Cannot be used with plugin options. Defaults to false. If not set to true, an error will be thrown the
  * second time a plugin is registered on the server.
@@ -194,25 +221,18 @@ export interface ServerRegisterOptions {
  *
  * The type parameter T is the type of the plugin configuration options.
  */
-export interface ServerRegisterPluginObject<T> extends ServerRegisterOptions {
-    /**
-     * a plugin object.
-     */
-    plugin: Plugin<T>;
-    /**
-     * options passed to the plugin during registration.
-     */
-    options?: T;
-}
+export type ServerRegisterPluginObject<T, D extends ServerPluginDecorations = ServerPluginDecorations> =
+    ServerRegisterPluginObjectDirect<T, D> |
+    ServerRegisterPluginObjectWrapped<T, D>;
 
 export type ServerRegisterPluginObjectArray<T, U, V, W, X, Y, Z> = (
-    ServerRegisterPluginObject<T> |
-    ServerRegisterPluginObject<U> |
-    ServerRegisterPluginObject<V> |
-    ServerRegisterPluginObject<W> |
-    ServerRegisterPluginObject<X> |
-    ServerRegisterPluginObject<Y> |
-    ServerRegisterPluginObject<Z>
+    ServerRegisterPluginObject<T, ServerPluginDecorations> |
+    ServerRegisterPluginObject<U, ServerPluginDecorations> |
+    ServerRegisterPluginObject<V, ServerPluginDecorations> |
+    ServerRegisterPluginObject<W, ServerPluginDecorations> |
+    ServerRegisterPluginObject<X, ServerPluginDecorations> |
+    ServerRegisterPluginObject<Y, ServerPluginDecorations> |
+    ServerRegisterPluginObject<Z, ServerPluginDecorations>
 )[];
 
 /**
