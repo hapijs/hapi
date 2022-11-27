@@ -82,7 +82,7 @@ export interface ServerEventCriteria<T> {
     tags?: boolean;
 }
 
-export interface LogEvent {
+export interface LogEvent<T = object | string> {
     /** the event timestamp. */
     timestamp: string;
     /** an array of tags identifying the event (e.g. ['error', 'http']) */
@@ -92,7 +92,7 @@ export interface LogEvent {
     /** the request identifier. */
     request: string;
     /** event-specific information. Available when event data was provided and is not an error. Errors are passed via error. */
-    data: object | string;
+    data: T;
     /** the error object related to the event if applicable. Cannot appear together with data */
     error: object;
 }
