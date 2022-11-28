@@ -24,10 +24,24 @@ check.type<MyServer>(server);
 
 server.app.multi = 10;
 
+interface RequestDecorations {
+    RequestApp: {
+        word: string;
+    }
+}
+
+type AppRequest = Request<RequestDecorations>;
+
 const route: ServerRoute = {
     method: 'GET',
     path: '/',
-    handler: (request: Request, h: ResponseToolkit) => 'hello!'
+    handler: (request: AppRequest, h: ResponseToolkit) => {
+
+        request.app.word = 'x';
+        check.type<Record<string, string>>(request.params);
+
+        return 'hello!'
+    }
 };
 
 server.route(route);
