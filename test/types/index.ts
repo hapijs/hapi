@@ -25,6 +25,7 @@ check.type<MyServer>(server);
 server.app.multi = 10;
 
 interface RequestDecorations {
+    Server: MyServer;
     RequestApp: {
         word: string;
     }
@@ -38,7 +39,9 @@ const route: ServerRoute = {
     handler: (request: AppRequest, h: ResponseToolkit) => {
 
         request.app.word = 'x';
+        
         check.type<Record<string, string>>(request.params);
+        check.type<number>(request.server.app.multi);
 
         return 'hello!'
     }

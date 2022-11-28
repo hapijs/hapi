@@ -9,7 +9,7 @@ import { PluginsStates, ServerRealm } from './plugin';
 import { ResponseObject } from '@hapi/shot';
 import { ResponseValue } from './response';
 import { RouteRules, RouteSettings } from './route';
-import { ServerAuthSchemeObjectApi } from './server';
+import { Server, ServerAuthSchemeObjectApi } from './server';
 import { HTTP_METHODS_PARTIAL, HTTP_METHODS_PARTIAL_LOWERCASE, PeekListener } from './utils';
 
 /**
@@ -254,6 +254,8 @@ export interface RequestApplicationState {
 }
 
 export interface InternalRequestDefaults {
+    Server: Server;
+
     Payload: stream.Readable | Buffer | string | object;
     Query: RequestQuery;
     Params: Record<string, any>;
@@ -450,7 +452,7 @@ export interface Request<Refs extends ReqRef = ReqRefDefaults> extends Podium {
      * Access: read only and the public server interface.
      * The server object.
      */
-    server: http.Server;
+    readonly server: MergeRefs<Refs>['Server'];
 
     /**
      * An object containing parsed HTTP state information (cookies) where each key is the cookie name and value is the matching cookie content after processing using any registered cookie definition.
