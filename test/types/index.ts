@@ -28,20 +28,29 @@ interface RequestDecorations {
     Server: MyServer;
     RequestApp: {
         word: string;
+    },
+    RouteApp: {
+        prefix: string[];
     }
 }
 
 type AppRequest = Request<RequestDecorations>;
 
-const route: ServerRoute = {
+const route: ServerRoute<RequestDecorations> = {
     method: 'GET',
     path: '/',
+    options: {
+        app: {
+            prefix: ['xx-']
+        }
+    },
     handler: (request: AppRequest, h: ResponseToolkit) => {
 
         request.app.word = 'x';
-        
+
         check.type<Record<string, string>>(request.params);
-        check.type<number>(request.server.app.multi);
+        check.type<number>(request.server.app.multi!);
+        check.type<string[]>(request.route.settings.app!.prefix);
 
         return 'hello!'
     }

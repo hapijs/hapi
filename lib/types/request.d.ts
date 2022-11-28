@@ -191,7 +191,7 @@ export interface RequestInfo {
  * * fingerprint - the route internal normalized string representing the normalized path.
  * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-requestroute)
  */
-export interface RequestRoute {
+export interface RequestRoute<Refs extends ReqRef = ReqRefDefaults> {
     /** the route HTTP method. */
     method: HTTP_METHODS_PARTIAL;
 
@@ -205,7 +205,7 @@ export interface RequestRoute {
     realm: ServerRealm;
 
     /** the route options object with all defaults applied. */
-    settings: RouteSettings;
+    settings: RouteSettings<Refs>;
 
     /** the route internal normalized string representing the normalized path. */
     fingerprint: string;
@@ -248,6 +248,11 @@ export interface RequestQuery {
 }
 
 /**
+ * Empty interface to allow for user-defined augmentations.
+ */
+export interface RouteOptionsApp {}
+
+/**
  *  User-extensible type for application specific state on requests (`request.app`).
  */
 export interface RequestApplicationState {
@@ -271,6 +276,7 @@ export interface InternalRequestDefaults {
 
     Rules: RouteRules;
     Bind: object | null;
+    RouteApp: RouteOptionsApp;
 }
 
 /**
@@ -446,7 +452,7 @@ export interface Request<Refs extends ReqRef = ReqRefDefaults> extends Podium {
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-requestroute)
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-requestrouteauthaccessrequest)
      */
-    readonly route: RequestRoute;
+    readonly route: RequestRoute<Refs>;
 
     /**
      * Access: read only and the public server interface.

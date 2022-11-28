@@ -635,18 +635,12 @@ export interface RouteOptionsValidate {
  */
 export type RouteCompressionEncoderSettings = object;
 
-/**
- * Empty interface to allow for user-defined augmentations.
- */
-
-export interface RouteOptionsApp {}
-
 export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
     /**
      * Application-specific route configuration state. Should not be used by plugins which should use options.plugins[name] instead.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsapp)
      */
-    app?: RouteOptionsApp;
+    app?:  MergeRefs<Refs>['RouteApp'];
 
     /**
      * @default null.
@@ -887,7 +881,7 @@ export interface AuthSettings {
     access?: AccessSetting[];
 }
 
-export interface RouteSettings extends CommonRouteProperties {
+export interface RouteSettings<Refs extends ReqRef = ReqRefDefaults> extends CommonRouteProperties<Refs> {
     auth?: AuthSettings;
 }
 
