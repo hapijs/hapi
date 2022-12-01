@@ -234,11 +234,11 @@ describe('Request', () => {
             options: {
                 handler: async (request, h) => {
 
-                    req.abort();
+                    req.destroy();
 
-                    await Events.once(request.raw.req, 'close');
-                    // Give the socket a chance to finish closing
-                    await Hoek.wait(0);
+                    while (request.active()) {
+                        await Hoek.wait(5);
+                    }
                     abortedReqTeam.attend();
 
                     remoteAddr = request.info.remoteAddress;
