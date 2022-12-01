@@ -1689,9 +1689,10 @@ export type ReferrerPolicy = '' | 'no-referrer' | 'no-referrer-when-downgrade' |
  * * * * * 'allow-from'
  * * * * source - when rule is 'allow-from' this is used to form the rest of the header, otherwise this field is ignored. If rule is 'allow-from' but source is unset, the rule will be automatically
  * changed to 'sameorigin'.
- * * xss - boolean that controls the 'X-XSS-PROTECTION' header for Internet Explorer. Defaults to true which sets the header to equal '1; mode=block'.
- *       Note: this setting can create a security vulnerability in versions of Internet Explorer below 8, as well as unpatched versions of IE8. See here and here for more information. If you actively
- * support old versions of IE, it may be wise to explicitly set this flag to false.
+ * * xss - controls the 'X-XSS-Protection' header, where:
+ * * * 'disable' - the header will be set to '0'. This is the default value.
+ * * * 'enable' - the header will be set to '1; mode=block'.
+ * * * false - the header will be omitted
  * * noOpen - boolean controlling the 'X-Download-Options' header for Internet Explorer, preventing downloads from executing in your context. Defaults to true setting the header to 'noopen'.
  * * noSniff - boolean controlling the 'X-Content-Type-Options' header. Defaults to true setting the header to its only and default option, 'nosniff'.
  * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionssecurity)
@@ -1729,11 +1730,12 @@ export interface RouteOptionsSecureObject {
         source: string;
     } | undefined;
     /**
-     * boolean that controls the 'X-XSS-PROTECTION' header for Internet Explorer. Defaults to true which sets the header to equal '1; mode=block'.
-     * Note: this setting can create a security vulnerability in versions of Internet Explorer below 8, as well as unpatched versions of IE8. See here and here for more information. If you actively
-     * support old versions of IE, it may be wise to explicitly set this flag to false.
+     * controls the 'X-XSS-Protection' header, where:
+     * * 'disable' - the header will be set to '0'. This is the default value.
+     * * 'enable' - the header will be set to '1; mode=block'.
+     * * false - the header will be omitted
      */
-    xss?: boolean | undefined;
+    xss?: 'disable' | 'enable' | false | undefined;
     /**
      * boolean controlling the 'X-Download-Options' header for Internet Explorer, preventing downloads from executing in your context. Defaults to true setting the header to 'noopen'.
      */
