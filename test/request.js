@@ -222,6 +222,43 @@ describe('Request', () => {
         expect(payload.toString()).to.equal('100.100.100.100');
     });
 
+    it('sets client address to nothing when not available', async (flags) => {
+
+        const server = Hapi.server();
+        const abortedReqTeam = new Teamwork.Team();
+        let remoteAddr = 'not executed';
+
+        server.route({
+            method: 'GET',
+            path: '/',
+            options: {
+                handler: async (request, h) => {
+
+                    req.destroy();
+
+                    while (request.active()) {
+                        await Hoek.wait(5);
+                    }
+
+                    abortedReqTeam.attend();
+
+                    remoteAddr = request.info.remoteAddress;
+                    return null;
+                }
+            }
+        });
+
+        await server.start();
+        flags.onCleanup = () => server.stop();
+
+        const req = Http.get(server.info.uri, Hoek.ignore);
+        req.on('error', Hoek.ignore);
+
+        await abortedReqTeam.work;
+
+        expect(remoteAddr).to.equal(undefined);
+    });
+
     it('sets port to nothing when not available', async () => {
 
         const server = Hapi.server({ debug: false });
