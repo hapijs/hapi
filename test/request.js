@@ -239,6 +239,7 @@ describe('Request', () => {
                     while (request.active()) {
                         await Hoek.wait(5);
                     }
+
                     abortedReqTeam.attend();
 
                     remoteAddr = request.info.remoteAddress;
