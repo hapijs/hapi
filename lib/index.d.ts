@@ -958,7 +958,7 @@ export interface ResponseObject extends Podium {
      * Only available after calling the response.redirect() method.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-responsetemporaryistemporary)
      */
-    temporary(isTemporary: boolean): ResponseObject;
+    temporary(isTemporary?: boolean): ResponseObject;
 
     /**
      * Sets the status code to 301 or 308 (based on the response.rewritable() setting) where:
@@ -967,7 +967,7 @@ export interface ResponseObject extends Podium {
      * Only available after calling the response.redirect() method.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-responsepermanentispermanent)
      */
-    permanent(isPermanent: boolean): ResponseObject;
+    permanent(isPermanent?: boolean): ResponseObject;
 
     /**
      * Sets the status code to 301/302 for rewritable (allows changing the request method from 'POST' to 'GET') or 307/308 for non-rewritable (does not allow changing the request method from 'POST'
@@ -977,7 +977,7 @@ export interface ResponseObject extends Podium {
      * Only available after calling the response.redirect() method.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-responserewritableisrewritable)
      */
-    rewritable(isRewritable: boolean): ResponseObject;
+    rewritable(isRewritable?: boolean): ResponseObject;
 }
 
 /**
@@ -1151,7 +1151,7 @@ export interface ResponseToolkit<Refs extends ReqRef = ReqRefDefaults> {
      * Sets a response cookie using the same arguments as response.state().
      * @param name of the cookie
      * @param value of the cookie
-     * @param (optional) ServerStateCookieOptions object.
+     * @param (options) ServerStateCookieOptions object.
      * @return Return value: none.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-hstatename-value-options)
      */
@@ -1394,6 +1394,10 @@ export interface RouteOptionsCors {
      * if true, allows user credentials to be sent ('Access-Control-Allow-Credentials'). Defaults to false.
      */
     credentials?: boolean | undefined;
+    /**
+     * the status code used for CORS preflight responses, either 200 or 204. Defaults to 200.
+     */
+    preflightStatusCode?: 200 | 204;
 }
 
 /**
@@ -1515,6 +1519,13 @@ export interface RouteOptionsPayload {
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspayloadparse)
      */
     parse?: boolean | 'gunzip' | undefined;
+
+    /**
+     * @default to 'error'.
+     * Sets handling of incoming payload that may contain a prototype poisoning security attack.
+     * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspayloadprotoaction)
+     */
+    protoAction?: 'error' | 'remove' | 'ignore';
 
     /**
      * @default to 10000 (10 seconds).
@@ -1704,15 +1715,15 @@ export interface RouteOptionsSecureObject {
         /**
          * the max-age portion of the header, as a number. Default is 15768000.
          */
-        maxAge: number;
+        maxAge?: number;
         /**
          * a boolean specifying whether to add the includeSubDomains flag to the header.
          */
-        includeSubDomains: boolean;
+        includeSubDomains?: boolean;
         /**
          * a boolean specifying whether to add the 'preload' flag (used to submit domains inclusion in Chrome's HTTP Strict Transport Security (HSTS) preload list) to the header.
          */
-        preload: boolean;
+        preload?: boolean;
     } | undefined;
     /**
      * controls the 'X-Frame-Options' header
@@ -3075,8 +3086,8 @@ export interface ServerOptions {
      * false.
      */
     debug?: false | {
-        log?: string[] | false | undefined;
-        request?: string[] | false | undefined;
+        log?: string | string[] | false | undefined;
+        request?: string | string[] | false | undefined;
     } | undefined;
 
     /**
@@ -3129,6 +3140,19 @@ export interface ServerOptions {
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serveroptionsmime)
      */
     mime?: MimosOptions | undefined;
+
+    /**
+     * @default { cleanStop: true }
+     * Defines server handling of server operations.
+     */
+    operations?: {
+        /**
+         * @default true
+         * If true, the server keeps track of open connections and properly closes them when the server is stopped.
+         * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serveroptionsoperations)
+         */
+        cleanStop?: boolean;
+    }
 
     /**
      * @default {}.
@@ -3450,6 +3474,8 @@ export interface ServerStateCookieOptions {
     strictHeader?: boolean | undefined;
     /** used by proxy plugins (e.g. h2o2). */
     passThrough?: any;
+    /** a function using the signature `async function(definition, request)` used to override a request-specific cookie settings */
+    contextualize?(definition: ServerStateCookieOptions, request: Request): void | Promise<void>;
 }
 
 /**
