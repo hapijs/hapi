@@ -83,3 +83,6 @@ export interface ServerOptionsCache extends PolicyOptions<any> {
     /** other options passed to the catbox strategy used. Other options are only passed to catbox when engine above is a class or function and ignored if engine is a catbox engine object). */
     [s: string]: any;
 }
+    /** other options passed to the catbox strategy used. Other options are only passed to catbox when engine above is a class or function and ignored if engine is a catbox engine object). */
+    [s: string]: any;
+}
