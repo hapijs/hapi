@@ -1528,8 +1528,6 @@ Register custom application events where:
 
         - `shared` - if `true`, the same event `name` can be registered multiple times where the second registration is ignored. Note that if the registration config is changed between registrations, only the first configuration is used. Defaults to `false` (a duplicate registration will throw an error).
 
-    - a [**podium**](https://hapi.dev/family/podium/api) emitter object.
-
     - an array containing any of the above.
 
 Return value: none.
