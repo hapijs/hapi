@@ -648,7 +648,7 @@ describe('Core', () => {
             expect(server._core.sockets.size).to.equal(1);
             expect(count).to.equal(1);
 
-            promise.req.abort();
+            promise.req.destroy();
             await expect(promise).to.reject();
 
             await Hoek.wait(50);
@@ -688,7 +688,7 @@ describe('Core', () => {
             expect(server._core.sockets.size).to.equal(1);
             expect(count).to.equal(1);
 
-            promise.req.abort();
+            promise.req.destroy();
             await expect(promise).to.reject();
 
             await Hoek.wait(50);
