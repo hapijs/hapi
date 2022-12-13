@@ -310,14 +310,14 @@ export class Server<A = ServerApplicationState> {
      * @return void;
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverdecoratetype-property-method-options)
      */
-    decorate(type: 'handler', property: DecorateName, method: HandlerDecorationMethod, options?: {apply?: boolean, extend?: boolean}): void;
+    decorate(type: 'handler', property: DecorateName, method: HandlerDecorationMethod, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
     decorate(type: 'request', property: DecorateName, method: (existing: ((...args: any[]) => any)) => (request: Request) => DecorationMethod<Request>, options: {apply: true, extend: true}): void;
-    decorate(type: 'request', property: DecorateName, method: (request: Request) => DecorationMethod<Request>, options: {apply: true, extend?: boolean}): void;
-    decorate(type: 'request', property: DecorateName, method: DecorationMethod<Request>, options?: {apply?: boolean, extend?: boolean}): void;
-    decorate(type: 'toolkit', property: DecorateName, method: (existing: ((...args: any[]) => any)) => DecorationMethod<ResponseToolkit>, options: {apply?: boolean, extend: true}): void;
-    decorate(type: 'toolkit', property: DecorateName, method: DecorationMethod<ResponseToolkit>, options?: {apply?: boolean, extend?: boolean}): void;
-    decorate(type: 'server', property: DecorateName, method: (existing: ((...args: any[]) => any)) => DecorationMethod<Server>, options: {apply?: boolean, extend: true}): void;
-    decorate(type: 'server', property: DecorateName, method: DecorationMethod<Server>, options?: {apply?: boolean, extend?: boolean}): void;
+    decorate(type: 'request', property: DecorateName, method: (request: Request) => DecorationMethod<Request>, options: {apply: true, extend?: boolean | undefined}): void;
+    decorate(type: 'request', property: DecorateName, method: DecorationMethod<Request>, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
+    decorate(type: 'toolkit', property: DecorateName, method: (existing: ((...args: any[]) => any)) => DecorationMethod<ResponseToolkit>, options: {apply?: boolean | undefined, extend: true}): void;
+    decorate(type: 'toolkit', property: DecorateName, method: DecorationMethod<ResponseToolkit>, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
+    decorate(type: 'server', property: DecorateName, method: (existing: ((...args: any[]) => any)) => DecorationMethod<Server>, options: {apply?: boolean | undefined, extend: true}): void;
+    decorate(type: 'server', property: DecorateName, method: DecorationMethod<Server>, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
 
     /**
      * Used within a plugin to declare a required dependency on other plugins where:
@@ -331,7 +331,7 @@ export class Server<A = ServerApplicationState> {
      * The method does not provide version dependency which should be implemented using npm peer dependencies.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverdependencydependencies-after)
      */
-    dependency(dependencies: Dependencies, after?: ((server: Server) => Promise<void>)): void;
+    dependency(dependencies: Dependencies, after?: ((server: Server) => Promise<void>) | undefined): void;
 
     /**
      * Registers a custom content encoding compressor to extend the built-in support for 'gzip' and 'deflate' where:
@@ -392,8 +392,8 @@ export class Server<A = ServerApplicationState> {
      * @return Return value: none.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverextevent-method-options)
      */
-    ext(event: ServerExtType, method: ServerExtPointFunction, options?: ServerExtOptions): void;
-    ext(event: ServerRequestExtType, method: Lifecycle.Method, options?: ServerExtOptions): void;
+    ext(event: ServerExtType, method: ServerExtPointFunction, options?: ServerExtOptions | undefined): void;
+    ext(event: ServerRequestExtType, method: Lifecycle.Method, options?: ServerExtOptions | undefined): void;
 
     /**
      * Initializes the server (starts the caches, finalizes plugin registration) but does not start listening on the connection port.
@@ -457,7 +457,7 @@ export class Server<A = ServerApplicationState> {
      * @return Return value: none.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverlogtags-data-timestamp)
      */
-    log(tags: string | string[], data?: string | object | (() => any), timestamp?: number): void;
+    log(tags: string | string[], data?: string | object | (() => any) | undefined, timestamp?: number | undefined): void;
 
     /**
      * Looks up a route configuration where:
@@ -475,7 +475,7 @@ export class Server<A = ServerApplicationState> {
      * @return Return value: the route information if found, otherwise null.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-servermatchmethod-path-host)
      */
-    match(method: HTTP_METHODS, path: string, host?: string): RequestRoute | null;
+    match(method: HTTP_METHODS, path: string, host?: string | undefined): RequestRoute | null;
 
     /**
      * Registers a server method where:
@@ -497,7 +497,7 @@ export class Server<A = ServerApplicationState> {
      *     the cache for a given key. - stats - an object with cache statistics, see catbox for stats documentation.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-servermethodname-method-options)
      */
-    method(name: string, method: ServerMethod, options?: ServerMethodOptions): void;
+    method(name: string, method: ServerMethod, options?: ServerMethodOptions | undefined): void;
 
     /**
      * Registers a server method function as described in server.method() using a configuration object where:
@@ -538,11 +538,11 @@ export class Server<A = ServerApplicationState> {
      * @return Return value: none.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-await-serverregisterplugins-options)
      */
-    register<T, D extends ServerPluginDecorations>(plugins: Plugin<T, D>, options?: ServerRegisterOptions): Promise<Server<A> & D>;
-    register(plugins: Plugin<any>[], options?: ServerRegisterOptions): Promise<Server<A>>;
-    register<T, D extends ServerPluginDecorations>(plugin: ServerRegisterPluginObject<T, D>, options?: ServerRegisterOptions): Promise<Server<A> & D>;
-    register(plugins: ServerRegisterPluginObject<any>[], options?: ServerRegisterOptions): Promise<Server<A>>;
-    register<T, U, V, W, X, Y, Z>(plugins: ServerRegisterPluginObjectArray<T, U, V, W, X, Y, Z>, options?: ServerRegisterOptions): Promise<Server<A>>;
+    register<T, D extends ServerPluginDecorations>(plugins: Plugin<T, D>, options?: ServerRegisterOptions | undefined): Promise<Server<A> & D>;
+    register(plugins: Plugin<any>[], options?: ServerRegisterOptions | undefined): Promise<Server<A>>;
+    register<T, D extends ServerPluginDecorations>(plugin: ServerRegisterPluginObject<T, D>, options?: ServerRegisterOptions | undefined): Promise<Server<A> & D>;
+    register(plugins: ServerRegisterPluginObject<any>[], options?: ServerRegisterOptions | undefined): Promise<Server<A>>;
+    register<T, U, V, W, X, Y, Z>(plugins: ServerRegisterPluginObjectArray<T, U, V, W, X, Y, Z>, options?: ServerRegisterOptions | undefined): Promise<Server<A>>;
 
     /**
      * Adds a route where:
@@ -585,7 +585,7 @@ export class Server<A = ServerApplicationState> {
      */
     rules <Refs extends ReqRef = ReqRefDefaults>(
         processor: RulesProcessor<Refs>,
-        options?: RulesOptions<Refs>
+        options?: RulesOptions<Refs> | undefined
     ): void;
 
     /**
@@ -607,7 +607,7 @@ export class Server<A = ServerApplicationState> {
      * State defaults can be modified via the server default state configuration option.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverstatename-options)
      */
-    state(name: string, options?: ServerStateCookieOptions): void;
+    state(name: string, options?: ServerStateCookieOptions | undefined): void;
 
     /**
      * Stops the server's listener by refusing to accept any new connections or requests (existing connections will continue until closed or timeout), where:
@@ -616,7 +616,7 @@ export class Server<A = ServerApplicationState> {
      * @return Return value: none.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-await-serverstopoptions)
      */
-    stop(options?: {timeout: number}): Promise<void>;
+    stop(options?: {timeout: number} | undefined): Promise<void>;
 
     /**
      * Returns a copy of the routing table where:
@@ -627,7 +627,7 @@ export class Server<A = ServerApplicationState> {
      * * path - the route path.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-servertablehost)
      */
-    table(host?: string): RequestRoute[];
+    table(host?: string | undefined): RequestRoute[];
 
     /**
      * Registers a server validation module used to compile raw validation rules into validation schemas for all routes.
@@ -639,4 +639,4 @@ export class Server<A = ServerApplicationState> {
 /**
  * Factory function to create a new server object (introduced in v17).
  */
-export function server<A = ServerApplicationState>(opts?: ServerOptions): Server<A>;
+export function server<A = ServerApplicationState>(opts?: ServerOptions | undefined): Server<A>;

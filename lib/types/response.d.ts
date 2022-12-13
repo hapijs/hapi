@@ -486,7 +486,7 @@ export interface ResponseToolkit<Refs extends ReqRef = ReqRefDefaults> {
      * it should be used as the return value (but may be customize using the response methods).
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-hentityoptions)
      */
-    entity(options?: {etag?: string, modified?: string, vary?: boolean}): ResponseObject;
+    entity(options?: {etag?: string | undefined, modified?: string | undefined, vary?: boolean | undefined} | undefined): ResponseObject;
 
     /**
      * Redirects the client to the specified uri. Same as calling h.response().redirect(uri).
@@ -494,7 +494,7 @@ export interface ResponseToolkit<Refs extends ReqRef = ReqRefDefaults> {
      * @return Returns a response object.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-hredirecturi)
      */
-    redirect(uri?: string): ResponseObject;
+    redirect(uri?: string | undefined): ResponseObject;
 
     /**
      * Wraps the provided value and returns a response object which allows customizing the response
@@ -503,7 +503,7 @@ export interface ResponseToolkit<Refs extends ReqRef = ReqRefDefaults> {
      * @return Returns a response object.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-hresponsevalue)
      */
-    response(value?: ResponseValue): ResponseObject;
+    response(value?: ResponseValue | undefined): ResponseObject;
 
     /**
      * Sets a response cookie using the same arguments as response.state().
@@ -513,7 +513,7 @@ export interface ResponseToolkit<Refs extends ReqRef = ReqRefDefaults> {
      * @return Return value: none.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-hstatename-value-options)
      */
-    state(name: string, value: string | object, options?: ServerStateCookieOptions): void;
+    state(name: string, value: string | object, options?: ServerStateCookieOptions | undefined): void;
 
     /**
      * Used by the [authentication] method to indicate authentication failed and pass back the credentials received where:
@@ -542,7 +542,7 @@ export interface ResponseToolkit<Refs extends ReqRef = ReqRefDefaults> {
                 CredentialsExtra,
                 ArtifactsExtra
             >
-        )
+        ) | undefined
     ): Auth<
         AuthUser,
         AuthApp,
@@ -557,5 +557,5 @@ export interface ResponseToolkit<Refs extends ReqRef = ReqRefDefaults> {
      * @return void.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-hunstatename-options)
      */
-    unstate(name: string, options?: ServerStateCookieOptions): void;
+    unstate(name: string, options?: ServerStateCookieOptions | undefined): void;
 }

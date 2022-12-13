@@ -62,7 +62,7 @@ export interface PluginNameVersion {
      * optional plugin version. The version is only used informatively to enable other plugins to find out the versions loaded. The version should be the same as the one specified in the plugin's
      * 'package.json' file.
      */
-    version?: string;
+    version?: string | undefined;
 }
 
 export interface PluginPackage {
@@ -73,8 +73,8 @@ export interface PluginPackage {
 }
 
 export interface ServerPluginDecorations {
-    plugins?: Record<string, any>;
-    methods?: Record<string, any>;
+    plugins?: Record<string, any> | undefined;
+    methods?: Record<string, any> | undefined;
 }
 
 export interface PluginBase<T, _D extends ServerPluginDecorations> {
@@ -86,22 +86,22 @@ export interface PluginBase<T, _D extends ServerPluginDecorations> {
     register: (server: Server, options: T) => void | Promise<void>;
 
     /** (optional) if true, allows the plugin to be registered multiple times with the same server. Defaults to false. */
-    multiple?: boolean;
+    multiple?: boolean | undefined;
 
     /** (optional) a string or an array of strings indicating a plugin dependency. Same as setting dependencies via server.dependency(). */
-    dependencies?: Dependencies;
+    dependencies?: Dependencies | undefined;
 
     /**
      * Allows defining semver requirements for node and hapi.
      * @default Allows all.
      */
     requirements?: {
-        node?: string;
-        hapi?: string;
-    };
+        node?: string | undefined;
+        hapi?: string | undefined;
+    } | undefined;
 
     /** once - (optional) if true, will only register the plugin once per server. If set, overrides the once option passed to server.register(). Defaults to no override. */
-    once?: boolean;
+    once?: boolean | undefined;
 }
 
 /**
@@ -169,7 +169,7 @@ export interface ServerRegisterOptions {
      * if true, subsequent registrations of the same plugin are skipped without error. Cannot be used with plugin options. Defaults to false. If not set to true, an error will be thrown the second
      * time a plugin is registered on the server.
      */
-    once?: boolean;
+    once?: boolean | undefined;
     /**
      * modifiers applied to each route added by the plugin:
      */
@@ -181,8 +181,8 @@ export interface ServerRegisterOptions {
         /**
          * virtual host string (or array of strings) applied to every route. The outer-most vhost overrides the any nested configuration.
          */
-        vhost?: string | string[];
-    };
+        vhost?: string | string[] | undefined;
+    } | undefined;
 }
 
 export interface ServerRegisterPluginObjectDirect<T, D extends ServerPluginDecorations = ServerPluginDecorations> extends ServerRegisterOptions {
@@ -193,7 +193,7 @@ export interface ServerRegisterPluginObjectDirect<T, D extends ServerPluginDecor
     /**
      * options passed to the plugin during registration.
      */
-    options?: T;
+    options?: T | undefined;
 }
 
 export interface ServerRegisterPluginObjectWrapped<T, D extends ServerPluginDecorations = ServerPluginDecorations> extends ServerRegisterOptions {
@@ -204,7 +204,7 @@ export interface ServerRegisterPluginObjectWrapped<T, D extends ServerPluginDeco
     /**
      * options passed to the plugin during registration.
      */
-    options?: T;
+    options?: T | undefined;
 }
 
 /**
@@ -241,7 +241,7 @@ export type ServerRegisterPluginObjectArray<T, U, V, W, X, Y, Z> = (
  */
 export interface HandlerDecorationMethod {
     (route: RequestRoute, options: any): Lifecycle.Method;
-    defaults?: RouteOptions | ((method: any) => RouteOptions);
+    defaults?: RouteOptions | ((method: any) => RouteOptions | undefined) | undefined;
 }
 
 /**

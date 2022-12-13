@@ -42,13 +42,13 @@ export namespace Json {
      */
     interface StringifyArguments {
         /** the replacer function or array. Defaults to no action. */
-        replacer?: StringifyReplacer;
+        replacer?: StringifyReplacer | undefined;
         /** number of spaces to indent nested object keys. Defaults to no indentation. */
-        space?: StringifySpace;
+        space?: StringifySpace | undefined;
         /* string suffix added after conversion to JSON string. Defaults to no suffix. */
-        suffix?: string;
+        suffix?: string | undefined;
         /* calls Hoek.jsonEscape() after conversion to JSON string. Defaults to false. */
-        escape?: boolean;
+        escape?: boolean | undefined;
     }
 }
 
@@ -69,7 +69,7 @@ export namespace Lifecycle {
             this: MergeRefs<Refs>['Bind'],
             request: Request<Refs>,
             h: ResponseToolkit<Refs>,
-            err?: Error
+            err?: Error | undefined
         ) => R;
 
     /**

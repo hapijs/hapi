@@ -62,12 +62,12 @@ export interface ServerExtEventsObject {
      * * request extension points: a lifecycle method.
      */
     method: ServerExtPointFunction | ServerExtPointFunction[];
-    options?: ServerExtOptions;
+    options?: ServerExtOptions | undefined;
 }
 
 export interface RouteExtObject<Refs extends ReqRef = ReqRefDefaults> {
     method: Lifecycle.Method<Refs>;
-    options?: ServerExtOptions;
+    options?: ServerExtOptions | undefined;
 }
 
 /**
@@ -117,7 +117,7 @@ export interface ServerExtEventsRequestObject {
      * * sandbox - if set to 'plugin' when adding a request extension points the extension is only added to routes defined by the current plugin. Not allowed when configuring route-level extensions,
      * or when adding server extensions. Defaults to 'server' which applies to any route added to the server the extension is added to.
      */
-    options?: ServerExtOptions;
+    options?: ServerExtOptions | undefined;
 }
 
 export type ServerExtPointFunction = (server: Server) => void;
@@ -135,18 +135,18 @@ export interface ServerExtOptions {
     /**
      * a string or array of strings of plugin names this method must execute before (on the same event). Otherwise, extension methods are executed in the order added.
      */
-    before?: string | string[];
+    before?: string | string[] | undefined;
     /**
      * a string or array of strings of plugin names this method must execute after (on the same event). Otherwise, extension methods are executed in the order added.
      */
-    after?: string | string[];
+    after?: string | string[] | undefined;
     /**
      * a context object passed back to the provided method (via this) when called. Ignored if the method is an arrow function.
      */
-    bind?: object;
+    bind?: object | undefined;
     /**
      * if set to 'plugin' when adding a request extension points the extension is only added to routes defined by the current plugin. Not allowed when configuring route-level extensions, or when
      * adding server extensions. Defaults to 'server' which applies to any route added to the server the extension is added to.
      */
-    sandbox?: 'server' | 'plugin';
+    sandbox?: 'server' | 'plugin' | undefined;
 }

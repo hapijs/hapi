@@ -4,8 +4,8 @@ export type CachePolicyOptions<T> = PolicyOptionVariants<T> & {
     /**
      * @default '_default'
      */
-    cache?: string;
-    segment?: string;
+    cache?: string | undefined;
+    segment?: string | undefined;
 };
 
 /**
@@ -51,7 +51,7 @@ export interface ServerCache {
 
 export type CacheProvider<T extends ClientOptions = ClientOptions> = EnginePrototype<any> | {
     constructor: EnginePrototype<any>;
-    options?: T;
+    options?: T | undefined;
 };
 
 /**
@@ -61,24 +61,24 @@ export type CacheProvider<T extends ClientOptions = ClientOptions> = EngineProto
  */
 export interface ServerOptionsCache extends PolicyOptions<any> {
     /** catbox engine object. */
-    engine?: ClientApi<any>;
+    engine?: ClientApi<any> | undefined;
 
     /**
      * a class or a prototype function
      */
-    provider?: CacheProvider;
+    provider?: CacheProvider | undefined
 
     /**
      * an identifier used later when provisioning or configuring caching for server methods or plugins. Each cache name must be unique. A single item may omit the name option which defines
      * the default cache. If every cache includes a name, a default memory cache is provisioned as well.
      */
-    name?: string;
+    name?: string | undefined;
 
     /** if true, allows multiple cache users to share the same segment (e.g. multiple methods using the same cache storage container). Default to false. */
-    shared?: boolean;
+    shared?: boolean | undefined;
 
     /** (optional) string used to isolate cached data. Defaults to 'hapi-cache'. */
-    partition?: string;
+    partition?: string | undefined;
 
     /** other options passed to the catbox strategy used. Other options are only passed to catbox when engine above is a class or function and ignored if engine is a catbox engine object). */
     [s: string]: any;

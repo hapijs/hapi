@@ -34,11 +34,11 @@ export interface ServerMethodOptions {
      * a context object passed back to the method function (via this) when called. Defaults to active context (set via server.bind() when the method is registered. Ignored if the method is an arrow
      * function.
      */
-    bind?: object;
+    bind?: object | undefined;
     /**
      * the same cache configuration used in server.cache(). The generateTimeout option is required.
      */
-    cache?: ServerMethodCache;
+    cache?: ServerMethodCache | undefined;
     /**
      * a function used to generate a unique key (for caching) from the arguments passed to the method function (the flags argument is not passed as input). The server will automatically generate a
      * unique key if the function's arguments are all of types 'string', 'number', or 'boolean'. However if the method uses other types of arguments, a key generation function must be provided which
@@ -66,7 +66,7 @@ export interface ServerMethodConfigurationObject {
     /**
      * (optional) settings.
      */
-    options?: ServerMethodOptions;
+    options?: ServerMethodOptions | undefined;
 }
 
 /**
