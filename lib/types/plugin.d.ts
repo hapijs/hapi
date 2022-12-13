@@ -241,7 +241,7 @@ export type ServerRegisterPluginObjectArray<T, U, V, W, X, Y, Z> = (
  */
 export interface HandlerDecorationMethod {
     (route: RequestRoute, options: any): Lifecycle.Method;
-    defaults?: RouteOptions | ((method: any) => RouteOptions | undefined) | undefined;
+    defaults?: RouteOptions | ((method: any) => RouteOptions) | undefined;
 }
 
 /**

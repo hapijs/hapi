@@ -69,7 +69,7 @@ export interface ServerEventCriteria<T> {
      * * * tags - a tag string or array of tag strings.
      * * * all - if true, all tags must be present for the event update to match the subscription. Defaults to false (at least one matching tag).
      */
-    filter?: string | string[] | { tags: string | string[], all?: boolean | undefined } | undefined;
+    filter?: string | string[] | { tags: string | string[] | undefined, all?: boolean | undefined } | undefined;
     /**
      * if true, and the data object passed to server.event.emit() is an array, the listener method is called with each array element passed as a separate argument. This should only be used
      * when the emitted data structure is known and predictable. Defaults to the event registration option (which defaults to false).

@@ -66,7 +66,7 @@ export interface ServerOptionsCache extends PolicyOptions<any> {
     /**
      * a class or a prototype function
      */
-    provider?: CacheProvider | undefined
+    provider?: CacheProvider | undefined;
 
     /**
      * an identifier used later when provisioning or configuring caching for server methods or plugins. Each cache name must be unique. A single item may omit the name option which defines

@@ -58,10 +58,10 @@ export interface ResponseEvents extends Podium {
  * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#response-object)
  */
 export interface ResponseObjectHeaderOptions {
-    append?: boolean;
-    separator?: string;
-    override?: boolean;
-    duplicate?: boolean;
+    append?: boolean | undefined;
+    separator?: string | undefined;
+    override?: boolean | undefined;
+    duplicate?: boolean | undefined;
 }
 
 /**
@@ -147,7 +147,7 @@ export interface ResponseObject extends Podium {
      * @return Return value: the current response object.
      * [See docs](https://hapijs.com/api/17.0.1#-responsecharsetcharset)
      */
-    charset(charset?: string): ResponseObject;
+    charset(charset?: string): ResponseObject | undefined;
 
     /**
      * Sets the HTTP status code where:
@@ -199,7 +199,7 @@ export interface ResponseObject extends Podium {
      * @return Return value: the current response object.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-responseetagtag-options)
      */
-    etag(tag: string, options?: {weak: boolean, vary: boolean}): ResponseObject;
+    etag(tag: string, options?: {weak: boolean, vary: boolean} | undefined): ResponseObject;
 
     /**
      * Sets an HTTP header where:
@@ -213,7 +213,7 @@ export interface ResponseObject extends Podium {
      *  @return Return value: the current response object.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-responseheadername-value-options)
      */
-    header(name: string, value: string, options?: ResponseObjectHeaderOptions): ResponseObject;
+    header(name: string, value: string, options?: ResponseObjectHeaderOptions | undefined): ResponseObject;
 
     /**
      * Sets the HTTP 'Location' header where:
@@ -257,7 +257,7 @@ export interface ResponseObject extends Podium {
      * @return Return value: the current response object.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-responsestatename-value-options)
      */
-    state(name: string, value: object | string, options?: ServerStateCookieOptions): ResponseObject;
+    state(name: string, value: object | string, options?: ServerStateCookieOptions | undefined): ResponseObject;
 
     /**
      * Sets a string suffix when the response is process via JSON.stringify() where:
@@ -292,7 +292,7 @@ export interface ResponseObject extends Podium {
      * @return Return value: the current response object.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-responseunstatename-options)
      */
-    unstate(name: string, options?: ServerStateCookieOptions): ResponseObject;
+    unstate(name: string, options?: ServerStateCookieOptions | undefined): ResponseObject;
 
     /**
      * Adds the provided header to the list of inputs affected the response generation via the HTTP 'Vary' header where:
@@ -384,7 +384,7 @@ export interface AuthenticationData<
     ArtifactsExtra = AuthArtifacts
 > {
     credentials: MergeType<CredentialsExtra, AuthCredentials<AuthUser, AuthApp>>;
-    artifacts?: ArtifactsExtra;
+    artifacts?: ArtifactsExtra | undefined;
 }
 
 export interface Auth<
@@ -394,8 +394,8 @@ export interface Auth<
     ArtifactsExtra = AuthArtifacts
 > {
     readonly isAuth: true;
-    readonly error?: Error | null;
-    readonly data?: AuthenticationData<AuthUser, AuthApp, CredentialsExtra, ArtifactsExtra>;
+    readonly error?: Error | null | undefined;
+    readonly data?: AuthenticationData<AuthUser, AuthApp, CredentialsExtra, ArtifactsExtra> | undefined;
 }
 
 /**
