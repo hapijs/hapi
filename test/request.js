@@ -405,7 +405,7 @@ describe('Request', () => {
                 options: {
                     handler: async (request, h) => {
 
-                        req.abort();
+                        req.destroy();
 
                         while (request.active() && !testComplete) {
                             await Hoek.wait(10);
@@ -703,7 +703,7 @@ describe('Request', () => {
 
             const handler = async (request) => {
 
-                clientRequest.abort();
+                clientRequest.destroy();
                 await Hoek.wait(10);
                 team.attend();
                 throw new Error('fail');
@@ -735,7 +735,7 @@ describe('Request', () => {
 
             const preHandler = async (request, h) => {
 
-                clientRequest.abort();
+                clientRequest.destroy();
                 await Hoek.wait(10);
                 team.attend();
                 return h.continue;
@@ -762,7 +762,7 @@ describe('Request', () => {
 
             const handler = async (request) => {
 
-                clientRequest.abort();
+                clientRequest.destroy();
                 await Hoek.wait(10);
                 throw new Error('boom');
             };
@@ -1004,7 +1004,7 @@ describe('Request', () => {
                         status: {
                             200: async (_, { context }) => {
 
-                                req.abort();
+                                req.destroy();
 
                                 const raw = context.app.request;
                                 await Events.once(raw.req, 'aborted');
@@ -2234,7 +2234,7 @@ describe('Request', () => {
             req.flushHeaders();
 
             await ready;
-            req.abort();
+            req.destroy();
             const [request] = await log;
 
             expect(request.response.output.statusCode).to.equal(499);

@@ -1292,7 +1292,7 @@ describe('transmission', () => {
             const team = new Teamwork.Team();
             const handler = async (request) => {
 
-                clientRequest.abort();
+                clientRequest.destroy();
 
                 const stream = new Stream.Readable({
                     read(size) {

@@ -146,7 +146,7 @@ describe('Payload', () => {
         const req = Http.request(options, (res) => { });
         req.on('error', Hoek.ignore);
         req.write('Hello\n');
-        setTimeout(() => req.abort(), 50);
+        setTimeout(() => req.destroy(), 50);
 
         const [event] = await log;
         expect(event.error.message).to.equal('Parse Error');
