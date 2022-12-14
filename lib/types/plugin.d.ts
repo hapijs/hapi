@@ -72,7 +72,7 @@ export interface PluginPackage {
     pkg: PluginNameVersion;
 }
 
-export interface PluginBase<T, _D> {
+export interface PluginBase<T, D> {
     /**
      * (required) the registration function with the signature async function(server, options) where:
      * * server - the server object with a plugin-specific server.realm.
@@ -97,6 +97,8 @@ export interface PluginBase<T, _D> {
 
     /** once - (optional) if true, will only register the plugin once per server. If set, overrides the once option passed to server.register(). Defaults to no override. */
     once?: boolean | undefined;
+
+    ___$type_of_plugin_decorations$___?: D;
 }
 
 /**
