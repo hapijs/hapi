@@ -7,7 +7,8 @@ import {
     ResponseToolkit,
     Server,
     ServerRoute,
-    server as createServer
+    server as createServer,
+    ServerRegisterPluginObject
 } from '../..';
 
 const { expect: check } = lab;

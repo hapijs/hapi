@@ -72,12 +72,7 @@ export interface PluginPackage {
     pkg: PluginNameVersion;
 }
 
-export interface ServerPluginDecorations {
-    plugins?: Record<string, any> | undefined;
-    methods?: Record<string, any> | undefined;
-}
-
-export interface PluginBase<T, _D extends ServerPluginDecorations> {
+export interface PluginBase<T, _D> {
     /**
      * (required) the registration function with the signature async function(server, options) where:
      * * server - the server object with a plugin-specific server.realm.
@@ -113,7 +108,7 @@ export interface PluginBase<T, _D extends ServerPluginDecorations> {
  *
  * The type T is the type of the plugin options.
  */
-export type Plugin<T, D extends ServerPluginDecorations = ServerPluginDecorations> = PluginBase<T, D> & (PluginNameVersion | PluginPackage);
+export type Plugin<T, D = void> = PluginBase<T, D> & (PluginNameVersion | PluginPackage);
 
 /**
  * The realm object contains sandboxed server settings specific to each plugin or authentication strategy. When registering a plugin or an authentication scheme, a server object reference is provided
@@ -185,7 +180,7 @@ export interface ServerRegisterOptions {
     } | undefined;
 }
 
-export interface ServerRegisterPluginObjectDirect<T, D extends ServerPluginDecorations = ServerPluginDecorations> extends ServerRegisterOptions {
+export interface ServerRegisterPluginObjectDirect<T, D> extends ServerRegisterOptions {
     /**
      * a plugin object.
      */
@@ -196,7 +191,7 @@ export interface ServerRegisterPluginObjectDirect<T, D extends ServerPluginDecor
     options?: T | undefined;
 }
 
-export interface ServerRegisterPluginObjectWrapped<T, D extends ServerPluginDecorations = ServerPluginDecorations> extends ServerRegisterOptions {
+export interface ServerRegisterPluginObjectWrapped<T, D> extends ServerRegisterOptions {
     /**
      * a plugin object.
      */
@@ -221,18 +216,18 @@ export interface ServerRegisterPluginObjectWrapped<T, D extends ServerPluginDeco
  *
  * The type parameter T is the type of the plugin configuration options.
  */
-export type ServerRegisterPluginObject<T, D extends ServerPluginDecorations = ServerPluginDecorations> =
+export type ServerRegisterPluginObject<T, D = void> =
     ServerRegisterPluginObjectDirect<T, D> |
     ServerRegisterPluginObjectWrapped<T, D>;
 
 export type ServerRegisterPluginObjectArray<T, U, V, W, X, Y, Z> = (
-    ServerRegisterPluginObject<T, ServerPluginDecorations> |
-    ServerRegisterPluginObject<U, ServerPluginDecorations> |
-    ServerRegisterPluginObject<V, ServerPluginDecorations> |
-    ServerRegisterPluginObject<W, ServerPluginDecorations> |
-    ServerRegisterPluginObject<X, ServerPluginDecorations> |
-    ServerRegisterPluginObject<Y, ServerPluginDecorations> |
-    ServerRegisterPluginObject<Z, ServerPluginDecorations>
+    ServerRegisterPluginObject<T> |
+    ServerRegisterPluginObject<U> |
+    ServerRegisterPluginObject<V> |
+    ServerRegisterPluginObject<W> |
+    ServerRegisterPluginObject<X> |
+    ServerRegisterPluginObject<Y> |
+    ServerRegisterPluginObject<Z>
 )[];
 
 /**
