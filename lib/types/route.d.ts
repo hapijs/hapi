@@ -187,6 +187,10 @@ export interface RouteOptionsCors {
      * if true, allows user credentials to be sent ('Access-Control-Allow-Credentials'). Defaults to false.
      */
     credentials?: boolean | undefined;
+    /**
+     * the status code used for CORS preflight responses, either `200` or `204`. Defaults to `200`.
+     */
+    preflightStatusCode?: 200 | 204
 }
 
 /**
