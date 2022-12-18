@@ -98,6 +98,12 @@ export interface PluginBase<T, D> {
     /** once - (optional) if true, will only register the plugin once per server. If set, overrides the once option passed to server.register(). Defaults to no override. */
     once?: boolean | undefined;
 
+    /**
+    * We need to use D within the PluginBase type to be able to infer it later on,
+    * but this property has no concrete existence in the code.
+    *
+    * See https://github.com/Microsoft/TypeScript/wiki/FAQ#why-doesnt-type-inference-work-on-this-interface-interface-foot-- for details.
+    */
     ___$type_of_plugin_decorations$___?: D;
 }
 
