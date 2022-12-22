@@ -2,7 +2,6 @@
 import { SealOptions, SealOptionsSub } from '@hapi/iron';
 
 import { Request } from '../request';
-import { Utils } from '../utils';
 
 export type SameSitePolicy = false | 'None' | 'Lax' | 'Strict';
 
@@ -66,7 +65,7 @@ export interface ServerStateCookieOptions {
     /** if false, allows any cookie value including values in violation of RFC 6265. Defaults to true. */
     strictHeader?: boolean | undefined;
     /** used by proxy plugins (e.g. h2o2). */
-    passThrough?: any;
+    passThrough?: any | undefined;
 }
 
 /**
@@ -113,7 +112,7 @@ export interface ServerState {
     /**
      * Same as calling [server.state()](https://github.com/hapijs/hapi/blob/master/API.md#server.state()).
      */
-    add(name: string, options?: ServerStateCookieOptions): void;
+    add(name: string, options?: ServerStateCookieOptions | undefined): void;
 
     /**
      * Formats an HTTP 'Set-Cookie' header based on the server.options.state where:
@@ -134,5 +133,5 @@ export interface ServerState {
      * Note that this utility uses the server configuration but does not change the server state. It is provided for manual cookie parsing (e.g. when server parsing is disabled).
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-async-serverstatesparseheader)
      */
-    parse(header: string): Promise<Utils.Dictionary<string>>;
+    parse(header: string): Promise<Record<string, string>>;
 }

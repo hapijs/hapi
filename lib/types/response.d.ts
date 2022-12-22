@@ -13,8 +13,14 @@ import {
     MergeRefs,
     Request
 } from './request';
-import { PeekListener, ResponseApplicationState, Lifecycle, Json, Utils } from './utils';
+import { PeekListener, Lifecycle, Json } from './utils';
 import { ServerStateCookieOptions } from './server';
+
+/**
+ *  User-extensible type for application specific state on responses (`response.app`).
+ */
+export interface ResponseApplicationState {
+}
 
 /**
  * Access: read only and the public podium interface.
@@ -88,7 +94,7 @@ export interface ResponseObject extends Podium {
      * Note that this is an incomplete list of headers to be included with the response. Additional headers will be added once the response is prepared for transmission.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-responseheaders)
      */
-    readonly headers: Utils.Dictionary<string | string[]>;
+    readonly headers: Record<string, string | string[]>;
 
     /**
      * @default {}.
@@ -141,7 +147,7 @@ export interface ResponseObject extends Podium {
      * @return Return value: the current response object.
      * [See docs](https://hapijs.com/api/17.0.1#-responsecharsetcharset)
      */
-    charset(charset?: string): ResponseObject;
+    charset(charset?: string): ResponseObject | undefined;
 
     /**
      * Sets the HTTP status code where:
@@ -193,7 +199,7 @@ export interface ResponseObject extends Podium {
      * @return Return value: the current response object.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-responseetagtag-options)
      */
-    etag(tag: string, options?: {weak: boolean, vary: boolean}): ResponseObject;
+    etag(tag: string, options?: {weak: boolean, vary: boolean} | undefined): ResponseObject;
 
     /**
      * Sets an HTTP header where:
@@ -207,7 +213,7 @@ export interface ResponseObject extends Podium {
      *  @return Return value: the current response object.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-responseheadername-value-options)
      */
-    header(name: string, value: string, options?: ResponseObjectHeaderOptions): ResponseObject;
+    header(name: string, value: string, options?: ResponseObjectHeaderOptions | undefined): ResponseObject;
 
     /**
      * Sets the HTTP 'Location' header where:
@@ -251,7 +257,7 @@ export interface ResponseObject extends Podium {
      * @return Return value: the current response object.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-responsestatename-value-options)
      */
-    state(name: string, value: object | string, options?: ServerStateCookieOptions): ResponseObject;
+    state(name: string, value: object | string, options?: ServerStateCookieOptions | undefined): ResponseObject;
 
     /**
      * Sets a string suffix when the response is process via JSON.stringify() where:
@@ -286,7 +292,7 @@ export interface ResponseObject extends Podium {
      * @return Return value: the current response object.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-responseunstatename-options)
      */
-    unstate(name: string, options?: ServerStateCookieOptions): ResponseObject;
+    unstate(name: string, options?: ServerStateCookieOptions | undefined): ResponseObject;
 
     /**
      * Adds the provided header to the list of inputs affected the response generation via the HTTP 'Vary' header where:
@@ -480,7 +486,7 @@ export interface ResponseToolkit<Refs extends ReqRef = ReqRefDefaults> {
      * it should be used as the return value (but may be customize using the response methods).
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-hentityoptions)
      */
-    entity(options?: {etag?: string | undefined, modified?: string | undefined, vary?: boolean | undefined}): ResponseObject | undefined;
+    entity(options?: {etag?: string | undefined, modified?: string | undefined, vary?: boolean | undefined} | undefined): ResponseObject;
 
     /**
      * Redirects the client to the specified uri. Same as calling h.response().redirect(uri).
@@ -488,7 +494,7 @@ export interface ResponseToolkit<Refs extends ReqRef = ReqRefDefaults> {
      * @return Returns a response object.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-hredirecturi)
      */
-    redirect(uri?: string): ResponseObject;
+    redirect(uri?: string | undefined): ResponseObject;
 
     /**
      * Wraps the provided value and returns a response object which allows customizing the response
@@ -497,7 +503,7 @@ export interface ResponseToolkit<Refs extends ReqRef = ReqRefDefaults> {
      * @return Returns a response object.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-hresponsevalue)
      */
-    response(value?: ResponseValue): ResponseObject;
+    response(value?: ResponseValue | undefined): ResponseObject;
 
     /**
      * Sets a response cookie using the same arguments as response.state().
@@ -507,7 +513,7 @@ export interface ResponseToolkit<Refs extends ReqRef = ReqRefDefaults> {
      * @return Return value: none.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-hstatename-value-options)
      */
-    state(name: string, value: string | object, options?: ServerStateCookieOptions): void;
+    state(name: string, value: string | object, options?: ServerStateCookieOptions | undefined): void;
 
     /**
      * Used by the [authentication] method to indicate authentication failed and pass back the credentials received where:
@@ -536,7 +542,7 @@ export interface ResponseToolkit<Refs extends ReqRef = ReqRefDefaults> {
                 CredentialsExtra,
                 ArtifactsExtra
             >
-        )
+        ) | undefined
     ): Auth<
         AuthUser,
         AuthApp,
@@ -551,5 +557,5 @@ export interface ResponseToolkit<Refs extends ReqRef = ReqRefDefaults> {
      * @return void.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-hunstatename-options)
      */
-    unstate(name: string, options?: ServerStateCookieOptions): void;
+    unstate(name: string, options?: ServerStateCookieOptions | undefined): void;
 }

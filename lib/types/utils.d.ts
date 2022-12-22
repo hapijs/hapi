@@ -11,45 +11,18 @@ import {
     Request} from './request';
 import { ResponseToolkit, Auth } from './response';
 
-export namespace Utils {
-    interface Dictionary<T> {
-        [key: string]: T;
-    }
+export type HTTP_METHODS_PARTIAL_LOWERCASE = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options';
 
-    type HTTP_METHODS_PARTIAL_LOWERCASE = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options';
+export type HTTP_METHODS_PARTIAL =
+    'GET'
+    | 'POST'
+    | 'PUT'
+    | 'PATCH'
+    | 'DELETE'
+    | 'OPTIONS'
+    | HTTP_METHODS_PARTIAL_LOWERCASE;
 
-    type HTTP_METHODS_PARTIAL =
-        'GET'
-        | 'POST'
-        | 'PUT'
-        | 'PATCH'
-        | 'DELETE'
-        | 'OPTIONS'
-        | HTTP_METHODS_PARTIAL_LOWERCASE;
-
-    type HTTP_METHODS = 'HEAD' | 'head' | HTTP_METHODS_PARTIAL;
-}
-
-/**
- *  User-extensible type for application specific state (`server.app`).
- */
-
-export interface ServerApplicationState {
-}
-
-/**
- *  User-extensible type for application specific state on requests (`request.app`).
- */
-
-export interface RequestApplicationState {
-}
-
-/**
- *  User-extensible type for application specific state on responses (`response.app`).
- */
-
-export interface ResponseApplicationState {
-}
+export type HTTP_METHODS = 'HEAD' | 'head' | HTTP_METHODS_PARTIAL;
 
 export type PeekListener = (chunk: string, encoding: string) => void;
 
@@ -57,7 +30,7 @@ export namespace Json {
     /**
      * @see {@link https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#The_replacer_parameter}
      */
-    type StringifyReplacer = ((key: string, value: any) => any) | Array<(string | number)> | undefined;
+    type StringifyReplacer = ((key: string, value: any) => any) | (string | number)[] | undefined;
 
     /**
      * Any value greater than 10 is truncated.
@@ -96,7 +69,7 @@ export namespace Lifecycle {
             this: MergeRefs<Refs>['Bind'],
             request: Request<Refs>,
             h: ResponseToolkit<Refs>,
-            err?: Error
+            err?: Error | undefined
         ) => R;
 
     /**

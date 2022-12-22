@@ -1,7 +1,5 @@
 import { PolicyOptions } from "@hapi/catbox";
 
-import { Utils } from '../utils';
-
 /**
  * The method function with a signature async function(...args, [flags]) where:
  * * ...args - the method function arguments (can be any number of arguments or none).
@@ -74,5 +72,5 @@ export interface ServerMethodConfigurationObject {
 /**
  * An empty interface to allow typings of custom server.methods.
  */
-export interface ServerMethods extends Utils.Dictionary<ServerMethod> {
+export interface ServerMethods extends Record<string, ServerMethod> {
 }

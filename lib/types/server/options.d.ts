@@ -6,7 +6,6 @@ import { MimosOptions } from '@hapi/mimos';
 import { PluginSpecificConfiguration } from '../plugin';
 import { RouteOptions } from '../route';
 import { CacheProvider, ServerOptionsCache } from './cache';
-import { Utils } from '../utils';
 import { SameSitePolicy } from './state';
 
 export interface ServerOptionsCompression {
@@ -105,8 +104,8 @@ export interface ServerOptions {
          * If true, the request.info.remoteAddress and request.info.remotePort are populated when the request is received which can consume more resource (but is ok if the information is needed,
          * especially for aborted requests). When false, the fields are only populated upon demand (but will be undefined if accessed after the request is aborted).
          */
-        remote?: boolean;
-    }
+        remote?: boolean | undefined;
+    } | undefined;
 
     /**
      * @default none.
@@ -199,13 +198,13 @@ export interface ServerOptions {
     // TODO I am not sure if I need to use all the server.state() definition (like the default value) OR only the options below. The v16 use "any" here.
     // state?: ServerStateCookieOptions;
     state?: {
-        strictHeader?: boolean | undefined,
-        ignoreErrors?: boolean | undefined,
-        isSecure?: boolean | undefined,
-        isHttpOnly?: boolean | undefined,
-        isSameSite?: SameSitePolicy | undefined,
-        encoding?: 'none' | 'base64' | 'base64json' | 'form' | 'iron' | undefined
-    };
+        strictHeader?: boolean | undefined;
+        ignoreErrors?: boolean | undefined;
+        isSecure?: boolean | undefined;
+        isHttpOnly?: boolean | undefined;
+        isSameSite?: SameSitePolicy | undefined;
+        encoding?: 'none' | 'base64' | 'base64json' | 'form' | 'iron' | undefined;
+    } | undefined;
 
     /**
      * @default none.
@@ -227,6 +226,6 @@ export interface ServerOptions {
          * the method must return an object where each key is a parameter and matching value is the parameter value.
          * If the method throws, the error is used as the response or returned when `request.setUrl` is called.
          */
-        parser(raw: Utils.Dictionary<string>): Utils.Dictionary<any>;
+        parser(raw: Record<string, string>): Record<string, any>;
     } | undefined;
 }

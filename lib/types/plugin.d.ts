@@ -11,9 +11,7 @@ import { Lifecycle } from './utils';
  * {@link https://www.npmjs.com/package/semver version range string} which must match the registered
  *  plugin version.
  */
-export type Dependencies = string | string[] | {
-    [key: string]: string;
-};
+export type Dependencies = string | string[] | Record<string, string>;
 
 /**
  * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverregistrations)
@@ -71,19 +69,10 @@ export interface PluginPackage {
     /**
      * Alternatively, the name and version can be included via the pkg property containing the 'package.json' file for the module which already has the name and version included
      */
-    pkg: any;
+    pkg: PluginNameVersion;
 }
 
-/**
- * Plugins provide a way to organize application code by splitting the server logic into smaller components. Each
- * plugin can manipulate the server through the standard server interface, but with the added ability to sandbox
- * certain properties. For example, setting a file path in one plugin doesn't affect the file path set
- * in another plugin.
- * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#plugins)
- *
- * The type T is the type of the plugin options.
- */
-export interface PluginBase<T> {
+export interface PluginBase<T, D> {
     /**
      * (required) the registration function with the signature async function(server, options) where:
      * * server - the server object with a plugin-specific server.realm.
@@ -108,9 +97,26 @@ export interface PluginBase<T> {
 
     /** once - (optional) if true, will only register the plugin once per server. If set, overrides the once option passed to server.register(). Defaults to no override. */
     once?: boolean | undefined;
+
+    /**
+    * We need to use D within the PluginBase type to be able to infer it later on,
+    * but this property has no concrete existence in the code.
+    *
+    * See https://github.com/Microsoft/TypeScript/wiki/FAQ#why-doesnt-type-inference-work-on-this-interface-interface-foot-- for details.
+    */
+    ___$type_of_plugin_decorations$___?: D;
 }
 
-export type Plugin<T> = PluginBase<T> & (PluginNameVersion | PluginPackage);
+/**
+ * Plugins provide a way to organize application code by splitting the server logic into smaller components. Each
+ * plugin can manipulate the server through the standard server interface, but with the added ability to sandbox
+ * certain properties. For example, setting a file path in one plugin doesn't affect the file path set
+ * in another plugin.
+ * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#plugins)
+ *
+ * The type T is the type of the plugin options.
+ */
+export type Plugin<T, D = void> = PluginBase<T, D> & (PluginNameVersion | PluginPackage);
 
 /**
  * The realm object contains sandboxed server settings specific to each plugin or authentication strategy. When registering a plugin or an authentication scheme, a server object reference is provided
@@ -182,9 +188,31 @@ export interface ServerRegisterOptions {
     } | undefined;
 }
 
+export interface ServerRegisterPluginObjectDirect<T, D> extends ServerRegisterOptions {
+    /**
+     * a plugin object.
+     */
+    plugin: Plugin<T, D>;
+    /**
+     * options passed to the plugin during registration.
+     */
+    options?: T | undefined;
+}
+
+export interface ServerRegisterPluginObjectWrapped<T, D> extends ServerRegisterOptions {
+    /**
+     * a plugin object.
+     */
+    plugin: { plugin: Plugin<T, D> };
+    /**
+     * options passed to the plugin during registration.
+     */
+    options?: T | undefined;
+}
+
 /**
  * An object with the following:
- * * plugin - a plugin object.
+ * * plugin - a plugin object or a wrapped plugin loaded module.
  * * options - (optional) options passed to the plugin during registration.
  * * once - if true, subsequent registrations of the same plugin are skipped without error. Cannot be used with plugin options. Defaults to false. If not set to true, an error will be thrown the
  * second time a plugin is registered on the server.
@@ -196,18 +224,11 @@ export interface ServerRegisterOptions {
  *
  * The type parameter T is the type of the plugin configuration options.
  */
-export interface ServerRegisterPluginObject<T> extends ServerRegisterOptions {
-    /**
-     * a plugin object.
-     */
-    plugin: Plugin<T>;
-    /**
-     * options passed to the plugin during registration.
-     */
-    options?: T | undefined;
-}
+export type ServerRegisterPluginObject<T, D = void> =
+    ServerRegisterPluginObjectDirect<T, D> |
+    ServerRegisterPluginObjectWrapped<T, D>;
 
-export type ServerRegisterPluginObjectArray<T, U, V, W, X, Y, Z> = Array<
+export type ServerRegisterPluginObjectArray<T, U, V, W, X, Y, Z> = (
     ServerRegisterPluginObject<T> |
     ServerRegisterPluginObject<U> |
     ServerRegisterPluginObject<V> |
@@ -215,7 +236,7 @@ export type ServerRegisterPluginObjectArray<T, U, V, W, X, Y, Z> = Array<
     ServerRegisterPluginObject<X> |
     ServerRegisterPluginObject<Y> |
     ServerRegisterPluginObject<Z>
->;
+)[];
 
 /**
  * The method function can have a defaults object or function property. If the property is set to an object, that object is used as the default route config for routes using this handler.

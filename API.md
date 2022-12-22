@@ -2224,7 +2224,7 @@ Registers a plugin where:
         - `vhost` - virtual host string (or array of strings) applied to every route. The
           outer-most `vhost` overrides the any nested configuration.
 
-Return value: none.
+Return value: a reference to the `server`.
 
 ```js
 async function example() {

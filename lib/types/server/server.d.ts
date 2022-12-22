@@ -31,7 +31,7 @@ import {
     RulesProcessor,
     ServerRoute
 } from '../route';
-import { Lifecycle, ServerApplicationState, Utils } from '../utils';
+import { HTTP_METHODS, Lifecycle } from '../utils';
 import { ServerAuth } from './auth';
 import { ServerCache } from './cache';
 import { ServerEventsApplication, ServerEvents } from './events';
@@ -55,11 +55,17 @@ import { ServerOptions } from './options';
 import { ServerState, ServerStateCookieOptions } from './state';
 
 /**
+ *  User-extensible type for application specific state (`server.app`).
+ */
+export interface ServerApplicationState {
+}
+
+/**
  * The server object is the main application container. The server manages all incoming requests along with all
  * the facilities provided by the framework. Each server supports a single connection (e.g. listen to port 80).
  * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#server)
  */
-export class Server {
+export class Server<A = ServerApplicationState> {
     /**
      * Creates a new server object
      * @param options server configuration object.
@@ -73,7 +79,7 @@ export class Server {
      * Initialized with an empty object.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverapp)
      */
-    app: ServerApplicationState;
+    app: A;
 
     /**
      * Server Auth: properties and methods
@@ -324,7 +330,7 @@ export class Server {
      * The method does not provide version dependency which should be implemented using npm peer dependencies.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverdependencydependencies-after)
      */
-    dependency(dependencies: Dependencies, after?: ((server: Server) => Promise<void>)): void;
+    dependency(dependencies: Dependencies, after?: ((server: Server) => Promise<void>) | undefined): void;
 
     /**
      * Registers a custom content encoding compressor to extend the built-in support for 'gzip' and 'deflate' where:
@@ -385,8 +391,8 @@ export class Server {
      * @return Return value: none.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverextevent-method-options)
      */
-    ext(event: ServerExtType, method: ServerExtPointFunction, options?: ServerExtOptions): void;
-    ext(event: ServerRequestExtType, method: Lifecycle.Method, options?: ServerExtOptions): void;
+    ext(event: ServerExtType, method: ServerExtPointFunction, options?: ServerExtOptions | undefined): void;
+    ext(event: ServerRequestExtType, method: Lifecycle.Method, options?: ServerExtOptions | undefined): void;
 
     /**
      * Initializes the server (starts the caches, finalizes plugin registration) but does not start listening on the connection port.
@@ -437,7 +443,6 @@ export class Server {
      * * request - the request object.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-await-serverinjectoptions)
      */
-    // tslint:disable-next-line no-unnecessary-generics
     inject <Result = object>(options: string | ServerInjectOptions): Promise<ServerInjectResponse<Result>>;
 
     /**
@@ -451,7 +456,7 @@ export class Server {
      * @return Return value: none.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverlogtags-data-timestamp)
      */
-    log(tags: string | string[], data?: string | object | (() => any), timestamp?: number): void;
+    log(tags: string | string[], data?: string | object | (() => any) | undefined, timestamp?: number | undefined): void;
 
     /**
      * Looks up a route configuration where:
@@ -469,7 +474,7 @@ export class Server {
      * @return Return value: the route information if found, otherwise null.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-servermatchmethod-path-host)
      */
-    match(method: Utils.HTTP_METHODS, path: string, host?: string): RequestRoute | null;
+    match(method: HTTP_METHODS, path: string, host?: string | undefined): RequestRoute | null;
 
     /**
      * Registers a server method where:
@@ -491,7 +496,7 @@ export class Server {
      *     the cache for a given key. - stats - an object with cache statistics, see catbox for stats documentation.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-servermethodname-method-options)
      */
-    method(name: string, method: ServerMethod, options?: ServerMethodOptions): void;
+    method(name: string, method: ServerMethod, options?: ServerMethodOptions | undefined): void;
 
     /**
      * Registers a server method function as described in server.method() using a configuration object where:
@@ -532,13 +537,11 @@ export class Server {
      * @return Return value: none.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-await-serverregisterplugins-options)
      */
-     /* tslint:disable-next-line:no-unnecessary-generics */
-    register<T>(plugin: ServerRegisterPluginObject<T>, options?: ServerRegisterOptions): Promise<void>;
-    /* tslint:disable-next-line:no-unnecessary-generics */
-    register<T, U, V, W, X, Y, Z>(plugins: ServerRegisterPluginObjectArray<T, U, V, W, X, Y, Z>, options?: ServerRegisterOptions): Promise<void>;
-    register(plugins: Array<ServerRegisterPluginObject<any>>, options?: ServerRegisterOptions): Promise<void>;
-    /* tslint:disable-next-line:unified-signatures */
-    register(plugins: Plugin<any> | Array<Plugin<any>>, options?: ServerRegisterOptions): Promise<void>;
+    register<T, D>(plugins: Plugin<T, D>, options?: ServerRegisterOptions | undefined): Promise<this & D>;
+    register<T, D>(plugin: ServerRegisterPluginObject<T, D>, options?: ServerRegisterOptions | undefined): Promise<this & D>;
+    register(plugins: Plugin<any>[], options?: ServerRegisterOptions | undefined): Promise<this>;
+    register(plugins: ServerRegisterPluginObject<any>[], options?: ServerRegisterOptions | undefined): Promise<this>;
+    register<T, U, V, W, X, Y, Z>(plugins: ServerRegisterPluginObjectArray<T, U, V, W, X, Y, Z>, options?: ServerRegisterOptions | undefined): Promise<this>;
 
     /**
      * Adds a route where:
@@ -558,9 +561,7 @@ export class Server {
      * Note that the options object is deeply cloned (with the exception of bind which is shallowly copied) and cannot contain any values that are unsafe to perform deep copy on.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverrouteroute)
      */
-
-    // tslint:disable-next-line:no-unnecessary-generics
-    route <Refs extends ReqRef = ReqRefDefaults>(route: ServerRoute<Refs> | Array<ServerRoute<Refs>>): void;
+    route <Refs extends ReqRef = ReqRefDefaults>(route: ServerRoute<Refs> | ServerRoute<Refs>[]): void;
 
     /**
      * Defines a route rules processor for converting route rules object into route configuration where:
@@ -583,7 +584,7 @@ export class Server {
      */
     rules <Refs extends ReqRef = ReqRefDefaults>(
         processor: RulesProcessor<Refs>,
-        options?: RulesOptions<Refs>
+        options?: RulesOptions<Refs> | undefined
     ): void;
 
     /**
@@ -605,7 +606,7 @@ export class Server {
      * State defaults can be modified via the server default state configuration option.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverstatename-options)
      */
-    state(name: string, options?: ServerStateCookieOptions): void;
+    state(name: string, options?: ServerStateCookieOptions | undefined): void;
 
     /**
      * Stops the server's listener by refusing to accept any new connections or requests (existing connections will continue until closed or timeout), where:
@@ -614,7 +615,7 @@ export class Server {
      * @return Return value: none.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-await-serverstopoptions)
      */
-    stop(options?: {timeout: number}): Promise<void>;
+    stop(options?: {timeout: number} | undefined): Promise<void>;
 
     /**
      * Returns a copy of the routing table where:
@@ -625,7 +626,7 @@ export class Server {
      * * path - the route path.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-servertablehost)
      */
-    table(host?: string): RequestRoute[];
+    table(host?: string | undefined): RequestRoute[];
 
     /**
      * Registers a server validation module used to compile raw validation rules into validation schemas for all routes.
@@ -637,4 +638,4 @@ export class Server {
 /**
  * Factory function to create a new server object (introduced in v17).
  */
-export function server(opts?: ServerOptions): Server;
+export function server<A = ServerApplicationState>(opts?: ServerOptions | undefined): Server<A>;

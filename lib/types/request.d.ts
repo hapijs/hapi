@@ -9,8 +9,8 @@ import { PluginsStates, ServerRealm } from './plugin';
 import { ResponseObject } from '@hapi/shot';
 import { ResponseValue } from './response';
 import { RouteRules, RouteSettings } from './route';
-import { ServerAuthSchemeObjectApi } from './server';
-import { PeekListener, RequestApplicationState, Utils } from './utils';
+import { Server, ServerAuthSchemeObjectApi } from './server';
+import { HTTP_METHODS_PARTIAL, HTTP_METHODS_PARTIAL_LOWERCASE, PeekListener } from './utils';
 
 /**
  * User extensible types user credentials.
@@ -191,9 +191,9 @@ export interface RequestInfo {
  * * fingerprint - the route internal normalized string representing the normalized path.
  * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-requestroute)
  */
-export interface RequestRoute {
+export interface RequestRoute<Refs extends ReqRef = ReqRefDefaults> {
     /** the route HTTP method. */
-    method: Utils.HTTP_METHODS_PARTIAL;
+    method: HTTP_METHODS_PARTIAL;
 
     /** the route path. */
     path: string;
@@ -205,7 +205,7 @@ export interface RequestRoute {
     realm: ServerRealm;
 
     /** the route options object with all defaults applied. */
-    settings: RouteSettings;
+    settings: RouteSettings<Refs>;
 
     /** the route internal normalized string representing the normalized path. */
     fingerprint: string;
@@ -247,12 +247,25 @@ export interface RequestQuery {
     [key: string]: any;
 }
 
+/**
+ * Empty interface to allow for user-defined augmentations.
+ */
+export interface RouteOptionsApp {}
+
+/**
+ *  User-extensible type for application specific state on requests (`request.app`).
+ */
+export interface RequestApplicationState {
+}
+
 export interface InternalRequestDefaults {
+    Server: Server;
+
     Payload: stream.Readable | Buffer | string | object;
     Query: RequestQuery;
-    Params: Utils.Dictionary<any>;
-    Pres: Utils.Dictionary<any>;
-    Headers: Utils.Dictionary<any>;
+    Params: Record<string, any>;
+    Pres: Record<string, any>;
+    Headers: Record<string, any>;
     RequestApp: RequestApplicationState;
 
     AuthUser: UserCredentials;
@@ -263,6 +276,7 @@ export interface InternalRequestDefaults {
 
     Rules: RouteRules;
     Bind: object | null;
+    RouteApp: RouteOptionsApp;
 }
 
 /**
@@ -361,7 +375,7 @@ export interface Request<Refs extends ReqRef = ReqRefDefaults> extends Podium {
     /**
      * The request method in lower case (e.g. 'get', 'post').
      */
-    readonly method: Utils.HTTP_METHODS_PARTIAL_LOWERCASE;
+    readonly method: HTTP_METHODS_PARTIAL_LOWERCASE;
 
     /**
      * The parsed content-type header. Only available when payload parsing enabled and no payload error occurred.
@@ -416,7 +430,7 @@ export interface Request<Refs extends ReqRef = ReqRefDefaults> extends Podium {
     /**
      * Same as pre but represented as the response object created by the pre method.
      */
-    readonly preResponses: Utils.Dictionary<any>;
+    readonly preResponses: Record<string, any>;
 
     /**
      * By default the object outputted from node's URL parse() method.
@@ -438,18 +452,18 @@ export interface Request<Refs extends ReqRef = ReqRefDefaults> extends Podium {
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-requestroute)
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-requestrouteauthaccessrequest)
      */
-    readonly route: RequestRoute;
+    readonly route: RequestRoute<Refs>;
 
     /**
      * Access: read only and the public server interface.
      * The server object.
      */
-    server: http.Server;
+    readonly server: MergeRefs<Refs>['Server'];
 
     /**
      * An object containing parsed HTTP state information (cookies) where each key is the cookie name and value is the matching cookie content after processing using any registered cookie definition.
      */
-    readonly state: Utils.Dictionary<any>;
+    readonly state: Record<string, any>;
 
     /**
      * The parsed request URI.
@@ -472,7 +486,7 @@ export interface Request<Refs extends ReqRef = ReqRefDefaults> extends Podium {
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-requestgenerateresponsesource-options)
      */
     /* tslint:disable-next-line:max-line-length */
-    generateResponse(source: string | object | null, options?: { variety?: string | undefined; prepare?: ((response: ResponseObject) => Promise<ResponseObject>) | undefined; marshal?: ((response: ResponseObject) => Promise<ResponseValue>) | undefined; close?: ((response: ResponseObject) => void | undefined); }): ResponseObject;
+    generateResponse(source: string | object | null, options?: { variety?: string | undefined; prepare?: ((response: ResponseObject) => Promise<ResponseObject>) | undefined; marshal?: ((response: ResponseObject) => Promise<ResponseValue>) | undefined; close?: ((response: ResponseObject) => void) | undefined; } | undefined): ResponseObject;
 
     /**
      * Logs request-specific events. When called, the server emits a 'request' event which can be used by other listeners or plugins. The arguments are:
@@ -484,7 +498,7 @@ export interface Request<Refs extends ReqRef = ReqRefDefaults> extends Podium {
      * @return void
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-requestlogtags-data)
      */
-    log(tags: string | string[], data?: string | object | (() => string | object)): void;
+    log(tags: string | string[], data?: string | object | (() => string | object) | undefined): void;
 
     /**
      * Changes the request method before the router begins processing the request where:
@@ -493,7 +507,7 @@ export interface Request<Refs extends ReqRef = ReqRefDefaults> extends Podium {
      * Can only be called from an 'onRequest' extension method.
      * [See docs](https://hapijs.com/api/17.0.1#-requestsetmethodmethod)
      */
-    setMethod(method: Utils.HTTP_METHODS_PARTIAL): void;
+    setMethod(method: HTTP_METHODS_PARTIAL): void;
 
     /**
      * Changes the request URI before the router begins processing the request where:
@@ -504,5 +518,5 @@ export interface Request<Refs extends ReqRef = ReqRefDefaults> extends Podium {
      * @return void
      * [See docs](https://hapijs.com/api/17.0.1#-requestseturlurl-striptrailingslash)
      */
-    setUrl(url: string | url.URL, stripTrailingSlash?: boolean): void;
+    setUrl(url: string | url.URL, stripTrailingSlash?: boolean | undefined): void;
 }

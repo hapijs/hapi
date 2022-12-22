@@ -1,7 +1,6 @@
 import { RequestOptions as ShotRequestOptions, ResponseObject as ShotResponseObject } from '@hapi/shot';
 import { PluginsStates } from '../plugin';
-import { AuthArtifacts, AuthCredentials, Request } from '../request';
-import { RequestApplicationState } from '../utils';
+import { AuthArtifacts, AuthCredentials, Request, RequestApplicationState } from '../request';
 
 /**
  * An object with:

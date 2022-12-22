@@ -55,7 +55,7 @@
     "handlebars": "^4.7.4",
     "joi": "^17.0.0",
     "legacy-readable-stream": "npm:readable-stream@^1.0.34",
-    "typescript": "^4.9.3"
+    "typescript": "^4.9.4"
   },
   "scripts": {
     "test": "lab -a @hapi/code -t 100 -L -m 5000 -Y",
