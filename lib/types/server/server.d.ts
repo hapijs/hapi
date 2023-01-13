@@ -384,14 +384,14 @@ export class Server<A = ServerApplicationState> {
      * @return void
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverextevents)
      */
-    ext(events: ServerExtEventsObject | ServerExtEventsObject[] | ServerExtEventsRequestObject | ServerExtEventsRequestObject[]): void;
+    ext(events: ServerExtEventsObject<A> | ServerExtEventsObject<A>[] | ServerExtEventsRequestObject | ServerExtEventsRequestObject[]): void;
 
     /**
      * Registers a single extension event using the same properties as used in server.ext(events), but passed as arguments.
      * @return Return value: none.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverextevent-method-options)
      */
-    ext(event: ServerExtType, method: ServerExtPointFunction, options?: ServerExtOptions | undefined): void;
+    ext(event: ServerExtType, method: ServerExtPointFunction<A>, options?: ServerExtOptions | undefined): void;
     ext(event: ServerRequestExtType, method: Lifecycle.Method, options?: ServerExtOptions | undefined): void;
 
     /**

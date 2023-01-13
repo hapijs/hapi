@@ -1,4 +1,4 @@
-import { Server } from './server';
+import { Server, ServerApplicationState } from './server';
 import { ReqRef, ReqRefDefaults } from '../request';
 import { Lifecycle } from '../utils';
 
@@ -46,7 +46,7 @@ export type ServerRequestExtType =
  *     when adding server extensions. Defaults to 'server' which applies to any route added to the server the extension is added to.
  * @return void
  */
-export interface ServerExtEventsObject {
+export interface ServerExtEventsObject<A = ServerApplicationState> {
     /**
      * (required) the extension point event name. The available extension points include the request extension points as well as the following server extension points:
      * * 'onPreStart' - called before the connection listeners are started.
@@ -61,7 +61,7 @@ export interface ServerExtEventsObject {
      * * * this - the object provided via options.bind or the current active context set with server.bind().
      * * request extension points: a lifecycle method.
      */
-    method: ServerExtPointFunction | ServerExtPointFunction[];
+    method: ServerExtPointFunction<A> | ServerExtPointFunction<A>[];
     options?: ServerExtOptions | undefined;
 }
 
@@ -120,7 +120,7 @@ export interface ServerExtEventsRequestObject {
     options?: ServerExtOptions | undefined;
 }
 
-export type ServerExtPointFunction = (server: Server) => void;
+export type ServerExtPointFunction<A = ServerApplicationState> = (server: Server<A>) => void;
 
 /**
  * An object with the following:
