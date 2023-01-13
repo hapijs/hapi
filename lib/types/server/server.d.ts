@@ -626,7 +626,7 @@ export class Server<A = ServerApplicationState> {
      * * path - the route path.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-servertablehost)
      */
-    table(host?: string | undefined): RequestRoute[];
+    table(host?: string | string[] | undefined): RequestRoute[];
 
     /**
      * Registers a server validation module used to compile raw validation rules into validation schemas for all routes.

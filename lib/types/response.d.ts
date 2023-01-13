@@ -316,7 +316,7 @@ export interface ResponseObject extends Podium {
      * Only available after calling the response.redirect() method.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-responsetemporaryistemporary)
      */
-    temporary(isTemporary: boolean): ResponseObject;
+    temporary(isTemporary?: boolean): ResponseObject;
 
     /**
      * Sets the status code to 301 or 308 (based on the response.rewritable() setting) where:
@@ -325,7 +325,7 @@ export interface ResponseObject extends Podium {
      * Only available after calling the response.redirect() method.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-responsepermanentispermanent)
      */
-    permanent(isPermanent: boolean): ResponseObject;
+    permanent(isPermanent?: boolean): ResponseObject;
 
     /**
      * Sets the status code to 301/302 for rewritable (allows changing the request method from 'POST' to 'GET') or 307/308 for non-rewritable (does not allow changing the request method from 'POST'
@@ -335,7 +335,7 @@ export interface ResponseObject extends Podium {
      * Only available after calling the response.redirect() method.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-responserewritableisrewritable)
      */
-    rewritable(isRewritable: boolean): ResponseObject;
+    rewritable(isRewritable?: boolean): ResponseObject;
 }
 
 /**

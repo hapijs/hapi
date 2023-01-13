@@ -187,6 +187,10 @@ export interface RouteOptionsCors {
      * if true, allows user credentials to be sent ('Access-Control-Allow-Credentials'). Defaults to false.
      */
     credentials?: boolean | undefined;
+    /**
+     * the status code used for CORS preflight responses, either 200 or 204. Defaults to 200.
+     */
+    preflightStatusCode?: 200 | 204;
 }
 
 /**
@@ -308,6 +312,13 @@ export interface RouteOptionsPayload {
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspayloadparse)
      */
     parse?: boolean | 'gunzip' | undefined;
+
+    /**
+     * @default to 'error'.
+     * Sets handling of incoming payload that may contain a prototype poisoning security attack.
+     * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspayloadprotoaction)
+     */
+    protoAction?: 'error' | 'remove' | 'ignore';
 
     /**
      * @default to 10000 (10 seconds).
@@ -497,15 +508,15 @@ export interface RouteOptionsSecureObject {
         /**
          * the max-age portion of the header, as a number. Default is 15768000.
          */
-        maxAge: number;
+        maxAge?: number;
         /**
          * a boolean specifying whether to add the includeSubDomains flag to the header.
          */
-        includeSubDomains: boolean;
+        includeSubDomains?: boolean;
         /**
          * a boolean specifying whether to add the 'preload' flag (used to submit domains inclusion in Chrome's HTTP Strict Transport Security (HSTS) preload list) to the header.
          */
-        preload: boolean;
+        preload?: boolean;
     } | undefined;
     /**
      * controls the 'X-Frame-Options' header

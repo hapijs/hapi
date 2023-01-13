@@ -88,8 +88,8 @@ export interface ServerOptions {
      * false.
      */
     debug?: false | {
-        log?: string[] | false | undefined;
-        request?: string[] | false | undefined;
+        log?: string | string[] | false | undefined;
+        request?: string | string[] | false | undefined;
     } | undefined;
 
     /**
@@ -151,6 +151,19 @@ export interface ServerOptions {
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serveroptionsmime)
      */
     mime?: MimosOptions | undefined;
+
+    /**
+     * @default { cleanStop: true }
+     * Defines server handling of server operations.
+     */
+    operations?: {
+        /**
+         * @default true
+         * If true, the server keeps track of open connections and properly closes them when the server is stopped.
+         * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serveroptionsoperations)
+         */
+        cleanStop?: boolean;
+    }
 
     /**
      * @default {}.

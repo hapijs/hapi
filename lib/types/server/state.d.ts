@@ -66,6 +66,8 @@ export interface ServerStateCookieOptions {
     strictHeader?: boolean | undefined;
     /** used by proxy plugins (e.g. h2o2). */
     passThrough?: any | undefined;
+    /** a function using the signature `async function(definition, request)` used to override a request-specific cookie settings */
+    contextualize?(definition: ServerStateCookieOptions, request: Request): void | Promise<void>;
 }
 
 /**
