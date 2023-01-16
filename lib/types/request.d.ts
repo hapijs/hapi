@@ -6,8 +6,7 @@ import { Boom } from '@hapi/boom';
 import { Podium } from '@hapi/podium';
 
 import { PluginsStates, ServerRealm } from './plugin';
-import { ResponseObject } from '@hapi/shot';
-import { ResponseValue } from './response';
+import { ResponseValue, ResponseObject } from "./response";
 import { RouteRules, RouteSettings } from './route';
 import { Server, ServerAuthSchemeObjectApi } from './server';
 import { HTTP_METHODS_PARTIAL, HTTP_METHODS_PARTIAL_LOWERCASE, PeekListener } from './utils';
