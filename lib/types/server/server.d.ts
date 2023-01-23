@@ -2,7 +2,7 @@ import * as http from 'http';
 import * as zlib from 'zlib';
 
 import { Root } from 'joi';
-import { Mimos } from '@hapi/mimos';
+import Mimos = require('@hapi/mimos');
 
 import {
     Dependencies,
