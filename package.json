@@ -37,14 +37,14 @@
     "@hapi/shot": "^5.0.5",
     "@hapi/somever": "^3.0.0",
     "@hapi/statehood": "^7.0.3",
-    "@hapi/subtext": "^7.0.3",
+    "@hapi/subtext": "^7.1.0",
     "@hapi/teamwork": "^5.1.0",
     "@hapi/topo": "^5.0.0",
     "@hapi/validate": "^1.1.1"
   },
   "devDependencies": {
     "@hapi/code": "^8.0.0",
-    "@hapi/eslint-plugin": "*",
+    "@hapi/eslint-plugin": "^5.0.0",
     "@hapi/inert": "^6.0.2",
     "@hapi/joi-legacy-test": "npm:@hapi/joi@^15.0.0",
     "@hapi/lab": "^24.4.0",
