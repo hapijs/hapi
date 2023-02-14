@@ -3,7 +3,7 @@ name: ci
 on:
   push:
     branches:
-      - master
+      - v20
   pull_request:
   workflow_dispatch:
 
