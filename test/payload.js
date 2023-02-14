@@ -686,6 +686,19 @@ describe('Payload', () => {
         expect(res.result.pics).to.exist();
     });
 
+    it('places default limit on max parts in multipart payloads', async () => {
+
+        const part = '--AaB03x\r\n' + 'content-disposition: form-data; name="x"\r\n\r\n' + 'x\r\n';
+        const multipartPayload = part.repeat(1001) + '--AaB03x--\r\n';
+
+        const server = Hapi.server({ routes: { payload: { multipart: true } } });
+        server.route({ method: 'POST', path: '/', handler: () => null });
+
+        const res = await server.inject({ method: 'POST', url: '/', payload: multipartPayload, headers: { 'content-type': 'multipart/form-data; boundary=AaB03x' } });
+        expect(res.statusCode).to.equal(400);
+        expect(res.result.message).to.equal('Invalid multipart payload format');
+    });
+
     it('signals connection close when payload is unconsumed', async () => {
 
         const payload = Buffer.alloc(1024);

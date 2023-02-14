@@ -3048,6 +3048,12 @@ Default value: `1048576` (1MB).
 Limits the size of incoming payloads to the specified byte count. Allowing very large payloads may
 cause the server to run out of memory.
 
+#### <a name="route.options.payload.maxParts" /> `route.options.payload.maxParts`
+
+Default value: `1000`.
+
+Limits the number of parts allowed in multipart payloads.
+
 #### <a name="route.options.payload.multipart" /> `route.options.payload.multipart`
 
 Default value: `false`.
