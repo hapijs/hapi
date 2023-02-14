@@ -2192,7 +2192,7 @@ describe('Request', () => {
             });
 
             await new Promise((resolve) => client.on('connect', resolve));
-            client.write('GET / HTTP/1.1\nHost: test\nContent-Length: 0\n\n\ninvalid data');
+            client.write('GET / HTTP/1.1\r\nHost: test\r\nContent-Length: 0\r\n\r\n\r\ninvalid data');
 
             const [request] = await log;
             expect(request.response.statusCode).to.equal(400);
