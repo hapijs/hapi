@@ -25,3 +25,4 @@ Build powerful, scalable applications, with minimal overhead and full out-of-the
  - Wyatt Lyon Preul ([@geek](https://github.com/geek))
  - Colin Ihrig ([@cjihrig](https://github.com/cjihrig))
  - Nicolas Morel ([@marsup](https://github.com/marsup))
+ - Jonathan Samines ([@jonathansamines](https://github.com/jonathansamines))
