@@ -3,12 +3,12 @@
 const DC = require('diagnostics_channel');
 
 const Code = require('@hapi/code');
-const Lab  = require('@hapi/lab');
+const Lab = require('@hapi/lab');
 
 const Hapi = require('..');
 
 const { describe, it } = exports.lab = Lab.script();
-const expect           = Code.expect;
+const expect = Code.expect;
 
 describe('DiagnosticChannel', () => {
 
@@ -75,17 +75,15 @@ describe('DiagnosticChannel', () => {
         it('response should be exposed on creation through the channel hapi.onResponse', async () => {
 
             const server = Hapi.server();
+            let responseExposed;
 
             server.route({ method: 'GET', path: '/', handler: () => 'ok' });
-
-            let responseExposed;
 
             const eventPromise = new Promise((resolve) => {
 
                 channel.subscribe((res) => {
 
                     responseExposed = res;
-
                     resolve();
                 });
             });
@@ -104,24 +102,21 @@ describe('DiagnosticChannel', () => {
         it('request should be exposed on creation through the channel hapi.onRequest', async () => {
 
             const server = Hapi.server();
+            let requestExposed;
 
             server.route({ method: 'GET', path: '/', handler: () => 'ok' });
-
-            let requestExposed;
 
             const eventPromise = new Promise((resolve) => {
 
                 channel.subscribe((req) => {
 
                     requestExposed = req;
-
                     resolve();
                 });
             });
 
             const response = await server.inject('/');
             await eventPromise;
-
             expect(response.request).to.equal(requestExposed);
         });
     });
