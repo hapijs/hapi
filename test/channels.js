@@ -43,7 +43,6 @@ describe('DiagnosticChannel', () => {
         it('route should be exposed on creation through the channel hapi.onRoute', async () => {
 
             const server = Hapi.server();
-
             let route;
 
             await new Promise((resolve) => {
@@ -51,7 +50,6 @@ describe('DiagnosticChannel', () => {
                 channel.subscribe((rte) => {
 
                     route = rte;
-
                     resolve();
                 });
 
