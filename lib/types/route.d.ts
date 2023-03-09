@@ -494,8 +494,8 @@ export type ReferrerPolicy = '' | 'no-referrer' | 'no-referrer-when-downgrade' |
  * * * * source - when rule is 'allow-from' this is used to form the rest of the header, otherwise this field is ignored. If rule is 'allow-from' but source is unset, the rule will be automatically
  * changed to 'sameorigin'.
  * * xss - controls the 'X-XSS-Protection' header, where:
- * * * 'disable' - the header will be set to '0'. This is the default value.
- * * * 'enable' - the header will be set to '1; mode=block'.
+ * * * 'disabled' - the header will be set to '0'. This is the default value.
+ * * * 'enabled' - the header will be set to '1; mode=block'.
  * * * false - the header will be omitted
  * * noOpen - boolean controlling the 'X-Download-Options' header for Internet Explorer, preventing downloads from executing in your context. Defaults to true setting the header to 'noopen'.
  * * noSniff - boolean controlling the 'X-Content-Type-Options' header. Defaults to true setting the header to its only and default option, 'nosniff'.
@@ -535,11 +535,11 @@ export interface RouteOptionsSecureObject {
     } | undefined;
     /**
      * controls the 'X-XSS-Protection' header, where:
-     * * 'disable' - the header will be set to '0'. This is the default value.
-     * * 'enable' - the header will be set to '1; mode=block'.
+     * * 'disabled' - the header will be set to '0'. This is the default value.
+     * * 'enabled' - the header will be set to '1; mode=block'.
      * * false - the header will be omitted
      */
-    xss?: 'disable' | 'enable' | false | undefined;
+    xss?: 'disabled' | 'enabled' | false | undefined;
     /**
      * boolean controlling the 'X-Download-Options' header for Internet Explorer, preventing downloads from executing in your context. Defaults to true setting the header to 'noopen'.
      */
