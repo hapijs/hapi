@@ -3364,8 +3364,8 @@ following options:
 
 - `xss` - controls the 'X-XSS-Protection' header, where:
 
-    - `'disable'` - the header will be set to `'0'`.  This is the default value.
-    - `'enable'` - the header will be set to `'1; mode=block'`.
+    - `'disabled'` - the header will be set to `'0'`.  This is the default value.
+    - `'enabled'` - the header will be set to `'1; mode=block'`.
     - `false` - the header will be omitted.
 
     Note: when enabled, this setting can create a security vulnerabilities in versions of Internet Explorer
