@@ -12,46 +12,36 @@ const expect = Code.expect;
 
 describe('DiagnosticChannel', () => {
 
-    describe('onServerChannel', () => {
+    describe('hapi.onServer', () => {
 
         const channel = DC.channel('hapi.onServer');
 
         it('server should be exposed on creation through the channel hapi.onServer', async () => {
 
-            let exposedServer;
             let server;
 
-            await new Promise((resolve) => {
+            const exposedServer = await new Promise((resolve) => {
 
-                channel.subscribe((srv) => {
-
-                    exposedServer = srv;
-                    resolve();
-                });
+                channel.subscribe(resolve);
 
                 server = Hapi.server();
             });
 
-            expect(exposedServer).to.equal(server);
+            expect(exposedServer).to.shallow.equal(server);
         });
     });
 
-    describe('onRouteChannel', () => {
+    describe('hapi.onRoute', () => {
 
         const channel = DC.channel('hapi.onRoute');
 
         it('route should be exposed on creation through the channel hapi.onRoute', async () => {
 
             const server = Hapi.server();
-            let route;
 
-            await new Promise((resolve) => {
+            const exposedRoute = await new Promise((resolve) => {
 
-                channel.subscribe((rte) => {
-
-                    route = rte;
-                    resolve();
-                });
+                channel.subscribe(resolve);
 
                 server.route({
                     method: 'GET',
@@ -61,61 +51,51 @@ describe('DiagnosticChannel', () => {
                 });
             });
 
-            expect(route).to.be.an.object();
-            expect(route.settings.app.x).to.equal('o');
+            expect(exposedRoute).to.be.an.object();
+            expect(exposedRoute.settings.app.x).to.equal('o');
         });
     });
 
-    describe('onResponseChannel', () => {
+    describe('hapi.onResponse', () => {
 
         const channel = DC.channel('hapi.onResponse');
 
         it('response should be exposed on creation through the channel hapi.onResponse', async () => {
 
             const server = Hapi.server();
-            let responseExposed;
 
             server.route({ method: 'GET', path: '/', handler: () => 'ok' });
 
-            const eventPromise = new Promise((resolve) => {
+            const event = new Promise((resolve) => {
 
-                channel.subscribe((res) => {
-
-                    responseExposed = res;
-                    resolve();
-                });
+                channel.subscribe(resolve);
             });
 
             const response = await server.inject('/');
-            await eventPromise;
+            const responseExposed = await event;
 
-            expect(response.request.response).to.equal(responseExposed);
+            expect(response.request.response).to.shallow.equal(responseExposed);
         });
     });
 
-    describe('onRequestChannel', () => {
+    describe('hapi.onRequest', () => {
 
         const channel = DC.channel('hapi.onRequest');
 
         it('request should be exposed on creation through the channel hapi.onRequest', async () => {
 
             const server = Hapi.server();
-            let requestExposed;
 
             server.route({ method: 'GET', path: '/', handler: () => 'ok' });
 
-            const eventPromise = new Promise((resolve) => {
+            const event = new Promise((resolve) => {
 
-                channel.subscribe((req) => {
-
-                    requestExposed = req;
-                    resolve();
-                });
+                channel.subscribe(resolve);
             });
 
             const response = await server.inject('/');
-            await eventPromise;
-            expect(response.request).to.equal(requestExposed);
+            const requestExposed = await event;
+            expect(response.request).to.shallow.equal(requestExposed);
         });
     });
 });

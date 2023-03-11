@@ -5033,7 +5033,8 @@ const plugin = {
 
 ## Diagnostic Channels
 
-Diagnostic Channels allows Hapi to report events to other modules. This is useful for APM vendors to collect data from Hapi for diagnostics purposes.
+Diagnostic Channels allows Hapi to report events to other modules. This is useful for APM vendors to collect data from Hapi for diagnostics purposes. 
+This not intended to be used in your own server or plugin, use [extension methods](#server.ext()) or [events](#server.events) instead.  
 
 See [the official documentation](https://nodejs.org/docs/latest/api/diagnostics_channel.html) for more information.
 
@@ -5046,6 +5047,7 @@ const DC = require('diagnostics_channel');
 const channel = DC.channel('hapi.onServer');
 
 channel.subscribe((server) => {
+
     // Do something with the server
     console.log(server.version);
 });
@@ -5061,6 +5063,7 @@ const DC = require('diagnostics_channel');
 const channel = DC.channel('hapi.onRoute');
 
 channel.subscribe((route) => {
+
     // Do something with the route
     console.log(route.path);
 });
@@ -5076,6 +5079,7 @@ const DC = require('diagnostics_channel');
 const channel = DC.channel('hapi.onRequest');
 
 channel.subscribe((request) => {
+
     // Do something with the request
     console.log(request.info.id);
 });
@@ -5091,6 +5095,7 @@ const DC = require('diagnostics_channel');
 const channel = DC.channel('hapi.onResponse');
 
 channel.subscribe((response) => {
+
     // Do something with the response
     console.log(response.statusCode);
 });
