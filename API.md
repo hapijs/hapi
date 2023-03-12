@@ -3619,7 +3619,7 @@ the same. The following is the complete list of steps a request can go through:
     - always called when `onRequest` extensions exist.
     - the request path and method can be modified via the [`request.setUrl()`](#request.setUrl()) and [`request.setMethod()`](#request.setMethod()) methods. Changes to the request path or method will impact how the request is routed and can be used for rewrite rules.
     - [`request.payload`](#request.payload) is `undefined` and can be overridden with any non-`undefined` value to bypass payload processing.
-    - [`request.route`](#request.route) is unassigned.
+    - [`request.route`](#request.route) is `null`.
     - [`request.url`](#request.url) can be `null` if the incoming request path is invalid.
     - [`request.path`](#request.path) can be an invalid path.
 
@@ -4788,6 +4788,8 @@ The request route information object, where:
 - `realm` - the [active realm](#server.realm) associated with the route.
 - `settings` - the [route options](#route-options) object with all defaults applied.
 - `fingerprint` - the route internal normalized string representing the normalized path.
+
+Returns `null` until the "onRequest" [request lifecycle](https://github.com/hapijs/hapi/blob/master/API.md#request-lifecycle) step is complete.
 
 #### <a name="request.server" /> `request.server`
 

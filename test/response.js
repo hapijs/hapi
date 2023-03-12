@@ -1124,14 +1124,14 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.response({ a: 1, b: 2, '<': '&' }).type('application/x-test').spaces(2).replacer(['a']).suffix('\n').escape(false);
+                return h.response({ a: '&', b: 2, '<': '&' }).type('application/x-test').spaces(2).replacer(['a']).suffix('\n').escape(true);
             };
 
             const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
-            expect(res.payload).to.equal('{\n  \"a\": 1\n}\n');
+            expect(res.payload).to.equal('{\n  \"a\": "\\u0026"\n}\n');
             expect(res.headers['content-type']).to.equal('application/x-test');
         });
 
@@ -1139,14 +1139,14 @@ describe('Response', () => {
 
             const handler = (request, h) => {
 
-                return h.response({ a: 1, b: 2, '<': '&' }).type('application/x-test').escape(false).replacer(['a']).suffix('\n').spaces(2);
+                return h.response({ a: '&', b: 2, '<': '&' }).type('application/x-test').escape(true).replacer(['a']).suffix('\n').spaces(2);
             };
 
             const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
-            expect(res.payload).to.equal('{\n  \"a\": 1\n}\n');
+            expect(res.payload).to.equal('{\n  \"a\": "\\u0026"\n}\n');
             expect(res.headers['content-type']).to.equal('application/x-test');
         });
 

@@ -51,7 +51,7 @@ const route: ServerRoute<RequestDecorations> = {
 
         check.type<Record<string, string>>(request.params);
         check.type<number>(request.server.app.multi!);
-        check.type<string[]>(request.route.settings.app!.prefix);
+        check.type<string[]>(request.route!.settings.app!.prefix);
 
         return 'hello!'
     }
