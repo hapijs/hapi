@@ -4,6 +4,7 @@ const DC = require('diagnostics_channel');
 
 const Code = require('@hapi/code');
 const Lab = require('@hapi/lab');
+const Hoek = require('@hapi/hoek');
 
 const Hapi = require('..');
 
@@ -73,7 +74,6 @@ describe('DiagnosticChannel', () => {
 
             const response = await server.inject('/');
             const responseExposed = await event;
-
             expect(response.request.response).to.shallow.equal(responseExposed);
         });
     });
@@ -95,6 +95,31 @@ describe('DiagnosticChannel', () => {
 
             const response = await server.inject('/');
             const requestExposed = await event;
+            expect(response.request).to.shallow.equal(requestExposed);
+        });
+
+        it('request should not have been routed when hapi.onRequest is triggered', async () => {
+
+            const server = Hapi.server();
+
+            server.route({ method: 'GET', path: '/test/{p}', handler: () => 'ok' });
+
+            server.ext('onRequest', async (request, h) => {
+
+                await Hoek.wait(10);
+                return h.continue;
+            });
+
+            const event = new Promise((resolve) => {
+
+                channel.subscribe(resolve);
+            });
+
+            const request = server.inject('/test/foo');
+            const requestExposed = await event;
+            expect(requestExposed.params).to.be.null();
+
+            const response = await request;
             expect(response.request).to.shallow.equal(requestExposed);
         });
     });
