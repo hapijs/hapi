@@ -33,6 +33,7 @@
     "@hapi/catbox-memory": "^6.0.1",
     "@hapi/heavy": "^8.0.1",
     "@hapi/hoek": "^11.0.2",
+    "@hapi/iron": "^7.0.1",
     "@hapi/mimos": "^7.0.1",
     "@hapi/podium": "^5.0.1",
     "@hapi/shot": "^6.0.1",
