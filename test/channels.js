@@ -178,7 +178,7 @@ describe('DiagnosticChannel', () => {
                 path: '/',
                 handler: () => {
 
-                    throw new Error('some error message')
+                    throw new Error('some error message');
                 }
             });
 
