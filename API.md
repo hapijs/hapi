@@ -5100,3 +5100,34 @@ channel.subscribe((response) => {
     console.log(response.statusCode);
 });
 ```
+
+### `hapi.onRequestLifecycle`
+
+This event is sent after the response is matched to a route. The [`request`](#request) object is passed as the message.
+
+```js
+const DC = require('diagnostics_channel');
+const channel = DC.channel('hapi.onRequestLifecycle');
+
+channel.subscribe((request) => {
+
+    // Do something with the request
+    console.log(request.route);
+});
+```
+
+### `hapi.onError`
+
+This event is sent after the response is sent back to the client. An object containing the [`request`](#request) object and the error is passed as the message.
+Similar to `server.events.on({ name: 'request', channels: 'error' }, (request, { error }) => {})`.
+
+```js
+const DC = require('diagnostics_channel');
+const channel = DC.channel('hapi.onError');
+
+channel.subscribe(({ request, error }) => {
+
+    // Do something with the request or the error
+    console.error(error);
+});
+```
