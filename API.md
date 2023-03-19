@@ -5118,7 +5118,7 @@ channel.subscribe((request) => {
 
 ### `hapi.onError`
 
-This event is sent after the response is sent back to the client. An object containing the [`request`](#request) object and the error is passed as the message.
+This event is sent when a request responded with a 500 status code. An object containing the [`request`](#request) object and the error is passed as the message.
 Similar to `server.events.on({ name: 'request', channels: 'error' }, (request, { error }) => {})`.
 
 ```js
