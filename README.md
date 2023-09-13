@@ -23,6 +23,5 @@ Build powerful, scalable applications, with minimal overhead and full out-of-the
  - Lloyd Benson ([@lloydbenson](https://github.com/lloydbenson))
  - Nathan LaFreniere ([@nlf](https://github.com/nlf))
  - Wyatt Lyon Preul ([@geek](https://github.com/geek))
- - Colin Ihrig ([@cjihrig](https://github.com/cjihrig))
  - Nicolas Morel ([@marsup](https://github.com/marsup))
  - Jonathan Samines ([@jonathansamines](https://github.com/jonathansamines))
