@@ -166,6 +166,14 @@ export interface ResponseObject extends Podium {
     message(httpMessage: string): ResponseObject;
 
     /**
+     * Sets the HTTP 'content-encoding' header where:
+     * @param encoding - the header value string.
+     * @return Return value: the current response object.
+     * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-responsecompressedencoding)
+     */
+    compressed(encoding: string): ResponseObject;
+
+    /**
      * Sets the HTTP status code to Created (201) and the HTTP 'Location' header where:
      * @param uri - an absolute or relative URI used as the 'Location' header value.
      * @return Return value: the current response object.
