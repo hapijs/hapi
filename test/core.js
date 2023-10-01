@@ -1660,6 +1660,28 @@ describe('Core', () => {
 
         describe('onRequest', () => {
 
+            it('request object has null route and params', async () => {
+
+                const server = Hapi.server();
+
+                const onRequest = new Promise((resolve) => {
+
+                    server.ext('onRequest', (request, h) => {
+
+                        resolve(request);
+                        return h.continue;
+                    });
+                });
+
+                const req = server.inject('/');
+                const request = await onRequest;
+                expect(request.route).to.be.null();
+                expect(request.params).to.be.null();
+
+                const res = await req;
+                expect(res.statusCode).to.equal(404);
+            });
+
             it('replies with custom response', async () => {
 
                 const server = Hapi.server();

@@ -451,7 +451,7 @@ export interface Request<Refs extends ReqRef = ReqRefDefaults> extends Podium {
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-requestroute)
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-requestrouteauthaccessrequest)
      */
-    readonly route: RequestRoute<Refs>;
+    readonly route: RequestRoute<Refs> | null;
 
     /**
      * Access: read only and the public server interface.
