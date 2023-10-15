@@ -974,7 +974,7 @@ export interface ServerRoute<Refs extends ReqRef = ReqRefDefaults> {
     /**
      * (required when handler is not set) the route handler function called to generate the response after successful authentication and validation.
      */
-    handler?: Lifecycle.Method<Refs> | HandlerDecorations | undefined;
+    handler?: (Lifecycle.Method<Refs> & HandlerDecorations) | undefined;
 
     /**
      * additional route options. The options value can be an object or a function that returns an object using the signature function(server) where server is the server the route is being added to
