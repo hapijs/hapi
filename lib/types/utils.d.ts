@@ -65,10 +65,10 @@ export namespace Lifecycle {
     type Method<
         Refs extends ReqRef = ReqRefDefaults,
         R extends ReturnValue<any> = ReturnValue<Refs>
-    > = (
+    > = <RouteRef extends Refs>(
             this: MergeRefs<Refs>['Bind'],
-            request: Request<Refs>,
-            h: ResponseToolkit<Refs>,
+            request: Request<RouteRef>,
+            h: ResponseToolkit<RouteRef>,
             err?: Error | undefined
         ) => R;
 
