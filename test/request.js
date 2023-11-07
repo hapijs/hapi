@@ -2276,38 +2276,29 @@ describe('Request', () => {
             await server.stop({ timeout: 1 });
         });
 
-        it('returns a logged bad request error when parser fails after request is setup', async () => {
+        it('returns normal response when parser fails with bad method after request is setup', async () => {
 
             const server = Hapi.server({ routes: { timeout: { server: false } } });
-            server.route({ path: '/', method: 'GET', handler: Hoek.block });
+            server.route({ path: '/', method: 'GET', handler: () => 'ok' });
             await server.start();
 
             const log = server.events.once('response');
             const client = Net.connect(server.info.port);
-            const clientEnded = new Promise((resolve, reject) => {
-
-                let response = '';
-                client.on('data', (chunk) => {
-
-                    response = response + chunk.toString();
-                });
-
-                client.on('end', () => resolve(response));
-                client.on('error', reject);
-            });
+            const clientEnded = Wreck.read(client);
 
             await new Promise((resolve) => client.on('connect', resolve));
             client.write('GET / HTTP/1.1\r\nHost: test\r\nContent-Length: 0\r\n\r\n\r\ninvalid data');
 
             const [request] = await log;
-            expect(request.response.statusCode).to.equal(400);
-            const clientResponse = await clientEnded;
-            expect(clientResponse).to.contain('400 Bad Request');
+            expect(request.response.statusCode).to.equal(200);
+            expect(request.response.source).to.equal('ok');
+            const clientResponse = (await clientEnded).toString();
+            expect(clientResponse).to.contain('HTTP/1.1 200 OK');
 
             await server.stop({ timeout: 1 });
         });
 
-        it('returns a logged bad request error when parser fails after request is setup (cleanStop false)', async () => {
+        it('returns a bad request when parser fails after request is setup (cleanStop false)', async () => {
 
             const server = Hapi.server({ routes: { timeout: { server: false } }, operations: { cleanStop: false } });
             server.route({ path: '/', method: 'GET', handler: Hoek.block });
@@ -2330,6 +2321,50 @@ describe('Request', () => {
             client.write('GET / HTTP/1.1\r\nHost: test\nContent-Length: 0\r\n\r\n\r\ninvalid data');
 
             const clientResponse = await clientEnded;
+            expect(clientResponse).to.contain('400 Bad Request');
+
+            await server.stop({ timeout: 1 });
+        });
+
+        it('returns a bad request for POST request when chunked parsing fails', async () => {
+
+            const server = Hapi.server({ routes: { timeout: { server: false } } });
+            server.route({ path: '/', method: 'POST', handler: () => 'ok', options: { payload: { parse: true } } });
+            await server.start();
+
+            const log = server.events.once('response');
+            const client = Net.connect(server.info.port);
+            const clientEnded = Wreck.read(client);
+
+            await new Promise((resolve) => client.on('connect', resolve));
+            client.write('POST / HTTP/1.1\r\nHost: test\r\nTransfer-Encoding: chunked\r\n\r\n');
+            await Hoek.wait(10);
+            client.write('not chunked\r\n');
+
+            const [request] = await log;
+            expect(request.response.statusCode).to.equal(400);
+            expect(request.response.source).to.contain({ error: 'Bad Request' });
+            const clientResponse = (await clientEnded).toString();
+            expect(clientResponse).to.contain('400 Bad Request');
+
+            await server.stop({ timeout: 1 });
+        });
+
+        it('returns a bad request for POST request when chunked parsing fails (cleanStop false)', async () => {
+
+            const server = Hapi.server({ routes: { timeout: { server: false } }, operations: { cleanStop: false } });
+            server.route({ path: '/', method: 'POST', handler: () => 'ok', options: { payload: { parse: true } } });
+            await server.start();
+
+            const client = Net.connect(server.info.port);
+            const clientEnded = Wreck.read(client);
+
+            await new Promise((resolve) => client.on('connect', resolve));
+            client.write('POST / HTTP/1.1\r\nHost: test\r\nTransfer-Encoding: chunked\r\n\r\n');
+            await Hoek.wait(10);
+            client.write('not chunked\r\n');
+
+            const clientResponse = (await clientEnded).toString();
             expect(clientResponse).to.contain('400 Bad Request');
 
             await server.stop({ timeout: 1 });
