@@ -2279,7 +2279,37 @@ describe('Request', () => {
         it('returns normal response when parser fails with bad method after request is setup', async () => {
 
             const server = Hapi.server({ routes: { timeout: { server: false } } });
-            server.route({ path: '/', method: 'GET', handler: () => 'ok' });
+            server.route({ path: '/', method: 'GET', handler: () => 'PAYLOAD' });
+            await server.start();
+
+            const log = server.events.once('response');
+            const client = Net.connect(server.info.port);
+            const clientEnded = Wreck.read(client);
+
+            await new Promise((resolve) => client.on('connect', resolve));
+            client.write('GET / HTTP/1.1\r\nHost: test\r\nContent-Length: 0\r\n\r\ninvalid data');
+
+            const [request] = await log;
+            expect(request.response.statusCode).to.equal(200);
+            expect(request.response.source).to.equal('PAYLOAD');
+            const clientResponse = (await clientEnded).toString();
+            expect(clientResponse).to.contain('HTTP/1.1 200 OK');
+
+            const nextResponse = clientResponse.slice(clientResponse.indexOf('PAYLOAD') + 7);
+            expect(nextResponse).to.startWith('HTTP/1.1 400 Bad Request');
+
+            await server.stop({ timeout: 1 });
+        });
+
+        it('returns nothing when parser fails with bad method after request is setup and the connection is closed', async () => {
+
+            const server = Hapi.server({ routes: { timeout: { server: false } } });
+            server.route({ path: '/', method: 'GET', handler: (request, h) => {
+
+                request.raw.res.destroy();
+                return h.abandon;
+            } });
+
             await server.start();
 
             const log = server.events.once('response');
@@ -2290,10 +2320,9 @@ describe('Request', () => {
             client.write('GET / HTTP/1.1\r\nHost: test\r\nContent-Length: 0\r\n\r\n\r\ninvalid data');
 
             const [request] = await log;
-            expect(request.response.statusCode).to.equal(200);
-            expect(request.response.source).to.equal('ok');
+            expect(request.response.statusCode).to.be.undefined();
             const clientResponse = (await clientEnded).toString();
-            expect(clientResponse).to.contain('HTTP/1.1 200 OK');
+            expect(clientResponse).to.equal('');
 
             await server.stop({ timeout: 1 });
         });
@@ -2318,7 +2347,7 @@ describe('Request', () => {
             });
 
             await new Promise((resolve) => client.on('connect', resolve));
-            client.write('GET / HTTP/1.1\r\nHost: test\nContent-Length: 0\r\n\r\n\r\ninvalid data');
+            client.write('GET / HTTP/1.1\r\nHost: test\nContent-Length: 0\r\n\r\ninvalid data');
 
             const clientResponse = await clientEnded;
             expect(clientResponse).to.contain('400 Bad Request');
@@ -2364,6 +2393,32 @@ describe('Request', () => {
             await Hoek.wait(10);
             client.write('not chunked\r\n');
 
+            const clientResponse = (await clientEnded).toString();
+            expect(clientResponse).to.contain('400 Bad Request');
+
+            await server.stop({ timeout: 1 });
+        });
+
+        it('returns a bad request for POST request when chunked parsing fails', async () => {
+
+            const server = Hapi.server({ routes: { timeout: { server: false } } });
+            server.route({ path: '/', method: 'POST', handler: () => 'ok', options: { payload: { parse: true } } });
+            await server.start();
+
+            const log = server.events.once('response');
+            const client = Net.connect(server.info.port);
+            const clientEnded = Wreck.read(client);
+
+            await new Promise((resolve) => client.on('connect', resolve));
+            client.write('POST / HTTP/1.1\r\nHost: test\r\nContent-Length: 5\r\n\r\n');
+            await Hoek.wait(10);
+            client.write('111A1');        // Doesn't work if 'A' is replaced with '1' !?!
+            client.write('\Q\r\n');       // Extra bytes considered to be start of next request
+            client.end();
+
+            const [request] = await log;
+            expect(request.response.statusCode).to.equal(400);
+            expect(request.response.source).to.contain({ error: 'Bad Request' });
             const clientResponse = (await clientEnded).toString();
             expect(clientResponse).to.contain('400 Bad Request');
 
