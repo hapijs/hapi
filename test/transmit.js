@@ -428,7 +428,7 @@ describe('transmission', () => {
             const log = server.events.once('response');
             const client = Net.connect(server.info.port, () => {
 
-                client.write('GET / HTTP/1.1\r\naccept-encoding: gzip\r\n\r\n');
+                client.write('GET / HTTP/1.1\r\nHost: host\r\naccept-encoding: gzip\r\n\r\n');
             });
 
             const [request] = await log;
