@@ -1,7 +1,9 @@
 'use strict';
 
+const Events = require('events');
 const Fs = require('fs');
 const Http = require('http');
+const Net = require('net');
 const Path = require('path');
 const Zlib = require('zlib');
 
@@ -279,10 +281,30 @@ describe('Payload', () => {
 
         await server.start();
 
-        const uri = 'http://localhost:' + server.info.port;
-        const { res, payload } = await Wreck.post(uri, { payload: { hello: true }, headers: { expect: '100-continue' } });
-        expect(res.statusCode).to.equal(200);
-        expect(payload.toString()).to.equal('{"hello":true}');
+        const client = Net.connect(server.info.port);
+
+        await Events.once(client, 'connect');
+
+        client.write('POST / HTTP/1.1\r\nexpect: 100-continue\r\nhost: host\r\naccept-encoding: gzip\r\n' +
+                     'content-type: application/json\r\ncontent-length: 14\r\nConnection: close\r\n\r\n');
+
+        const lines = [];
+        client.setEncoding('ascii');
+        for await (const chunk of client) {
+
+            if (chunk.startsWith('HTTP/1.1 100 Continue')) {
+                client.write('{"hello":true}');
+            }
+            else {
+                lines.push(...chunk.split('\r\n'));
+            }
+        }
+
+        const res = lines.shift();
+        const payload = lines.pop();
+
+        expect(res).to.equal('HTTP/1.1 200 OK');
+        expect(payload).to.equal('{"hello":true}');
 
         await server.stop();
     });
