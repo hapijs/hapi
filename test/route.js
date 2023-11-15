@@ -223,7 +223,7 @@ describe('Route', () => {
         expect(res.statusCode).to.equal(200);
         expect(logged).to.be.an.object();
         expect(logged.error).to.be.an.error('Invalid request payload JSON format');
-        expect(logged.error.data).to.be.an.error(SyntaxError, /^Unexpected token a/);
+        expect(logged.error.data).to.be.an.error(SyntaxError, /at position 1/);
     });
 
     it('returns payload parsing errors', async () => {
