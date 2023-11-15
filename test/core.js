@@ -928,11 +928,13 @@ describe('Core', () => {
             const { res, payload } = await first;
             const stop = server.stop();
 
-            await expect(second).to.reject();
+            const err = await expect(second).to.reject(Error);
             await stop;
+            await Hoek.wait(10);
 
             expect(res.headers.connection).to.equal('keep-alive');
             expect(payload.toString()).to.equal('ok');
+            expect(err.code).to.equal('ECONNRESET');
             expect(server._core.started).to.equal(false);
         });
 
