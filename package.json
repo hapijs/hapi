@@ -47,7 +47,6 @@
     "@hapi/code": "^9.0.3",
     "@hapi/eslint-plugin": "^6.0.0",
     "@hapi/inert": "^7.1.0",
-    "@hapi/joi-legacy-test": "npm:@hapi/joi@^15.0.0",
     "@hapi/lab": "^25.3.2",
     "@hapi/vision": "^7.0.3",
     "@hapi/wreck": "^18.1.0",
