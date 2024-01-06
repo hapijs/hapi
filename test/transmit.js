@@ -7,14 +7,14 @@ const Path = require('path');
 const Stream = require('stream');
 const Zlib = require('zlib');
 
-const Boom = require('@commercial/boom');
-const CatboxMemory = require('@commercial/catbox-memory');
+const Boom = require('boom');
+const CatboxMemory = require('catbox-memory');
 const Code = require('code');
 const Hapi = require('..');
-const Hoek = require('@commercial/hoek');
+const Hoek = require('hoek');
 const Inert = require('inert');
 const Lab = require('lab');
-const Wreck = require('@commercial/wreck');
+const Wreck = require('wreck');
 
 
 const internals = {};

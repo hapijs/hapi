@@ -3,16 +3,16 @@
 const Path = require('path');
 const Zlib = require('zlib');
 
-const Boom = require('@commercial/boom');
-const CatboxMemory = require('@commercial/catbox-memory');
+const Boom = require('boom');
+const CatboxMemory = require('catbox-memory');
 const Code = require('code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
-const Hoek = require('@commercial/hoek');
+const Hoek = require('hoek');
 const Inert = require('inert');
 const Lab = require('lab');
 const Vision = require('vision');
-const Wreck = require('@commercial/wreck');
+const Wreck = require('wreck');
 
 const Pkg = require('../package.json');
 

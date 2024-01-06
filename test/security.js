@@ -2,7 +2,7 @@
 
 const Code = require('code');
 const Hapi = require('..');
-const Joi = require('@commercial/joi');
+const Joi = require('joi');
 const Lab = require('lab');
 
 

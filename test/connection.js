@@ -10,15 +10,15 @@ const Path = require('path');
 const Stream = require('stream');
 const TLS = require('tls');
 
-const Boom = require('@commercial/boom');
+const Boom = require('boom');
 const Code = require('code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
-const Hoek = require('@commercial/hoek');
+const Hoek = require('hoek');
 const Inert = require('inert');
 const Lab = require('lab');
 const Vision = require('vision');
-const Wreck = require('@commercial/wreck');
+const Wreck = require('wreck');
 
 
 const internals = {};

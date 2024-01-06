@@ -1,6 +1,6 @@
 'use strict';
 
-const Boom = require('@commercial/boom');
+const Boom = require('boom');
 const Code = require('code');
 const Hapi = require('..');
 const Lab = require('lab');

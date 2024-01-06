@@ -1,11 +1,11 @@
 'use strict';
 
-const Boom = require('@commercial/boom');
+const Boom = require('boom');
 const Code = require('code');
 const Hapi = require('..');
-const Hoek = require('@commercial/hoek');
+const Hoek = require('hoek');
 const Inert = require('inert');
-const Joi = require('@commercial/joi');
+const Joi = require('joi');
 const Lab = require('lab');
 
 

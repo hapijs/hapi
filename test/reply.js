@@ -3,10 +3,10 @@
 const Http = require('http');
 const Stream = require('stream');
 
-const Boom = require('@commercial/boom');
+const Boom = require('boom');
 const Code = require('code');
 const Hapi = require('..');
-const Hoek = require('@commercial/hoek');
+const Hoek = require('hoek');
 const Lab = require('lab');
 
 

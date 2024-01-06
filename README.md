@@ -1,12 +1,8 @@
 <img src="https://raw.githubusercontent.com/hapijs/assets/master/images/hapi.png" width="400px" />
 
-# @commercial/hapi
+# hapi
 
-## License
-
-This package requires a commercial license. You may not use, copy, or distribute it without first acquiring a commercial license from Sideway Inc. Using this software without a license is a violation of US and international law. For more information about available licenses please check https://hapi.dev/support.
-
-# The Simple, Secure Framework Developers Trust
+## The Simple, Secure Framework Developers Trust
 
 Build powerful, scalable applications, with minimal overhead and full out-of-the-box functionality - your code, your way.
 

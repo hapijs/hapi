@@ -7,9 +7,9 @@ const Zlib = require('zlib');
 
 const Code = require('code');
 const Hapi = require('..');
-const Hoek = require('@commercial/hoek');
+const Hoek = require('hoek');
 const Lab = require('lab');
-const Wreck = require('@commercial/wreck');
+const Wreck = require('wreck');
 
 
 const internals = {};

@@ -1,6 +1,6 @@
 'use strict';
 
-const CatboxMemory = require('@commercial/catbox-memory');
+const CatboxMemory = require('catbox-memory');
 const Code = require('code');
 const Hapi = require('..');
 const Lab = require('lab');
