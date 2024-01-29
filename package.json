@@ -2,7 +2,7 @@
   "name": "@hapi/hapi",
   "description": "HTTP Server framework",
   "homepage": "https://hapi.dev",
-  "version": "21.3.2",
+  "version": "21.3.3",
   "repository": "git://github.com/hapijs/hapi",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
