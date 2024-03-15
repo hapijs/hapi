@@ -7,6 +7,7 @@ const Net = require('net');
 const Path = require('path');
 const Zlib = require('zlib');
 
+const Boom = require('@hapi/boom');
 const Code = require('@hapi/code');
 const Hapi = require('..');
 const Hoek = require('@hapi/hoek');
@@ -305,6 +306,123 @@ describe('Payload', () => {
 
         expect(res).to.equal('HTTP/1.1 200 OK');
         expect(payload).to.equal('{"hello":true}');
+
+        await server.stop();
+    });
+
+    it('does not continue on errors before payload processing', async () => {
+
+        const server = Hapi.server();
+        server.route({ method: 'POST', path: '/', handler: (request) => request.payload });
+        server.ext('onPreAuth', (request, h) => {
+
+            throw new Boom.forbidden();
+        });
+
+        await server.start();
+
+        const client = Net.connect(server.info.port);
+
+        await Events.once(client, 'connect');
+
+        client.write('POST / HTTP/1.1\r\nexpect: 100-continue\r\nhost: host\r\naccept-encoding: gzip\r\n' +
+            'content-type: application/json\r\ncontent-length: 14\r\nConnection: close\r\n\r\n');
+
+        let continued = false;
+        const lines = [];
+        client.setEncoding('ascii');
+        for await (const chunk of client) {
+
+            if (chunk.startsWith('HTTP/1.1 100 Continue')) {
+                client.write('{"hello":true}');
+                continued = true;
+            }
+            else {
+                lines.push(...chunk.split('\r\n'));
+            }
+        }
+
+        const res = lines.shift();
+
+        expect(res).to.equal('HTTP/1.1 403 Forbidden');
+        expect(continued).to.be.false();
+
+        await server.stop();
+    });
+
+    it('handles expect 100-continue on undefined routes', async () => {
+
+        const server = Hapi.server();
+        await server.start();
+
+        const client = Net.connect(server.info.port);
+
+        await Events.once(client, 'connect');
+
+        client.write('POST / HTTP/1.1\r\nexpect: 100-continue\r\nhost: host\r\naccept-encoding: gzip\r\n' +
+            'content-type: application/json\r\ncontent-length: 14\r\nConnection: close\r\n\r\n');
+
+        let continued = false;
+        const lines = [];
+        client.setEncoding('ascii');
+        for await (const chunk of client) {
+
+            if (chunk.startsWith('HTTP/1.1 100 Continue')) {
+                client.write('{"hello":true}');
+                continued = true;
+            }
+            else {
+                lines.push(...chunk.split('\r\n'));
+            }
+        }
+
+        const res = lines.shift();
+
+        expect(res).to.equal('HTTP/1.1 404 Not Found');
+        expect(continued).to.be.false();
+
+        await server.stop();
+    });
+
+    it('does not continue on custom request.payload', async () => {
+
+        const server = Hapi.server();
+        server.route({ method: 'POST', path: '/', handler: (request) => request.payload });
+        server.ext('onRequest', (request, h) => {
+
+            request.payload = { custom: true };
+            return h.continue;
+        });
+
+        await server.start();
+
+        const client = Net.connect(server.info.port);
+
+        await Events.once(client, 'connect');
+
+        client.write('POST / HTTP/1.1\r\nexpect: 100-continue\r\nhost: host\r\naccept-encoding: gzip\r\n' +
+            'content-type: application/json\r\ncontent-length: 14\r\nConnection: close\r\n\r\n');
+
+        let continued = false;
+        const lines = [];
+        client.setEncoding('ascii');
+        for await (const chunk of client) {
+
+            if (chunk.startsWith('HTTP/1.1 100 Continue')) {
+                client.write('{"hello":true}');
+                continued = true;
+            }
+            else {
+                lines.push(...chunk.split('\r\n'));
+            }
+        }
+
+        const res = lines.shift();
+        const payload = lines.pop();
+
+        expect(res).to.equal('HTTP/1.1 200 OK');
+        expect(payload).to.equal('{"custom":true}');
+        expect(continued).to.be.false();
 
         await server.stop();
     });
