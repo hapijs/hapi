@@ -100,16 +100,24 @@ const typedHandler: Lifecycle.Method<{ Payload: { q: string; p: string } }> = (r
     return new URLSearchParams(request.payload).toString();
 };
 
-const typedPre: Lifecycle.Method<{ Payload: { q: string } }> = (request, h) => {
+const typedPre: Lifecycle.Method<{ Payload: { q: string; } }> = (request, h) => {
 
     return h.continue;
 };
+
+const untypePre: Lifecycle.Method = (request, h) => {
+
+    return h.continue;
+}
 
 const typedRoute = {
     method: 'POST',
     path: '/',
     options: {
         handler: typedHandler,
-        pre: [typedPre]
+        pre: [
+            typedPre,
+            untypePre
+        ]
     }
 } satisfies ServerRoute;

@@ -339,12 +339,12 @@ export interface RouteOptionsPayload {
 /**
  * For context [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspre)
  */
-export type RouteOptionsPreArray<Refs extends ReqRef = ReqRefDefaults> = RouteOptionsPreAllOptions<Refs>[];
+export type RouteOptionsPreArray = RouteOptionsPreAllOptions[];
 
 /**
  * For context [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspre)
  */
-export type RouteOptionsPreAllOptions<Refs extends ReqRef = ReqRefDefaults> = RouteOptionsPreObject<Refs> | RouteOptionsPreObject<Refs>[] | Lifecycle.Method<Refs>;
+export type RouteOptionsPreAllOptions = RouteOptionsPreObject<any> | RouteOptionsPreObject<any>[] | Lifecycle.Method<any>;
 
 /**
  * An object with:
@@ -817,7 +817,7 @@ export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
      * lifecycle methods.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspre)
      */
-    pre?: RouteOptionsPreArray<Refs> | undefined;
+    pre?: RouteOptionsPreArray | undefined;
 
     /**
      * Processing rules for the outgoing response.
