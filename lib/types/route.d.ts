@@ -3,7 +3,7 @@ import { ObjectSchema, ValidationOptions, SchemaMap, Schema } from 'joi';
 
 import { PluginSpecificConfiguration} from './plugin';
 import { MergeType, ReqRef, ReqRefDefaults, MergeRefs, AuthMode } from './request';
-import { RouteRequestExtType, RouteExtObject, Server } from './server';
+import { ContentDecoders, ContentEncoders, RouteRequestExtType, RouteExtObject, Server } from './server';
 import { Lifecycle, Json, HTTP_METHODS_PARTIAL } from './utils';
 
 /**
@@ -209,11 +209,6 @@ export interface RouteOptionsCors {
 export type PayloadOutput = 'data' | 'stream' | 'file';
 
 /**
- * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspayloadcompression)
- */
-export type PayloadCompressionDecoderSettings = object;
-
-/**
  * Determines how the request payload is processed.
  * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspayload)
  */
@@ -237,7 +232,7 @@ export interface RouteOptionsPayload {
      * An object where each key is a content-encoding name and each value is an object with the desired decoder settings. Note that encoder settings are set in compression.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspayloadcompression)
      */
-    compression?: Record<string, PayloadCompressionDecoderSettings> | undefined;
+    compression?: { [P in keyof ContentDecoders]?: Parameters<ContentDecoders[P]>[0] } | undefined;
 
     /**
      * @default 'application/json'.
@@ -643,12 +638,6 @@ export interface RouteOptionsValidate {
     state?: RouteOptionsResponseSchema | undefined;
 }
 
-/**
- * For context [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionscompression)
- * For context [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverencoderencoding-encoder)
- */
-export type RouteCompressionEncoderSettings = object;
-
 export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
     /**
      * Application-specific route configuration state. Should not be used by plugins which should use options.plugins[name] instead.
@@ -683,7 +672,7 @@ export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
      * An object where each key is a content-encoding name and each value is an object with the desired encoder settings. Note that decoder settings are set in compression.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionscompression)
      */
-    compression?: Record<string, RouteCompressionEncoderSettings> | undefined;
+    compression?: { [P in keyof ContentEncoders]?: Parameters<ContentEncoders[P]>[0] } | undefined;
 
     /**
      * @default false (no CORS headers).

@@ -1,5 +1,6 @@
 export * from './auth';
 export * from './cache';
+export * from './encoders';
 export * from './events';
 export * from './ext';
 export * from './info';
