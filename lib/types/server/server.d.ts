@@ -1,5 +1,5 @@
 import * as http from 'http';
-import * as zlib from 'zlib';
+import { Stream } from 'stream';
 
 import { Root } from 'joi';
 import { Mimos } from '@hapi/mimos';
@@ -25,8 +25,6 @@ import {
 } from '../request';
 import { ResponseToolkit } from '../response';
 import {
-    PayloadCompressionDecoderSettings,
-    RouteCompressionEncoderSettings,
     RulesOptions,
     RulesProcessor,
     ServerRoute
@@ -34,6 +32,7 @@ import {
 import { HTTP_METHODS, Lifecycle } from '../utils';
 import { ServerAuth } from './auth';
 import { ServerCache } from './cache';
+import { ContentDecoders, ContentEncoders } from './encoders';
 import { ServerEventsApplication, ServerEvents } from './events';
 import {
     ServerExtEventsObject,
@@ -291,7 +290,8 @@ export class Server<A = ServerApplicationState> {
      * @return Return value: none.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverdecoderencoding-decoder)
      */
-    decoder(encoding: string, decoder: ((options: PayloadCompressionDecoderSettings) => zlib.Gunzip)): void;
+    decoder<T extends keyof ContentDecoders>(encoding: T, decoder: ContentDecoders[T]): void;
+    decoder(encoding: string, decoder: ((options?: object) => Stream)): void;
 
     /**
      * Extends various framework interfaces with custom methods where:
@@ -340,7 +340,8 @@ export class Server<A = ServerApplicationState> {
      * @return Return value: none.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverencoderencoding-encoder)
      */
-    encoder(encoding: string, encoder: ((options: RouteCompressionEncoderSettings) => zlib.Gzip)): void;
+    encoder<T extends keyof ContentEncoders>(encoding: T, encoder: ContentEncoders[T]): void;
+    encoder(encoding: string, encoder: ((options?: object) => Stream)): void;
 
     /**
      * Used within a plugin to expose a property via server.plugins[name] where:
