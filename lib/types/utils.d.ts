@@ -11,18 +11,13 @@ import {
     Request} from './request';
 import { ResponseToolkit, Auth } from './response';
 
-export type HTTP_METHODS_PARTIAL_LOWERCASE = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options';
-
-export type HTTP_METHODS_PARTIAL =
-    'GET'
-    | 'POST'
-    | 'PUT'
-    | 'PATCH'
-    | 'DELETE'
-    | 'OPTIONS'
-    | HTTP_METHODS_PARTIAL_LOWERCASE;
-
-export type HTTP_METHODS = 'HEAD' | 'head' | HTTP_METHODS_PARTIAL;
+/**
+ * All http parser [supported HTTP methods](https://nodejs.org/api/http.html#httpmethods).
+ */
+export type HTTP_METHODS = 'ACL' | 'BIND' | 'CHECKOUT' | 'CONNECT' | 'COPY' | 'DELETE' | 'GET' | 'HEAD' | 'LINK' | 'LOCK' |
+    'M-SEARCH' | 'MERGE' | 'MKACTIVITY' | 'MKCALENDAR' | 'MKCOL' | 'MOVE' | 'NOTIFY' | 'OPTIONS' | 'PATCH' | 'POST' |
+    'PROPFIND' | 'PROPPATCH' | 'PURGE' | 'PUT' | 'REBIND' | 'REPORT' | 'SEARCH' | 'SOURCE' | 'SUBSCRIBE' | 'TRACE' |
+    'UNBIND' | 'UNLINK' | 'UNLOCK' | 'UNSUBSCRIBE';
 
 export type PeekListener = (chunk: string, encoding: string) => void;
 

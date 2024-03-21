@@ -4,7 +4,7 @@ import { ObjectSchema, ValidationOptions, SchemaMap, Schema } from 'joi';
 import { PluginSpecificConfiguration} from './plugin';
 import { MergeType, ReqRef, ReqRefDefaults, MergeRefs, AuthMode } from './request';
 import { ContentDecoders, ContentEncoders, RouteRequestExtType, RouteExtObject, Server } from './server';
-import { Lifecycle, Json, HTTP_METHODS_PARTIAL } from './utils';
+import { Lifecycle, Json, HTTP_METHODS } from './utils';
 
 /**
  * Overrides for `InternalRouteOptionType`. Extend this to have
@@ -924,6 +924,8 @@ export interface RulesProcessor<Refs extends ReqRef = ReqRefDefaults> {
     (rules: MergeRefs<Refs>['Rules'] | null, info: RulesInfo): Partial<RouteOptions<Refs>> | null;
 }
 
+type RouteDefMethods = Exclude<HTTP_METHODS | Lowercase<HTTP_METHODS>, 'HEAD' | 'head'>;
+
 /**
  * A route configuration object or an array of configuration objects where each object contains:
  * * path - (required) the absolute path used to match incoming requests (must begin with '/'). Incoming requests are compared to the configured paths based on the server's router configuration. The
@@ -952,7 +954,7 @@ export interface ServerRoute<Refs extends ReqRef = ReqRefDefaults> {
      * (only when an exact match was not found, and any match with a specific method will be given a higher priority over a wildcard match). Can be assigned an array of methods which has the same
      * result as adding the same route with different methods manually.
      */
-    method: HTTP_METHODS_PARTIAL | HTTP_METHODS_PARTIAL[] | string | string[];
+    method: RouteDefMethods | RouteDefMethods[] | '*';
 
     /**
      * (optional) a domain string or an array of domain strings for limiting the route to only requests with a matching host header field. Matching is done against the hostname part of the header

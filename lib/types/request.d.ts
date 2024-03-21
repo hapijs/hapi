@@ -9,7 +9,7 @@ import { PluginsStates, ServerRealm } from './plugin';
 import { ResponseValue, ResponseObject } from "./response";
 import { RouteRules, RouteSettings } from './route';
 import { Server, ServerAuthSchemeObjectApi } from './server';
-import { HTTP_METHODS_PARTIAL, HTTP_METHODS_PARTIAL_LOWERCASE, PeekListener } from './utils';
+import { HTTP_METHODS, PeekListener } from './utils';
 
 /**
  * User extensible types user credentials.
@@ -192,7 +192,7 @@ export interface RequestInfo {
  */
 export interface RequestRoute<Refs extends ReqRef = ReqRefDefaults> {
     /** the route HTTP method. */
-    method: HTTP_METHODS_PARTIAL;
+    method: Exclude<Lowercase<HTTP_METHODS>, 'head'> | '*';
 
     /** the route path. */
     path: string;
@@ -374,7 +374,7 @@ export interface Request<Refs extends ReqRef = ReqRefDefaults> extends Podium {
     /**
      * The request method in lower case (e.g. 'get', 'post').
      */
-    readonly method: HTTP_METHODS_PARTIAL_LOWERCASE;
+    readonly method: Lowercase<HTTP_METHODS>;
 
     /**
      * The parsed content-type header. Only available when payload parsing enabled and no payload error occurred.
@@ -506,7 +506,7 @@ export interface Request<Refs extends ReqRef = ReqRefDefaults> extends Podium {
      * Can only be called from an 'onRequest' extension method.
      * [See docs](https://hapijs.com/api/17.0.1#-requestsetmethodmethod)
      */
-    setMethod(method: HTTP_METHODS_PARTIAL): void;
+    setMethod(method: HTTP_METHODS | Lowercase<HTTP_METHODS>): void;
 
     /**
      * Changes the request URI before the router begins processing the request where:
