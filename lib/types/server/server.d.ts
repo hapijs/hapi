@@ -475,7 +475,7 @@ export class Server<A = ServerApplicationState> {
      * @return Return value: the route information if found, otherwise null.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-servermatchmethod-path-host)
      */
-    match(method: HTTP_METHODS, path: string, host?: string | undefined): RequestRoute | null;
+    match(method: HTTP_METHODS | Lowercase<HTTP_METHODS>, path: string, host?: string | undefined): RequestRoute | null;
 
     /**
      * Registers a server method where:

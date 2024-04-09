@@ -4,6 +4,7 @@ import { expect } from '@hapi/code';
 import {
     Plugin,
     Request,
+    RequestRoute,
     ResponseToolkit,
     Server,
     ServerRoute,
@@ -77,7 +78,7 @@ const plugin: Plugin<TestPluginOptions, TestPluginDecorations> = {
     register: function (srv: MyServer, options) {
 
         check.type<TestPluginOptions>(options);
-        
+
         srv.expose({
             add: function (a: number, b: number) {
 
@@ -88,6 +89,9 @@ const plugin: Plugin<TestPluginOptions, TestPluginDecorations> = {
 };
 
 const loadedServer = await server.register({ plugin, options: { x: 10 } });
+
+check.type<RequestRoute | null>(server.match('GET', '/'));
+check.type<RequestRoute | null>(server.match('get', '/'));
 
 const sum = loadedServer.plugins.test.add(1, 2);
 expect(sum).to.equal(130);
