@@ -2,6 +2,7 @@ import { types as lab } from '@hapi/lab';
 import { expect } from '@hapi/code';
 
 import {
+    Lifecycle,
     Plugin,
     Request,
     RequestRoute,
@@ -96,3 +97,31 @@ check.type<RequestRoute | null>(server.match('get', '/'));
 const sum = loadedServer.plugins.test.add(1, 2);
 expect(sum).to.equal(130);
 check.type<number>(sum);
+
+const typedHandler: Lifecycle.Method<{ Payload: { q: string; p: string } }> = (request, h) => {
+
+    check.type<{ q: string; p: string }>(request.payload);
+    return new URLSearchParams(request.payload).toString();
+};
+
+const typedPre: Lifecycle.Method<{ Payload: { q: string; } }> = (request, h) => {
+
+    return h.continue;
+};
+
+const untypePre: Lifecycle.Method = (request, h) => {
+
+    return h.continue;
+}
+
+const typedRoute = {
+    method: 'POST',
+    path: '/',
+    options: {
+        handler: typedHandler,
+        pre: [
+            typedPre,
+            untypePre
+        ]
+    }
+} satisfies ServerRoute;
