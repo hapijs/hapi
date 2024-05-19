@@ -10,7 +10,6 @@ import { SameSitePolicy } from './state';
 
 export interface ServerOptionsCompression {
     minBytes: number;
-    priority: string[];
 }
 
 /**
