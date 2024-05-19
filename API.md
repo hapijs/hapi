@@ -110,13 +110,6 @@ Default value: '1024'.
 Sets the minimum response payload size in bytes that is required for content encoding compression.
 If the payload size is under the limit, no compression is performed.
 
-##### <a name="server.options.compression.priority" /> `server.options.compression.priority`
-
-Default value: `null`.
-
-Sets the priority for content encoding compression algorithms in descending order,
-e.g.: `['br', 'gzip', 'deflate']`.
-
 #### <a name="server.options.debug" /> `server.options.debug`
 
 Default value: `{ request: ['implementation'] }`.

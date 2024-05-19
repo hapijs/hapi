@@ -889,7 +889,7 @@ describe('transmission', () => {
             await server.stop();
         });
 
-        it('returns a gzip response on a post request when accept-encoding: gzip;q=1, deflate;q=0.5 is requested', async () => {
+        it('returns a gzip response on a post request when accept-encoding: gzip;q=1, deflate;q=0.5, br;q=0.7 is requested', async () => {
 
             const data = '{"test":"true"}';
             const server = Hapi.server({ compression: { minBytes: 1 } });
@@ -898,12 +898,12 @@ describe('transmission', () => {
 
             const uri = 'http://localhost:' + server.info.port;
             const zipped = await internals.compress('gzip', Buffer.from(data));
-            const { payload } = await Wreck.post(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5' }, payload: data });
+            const { payload } = await Wreck.post(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5, br;q=0.7' }, payload: data });
             expect(payload.toString()).to.equal(zipped.toString());
             await server.stop();
         });
 
-        it('returns a gzip response on a get request when accept-encoding: gzip;q=1, deflate;q=0.5 is requested', async () => {
+        it('returns a gzip response on a get request when accept-encoding: gzip;q=1, deflate;q=0.5, br;q=0.7 is requested', async () => {
 
             const data = '{"test":"true"}';
             const server = Hapi.server({ compression: { minBytes: 1 } });
@@ -912,12 +912,12 @@ describe('transmission', () => {
 
             const uri = 'http://localhost:' + server.info.port;
             const zipped = await internals.compress('gzip', Buffer.from(data));
-            const { payload } = await Wreck.get(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5' } });
+            const { payload } = await Wreck.get(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5, br;q=0.7' } });
             expect(payload.toString()).to.equal(zipped.toString());
             await server.stop();
         });
 
-        it('returns a deflate response on a post request when accept-encoding: deflate;q=1, gzip;q=0.5 is requested', async () => {
+        it('returns a deflate response on a post request when accept-encoding: deflate;q=1, gzip;q=0.5, br;q=0.7 is requested', async () => {
 
             const data = '{"test":"true"}';
             const server = Hapi.server({ compression: { minBytes: 1 } });
@@ -926,12 +926,12 @@ describe('transmission', () => {
 
             const uri = 'http://localhost:' + server.info.port;
             const deflated = await internals.compress('deflate', Buffer.from(data));
-            const { payload } = await Wreck.post(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5' }, payload: data });
+            const { payload } = await Wreck.post(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5, br;q=0.7' }, payload: data });
             expect(payload.toString()).to.equal(deflated.toString());
             await server.stop();
         });
 
-        it('returns a deflate response on a get request when accept-encoding: deflate;q=1, gzip;q=0.5 is requested', async () => {
+        it('returns a deflate response on a get request when accept-encoding: deflate;q=1, gzip;q=0.5, br;q=0.7 is requested', async () => {
 
             const data = '{"test":"true"}';
             const server = Hapi.server({ compression: { minBytes: 1 } });
@@ -940,37 +940,8 @@ describe('transmission', () => {
 
             const uri = 'http://localhost:' + server.info.port;
             const deflated = await internals.compress('deflate', Buffer.from(data));
-            const { payload } = await Wreck.get(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5' } });
+            const { payload } = await Wreck.get(uri, { headers: { 'accept-encoding': 'deflate;q=1, gzip;q=0.5, br;q=0.7' } });
             expect(payload.toString()).to.equal(deflated.toString());
-            await server.stop();
-        });
-
-
-        it('returns a br response on a post request when accept-encoding: gzip;q=1, deflate;q=0.5, br;q=1 is requested', async () => {
-
-            const data = '{"test":"true"}';
-            const server = Hapi.server({ compression: { minBytes: 1, priority: ['br'] } });
-            server.route({ method: 'POST', path: '/', handler: (request) => request.payload });
-            await server.start();
-
-            const uri = 'http://localhost:' + server.info.port;
-            const brotlied = await internals.compress('brotliCompress', Buffer.from(data));
-            const { payload } = await Wreck.post(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5, br;q=1' }, payload: data });
-            expect(payload.toString()).to.equal(brotlied.toString());
-            await server.stop();
-        });
-
-        it('returns a br response on a get request when accept-encoding: gzip;q=1, deflate;q=0.5, br;q=1 is requested', async () => {
-
-            const data = '{"test":"true"}';
-            const server = Hapi.server({ compression: { minBytes: 1, priority: ['br'] } });
-            server.route({ method: 'GET', path: '/', handler: () => data });
-            await server.start();
-
-            const uri = 'http://localhost:' + server.info.port;
-            const brotlied = await internals.compress('brotliCompress', Buffer.from(data));
-            const { payload } = await Wreck.get(uri, { headers: { 'accept-encoding': 'gzip;q=1, deflate;q=0.5, br;q=1' } });
-            expect(payload.toString()).to.equal(brotlied.toString());
             await server.stop();
         });
 
@@ -999,35 +970,6 @@ describe('transmission', () => {
             const zipped = await internals.compress('gzip', Buffer.from(data));
             const { payload } = await Wreck.get(uri, { headers: { 'accept-encoding': 'deflate, gzip' } });
             expect(payload.toString()).to.equal(zipped.toString());
-            await server.stop();
-        });
-
-
-        it('returns a br response on a post request when accept-encoding: gzip, deflate, br is requested', async () => {
-
-            const data = '{"test":"true"}';
-            const server = Hapi.server({ compression: { minBytes: 1, priority: ['br'] } });
-            server.route({ method: 'POST', path: '/', handler: (request) => request.payload });
-            await server.start();
-
-            const uri = 'http://localhost:' + server.info.port;
-            const brotlied = await internals.compress('brotliCompress', Buffer.from(data));
-            const { payload } = await Wreck.post(uri, { headers: { 'accept-encoding': 'gzip, deflate, br' }, payload: data });
-            expect(payload.toString()).to.equal(brotlied.toString());
-            await server.stop();
-        });
-
-        it('returns a br response on a get request when accept-encoding: gzip, deflate, br is requested', async () => {
-
-            const data = '{"test":"true"}';
-            const server = Hapi.server({ compression: { minBytes: 1, priority: ['br'] } });
-            server.route({ method: 'GET', path: '/', handler: () => data });
-            await server.start();
-
-            const uri = 'http://localhost:' + server.info.port;
-            const brotlied = await internals.compress('brotliCompress', Buffer.from(data));
-            const { payload } = await Wreck.get(uri, { headers: { 'accept-encoding': 'gzip, deflate, br' } });
-            expect(payload.toString()).to.equal(brotlied.toString());
             await server.stop();
         });
 
