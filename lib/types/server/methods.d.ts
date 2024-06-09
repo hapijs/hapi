@@ -17,6 +17,8 @@ export type ServerMethod = (...args: any[]) => any;
  */
 export interface ServerMethodCache extends PolicyOptions<any> {
     generateTimeout: number | false;
+    cache?: string;
+    segment?: string;
 }
 
 /**
