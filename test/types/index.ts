@@ -1,5 +1,6 @@
 import { types as lab } from '@hapi/lab';
 import { expect } from '@hapi/code';
+import * as CatboxMemory from '@hapi/catbox-memory';
 
 import {
     Plugin,
@@ -39,11 +40,17 @@ interface RequestDecorations {
 type AppRequest = Request<RequestDecorations>;
 
 const route: ServerRoute<RequestDecorations> = {
-    method: 'GET',
+    method: 'POST',
     path: '/',
     options: {
         app: {
             prefix: ['xx-']
+        },
+        payload: {
+            maxParts: 100,
+            maxBytes: 1024 * 1024,
+            output: 'stream',
+            multipart: true
         }
     },
     handler: (request: AppRequest, h: ResponseToolkit) => {
@@ -96,3 +103,24 @@ check.type<RequestRoute | null>(server.match('get', '/'));
 const sum = loadedServer.plugins.test.add(1, 2);
 expect(sum).to.equal(130);
 check.type<number>(sum);
+
+server.cache.provision({
+    name: 'some-cache',
+    provider: {
+        constructor: CatboxMemory.Engine,
+        options: {
+            partition: 'test'
+        }
+    }
+})
+
+server.method('test.add', (a: number, b: number) => a + b, {
+    bind: server,
+    cache: {
+        expiresIn: 1000,
+        generateTimeout: 100,
+        cache: 'some-cache',
+        segment: 'test-segment',
+    },
+    generateKey: (a: number, b: number) => `${a}${b}`
+});

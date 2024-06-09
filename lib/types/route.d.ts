@@ -256,6 +256,13 @@ export interface RouteOptionsPayload {
     maxBytes?: number | undefined;
 
     /**
+     * @default 1000
+     * Limits the size of incoming payloads to the specified byte count. Allowing very large payloads may cause the server to run out of memory.
+     * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspayloadmaxparts)
+     */
+    maxParts?: number;
+
+    /**
      * @default none.
      * Overrides payload processing for multipart requests. Value can be one of:
      * * false - disable multipart processing.
@@ -267,12 +274,7 @@ export interface RouteOptionsPayload {
      * * * * payload - the processed part payload.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspayloadmultipart)
      */
-    multipart?:
-        | false
-        | {
-              output: PayloadOutput | 'annotated';
-          }
-        | undefined;
+    multipart?: boolean | { output: PayloadOutput | 'annotated' };
 
     /**
      * @default 'data'.
