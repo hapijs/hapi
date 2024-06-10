@@ -257,7 +257,7 @@ export interface RouteOptionsPayload {
 
     /**
      * @default 1000
-     * Limits the size of incoming payloads to the specified byte count. Allowing very large payloads may cause the server to run out of memory.
+     * Limits the number of parts allowed in multipart payloads.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspayloadmaxparts)
      */
     maxParts?: number;
