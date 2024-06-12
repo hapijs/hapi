@@ -30,7 +30,7 @@
     "@hapi/bounce": "^3.0.1",
     "@hapi/call": "^9.0.1",
     "@hapi/catbox": "^12.1.1",
-    "@hapi/catbox-memory": "^6.0.1",
+    "@hapi/catbox-memory": "^6.0.2",
     "@hapi/heavy": "^8.0.1",
     "@hapi/hoek": "^11.0.2",
     "@hapi/mimos": "^7.0.1",
