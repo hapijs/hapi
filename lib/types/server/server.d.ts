@@ -204,14 +204,7 @@ export class Server<A = ServerApplicationState> {
      * server method name is an object property.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-servermethods
      */
-    readonly methods: {
-        [K in keyof ServerMethods]: ServerMethods[K] & {
-            cache?: {
-                drop(...args: Parameters<ServerMethods[K]>): Promise<void>;
-                stats: CacheStatisticsObject
-            }
-        }
-    };
+    readonly methods: ServerMethods
 
     /**
      * Provides access to the server MIME database used for setting content-type information. The object must not be
