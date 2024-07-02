@@ -354,7 +354,7 @@ export interface RouteOptionsPreObject<Refs extends ReqRef = ReqRefDefaults> {
     /**
      * a lifecycle method.
      */
-    method: Lifecycle.Method<Refs>;
+    method: Lifecycle.Method<any>;
     /**
      * key name used to assign the response of the method to in request.pre and request.preResponses.
      */
