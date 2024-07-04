@@ -19,7 +19,6 @@ Build powerful, scalable applications, with minimal overhead and full out-of-the
 ## Technical Steering Committee (TSC) Members
 
  - Devin Ivy ([@devinivy](https://github.com/devinivy))
- - Jonas Pauthier ([@nargonath](https://github.com/nargonath))
  - Lloyd Benson ([@lloydbenson](https://github.com/lloydbenson))
  - Nathan LaFreniere ([@nlf](https://github.com/nlf))
  - Wyatt Lyon Preul ([@geek](https://github.com/geek))
