@@ -4,9 +4,11 @@ import * as https from 'https';
 import { MimosOptions } from '@hapi/mimos';
 
 import { PluginSpecificConfiguration } from '../plugin';
+import { ReqRefDefaults } from '../request';
 import { RouteOptions } from '../route';
 import { CacheProvider, ServerOptionsCache } from './cache';
 import { SameSitePolicy } from './state';
+import { Validation } from './validation';
 
 export interface ServerOptionsCompression {
     minBytes: number;
@@ -25,7 +27,7 @@ export interface ServerOptionsApp {
  * All options are optionals.
  * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-server-options)
  */
-export interface ServerOptions {
+export interface ServerOptions<V extends Validation.Compiler | null> {
     /**
      * @default '0.0.0.0' (all available network interfaces).
      * Sets the hostname or IP address the server will listen on. If not configured, defaults to host if present, otherwise to all available network interfaces. Set to '127.0.0.1' or 'localhost' to
@@ -194,7 +196,7 @@ export interface ServerOptions {
      * @default none.
      * A route options object used as the default configuration for every route.
      */
-    routes?: RouteOptions | undefined;
+    routes?: RouteOptions<ReqRefDefaults, V> | undefined;
 
     /**
      * Default value:

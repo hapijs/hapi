@@ -25,7 +25,7 @@ describe('validation', () => {
         server.route({
             method: 'POST',
             path: '/',
-            handler: () => 'ok',
+            handler: (request) => request.payload,
             options: {
                 validate: {
                     payload: JoiLegacy.object({
@@ -38,6 +38,7 @@ describe('validation', () => {
 
         const res1 = await server.inject({ url: '/', method: 'POST', payload: { a: '1', b: [1] } });
         expect(res1.statusCode).to.equal(200);
+        expect(res1.result).to.equal({ a: 1, b: [1] });
 
         const res2 = await server.inject({ url: '/', method: 'POST', payload: { a: 'x', b: [1] } });
         expect(res2.statusCode).to.equal(400);

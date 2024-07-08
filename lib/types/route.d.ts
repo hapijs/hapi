@@ -1,9 +1,7 @@
 
-import { ObjectSchema, ValidationOptions, SchemaMap, Schema } from 'joi';
-
 import { PluginSpecificConfiguration} from './plugin';
 import { MergeType, ReqRef, ReqRefDefaults, MergeRefs, AuthMode } from './request';
-import { ContentDecoders, ContentEncoders, RouteRequestExtType, RouteExtObject, Server } from './server';
+import { ContentDecoders, ContentEncoders, RouteRequestExtType, RouteExtObject, Server, Validation, ServerApplicationState } from './server';
 import { Lifecycle, Json, HTTP_METHODS } from './utils';
 
 /**
@@ -365,8 +363,6 @@ export interface RouteOptionsPreObject<Refs extends ReqRef = ReqRefDefaults> {
     failAction?: Lifecycle.FailAction | undefined;
 }
 
-export type ValidationObject = SchemaMap;
-
 /**
  * * true - any query parameter value allowed (no validation performed). false - no parameter value allowed.
  * * a joi validation object.
@@ -374,17 +370,17 @@ export type ValidationObject = SchemaMap;
  * * * value - the request.* object containing the request parameters.
  * * * options - options.
  */
-export type RouteOptionsResponseSchema =
-    boolean
-    | ValidationObject
-    | Schema
-    | ((value: object | Buffer | string, options: ValidationOptions) => Promise<any>);
+export type RouteOptionsSchema<V extends Validation.Compiler | null, T extends Validation.ValidatedReqProperties | null> =
+    boolean 
+    | Validation.ExtractedSchema<V>
+    | Validation.Validator
+    | Validation.DirectValidator<T>;
 
 /**
  * Processing rules for the outgoing response.
  * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsresponse)
  */
-export interface RouteOptionsResponse {
+export interface RouteOptionsResponse<V extends Validation.Compiler | null> {
     /**
      * @default 204.
      * The default HTTP status code when the payload is considered empty. Value can be 200 or 204. Note that a 200 status code is converted to a 204 only at the time of response transmission (the
@@ -413,7 +409,7 @@ export interface RouteOptionsResponse {
      * custom validation function is defined via schema or status then options can an arbitrary object that will be passed to this function as the second argument.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsresponseoptions)
      */
-    options?: ValidationOptions | undefined; // TODO needs validation
+    options?: Validation.ExtractedOptions<V> | undefined;
 
     /**
      * @default true.
@@ -442,7 +438,7 @@ export interface RouteOptionsResponse {
      * output.payload. If an error is thrown, the error is processed according to failAction.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsresponseschema)
      */
-    schema?: RouteOptionsResponseSchema | undefined;
+    schema?: RouteOptionsSchema<V, null> | undefined;
 
     /**
      * @default none.
@@ -450,7 +446,7 @@ export interface RouteOptionsResponse {
      * status is set to an object where each key is a 3 digit HTTP status code and the value has the same definition as schema.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsresponsestatus)
      */
-    status?: Record<string, RouteOptionsResponseSchema> | undefined;
+    status?: Record<string, RouteOptionsSchema<V, null>> | undefined;
 
     /**
      * The default HTTP status code used to set a response error when the request is closed or aborted before the
@@ -560,7 +556,7 @@ export type RouteOptionsSecure = boolean | RouteOptionsSecureObject;
  * Request input validation rules for various request components.
  * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsvalidate)
  */
-export interface RouteOptionsValidate {
+export interface RouteOptionsValidate<V extends Validation.Compiler | null> {
     /**
      * @default none.
      * An optional object with error fields copied into every validation error response.
@@ -582,7 +578,7 @@ export interface RouteOptionsValidate {
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsvalidateheaders)
      * @default true
      */
-    headers?: RouteOptionsResponseSchema | undefined;
+    headers?: RouteOptionsSchema<V, 'headers'> | undefined;
 
     /**
      * An options object passed to the joi rules or the custom validation methods. Used for setting global options such as stripUnknown or abortEarly (the complete list is available here).
@@ -595,7 +591,7 @@ export interface RouteOptionsValidate {
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsvalidateparams)
      * @default true
      */
-    options?: ValidationOptions | object | undefined;
+    options?: Validation.ExtractedOptions<V> | undefined;
 
     /**
      * Validation rules for incoming request path parameters, after matching the path against the route, extracting any parameters, and storing them in request.params, where:
@@ -609,7 +605,7 @@ export interface RouteOptionsValidate {
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsvalidateparams)
      * @default true
      */
-    params?: RouteOptionsResponseSchema | undefined;
+    params?: RouteOptionsSchema<V, 'params'> | undefined;
 
     /**
      * Validation rules for incoming request payload (request body), where:
@@ -619,7 +615,7 @@ export interface RouteOptionsValidate {
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsvalidatepayload)
      * @default true
      */
-    payload?: RouteOptionsResponseSchema | undefined;
+    payload?: RouteOptionsSchema<V, 'payload'> | undefined;
 
     /**
      * Validation rules for incoming request URI query component (the key-value part of the URI between '?' and '#'). The query is parsed into its individual key-value pairs, decoded, and stored in
@@ -630,17 +626,23 @@ export interface RouteOptionsValidate {
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsvalidatequery)
      * @default true
      */
-    query?: RouteOptionsResponseSchema | undefined;
+    query?: RouteOptionsSchema<V, 'query'> | undefined;
 
     /**
      * Validation rules for incoming cookies.
      * The cookie header is parsed and decoded into the request.state prior to validation.
      * @default true
      */
-    state?: RouteOptionsResponseSchema | undefined;
+    state?: RouteOptionsSchema<V, 'state'> | undefined;
+
+    /**
+     * Sets a server validation module used to compile raw validation rules into validation schemas (e.g. **joi**).
+     * @default null
+     */
+    validator?: V | null;
 }
 
-export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
+export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults, V extends Validation.Compiler | null = null> {
     /**
      * Application-specific route configuration state. Should not be used by plugins which should use options.plugins[name] instead.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsapp)
@@ -814,7 +816,7 @@ export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
      * Processing rules for the outgoing response.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsresponse)
      */
-    response?: RouteOptionsResponse | undefined;
+    response?: RouteOptionsResponse<V> | undefined;
 
     /**
      * @default false (security headers disabled).
@@ -866,7 +868,7 @@ export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
      * Request input validation rules for various request components.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsvalidate)
      */
-    validate?: RouteOptionsValidate | undefined;
+    validate?: RouteOptionsValidate<V> | undefined;
 }
 
 export interface AccessScopes {
@@ -886,7 +888,7 @@ export interface AuthSettings {
     access?: AccessSetting[] | undefined;
 }
 
-export interface RouteSettings<Refs extends ReqRef = ReqRefDefaults> extends CommonRouteProperties<Refs> {
+export interface RouteSettings<Refs extends ReqRef = ReqRefDefaults, V extends Validation.Compiler | null = null> extends CommonRouteProperties<Refs, V> {
     auth?: AuthSettings | undefined;
 }
 
@@ -894,7 +896,7 @@ export interface RouteSettings<Refs extends ReqRef = ReqRefDefaults> extends Com
  * Each route can be customized to change the default behavior of the request lifecycle.
  * For context [See docs](https://github.com/hapijs/hapi/blob/master/API.md#route-options)
  */
-export interface RouteOptions<Refs extends ReqRef = ReqRefDefaults> extends CommonRouteProperties<Refs> {
+export interface RouteOptions<Refs extends ReqRef = ReqRefDefaults, V extends Validation.Compiler | null = null> extends CommonRouteProperties<Refs, V> {
     /**
      * Route authentication configuration. Value can be:
      * false to disable authentication if a default strategy is set.
@@ -915,10 +917,17 @@ export interface RulesInfo {
     vhost: string;
 }
 
-export interface RulesOptions<Refs extends ReqRef = ReqRefDefaults> {
-    validate: {
-        schema?: ObjectSchema<MergeRefs<Refs>['Rules']> | Record<keyof MergeRefs<Refs>['Rules'], Schema> | undefined;
-        options?: ValidationOptions | undefined;
+export interface JoiLikeSchema {
+    validate(value: unknown, options: Record<string, any>): { value: any } | { error: any };
+}
+
+export interface RulesOptions<V extends Validation.Compiler | null> {
+    validate: V extends null ? {
+        schema: JoiLikeSchema;
+        options?: Record<string, any> | undefined;
+    } : {
+        schema: Validation.ExtractedSchema<V>;
+        options?: Validation.ExtractedOptions<V> | undefined;
     };
 }
 
@@ -943,7 +952,7 @@ type RouteDefMethods = Exclude<HTTP_METHODS | Lowercase<HTTP_METHODS>, 'HEAD' | 
  * * rules - route custom rules object. The object is passed to each rules processor registered with server.rules(). Cannot be used if route.options.rules is defined.
  * For context [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverrouteroute)
  */
-export interface ServerRoute<Refs extends ReqRef = ReqRefDefaults> {
+export interface ServerRoute<Refs extends ReqRef = ReqRefDefaults, V extends Validation.Compiler | null = null> {
     /**
      * (required) the absolute path used to match incoming requests (must begin with '/'). Incoming requests are compared to the configured paths based on the server's router configuration. The path
      * can include named parameters enclosed in {} which will be matched against literal values in the request as described in Path parameters. For context [See
@@ -973,7 +982,7 @@ export interface ServerRoute<Refs extends ReqRef = ReqRefDefaults> {
      * additional route options. The options value can be an object or a function that returns an object using the signature function(server) where server is the server the route is being added to
      * and this is bound to the current realm's bind option.
      */
-    options?: RouteOptions<Refs> | ((server: Server) => RouteOptions<Refs>) | undefined;
+    options?: RouteOptions<Refs, V> | ((server: Server<ServerApplicationState, V>) => RouteOptions<Refs, V>) | undefined;
 
     /**
      * route custom rules object. The object is passed to each rules processor registered with server.rules(). Cannot be used if route.options.rules is defined.
