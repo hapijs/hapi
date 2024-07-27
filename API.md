@@ -53,6 +53,13 @@ the framework.
 
 Cannot be set to `false` along with a [`port`](#server.options.port) value.
 
+#### <a name="server.options.isotimestamp" /> `server.options.isoTimestamp`
+
+Default value: `false`.
+
+If `true`, shows the log timestamp in ISO-8601 UTC format. If `false`, shows the log timestamp
+in milliseconds since 1970-01-01.
+
 #### <a name="server.options.cache" /> `server.options.cache`
 
 Default value: `{ provider: { constructor: require('@hapi/catbox-memory'), options: { partition: 'hapi-cache' } } }`.
