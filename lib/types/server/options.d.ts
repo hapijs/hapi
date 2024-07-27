@@ -51,6 +51,13 @@ export interface ServerOptions {
      */
     autoListen?: boolean | undefined;
 
+   /**
+     * @default false.
+     * Used to control the log timestamp format. When false, shows the timestamp in millisceonds since 1970-01-01. When true, shows the timestamp in ISO-8601 format using UTC timezone.
+     * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serveroptionsisotimestamp)
+     */
+    isoTimestamp?: boolean | undefined;
+
     /**
      * @default { engine: require('@hapi/catbox-memory' }.
      * Sets up server-side caching providers. Every server includes a default cache for storing application state. By default, a simple memory-based cache is created which has limited capacity and
