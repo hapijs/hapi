@@ -973,6 +973,42 @@ describe('Request', () => {
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
         });
+
+        it('logs thrown errors as boom errors', async () => {
+
+            const server = Hapi.server({ debug: false });
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    handler: function () {
+
+                        // eslint-disable-next-line no-undef
+                        NOT_DEFINED_VAR;
+                    }
+                }
+            });
+
+            const log = new Promise((resolve) => {
+
+                server.events.on({ name: 'request', channels: 'internal' }, (request, event, tags) => {
+
+                    if (tags.handler &&
+                        tags.error) {
+
+                        resolve({ event, tags });
+                    }
+                });
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+
+            const { event } = await log;
+            expect(event.error.isBoom).to.equal(true);
+            expect(event.error.output.statusCode).to.equal(500);
+            expect(event.error.stack).to.exist();
+        });
     });
 
     describe('_postCycle()', () => {
