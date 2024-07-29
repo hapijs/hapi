@@ -10,7 +10,9 @@ import {
     Server,
     ServerRoute,
     server as createServer,
-    ServerRegisterPluginObject
+    ServerRegisterPluginObject,
+    Lifecycle,
+    CachedServerMethod
 } from '../..';
 
 const { expect: check } = lab;
@@ -34,10 +36,19 @@ interface RequestDecorations {
     },
     RouteApp: {
         prefix: string[];
+    },
+    Pres: {
+        some: string,
+        another: number
     }
 }
 
 type AppRequest = Request<RequestDecorations>;
+
+const getNum: Lifecycle.Method = (req) => {
+
+    return 10;
+}
 
 const route: ServerRoute<RequestDecorations> = {
     method: 'POST',
@@ -51,7 +62,20 @@ const route: ServerRoute<RequestDecorations> = {
             maxBytes: 1024 * 1024,
             output: 'stream',
             multipart: true
-        }
+        },
+        pre: [
+            {
+                assign: 'some',
+                method: ((req) => {
+
+                    return req.app.word;
+                }) as Lifecycle.Method<RequestDecorations>
+            },
+            {
+                assign: 'another',
+                method: getNum
+            }
+        ]
     },
     handler: (request: AppRequest, h: ResponseToolkit) => {
 
@@ -114,6 +138,14 @@ server.cache.provision({
     }
 })
 
+declare module '../..' {
+    interface ServerMethods {
+        test: {
+            add: CachedServerMethod<((a: number, b: number) => number)>;
+        }
+    }
+}
+
 server.method('test.add', (a: number, b: number) => a + b, {
     bind: server,
     cache: {
@@ -124,3 +156,5 @@ server.method('test.add', (a: number, b: number) => a + b, {
     },
     generateKey: (a: number, b: number) => `${a}${b}`
 });
+
+server.methods.test.add.cache?.drop(1, 2);

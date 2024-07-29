@@ -52,6 +52,7 @@ import {
 } from './methods';
 import { ServerOptions } from './options';
 import { ServerState, ServerStateCookieOptions } from './state';
+import { CacheStatisticsObject } from '@hapi/catbox';
 
 /**
  *  User-extensible type for application specific state (`server.app`).
@@ -203,7 +204,7 @@ export class Server<A = ServerApplicationState> {
      * server method name is an object property.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-servermethods
      */
-    readonly methods: ServerMethods;
+    readonly methods: ServerMethods
 
     /**
      * Provides access to the server MIME database used for setting content-type information. The object must not be
