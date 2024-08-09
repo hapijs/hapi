@@ -10,10 +10,17 @@ import {
     Server,
     ServerRoute,
     server as createServer,
-    ServerRegisterPluginObject
+    UserCredentials
 } from '../..';
 
 const { expect: check } = lab;
+
+declare module '../..' {
+    interface UserCredentials {
+        someId: string;
+        someName: string;
+    }
+}
 
 interface ServerAppSpace {
     multi?: number;
@@ -27,6 +34,19 @@ check.type<MyServer>(server);
 
 server.app.multi = 10;
 
+const genericRoute: ServerRoute = {
+    method: 'GET',
+    path: '/',
+    handler: (request, h) => {
+
+        check.type<UserCredentials>(request.auth.credentials!.user!);
+
+        return 'hello!';
+    }
+}
+
+server.route(genericRoute);
+
 interface RequestDecorations {
     Server: MyServer;
     RequestApp: {
@@ -34,6 +54,22 @@ interface RequestDecorations {
     },
     RouteApp: {
         prefix: string[];
+    },
+    AuthUser: {
+        id: string,
+        name: string
+        email: string
+    },
+    AuthCredentialsExtra: {
+        test: number
+    }
+    AuthApp: {
+        key: string
+        name: string
+    },
+    AuthArtifactsExtra: {
+        some: string
+        thing: number
     }
 }
 
@@ -60,6 +96,18 @@ const route: ServerRoute<RequestDecorations> = {
         check.type<Record<string, string>>(request.params);
         check.type<number>(request.server.app.multi!);
         check.type<string[]>(request.route.settings.app!.prefix);
+
+        check.type<number>(request.auth.credentials!.test);
+
+        check.type<string>(request.auth.credentials!.user!.email);
+        check.type<string>(request.auth.credentials!.user!.id);
+        check.type<string>(request.auth.credentials!.user!.name);
+
+        check.type<string>(request.auth.credentials!.app!.name);
+        check.type<string>(request.auth.credentials!.app!.key);
+
+        check.type<string>(request.auth.artifacts.some);
+        check.type<number>(request.auth.artifacts.thing);
 
         return 'hello!'
     }
