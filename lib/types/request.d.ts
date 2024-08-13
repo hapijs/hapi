@@ -307,7 +307,7 @@ export type MergeType<T, U> = {
     [K in keyof T]: K extends keyof U
         ? U[K]
         : T[K];
-} & U;
+};
 
 export type MergeRefs<T extends ReqRef> = MergeType<ReqRefDefaults, T>;
 

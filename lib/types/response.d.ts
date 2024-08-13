@@ -6,7 +6,6 @@ import {
     UserCredentials,
     AppCredentials,
     AuthArtifacts,
-    MergeType,
     AuthCredentials,
     ReqRef,
     ReqRefDefaults,
@@ -391,7 +390,7 @@ export interface AuthenticationData<
     CredentialsExtra = Record<string, unknown>,
     ArtifactsExtra = AuthArtifacts
 > {
-    credentials: MergeType<CredentialsExtra, AuthCredentials<AuthUser, AuthApp>>;
+    credentials: AuthCredentials<AuthUser, AuthApp> & CredentialsExtra;
     artifacts?: ArtifactsExtra | undefined;
 }
 
