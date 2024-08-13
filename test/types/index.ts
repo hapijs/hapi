@@ -15,6 +15,13 @@ import {
 
 const { expect: check } = lab;
 
+type IsAny<T> = (
+    unknown extends T
+      ? [keyof T] extends [never] ? false : true
+      : false
+  );
+
+
 declare module '../..' {
     interface UserCredentials {
         someId: string;
@@ -40,6 +47,8 @@ const genericRoute: ServerRoute = {
     handler: (request, h) => {
 
         check.type<UserCredentials>(request.auth.credentials!.user!);
+
+        const y: IsAny<typeof request.auth.credentials> = false;
 
         return 'hello!';
     }
@@ -108,6 +117,9 @@ const route: ServerRoute<RequestDecorations> = {
 
         check.type<string>(request.auth.artifacts.some);
         check.type<number>(request.auth.artifacts.thing);
+
+        const y: IsAny<typeof request.auth.credentials> = false;
+        const z: IsAny<typeof request.auth.artifacts> = false;
 
         return 'hello!'
     }
