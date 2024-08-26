@@ -13,7 +13,7 @@ import {
     ServerRegisterPluginObject,
     ServerRegisterPluginObjectArray,
     DecorateName,
-    DecorationMethod,
+    DecorationValue,
     HandlerDecorationMethod,
     PluginProperties
 } from '../plugin';
@@ -310,13 +310,13 @@ export class Server<A = ServerApplicationState> {
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverdecoratetype-property-method-options)
      */
     decorate(type: 'handler', property: DecorateName, method: HandlerDecorationMethod, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
-    decorate(type: 'request', property: DecorateName, method: (existing: ((...args: any[]) => any)) => (request: Request) => DecorationMethod<Request>, options: {apply: true, extend: true}): void;
-    decorate(type: 'request', property: DecorateName, method: (request: Request) => DecorationMethod<Request>, options: {apply: true, extend?: boolean | undefined}): void;
-    decorate(type: 'request', property: DecorateName, method: DecorationMethod<Request>, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
-    decorate(type: 'toolkit', property: DecorateName, method: (existing: ((...args: any[]) => any)) => DecorationMethod<ResponseToolkit>, options: {apply?: boolean | undefined, extend: true}): void;
-    decorate(type: 'toolkit', property: DecorateName, method: DecorationMethod<ResponseToolkit>, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
-    decorate(type: 'server', property: DecorateName, method: (existing: ((...args: any[]) => any)) => DecorationMethod<Server>, options: {apply?: boolean | undefined, extend: true}): void;
-    decorate(type: 'server', property: DecorateName, method: DecorationMethod<Server>, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
+    decorate(type: 'request', property: DecorateName, method: (existing: ((...args: any[]) => any)) => (request: Request) => DecorationValue<Request>, options: {apply: true, extend: true}): void;
+    decorate(type: 'request', property: DecorateName, method: (request: Request) => DecorationValue<Request>, options: {apply: true, extend?: boolean | undefined}): void;
+    decorate(type: 'request', property: DecorateName, method: DecorationValue<Request>, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
+    decorate(type: 'toolkit', property: DecorateName, method: (existing: ((...args: any[]) => any)) => DecorationValue<ResponseToolkit>, options: {apply?: boolean | undefined, extend: true}): void;
+    decorate(type: 'toolkit', property: DecorateName, method: DecorationValue<ResponseToolkit>, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
+    decorate(type: 'server', property: DecorateName, method: (existing: ((...args: any[]) => any)) => DecorationValue<Server>, options: {apply?: boolean | undefined, extend: true}): void;
+    decorate(type: 'server', property: DecorateName, method: DecorationValue<Server>, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
 
     /**
      * Used within a plugin to declare a required dependency on other plugins where:
