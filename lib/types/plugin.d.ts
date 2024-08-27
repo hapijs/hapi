@@ -248,12 +248,7 @@ export interface HandlerDecorationMethod {
 }
 
 /**
- * The general case for decorator values added via server.decorate.
- */
-export type DecorationValue<T> = DecorationMethod<T> | any;
-
-/**
- * Decorator function.
+ * The general case for decorators added via server.decorate.
  */
 export type DecorationMethod<T> = (this: T, ...args: any[]) => any;
 
