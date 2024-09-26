@@ -7,6 +7,7 @@ import { PluginSpecificConfiguration } from '../plugin';
 import { RouteOptions } from '../route';
 import { CacheProvider, ServerOptionsCache } from './cache';
 import { SameSitePolicy } from './state';
+import { Lifecycle } from '../utils';
 
 export interface ServerOptionsCompression {
     minBytes: number;
@@ -218,6 +219,13 @@ export interface ServerOptions {
         isSameSite?: SameSitePolicy | undefined;
         encoding?: 'none' | 'base64' | 'base64json' | 'form' | 'iron' | undefined;
     } | undefined;
+
+    /**
+     * @default Destroys any incoming requests without further processing (client receives `ECONNRESET`).
+     * Custom handler to override the response to incoming request during the gracefully shutdown period.
+     * NOTE: The handler is called before decorating (and authenticating) the request object. The `req` object might be much simpler than the usual Lifecycle method.
+     */
+    stoppingHandler?: Lifecycle.Method;
 
     /**
      * @default none.

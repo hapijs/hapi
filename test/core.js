@@ -620,6 +620,127 @@ describe('Core', () => {
             await server.start();
             await expect(server.stop()).to.reject('oops');
         });
+
+        it('gracefully completes ongoing requests', async () => {
+
+            const shutdownTimeout = 2_000;
+            const server = Hapi.server();
+            server.route({
+                method: 'get', path: '/', handler: async (_, res) => {
+
+                    await Hoek.wait(shutdownTimeout);
+                    return res.response('ok');
+                }
+            });
+            await server.start();
+
+            const url = `http://localhost:${server.info.port}/`;
+            const req = Wreck.request('GET', url);
+
+            // Stop the server while the request is in progress
+            await Hoek.wait(1_000);
+            const timer = new Hoek.Bench();
+            await server.stop({ timeout: shutdownTimeout });
+            expect(timer.elapsed()).to.be.greaterThan(900); // if the test takes less than 1s, the server is not holding for the request to complete (or there's a shortcut in the testkit)
+            expect(timer.elapsed()).to.be.lessThan(1_500); // it should be done in less than 1.5s, given that the request takes 2s and 1s has already passed (with a given offset)
+
+
+            const res = await req;
+            expect(res.statusCode).to.equal(200);
+            const body = await Wreck.read(res);
+            expect(body.toString()).to.equal('ok');
+            expect(res.headers.connection).to.equal('close');
+            await expect(req).to.not.reject();
+        });
+
+        it('rejects incoming requests during the stopping phase', async () => {
+
+            const shutdownTimeout = 4_000;
+            const server = Hapi.server();
+            server.route({
+                method: 'get', path: '/', handler: async (_, res) => {
+
+                    await Hoek.wait(shutdownTimeout);
+                    return res.response('ok');
+                }
+            });
+            await server.start();
+
+            const url = `http://localhost:${server.info.port}/`;
+
+            // Just performing one request to hold the server from immediately stopping.
+            const firstRequest = Wreck.request('GET', url);
+
+            // Stop the server while the request is in progress
+            await Hoek.wait(1_000);
+            const timer = new Hoek.Bench();
+            const stop = server.stop({ timeout: shutdownTimeout });
+
+            // Perform request after calling stop.
+            await Hoek.wait(1_000);
+            expect(server._core.phase).to.equal('stopping'); // Confirm that's still in `stopping` phase
+            const secondRequest = Wreck.request('GET', url);
+            expect(server._core.phase).to.equal('stopping');
+            // await expect(secondRequest).to.reject('Client request error: socket hang up'); // it should be this one
+            await expect(secondRequest).to.reject('Client request error');
+            expect(server._core.phase).to.equal('stopping');
+            // await secondRequest.catch(({ code }) => expect(code).to.equal('ECONNRESET')); // it should be this one
+            await secondRequest.catch(({ code }) => expect(code).to.equal('ECONNREFUSED'));
+
+            const { statusCode } = await firstRequest;
+            expect(statusCode).to.equal(200);
+            expect(server._core.phase).to.equal('stopped');
+            await stop;
+            expect(timer.elapsed()).to.be.lessThan(shutdownTimeout);
+            await expect(firstRequest).to.not.reject();
+        });
+
+        it('applies custom stopping handler during the stopping phase', async () => {
+
+            const shutdownTimeout = 4_000;
+            const server = Hapi.server({
+                stoppingHandler: (_, res) => {
+
+                    return res.response('server is shutting down').code(503);
+                }
+            });
+            server.route({
+                method: 'get', path: '/', handler: async (_, res) => {
+
+                    await Hoek.wait(shutdownTimeout);
+                    return res.response('ok');
+                }
+            });
+            await server.start();
+
+            const url = `http://localhost:${server.info.port}/`;
+
+            // Just performing one request to hold the server from immediately stopping.
+            const firstRequest = Wreck.request('GET', url);
+
+            // Stop the server while the request is in progress
+            await Hoek.wait(1_000);
+            const timer = new Hoek.Bench();
+            const stop = server.stop({ timeout: shutdownTimeout });
+
+            // Perform request after calling stop.
+            await Hoek.wait(1_000);
+            expect(server._core.phase).to.equal('stopping');
+            const secondRequest = Wreck.request('GET', url);
+            // const secondRequest = Http.get(url);
+            expect(server._core.phase).to.equal('stopping');
+            const responseToSecond = await secondRequest;
+            expect(responseToSecond.statusCode).to.equal(503);
+            await expect(Wreck.read(responseToSecond)).to.resolve('server is shutting down');
+            expect(server._core.phase).to.equal('stopping');
+
+            const { statusCode } = await firstRequest;
+            expect(statusCode).to.equal(200);
+            expect(server._core.phase).to.equal('stopped');
+            await stop;
+            expect(timer.elapsed()).to.be.lessThan(shutdownTimeout);
+            await expect(firstRequest).to.not.reject();
+        });
     });
 
     describe('_init()', () => {
