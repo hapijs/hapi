@@ -19,6 +19,7 @@ const Hapi = require('..');
 const Hoek = require('@hapi/hoek');
 const Inert = require('@hapi/inert');
 const Lab = require('@hapi/lab');
+const Teamwork = require('@hapi/teamwork');
 const Vision = require('@hapi/vision');
 const Wreck = require('@hapi/wreck');
 
@@ -935,6 +936,26 @@ describe('Core', () => {
             expect(res.headers.connection).to.equal('keep-alive');
             expect(payload.toString()).to.equal('ok');
             expect(err.code).to.equal('ECONNRESET');
+            expect(server._core.started).to.equal(false);
+        });
+
+        it('allows incoming requests during the stopping phase', async () => {
+
+            const team = new Teamwork.Team();
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: () => 'ok' });
+            server.ext('onPreStop', () => team.work);
+
+            await server.start();
+            const stop = server.stop();
+            const { res, payload } = await Wreck.get(`http://localhost:${server.info.port}`);
+
+            team.attend();       // Allow server to finalize stop
+            await stop;
+
+            expect(res.headers.connection).to.equal('close');
+            expect(payload.toString()).to.equal('ok');
             expect(server._core.started).to.equal(false);
         });
 
