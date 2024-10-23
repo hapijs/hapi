@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@hapi/code": "^9.0.3",
-    "@hapi/eslint-plugin": "*",
+    "@hapi/eslint-plugin": "^6.0.0",
     "@hapi/inert": "^7.0.1",
     "@hapi/joi-legacy-test": "npm:@hapi/joi@^15.0.0",
     "@hapi/lab": "^25.1.2",
