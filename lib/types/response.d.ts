@@ -6,7 +6,6 @@ import {
     UserCredentials,
     AppCredentials,
     AuthArtifacts,
-    MergeType,
     AuthCredentials,
     ReqRef,
     ReqRefDefaults,
@@ -386,19 +385,19 @@ export type ResponseValue = string | object;
 
 export interface AuthenticationData<
 
-    AuthUser extends object = UserCredentials,
-    AuthApp extends object = AppCredentials,
-    CredentialsExtra extends object = Record<string, unknown>,
+    AuthUser = UserCredentials,
+    AuthApp = AppCredentials,
+    CredentialsExtra = Record<string, unknown>,
     ArtifactsExtra = AuthArtifacts
 > {
-    credentials: MergeType<CredentialsExtra, AuthCredentials<AuthUser, AuthApp>>;
+    credentials: AuthCredentials<AuthUser, AuthApp> & CredentialsExtra;
     artifacts?: ArtifactsExtra | undefined;
 }
 
 export interface Auth<
-    AuthUser extends object = UserCredentials,
-    AuthApp extends object = AppCredentials,
-    CredentialsExtra extends object = Record<string, unknown>,
+    AuthUser = UserCredentials,
+    AuthApp = AppCredentials,
+    CredentialsExtra = Record<string, unknown>,
     ArtifactsExtra = AuthArtifacts
 > {
     readonly isAuth: true;
@@ -459,9 +458,9 @@ export interface ResponseToolkit<Refs extends ReqRef = ReqRefDefaults> {
      * @return Return value: an internal authentication object.
      */
     authenticated <
-        AuthUser extends object = MergeRefs<Refs>['AuthUser'],
-        AuthApp  extends object = MergeRefs<Refs>['AuthApp'],
-        CredentialsExtra extends object = MergeRefs<Refs>['AuthCredentialsExtra'],
+        AuthUser = MergeRefs<Refs>['AuthUser'],
+        AuthApp  = MergeRefs<Refs>['AuthApp'],
+        CredentialsExtra = MergeRefs<Refs>['AuthCredentialsExtra'],
         ArtifactsExtra = MergeRefs<Refs>['AuthArtifactsExtra']
     >(
         data: (
@@ -537,9 +536,9 @@ export interface ResponseToolkit<Refs extends ReqRef = ReqRefDefaults> {
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-hunauthenticatederror-data)
      */
     unauthenticated <
-        AuthUser extends object = MergeRefs<Refs>['AuthUser'],
-        AuthApp extends object = MergeRefs<Refs>['AuthApp'],
-        CredentialsExtra extends object = MergeRefs<Refs>['AuthCredentialsExtra'],
+        AuthUser = MergeRefs<Refs>['AuthUser'],
+        AuthApp = MergeRefs<Refs>['AuthApp'],
+        CredentialsExtra = MergeRefs<Refs>['AuthCredentialsExtra'],
         ArtifactsExtra = MergeRefs<Refs>['AuthArtifactsExtra']
     >(
         error: Error,
