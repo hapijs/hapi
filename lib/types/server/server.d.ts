@@ -313,10 +313,17 @@ export class Server<A = ServerApplicationState> {
     decorate(type: 'request', property: DecorateName, method: (existing: ((...args: any[]) => any)) => (request: Request) => DecorationMethod<Request>, options: {apply: true, extend: true}): void;
     decorate(type: 'request', property: DecorateName, method: (request: Request) => DecorationMethod<Request>, options: {apply: true, extend?: boolean | undefined}): void;
     decorate(type: 'request', property: DecorateName, method: DecorationMethod<Request>, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
+    decorate(type: 'request', property: DecorateName, value: (existing: ((...args: any[]) => any)) => (request: Request) => any, options: {apply: true, extend: true}): void;
+    decorate(type: 'request', property: DecorateName, value: (request: Request) => any, options: {apply: true, extend?: boolean | undefined}): void;
+    decorate(type: 'request', property: DecorateName, value: any, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
     decorate(type: 'toolkit', property: DecorateName, method: (existing: ((...args: any[]) => any)) => DecorationMethod<ResponseToolkit>, options: {apply?: boolean | undefined, extend: true}): void;
     decorate(type: 'toolkit', property: DecorateName, method: DecorationMethod<ResponseToolkit>, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
+    decorate(type: 'toolkit', property: DecorateName, value: (existing: ((...args: any[]) => any)) => any, options: {apply?: boolean | undefined, extend: true}): void;
+    decorate(type: 'toolkit', property: DecorateName, value: any, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
     decorate(type: 'server', property: DecorateName, method: (existing: ((...args: any[]) => any)) => DecorationMethod<Server>, options: {apply?: boolean | undefined, extend: true}): void;
     decorate(type: 'server', property: DecorateName, method: DecorationMethod<Server>, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
+    decorate(type: 'server', property: DecorateName, value: (existing: ((...args: any[]) => any)) => any, options: {apply?: boolean | undefined, extend: true}): void;
+    decorate(type: 'server', property: DecorateName, value: any, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
 
     /**
      * Used within a plugin to declare a required dependency on other plugins where:

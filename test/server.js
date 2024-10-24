@@ -294,7 +294,7 @@ describe('Server', () => {
 
     describe('decorate()', () => {
 
-        it('decorates request', async () => {
+        it('decorates request with function', async () => {
 
             const server = Hapi.server();
 
@@ -314,6 +314,25 @@ describe('Server', () => {
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.match(/^.*\:.*\:.*\:.*\:.*$/);
+        });
+
+        it('decorates request with object', async () => {
+
+            const server = Hapi.server();
+
+            const customData = { id: '123' };
+
+            server.decorate('request', 'customData', customData);
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: (request) => request.customData
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal({ id: '123' });
         });
 
         it('decorates request (apply)', async () => {
@@ -364,6 +383,26 @@ describe('Server', () => {
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.match(/^.*\:.*\:.*\:.*\:.*!$/);
+        });
+
+        it('decorates request (extend) with an array', async () => {
+
+            const server = Hapi.server();
+
+            const items = ['one', 'two', 'three'];
+
+            server.decorate('request', 'items', items);
+            server.decorate('request', 'items', (existing) => [...existing, 'four'], { extend: true });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: (request) => request.items
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal([...items, 'four']);
         });
 
         it('decorates request (apply + extend)', async () => {
@@ -442,6 +481,25 @@ describe('Server', () => {
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
             expect(res.result.status).to.equal('ok');
+        });
+
+        it('decorates toolkit with boolean', async () => {
+
+            const server = Hapi.server();
+
+            const isOk = true;
+
+            server.decorate('toolkit', 'isOk', isOk);
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: (request, h) => h.isOk
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal(true);
         });
 
         it('add new handler', async () => {
@@ -557,6 +615,30 @@ describe('Server', () => {
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal('ok');
+        });
+
+        it('decorates server with Map', async () => {
+
+            const server = Hapi.server();
+
+            const itemsMap = new Map();
+            itemsMap.set('one', 'One');
+            itemsMap.set('two', 'Two');
+            itemsMap.set('three', 'Three');
+
+            server.decorate('server', 'itemsMap', itemsMap);
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: (request) => request.server.itemsMap
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result.get('one')).to.equal('One');
+            expect(res.result.get('two')).to.equal('Two');
+            expect(res.result.get('three')).to.equal('Three');
         });
 
         it('throws on double server decoration', () => {
