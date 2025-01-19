@@ -592,7 +592,7 @@ describe('Server', () => {
             expect(() => {
 
                 server.decorate('toolkit', 'redirect', () => { });
-            }).to.throw('Cannot override built-in toolkit decoration: redirect');
+            }).to.throw('Cannot override the built-in toolkit decoration: redirect');
         });
 
         it('decorates server', async () => {
