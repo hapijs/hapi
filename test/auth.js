@@ -700,6 +700,27 @@ describe('authentication', () => {
             expect(res.statusCode).to.equal(204);
         });
 
+        it('matches scope (space separated to array)', async () => {
+
+            const server = Hapi.server();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', { users: { steve: { scope: 'one two' } } });
+            server.auth.default('default');
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    handler: (request) => request.auth.credentials.user,
+                    auth: {
+                        scope: ['one', 'three']
+                    }
+                }
+            });
+
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(204);
+        });
+
         it('matches scope (single to single)', async () => {
 
             const server = Hapi.server();
@@ -1036,11 +1057,33 @@ describe('authentication', () => {
             expect(res5.result.message).to.equal('Insufficient scope');
         });
 
-        it('errors on missing scope using arrays', async () => {
+        it('errors on missing scope using (array to array )', async () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
             server.auth.strategy('default', 'custom', { users: { steve: { scope: ['a', 'b'] } } });
+            server.auth.default('default');
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    handler: (request) => request.auth.credentials.user,
+                    auth: {
+                        scope: ['c', 'd']
+                    }
+                }
+            });
+
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(403);
+            expect(res.result.message).to.equal('Insufficient scope');
+        });
+
+        it('errors on missing scope using (space separated to array )', async () => {
+
+            const server = Hapi.server();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', { users: { steve: { scope: 'a b' } } });
             server.auth.default('default');
             server.route({
                 method: 'GET',
