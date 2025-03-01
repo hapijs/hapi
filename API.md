@@ -312,6 +312,7 @@ Default value:
     isSecure: true,
     isHttpOnly: true,
     isSameSite: 'Strict',
+    isPartitioned: false,
     encoding: 'none'
 }
 ```
@@ -2532,6 +2533,8 @@ across multiple requests. Registers a cookie definitions where:
         - `'Strict'` - sets the value to `'Strict'` (this is the default value).
         - `'Lax'` - sets the value to `'Lax'`.
         - `'None'` - sets the value to `'None'`.
+
+    - `isPartitioned` - sets the ['Partitioned' flag](https://developers.google.com/privacy-sandbox/3pcd/chips). Defaults to `false`. Requires `isSecure` to be `true` and `isSameSite` to be `'None'`.
 
     - `path` - the path scope. Defaults to `null` (no path).
 
