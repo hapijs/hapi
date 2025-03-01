@@ -248,15 +248,8 @@ export interface HandlerDecorationMethod {
 }
 
 /**
- * The general case for decorators added via server.decorate.
- */
-export type DecorationMethod<T> = (this: T, ...args: any[]) => any;
-
-/**
  * An empty interface to allow typings of custom plugin properties.
  */
 
 export interface PluginProperties {
 }
-
-export type DecorateName = string | symbol;
