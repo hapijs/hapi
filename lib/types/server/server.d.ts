@@ -1,7 +1,6 @@
 import * as http from 'http';
 import { Stream } from 'stream';
 
-import { Root } from 'joi';
 import { Mimos } from '@hapi/mimos';
 
 import {
@@ -52,6 +51,7 @@ import {
 } from './methods';
 import { ServerOptions } from './options';
 import { ServerState, ServerStateCookieOptions } from './state';
+import { Validation } from './validation';
 
 /**
  *  User-extensible type for application specific state (`server.app`).
@@ -64,13 +64,13 @@ export interface ServerApplicationState {
  * the facilities provided by the framework. Each server supports a single connection (e.g. listen to port 80).
  * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#server)
  */
-export class Server<A = ServerApplicationState> {
+export class Server<A = ServerApplicationState, V extends Validation.Compiler | null = null> {
     /**
      * Creates a new server object
      * @param options server configuration object.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serveroptions)
      */
-    constructor(options?: ServerOptions);
+    constructor(options?: ServerOptions<V>);
 
     /**
      * Provides a safe place to store server-specific run-time application data without potential conflicts with
@@ -90,7 +90,7 @@ export class Server<A = ServerApplicationState> {
      * controlled server `initialize()`/`start()`/`stop()` methods whenever the current server methods
      * are called, where:
      */
-    control(server: Server): void;
+    control(server: Server<unknown, any>): void;
 
     /**
      * Provides access to the decorations already applied to various framework interfaces. The object must not be
@@ -246,7 +246,7 @@ export class Server<A = ServerApplicationState> {
      * The server configuration object after defaults applied.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serversettings)
      */
-    readonly settings: ServerOptions;
+    readonly settings: ServerOptions<V>;
 
     /**
      * The server cookies manager.
@@ -315,8 +315,8 @@ export class Server<A = ServerApplicationState> {
     decorate(type: 'request', property: DecorateName, method: DecorationMethod<Request>, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
     decorate(type: 'toolkit', property: DecorateName, method: (existing: ((...args: any[]) => any)) => DecorationMethod<ResponseToolkit>, options: {apply?: boolean | undefined, extend: true}): void;
     decorate(type: 'toolkit', property: DecorateName, method: DecorationMethod<ResponseToolkit>, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
-    decorate(type: 'server', property: DecorateName, method: (existing: ((...args: any[]) => any)) => DecorationMethod<Server>, options: {apply?: boolean | undefined, extend: true}): void;
-    decorate(type: 'server', property: DecorateName, method: DecorationMethod<Server>, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
+    decorate(type: 'server', property: DecorateName, method: (existing: ((...args: any[]) => any)) => DecorationMethod<this>, options: {apply?: boolean | undefined, extend: true}): void;
+    decorate(type: 'server', property: DecorateName, method: DecorationMethod<this>, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
 
     /**
      * Used within a plugin to declare a required dependency on other plugins where:
@@ -330,7 +330,7 @@ export class Server<A = ServerApplicationState> {
      * The method does not provide version dependency which should be implemented using npm peer dependencies.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverdependencydependencies-after)
      */
-    dependency(dependencies: Dependencies, after?: ((server: Server) => Promise<void>) | undefined): void;
+    dependency(dependencies: Dependencies, after?: ((server: this) => Promise<void>) | undefined): void;
 
     /**
      * Registers a custom content encoding compressor to extend the built-in support for 'gzip' and 'deflate' where:
@@ -562,7 +562,7 @@ export class Server<A = ServerApplicationState> {
      * Note that the options object is deeply cloned (with the exception of bind which is shallowly copied) and cannot contain any values that are unsafe to perform deep copy on.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverrouteroute)
      */
-    route <Refs extends ReqRef = ReqRefDefaults>(route: ServerRoute<Refs> | ServerRoute<Refs>[]): void;
+    route<Refs extends ReqRef = ReqRefDefaults, Vroute extends Validation.Compiler | null = V>(route: ServerRoute<Refs, Vroute> | ServerRoute<Refs, Vroute>[]): void;
 
     /**
      * Defines a route rules processor for converting route rules object into route configuration where:
@@ -585,7 +585,7 @@ export class Server<A = ServerApplicationState> {
      */
     rules <Refs extends ReqRef = ReqRefDefaults>(
         processor: RulesProcessor<Refs>,
-        options?: RulesOptions<Refs> | undefined
+        options?: RulesOptions<V> | undefined
     ): void;
 
     /**
@@ -633,10 +633,10 @@ export class Server<A = ServerApplicationState> {
      * Registers a server validation module used to compile raw validation rules into validation schemas for all routes.
      * The validator is only used when validation rules are not pre-compiled schemas. When a validation rules is a function or schema object, the rule is used as-is and the validator is not used.
      */
-    validator(joi: Root): void;
+    validator<Vnew extends Validation.Compiler>(validator: V extends null ? Vnew : Vnew extends V ? Vnew : never): Server<A, Vnew>;
 }
 
 /**
  * Factory function to create a new server object (introduced in v17).
  */
-export function server<A = ServerApplicationState>(opts?: ServerOptions | undefined): Server<A>;
+export function server<A = ServerApplicationState, V extends Validation.Compiler | null = null>(opts?: ServerOptions<V> | undefined): Server<A, V>;
