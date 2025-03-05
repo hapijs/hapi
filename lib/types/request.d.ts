@@ -27,23 +27,24 @@ export interface AppCredentials {
  * User-extensible type for request.auth credentials.
  */
 export interface AuthCredentials<
-    AuthUser extends object = UserCredentials,
-    AuthApp extends object = AppCredentials,
+    AuthUser = UserCredentials,
+    AuthApp = AppCredentials
 > {
     /**
      * The application scopes to be granted.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsauthaccessscope)
      */
     scope?: string[] | undefined;
+
     /**
      * If set, will only work with routes that set `access.entity` to `user`.
      */
-    user?: MergeType<UserCredentials, AuthUser> | undefined;
+    user?: AuthUser
 
     /**
      * If set, will only work with routes that set `access.entity` to `app`.
      */
-    app?: MergeType<AppCredentials, AuthApp> | undefined;
+    app?: AuthApp;
 }
 
 export interface AuthArtifacts {
@@ -65,15 +66,20 @@ export type AuthMode = 'required' | 'optional' | 'try';
  * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-requestauth)
  */
 export interface RequestAuth<
-    AuthUser extends object = UserCredentials,
-    AuthApp extends object = AppCredentials,
-    CredentialsExtra extends object = Record<string, unknown>,
+    AuthUser = UserCredentials,
+    AuthApp = AppCredentials,
+    CredentialsExtra = Record<string, unknown>,
     ArtifactsExtra = Record<string, unknown>
 > {
     /** an artifact object received from the authentication strategy and used in authentication-related actions. */
     artifacts: ArtifactsExtra;
     /** the credential object received during the authentication process. The presence of an object does not mean successful authentication. */
-    credentials: MergeType<CredentialsExtra, AuthCredentials<AuthUser, AuthApp>>;
+    credentials: (
+
+        AuthCredentials<AuthUser, AuthApp> &
+        CredentialsExtra
+    );
+
     /** the authentication error is failed and mode set to 'try'. */
     error: Error;
     /** true if the request has been successfully authenticated, otherwise false. */
@@ -88,6 +94,7 @@ export interface RequestAuth<
     /** the name of the strategy used. */
     strategy: string;
 }
+
 
 /**
  * 'peek' - emitted for each chunk of payload data read from the client connection. The event method signature is function(chunk, encoding).
@@ -296,7 +303,12 @@ export type ReqRef = Partial<Record<keyof ReqRefDefaults, unknown>>;
 /**
  * Utilities for merging request refs and other things
  */
-export type MergeType<T extends object, U extends object> = Omit<T, keyof U> & U;
+export type MergeType<T, U> = {
+    [K in keyof T]: K extends keyof U
+        ? U[K]
+        : T[K];
+};
+
 export type MergeRefs<T extends ReqRef> = MergeType<ReqRefDefaults, T>;
 
 /**
