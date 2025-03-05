@@ -10,7 +10,10 @@ import {
     Server,
     ServerRoute,
     server as createServer,
-    UserCredentials
+    UserCredentials,
+    ServerRegisterPluginObject,
+    Lifecycle,
+    CachedServerMethod
 } from '../..';
 
 const { expect: check } = lab;
@@ -174,6 +177,14 @@ server.cache.provision({
     }
 })
 
+declare module '../..' {
+    interface ServerMethods {
+        test: {
+            add: CachedServerMethod<((a: number, b: number) => number)>;
+        }
+    }
+}
+
 server.method('test.add', (a: number, b: number) => a + b, {
     bind: server,
     cache: {
@@ -184,3 +195,95 @@ server.method('test.add', (a: number, b: number) => a + b, {
     },
     generateKey: (a: number, b: number) => `${a}${b}`
 });
+
+server.methods.test.add.cache?.drop(1, 2);
+
+declare module '../..' {
+    interface Request {
+        obj1: {
+            func1(a: number, b: number): number;
+        };
+
+        func2: (a: number, b: number) => number;
+    }
+
+    interface ResponseToolkit {
+        obj2: {
+            func3(a: number, b: number): number;
+        };
+
+        func4: (a: number, b: number) => number;
+    }
+
+    interface Server {
+        obj3: {
+            func5(a: number, b: number): number;
+        };
+
+        func6: (a: number, b: number) => number;
+    }
+}
+
+const theFunc = (a: number, b: number) => a + b;
+const theLifecycleMethod: Lifecycle.Method = () => 'ok';
+
+// Error when decorating existing properties
+// @ts-expect-error Lab does not support overload errors
+check.error(() => server.decorate('request', 'payload', theFunc));
+// @ts-expect-error Lab does not support overload errors
+check.error(() => server.decorate('toolkit', 'state', theFunc));
+// @ts-expect-error Lab does not support overload errors
+check.error(() => server.decorate('server', 'dependency', theFunc));
+// @ts-expect-error Lab does not support overload errors
+check.error(() => server.decorate('server', 'dependency', theFunc));
+
+server.decorate('handler', 'func1_1', () => theLifecycleMethod);
+server.decorate('handler', 'func1_2', () => theLifecycleMethod, { apply: true });
+
+// Error when extending on handler
+// @ts-expect-error Lab does not support overload errors
+check.error(() => server.decorate('handler', 'func1_3', () => theLifecycleMethod, { apply: true, extend: true }));
+
+// Error when handler does not return a lifecycle method
+// @ts-expect-error Lab does not support overload errors
+check.error(() => server.decorate('handler', 'func1_4', theFunc));
+
+// Decorating request with functions
+server.decorate('request', 'func2_1', theFunc);
+server.decorate('request', 'func2_1', () => theFunc, { apply: true, extend: true });
+server.decorate('request', 'func2_2', theFunc, { apply: true });
+server.decorate('request', 'func2_2', theFunc, { extend: true });
+
+// Decorating toolkit with functions
+server.decorate('toolkit', 'func4_1', theFunc);
+server.decorate('toolkit', 'func4_1', theFunc, { apply: true, extend: true });
+server.decorate('toolkit', 'func4_2', theFunc, { apply: true });
+server.decorate('toolkit', 'func4_2', theFunc, { extend: true });
+
+// Decorating server with functions
+server.decorate('server', 'func6_1', theFunc);
+server.decorate('server', 'func6_1', theFunc, { apply: true, extend: true });
+server.decorate('server', 'func6_2', theFunc, { apply: true });
+server.decorate('server', 'func6_2', theFunc, { extend: true });
+
+// Decorating request with objects
+server.decorate('request', 'obj1_1', { func1: theFunc });
+
+// Type error when extending on request with objects
+// @ts-expect-error Lab does not support overload errors
+check.error(() => server.decorate('request', 'obj1_1', { func1: theFunc }, { apply: true, extend: true }));
+
+
+// Decorating toolkit with objects
+server.decorate('toolkit', 'obj2_1', { func3: theFunc });
+
+// Error when extending on toolkit with objects
+// @ts-expect-error Lab does not support overload errors
+check.error(() => server.decorate('toolkit', 'obj2_1', { func3: theFunc }, { apply: true, extend: true }));
+
+// Decorating server with objects
+server.decorate('server', 'obj3_1', { func5: theFunc });
+
+// Error when extending on server with objects
+// @ts-expect-error Lab does not support overload errors
+check.error(() => server.decorate('server', 'obj3_1', { func5: theFunc }, { apply: true, extend: true }));

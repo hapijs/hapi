@@ -108,6 +108,17 @@ export interface PluginBase<T, D> {
 }
 
 /**
+ * A plugin that is registered by name and version.
+ */
+export interface NamedPlugin<T, D = void> extends PluginBase<T, D>, PluginNameVersion {}
+
+/**
+ * A plugin that is registered by its package.json file.
+ */
+export interface PackagedPlugin<T, D = void> extends PluginBase<T, D>, PluginPackage {}
+
+
+/**
  * Plugins provide a way to organize application code by splitting the server logic into smaller components. Each
  * plugin can manipulate the server through the standard server interface, but with the added ability to sandbox
  * certain properties. For example, setting a file path in one plugin doesn't affect the file path set
@@ -116,7 +127,7 @@ export interface PluginBase<T, D> {
  *
  * The type T is the type of the plugin options.
  */
-export type Plugin<T, D = void> = PluginBase<T, D> & (PluginNameVersion | PluginPackage);
+export type Plugin<T, D = void> = NamedPlugin<T, D> | PackagedPlugin<T, D>;
 
 /**
  * The realm object contains sandboxed server settings specific to each plugin or authentication strategy. When registering a plugin or an authentication scheme, a server object reference is provided
@@ -248,15 +259,8 @@ export interface HandlerDecorationMethod {
 }
 
 /**
- * The general case for decorators added via server.decorate.
- */
-export type DecorationMethod<T> = (this: T, ...args: any[]) => any;
-
-/**
  * An empty interface to allow typings of custom plugin properties.
  */
 
 export interface PluginProperties {
 }
-
-export type DecorateName = string | symbol;
