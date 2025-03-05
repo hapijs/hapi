@@ -12,8 +12,6 @@ import {
     ServerRegisterOptions,
     ServerRegisterPluginObject,
     ServerRegisterPluginObjectArray,
-    DecorateName,
-    DecorationMethod,
     HandlerDecorationMethod,
     PluginProperties
 } from '../plugin';
@@ -52,6 +50,57 @@ import {
 } from './methods';
 import { ServerOptions } from './options';
 import { ServerState, ServerStateCookieOptions } from './state';
+
+/**
+ * The general case for decorators added via server.decorate.
+ */
+export type DecorationMethod<T> = (this: T, ...args: any[]) => any;
+
+export type DecorateName = string | symbol;
+
+export type DecorationValue = object | any[] | boolean | number | string | symbol | Map<any, any> | Set<any>;
+
+type ReservedRequestKeys = (
+    'server' | 'url' | 'query' | 'path' | 'method' |
+    'mime' | 'setUrl' | 'setMethod' | 'headers' | 'id' |
+    'app' | 'plugins' | 'route' | 'auth' | 'pre' |
+    'preResponses' | 'info' | 'isInjected' | 'orig' |
+    'params' | 'paramsArray' | 'payload' | 'state' |
+    'response' | 'raw' | 'domain' | 'log' | 'logs' |
+    'generateResponse' |
+
+    // Private functions
+    '_allowInternals' | '_closed' | '_core' |
+    '_entity' | '_eventContext' | '_events' | '_expectContinue' |
+    '_isInjected' | '_isPayloadPending' | '_isReplied' |
+    '_route' | '_serverTimeoutId' | '_states' | '_url' |
+    '_urlError' | '_initializeUrl' | '_setUrl' | '_parseUrl' |
+    '_parseQuery'
+
+);
+
+type ReservedToolkitKeys = (
+    'abandon' | 'authenticated' | 'close' | 'context' | 'continue' |
+    'entity' | 'redirect' | 'realm' | 'request' | 'response' |
+    'state' | 'unauthenticated' | 'unstate'
+);
+
+type ReservedServerKeys = (
+    // Public functions
+    'app' | 'auth' | 'cache' | 'decorations' | 'events' | 'info' |
+    'listener' | 'load' | 'methods' | 'mime' | 'plugins' | 'registrations' |
+    'settings' | 'states' | 'type' | 'version' | 'realm' | 'control' | 'decoder' |
+    'bind' | 'control' | 'decoder' | 'decorate' | 'dependency' | 'encoder' |
+    'event' | 'expose' | 'ext' | 'inject' | 'log' | 'lookup' | 'match' | 'method' |
+    'path' | 'register' | 'route' | 'rules' | 'state' | 'table' | 'validator' |
+    'start' | 'initialize' | 'stop' |
+
+    // Private functions
+    '_core' | '_initialize' | '_start' | '_stop' | '_cachePolicy' | '_createCache' |
+    '_clone' | '_ext' | '_addRoute'
+);
+
+type ExceptName<Property, ReservedKeys> = Property extends ReservedKeys ? never : Property;
 
 /**
  *  User-extensible type for application specific state (`server.app`).
@@ -309,14 +358,24 @@ export class Server<A = ServerApplicationState> {
      * @return void;
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverdecoratetype-property-method-options)
      */
-    decorate(type: 'handler', property: DecorateName, method: HandlerDecorationMethod, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
-    decorate(type: 'request', property: DecorateName, method: (existing: ((...args: any[]) => any)) => (request: Request) => DecorationMethod<Request>, options: {apply: true, extend: true}): void;
-    decorate(type: 'request', property: DecorateName, method: (request: Request) => DecorationMethod<Request>, options: {apply: true, extend?: boolean | undefined}): void;
-    decorate(type: 'request', property: DecorateName, method: DecorationMethod<Request>, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
-    decorate(type: 'toolkit', property: DecorateName, method: (existing: ((...args: any[]) => any)) => DecorationMethod<ResponseToolkit>, options: {apply?: boolean | undefined, extend: true}): void;
-    decorate(type: 'toolkit', property: DecorateName, method: DecorationMethod<ResponseToolkit>, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
-    decorate(type: 'server', property: DecorateName, method: (existing: ((...args: any[]) => any)) => DecorationMethod<Server>, options: {apply?: boolean | undefined, extend: true}): void;
-    decorate(type: 'server', property: DecorateName, method: DecorationMethod<Server>, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
+    decorate <P extends DecorateName>(type: 'handler', property: P, method: HandlerDecorationMethod, options?: { apply?: boolean | undefined, extend?: never }): void;
+
+    decorate <P extends DecorateName>(type: 'request', property: ExceptName<P, ReservedRequestKeys>, method: (existing: ((...args: any[]) => any)) => (request: Request) => DecorationMethod<Request>, options: {apply: true, extend: true}): void;
+    decorate <P extends DecorateName>(type: 'request', property: ExceptName<P, ReservedRequestKeys>, method: (request: Request) => DecorationMethod<Request>, options: {apply: true, extend?: boolean | undefined}): void;
+    decorate <P extends DecorateName>(type: 'request', property: ExceptName<P, ReservedRequestKeys>, method: DecorationMethod<Request>, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
+    decorate <P extends DecorateName>(type: 'request', property: ExceptName<P, ReservedRequestKeys>, value: (existing: ((...args: any[]) => any)) => (request: Request) => any, options: {apply: true, extend: true}): void;
+    decorate <P extends DecorateName>(type: 'request', property: ExceptName<P, ReservedRequestKeys>, value: (request: Request) => any, options: {apply: true, extend?: boolean | undefined}): void;
+    decorate <P extends DecorateName>(type: 'request', property: ExceptName<P, ReservedRequestKeys>, value: DecorationValue, options?: never): void;
+
+    decorate <P extends DecorateName>(type: 'toolkit', property: ExceptName<P, ReservedToolkitKeys>, method: (existing: ((...args: any[]) => any)) => DecorationMethod<ResponseToolkit>, options: {apply?: boolean | undefined, extend: true}): void;
+    decorate <P extends DecorateName>(type: 'toolkit', property: ExceptName<P, ReservedToolkitKeys>, method: DecorationMethod<ResponseToolkit>, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
+    decorate <P extends DecorateName>(type: 'toolkit', property: ExceptName<P, ReservedToolkitKeys>, value: (existing: ((...args: any[]) => any)) => any, options: {apply?: boolean | undefined, extend: true}): void;
+    decorate <P extends DecorateName>(type: 'toolkit', property: ExceptName<P, ReservedToolkitKeys>, value: DecorationValue, options?: never): void;
+
+    decorate <P extends DecorateName>(type: 'server', property: ExceptName<P, ReservedServerKeys>, method: (existing: ((...args: any[]) => any)) => DecorationMethod<Server>, options: {apply?: boolean | undefined, extend: true}): void;
+    decorate <P extends DecorateName>(type: 'server', property: ExceptName<P, ReservedServerKeys>, method: DecorationMethod<Server>, options?: {apply?: boolean | undefined, extend?: boolean | undefined}): void;
+    decorate <P extends DecorateName>(type: 'server', property: ExceptName<P, ReservedServerKeys>, value: (existing: ((...args: any[]) => any)) => any, options: {apply?: boolean | undefined, extend: true}): void;
+    decorate <P extends DecorateName>(type: 'server', property: ExceptName<P, ReservedServerKeys>, value: DecorationValue, options?: never): void;
 
     /**
      * Used within a plugin to declare a required dependency on other plugins where:

@@ -312,6 +312,7 @@ Default value:
     isSecure: true,
     isHttpOnly: true,
     isSameSite: 'Strict',
+    isPartitioned: false,
     encoding: 'none'
 }
 ```
@@ -558,8 +559,8 @@ The internally generated events are (identified by their `tags`):
 - `pre` `error` - a pre method was executed and returned an error. Includes the execution duration, assignment key, and error.
 - `internal` `error` - an HTTP 500 error response was assigned to the request.
 - `internal` `implementation` `error` - an incorrectly implemented [lifecycle method](#lifecycle-methods).
-- `request` `abort` `error` - the request aborted.
-- `request` `closed` `error` - the request closed prematurely.
+- `request` `error` `abort` - the request aborted.
+- `request` `error` `close` - the request closed prematurely.
 - `request` `error` - the request stream emitted an error. Includes the error.
 - `request` `server` `timeout` `error` - the request took too long to process by the server. Includes the timeout configuration value and the duration.
 - `state` `error` - the request included an invalid cookie or cookies. Includes the cookies and error details.
@@ -2532,6 +2533,8 @@ across multiple requests. Registers a cookie definitions where:
         - `'Strict'` - sets the value to `'Strict'` (this is the default value).
         - `'Lax'` - sets the value to `'Lax'`.
         - `'None'` - sets the value to `'None'`.
+
+    - `isPartitioned` - sets the ['Partitioned' flag](https://developers.google.com/privacy-sandbox/3pcd/chips). Defaults to `false`. Requires `isSecure` to be `true` and `isSameSite` to be `'None'`.
 
     - `path` - the path scope. Defaults to `null` (no path).
 
