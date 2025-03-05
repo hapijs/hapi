@@ -1,4 +1,13 @@
-import { PolicyOptions } from "@hapi/catbox";
+import { CacheStatisticsObject, PolicyOptions } from "@hapi/catbox";
+
+type AnyMethod = (...args: any[]) => any;
+
+export type CachedServerMethod<T extends AnyMethod> = T & {
+    cache?: {
+        drop(...args: Parameters<T>): Promise<void>;
+        stats: CacheStatisticsObject
+    }
+};
 
 /**
  * The method function with a signature async function(...args, [flags]) where:
@@ -7,7 +16,7 @@ import { PolicyOptions } from "@hapi/catbox";
  * * * ttl - 0 if result is valid but cannot be cached. Defaults to cache policy.
  * For reference [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-servermethodname-method-options)
  */
-export type ServerMethod = (...args: any[]) => any;
+export type ServerMethod = AnyMethod;
 
 /**
  * The same cache configuration used in server.cache().
@@ -71,8 +80,16 @@ export interface ServerMethodConfigurationObject {
     options?: ServerMethodOptions | undefined;
 }
 
+interface BaseServerMethods {
+    [name: string]: (
+        ServerMethod |
+        CachedServerMethod<ServerMethod> |
+        BaseServerMethods
+    );
+}
+
 /**
  * An empty interface to allow typings of custom server.methods.
  */
-export interface ServerMethods extends Record<string, ServerMethod> {
+export interface ServerMethods extends BaseServerMethods {
 }

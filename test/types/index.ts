@@ -11,7 +11,8 @@ import {
     ServerRoute,
     server as createServer,
     ServerRegisterPluginObject,
-    Lifecycle
+    Lifecycle,
+    CachedServerMethod
 } from '../..';
 
 const { expect: check } = lab;
@@ -115,6 +116,14 @@ server.cache.provision({
     }
 })
 
+declare module '../..' {
+    interface ServerMethods {
+        test: {
+            add: CachedServerMethod<((a: number, b: number) => number)>;
+        }
+    }
+}
+
 server.method('test.add', (a: number, b: number) => a + b, {
     bind: server,
     cache: {
@@ -125,6 +134,9 @@ server.method('test.add', (a: number, b: number) => a + b, {
     },
     generateKey: (a: number, b: number) => `${a}${b}`
 });
+
+
+server.methods.test.add.cache?.drop(1, 2);
 
 declare module '../..' {
     interface Request {
