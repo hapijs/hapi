@@ -578,6 +578,7 @@ describe('handler', () => {
             expect(event.error.isBoom).to.equal(true);
             expect(event.error.output.statusCode).to.equal(403);
             expect(event.error.message).to.equal('Forbidden');
+            expect(event.error.stack).to.exist();
         });
     });
 

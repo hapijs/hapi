@@ -212,4 +212,28 @@ describe('state', () => {
         expect(res.statusCode).to.equal(200);
         expect(res.headers['set-cookie']).to.equal(['a=b; HttpOnly; SameSite=TEST']);
     });
+
+    it('sets cookie partitioned value', async () => {
+
+        const server = Hapi.server();
+
+        server.state('a', { isPartitioned: true, isSameSite: 'None' });
+        server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('ok').state('a', 'b') });
+
+        const res = await server.inject('/?x=TEST');
+        expect(res.statusCode).to.equal(200);
+        expect(res.headers['set-cookie']).to.equal(['a=b; Secure; HttpOnly; SameSite=None; Partitioned']);
+    });
+
+    it('fails to set cookie partitioned value without isSameSite=None', async () => {
+
+        const server = Hapi.server({ debug: false });
+
+        server.state('a', { isPartitioned: true });
+        server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('ok').state('a', 'b') });
+
+        const res = await server.inject('/?x=TEST');
+        expect(res.statusCode).to.equal(500);
+        expect(res.request.response._error).to.be.an.error('Partitioned cookies must have SameSite=None');
+    });
 });
