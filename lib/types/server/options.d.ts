@@ -10,6 +10,7 @@ import { SameSitePolicy, ServerStateCookieOptions } from './state';
 
 export interface ServerOptionsCompression {
     minBytes: number;
+    priority: string[];
 }
 
 /**

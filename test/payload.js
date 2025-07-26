@@ -549,6 +549,30 @@ describe('Payload', () => {
         expect(res.result).to.equal(message);
     });
 
+    it('handles zstd payload', async () => {
+
+        const message = { 'msg': 'This message is going to be zstded.' };
+        const server = Hapi.server();
+        server.route({ method: 'POST', path: '/', handler: (request) => request.payload });
+
+        const compressed = await new Promise((resolve) => Zlib.zstdCompress(JSON.stringify(message), (ignore, result) => resolve(result)));
+
+        const request = {
+            method: 'POST',
+            url: '/',
+            headers: {
+                'content-type': 'application/json',
+                'content-encoding': 'zstd',
+                'content-length': compressed.length
+            },
+            payload: compressed
+        };
+
+        const res = await server.inject(request);
+        expect(res.result).to.exist();
+        expect(res.result).to.equal(message);
+    });
+
     it('handles custom compression', async () => {
 
         const message = { 'msg': 'This message is going to be gzipped.' };
