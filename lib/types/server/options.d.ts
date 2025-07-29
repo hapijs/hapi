@@ -9,6 +9,8 @@ import { CacheProvider, ServerOptionsCache } from './cache';
 import { SameSitePolicy, ServerStateCookieOptions } from './state';
 
 export interface ServerOptionsCompression {
+    enableBrotli: boolean;
+    enableZstd: boolean;
     minBytes: number;
     priority: string[];
 }

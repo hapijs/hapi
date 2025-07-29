@@ -103,6 +103,18 @@ Default value: `{ minBytes: 1024 }`.
 Defines server handling of content encoding requests. If `false`, response content encoding is
 disabled and no compression is performed by the server.
 
+##### <a name="server.options.compression.enableBrotli" /> `server.options.compression.enableBrotli`
+
+Default value: `false`.
+
+Enables built-in support of `brotli` compression algorithm.
+
+##### <a name="server.options.compression.enableZstd" /> `server.options.compression.enableZstd`
+
+Default value: `false`.
+
+Enables built-in support of `zstd` compression algorithm.
+
 ##### <a name="server.options.compression.minBytes" /> `server.options.compression.minBytes`
 
 Default value: '1024'.
