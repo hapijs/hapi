@@ -6,8 +6,7 @@ import { MimosOptions } from '@hapi/mimos';
 import { PluginSpecificConfiguration } from '../plugin';
 import { RouteOptions } from '../route';
 import { CacheProvider, ServerOptionsCache } from './cache';
-import { SameSitePolicy } from './state';
-import { ServerStateCookieOptions } from './state';
+import { SameSitePolicy, ServerStateCookieOptions } from './state';
 
 export interface ServerOptionsCompression {
     minBytes: number;
