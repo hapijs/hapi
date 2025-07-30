@@ -7,6 +7,7 @@ import { PluginSpecificConfiguration } from '../plugin';
 import { RouteOptions } from '../route';
 import { CacheProvider, ServerOptionsCache } from './cache';
 import { SameSitePolicy } from './state';
+import { ServerStateCookieOptions } from './state';
 
 export interface ServerOptionsCompression {
     minBytes: number;
@@ -208,16 +209,7 @@ export interface ServerOptions {
      * }
      * Sets the default configuration for every state (cookie) set explicitly via server.state() or implicitly (without definition) using the state configuration object.
      */
-    // TODO I am not sure if I need to use all the server.state() definition (like the default value) OR only the options below. The v16 use "any" here.
-    // state?: ServerStateCookieOptions;
-    state?: {
-        strictHeader?: boolean | undefined;
-        ignoreErrors?: boolean | undefined;
-        isSecure?: boolean | undefined;
-        isHttpOnly?: boolean | undefined;
-        isSameSite?: SameSitePolicy | undefined;
-        encoding?: 'none' | 'base64' | 'base64json' | 'form' | 'iron' | undefined;
-    } | undefined;
+    state?: ServerStateCookieOptions | undefined;
 
     /**
      * @default none.
