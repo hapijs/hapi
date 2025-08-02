@@ -109,11 +109,24 @@ Default value: `false`.
 
 Enables built-in support of `brotli` compression algorithm.
 
+Available values:
+
+- `false` - no compression.
+- `true` - compression with system defaults.
+- [`BrotliOptions`](https://nodejs.org/api/zlib.html#class-brotlioptions) - compression with specified options.
+
 ##### <a name="server.options.compression.enableZstd" /> `server.options.compression.enableZstd`
 
 Default value: `false`.
 
-Enables built-in support of `zstd` compression algorithm.
+Enables built-in support of `zstd` compression algorithm.  
+Zstd compression is experimental (see [node Zstd documentation](https://nodejs.org/api/zlib.html#zlibcreatezstdcompressoptions)).
+
+Available values:
+
+- `false` - no compression.
+- `true` - compression with system defaults.
+- [`ZstdOptions`](https://nodejs.org/api/zlib.html#class-zstdoptions) - compression with specified options.
 
 ##### <a name="server.options.compression.minBytes" /> `server.options.compression.minBytes`
 
