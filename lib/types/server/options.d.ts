@@ -1,6 +1,6 @@
 import * as http from 'http';
 import * as https from 'https';
-import { BrotliOptions, ZstdOptions } from 'node:zlib';
+import { BrotliOptions, ZstdOptions } from 'zlib';
 
 import { MimosOptions } from '@hapi/mimos';
 
