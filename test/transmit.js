@@ -16,7 +16,6 @@ const Hoek = require('@hapi/hoek');
 const Bounce = require('@hapi/bounce');
 const Inert = require('@hapi/inert');
 const Lab = require('@hapi/lab');
-const Somever = require('@hapi/somever');
 const Teamwork = require('@hapi/teamwork');
 const Wreck = require('@hapi/wreck');
 
@@ -678,7 +677,7 @@ describe('transmission', () => {
             expect(res3.headers['last-modified']).to.equal(res2.headers['last-modified']);
         });
 
-        it('returns a zstded file in the response when the request accepts zstd', { skip: Somever.match(process.version, '<22.15.0') }, async () => {
+        it('returns a zstded file in the response when the request accepts zstd', { skip: !Common.hasZstd }, async () => {
 
             const server = Hapi.server({ compression: { enableZstd: true, minBytes: 1 }, routes: { files: { relativeTo: __dirname } } });
             await server.register(Inert);
@@ -809,7 +808,7 @@ describe('transmission', () => {
             expect(res.headers['content-length']).to.not.exist();
         });
 
-        it('returns a zstd response on a post request when accept-encoding: zstd is requested', { skip: Somever.match(process.version, '<22.15.0') }, async () => {
+        it('returns a zstd response on a post request when accept-encoding: zstd is requested', { skip: !Common.hasZstd }, async () => {
 
             const data = '{"test":"true"}';
 
@@ -824,7 +823,7 @@ describe('transmission', () => {
             await server.stop();
         });
 
-        it('returns a zstd response on a get request when accept-encoding: zstd is requested', { skip: Somever.match(process.version, '<22.15.0') }, async () => {
+        it('returns a zstd response on a get request when accept-encoding: zstd is requested', { skip: !Common.hasZstd }, async () => {
 
             const data = '{"test":"true"}';
 
@@ -1039,7 +1038,7 @@ describe('transmission', () => {
             await server.stop();
         });
 
-        it('returns a zstd response on a post request when accept-encoding: gzip;q=1, deflate;q=0.5, br;q=0.7; zstd;q=1 is requested', { skip: Somever.match(process.version, '<22.15.0') }, async () => {
+        it('returns a zstd response on a post request when accept-encoding: gzip;q=1, deflate;q=0.5, br;q=0.7; zstd;q=1 is requested', { skip: !Common.hasZstd }, async () => {
 
             const data = '{"test":"true"}';
             const server = Hapi.server({ compression: { enableZstd: true, minBytes: 1 } });
@@ -1053,7 +1052,7 @@ describe('transmission', () => {
             await server.stop();
         });
 
-        it('returns a zstd response on a get request when accept-encoding: gzip;q=1, deflate;q=0.5, br;q=0.7, zstd;q=1 is requested', { skip: Somever.match(process.version, '<22.15.0') }, async () => {
+        it('returns a zstd response on a get request when accept-encoding: gzip;q=1, deflate;q=0.5, br;q=0.7, zstd;q=1 is requested', { skip: !Common.hasZstd }, async () => {
 
             const data = '{"test":"true"}';
             const server = Hapi.server({ compression: { enableZstd: true, minBytes: 1 } });
@@ -1123,7 +1122,7 @@ describe('transmission', () => {
             await server.stop();
         });
 
-        it('returns a zstd response on a post request when accept-encoding: gzip, deflate, br, zstd is requested', { skip: Somever.match(process.version, '<22.15.0') }, async () => {
+        it('returns a zstd response on a post request when accept-encoding: gzip, deflate, br, zstd is requested', { skip: !Common.hasZstd }, async () => {
 
             const data = '{"test":"true"}';
             const server = Hapi.server({ compression: { enableZstd: true, minBytes: 1 } });
@@ -1137,7 +1136,7 @@ describe('transmission', () => {
             await server.stop();
         });
 
-        it('returns a zstd response on a get request when accept-encoding: gzip, deflate, br, zstd is requested', { skip: Somever.match(process.version, '<22.15.0') }, async () => {
+        it('returns a zstd response on a get request when accept-encoding: gzip, deflate, br, zstd is requested', { skip: !Common.hasZstd }, async () => {
 
             const data = '{"test":"true"}';
             const server = Hapi.server({ compression: { enableZstd: true, minBytes: 1 } });

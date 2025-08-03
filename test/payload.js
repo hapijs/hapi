@@ -12,8 +12,9 @@ const Code = require('@hapi/code');
 const Hapi = require('..');
 const Hoek = require('@hapi/hoek');
 const Lab = require('@hapi/lab');
-const Somever = require('@hapi/somever');
 const Wreck = require('@hapi/wreck');
+
+const Common = require('./common');
 
 const internals = {};
 
@@ -550,7 +551,7 @@ describe('Payload', () => {
         expect(res.result).to.equal(message);
     });
 
-    it('handles zstd payload', { skip: Somever.match(process.version, '<22.15.0') }, async () => {
+    it('handles zstd payload', { skip: !Common.hasZstd }, async () => {
 
         const message = { 'msg': 'This message is going to be zstded.' };
         const server = Hapi.server({ compression: { enableZstd: true } });
