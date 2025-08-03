@@ -119,7 +119,7 @@ Available values:
 
 Default value: `false`.
 
-Enables built-in support of `zstd` compression algorithm (node `>=22.15.0`).  
+Enables built-in support of `zstd` compression algorithm (node: `>=22.15.0`).  
 Zstd compression is experimental (see [node Zstd documentation](https://nodejs.org/api/zlib.html#zlibcreatezstdcompressoptions)).
 
 Available values:
