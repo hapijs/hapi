@@ -103,12 +103,44 @@ Default value: `{ minBytes: 1024 }`.
 Defines server handling of content encoding requests. If `false`, response content encoding is
 disabled and no compression is performed by the server.
 
+##### <a name="server.options.compression.enableBrotli" /> `server.options.compression.enableBrotli`
+
+Default value: `false`.
+
+Enables built-in support of `brotli` compression algorithm.
+
+Available values:
+
+- `false` - no compression.
+- `true` - compression with system defaults.
+- [`BrotliOptions`](https://nodejs.org/api/zlib.html#class-brotlioptions) - compression with specified options.
+
+##### <a name="server.options.compression.enableZstd" /> `server.options.compression.enableZstd`
+
+Default value: `false`.
+
+Enables built-in support of `zstd` compression algorithm (node: `>=22.15.0`).  
+Zstd compression is experimental (see [node Zstd documentation](https://nodejs.org/api/zlib.html#zlibcreatezstdcompressoptions)).
+
+Available values:
+
+- `false` - no compression.
+- `true` - compression with system defaults.
+- [`ZstdOptions`](https://nodejs.org/api/zlib.html#class-zstdoptions) - compression with specified options.
+
 ##### <a name="server.options.compression.minBytes" /> `server.options.compression.minBytes`
 
 Default value: '1024'.
 
 Sets the minimum response payload size in bytes that is required for content encoding compression.
 If the payload size is under the limit, no compression is performed.
+
+##### <a name="server.options.compression.priority" /> `server.options.compression.priority`
+
+Default value: `null`.
+
+Sets the priority for content encoding compression algorithms in descending order,
+e.g.: `['zstd', 'br', 'gzip', 'deflate']`.
 
 #### <a name="server.options.debug" /> `server.options.debug`
 

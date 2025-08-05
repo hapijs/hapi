@@ -14,6 +14,8 @@ const Hoek = require('@hapi/hoek');
 const Lab = require('@hapi/lab');
 const Wreck = require('@hapi/wreck');
 
+const Common = require('./common');
+
 const internals = {};
 
 
@@ -515,6 +517,54 @@ describe('Payload', () => {
             headers: {
                 'content-type': 'application/json',
                 'content-encoding': 'deflate',
+                'content-length': compressed.length
+            },
+            payload: compressed
+        };
+
+        const res = await server.inject(request);
+        expect(res.result).to.exist();
+        expect(res.result).to.equal(message);
+    });
+
+    it('handles br payload', async () => {
+
+        const message = { 'msg': 'This message is going to be brotlied.' };
+        const server = Hapi.server({ compression: { enableBrotli: true } });
+        server.route({ method: 'POST', path: '/', handler: (request) => request.payload });
+
+        const compressed = await new Promise((resolve) => Zlib.brotliCompress(JSON.stringify(message), (ignore, result) => resolve(result)));
+
+        const request = {
+            method: 'POST',
+            url: '/',
+            headers: {
+                'content-type': 'application/json',
+                'content-encoding': 'br',
+                'content-length': compressed.length
+            },
+            payload: compressed
+        };
+
+        const res = await server.inject(request);
+        expect(res.result).to.exist();
+        expect(res.result).to.equal(message);
+    });
+
+    it('handles zstd payload', { skip: !Common.hasZstd }, async () => {
+
+        const message = { 'msg': 'This message is going to be zstded.' };
+        const server = Hapi.server({ compression: { enableZstd: true } });
+        server.route({ method: 'POST', path: '/', handler: (request) => request.payload });
+
+        const compressed = await new Promise((resolve) => Zlib.zstdCompress(JSON.stringify(message), (ignore, result) => resolve(result)));
+
+        const request = {
+            method: 'POST',
+            url: '/',
+            headers: {
+                'content-type': 'application/json',
+                'content-encoding': 'zstd',
                 'content-length': compressed.length
             },
             payload: compressed
