@@ -1447,6 +1447,15 @@ describe('transmission', () => {
             const handler = (request, h) => {
 
                 const stream = new Stream.Readable({ read: Hoek.ignore });
+                if (stream.errored === undefined) {
+
+                    // Expose errored property on node 14 & 16 to enable coverage
+
+                    stream.on('error', () => {
+
+                        stream.errored = true;
+                    });
+                }
 
                 stream.push('hello');
                 Hoek.wait(1).then(() => stream.destroy(new Error('failed')));
