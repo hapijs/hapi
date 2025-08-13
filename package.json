@@ -32,13 +32,13 @@
     "@hapi/catbox": "^12.1.1",
     "@hapi/catbox-memory": "^6.0.2",
     "@hapi/heavy": "^8.0.1",
-    "@hapi/hoek": "^11.0.6",
+    "@hapi/hoek": "^11.0.7",
     "@hapi/mimos": "^7.0.1",
-    "@hapi/podium": "^5.0.1",
-    "@hapi/shot": "^6.0.1",
+    "@hapi/podium": "^5.0.2",
+    "@hapi/shot": "^6.0.2",
     "@hapi/somever": "^4.1.1",
     "@hapi/statehood": "^8.2.0",
-    "@hapi/subtext": "^8.1.0",
+    "@hapi/subtext": "^8.1.1",
     "@hapi/teamwork": "^6.0.0",
     "@hapi/topo": "^6.0.2",
     "@hapi/validate": "^2.0.1"
@@ -51,11 +51,11 @@
     "@hapi/lab": "^25.3.2",
     "@hapi/vision": "^7.0.3",
     "@hapi/wreck": "^18.1.0",
-    "@types/node": "^18.19.59",
+    "@types/node": "^18.19.122",
     "handlebars": "^4.7.8",
     "joi": "^17.13.3",
     "legacy-readable-stream": "npm:readable-stream@^1.0.34",
-    "typescript": "^4.9.4"
+    "typescript": "^4.9.5"
   },
   "scripts": {
     "test": "lab -a @hapi/code -t 100 -L -m 5000 -Y",
