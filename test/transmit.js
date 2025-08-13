@@ -1418,6 +1418,63 @@ describe('transmission', () => {
             expect(count).to.equal(1);
         });
 
+        it('handles stream that is destroyed with no error', async () => {
+
+            const handler = (request, h) => {
+
+                const stream = new Stream.Readable({ read: Hoek.ignore });
+
+                stream.push('hello');
+                Hoek.wait(1).then(() => stream.destroy());
+
+                return h.response(stream).type('text/html');
+            };
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler });
+
+            const log = server.events.once('response');
+            const err = await expect(server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } })).to.reject(Boom.Boom);
+            expect(err.output.statusCode).to.equal(499);
+
+            const [request] = await log;
+            expect(request.response.isBoom).to.be.true();
+            expect(request.response.output.statusCode).to.equal(499);
+        });
+
+        it('handles stream that is destroyed with error', async () => {
+
+            const handler = (request, h) => {
+
+                const stream = new Stream.Readable({ read: Hoek.ignore });
+                if (stream.errored === undefined) {
+
+                    // Expose errored property on node 14 & 16 to enable coverage
+
+                    stream.on('error', () => {
+
+                        stream.errored = true;
+                    });
+                }
+
+                stream.push('hello');
+                Hoek.wait(1).then(() => stream.destroy(new Error('failed')));
+
+                return h.response(stream).type('text/html');
+            };
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler });
+
+            const log = server.events.once('response');
+            const err = await expect(server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } })).to.reject(Boom.Boom);
+            expect(err.output.statusCode).to.equal(499);
+
+            const [request] = await log;
+            expect(request.response.isBoom).to.be.true();
+            expect(request.response.output.statusCode).to.equal(500);
+        });
+
         describe('response range', () => {
 
             const fileStreamHandler = (request, h) => {
