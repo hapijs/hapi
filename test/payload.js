@@ -530,7 +530,7 @@ describe('Payload', () => {
     it('handles br payload', async () => {
 
         const message = { 'msg': 'This message is going to be brotlied.' };
-        const server = Hapi.server({ compression: { enableBrotli: true } });
+        const server = Hapi.server({ compression: { encodings: { br: true } } });
         server.route({ method: 'POST', path: '/', handler: (request) => request.payload });
 
         const compressed = await new Promise((resolve) => Zlib.brotliCompress(JSON.stringify(message), (ignore, result) => resolve(result)));
@@ -554,7 +554,7 @@ describe('Payload', () => {
     it('handles zstd payload', { skip: !Common.hasZstd }, async () => {
 
         const message = { 'msg': 'This message is going to be zstded.' };
-        const server = Hapi.server({ compression: { enableZstd: true } });
+        const server = Hapi.server({ compression: { encodings: { zstd: true } } });
         server.route({ method: 'POST', path: '/', handler: (request) => request.payload });
 
         const compressed = await new Promise((resolve) => Zlib.zstdCompress(JSON.stringify(message), (ignore, result) => resolve(result)));

@@ -98,35 +98,27 @@ assigned one or more (array):
 
 #### <a name="server.options.compression" /> `server.options.compression`
 
-Default value: `{ minBytes: 1024 }`.
+Default value: `{ encodings: { gzip: true, deflate: true, br: false, zstd: false }, minBytes: 1024 }`.
 
 Defines server handling of content encoding requests. If `false`, response content encoding is
-disabled and no compression is performed by the server.
+disabled, and no compression is performed by the server.
 
-##### <a name="server.options.compression.enableBrotli" /> `server.options.compression.enableBrotli`
+#### <a name="server.options.compression.encodings" /> `server.options.compression.encodings`
 
-Default value: `false`.
+Default value: `{ gzip: true, deflate: true, br: false, zstd: false }`.
 
-Enables built-in support of `brotli` compression algorithm.
+Configures the built-in support of compression algorithms aka encodings, represented by the object of kv pairs.
 
-Available values:
+Available values for each kv pair:
 
-- `false` - no compression.
-- `true` - compression with system defaults.
-- [`BrotliOptions`](https://nodejs.org/api/zlib.html#class-brotlioptions) - compression with specified options.
+- `true` - enables the encoding with default options.
+- `false` - disables the encoding.
+- `{...options}` - enables the encoding using custom options specific to each particular algorithm.
 
-##### <a name="server.options.compression.enableZstd" /> `server.options.compression.enableZstd`
-
-Default value: `false`.
-
-Enables built-in support of `zstd` compression algorithm (node: `>=22.15.0`).  
 Zstd compression is experimental (see [node Zstd documentation](https://nodejs.org/api/zlib.html#zlibcreatezstdcompressoptions)).
 
-Available values:
-
-- `false` - no compression.
-- `true` - compression with system defaults.
-- [`ZstdOptions`](https://nodejs.org/api/zlib.html#class-zstdoptions) - compression with specified options.
+Disabling an encoding allows custom compression algorithm to be applied by
+[`server.encoder()`](#server.encoder()) and [`server.decoder()`](#server.decoder()).
 
 ##### <a name="server.options.compression.minBytes" /> `server.options.compression.minBytes`
 
