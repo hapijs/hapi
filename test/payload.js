@@ -500,7 +500,7 @@ describe('Payload', () => {
 
         const res = await server.inject(request);
         expect(res.result).to.exist();
-        expect(res.statusCode).to.be.range(400, 499);
+        expect(res.statusCode).to.equal(415);
     });
 
     it('handles gzipped payload', async () => {
