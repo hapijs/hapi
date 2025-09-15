@@ -479,6 +479,30 @@ describe('Payload', () => {
         expect(peeked).to.be.true();
     });
 
+    it('rejects compressed payload when decompression is disabled', async () => {
+
+        const message = { 'msg': 'This message is going to be gzipped.' };
+        const server = Hapi.server({ compression: { decompress: false } });
+        server.route({ method: 'POST', path: '/', handler: (request) => request.payload });
+
+        const compressed = await new Promise((resolve) => Zlib.gzip(JSON.stringify(message), (ignore, result) => resolve(result)));
+
+        const request = {
+            method: 'POST',
+            url: '/',
+            headers: {
+                'content-type': 'application/json',
+                'content-encoding': 'gzip',
+                'content-length': compressed.length
+            },
+            payload: compressed
+        };
+
+        const res = await server.inject(request);
+        expect(res.result).to.exist();
+        expect(res.statusCode).to.be.range(400, 499);
+    });
+
     it('handles gzipped payload', async () => {
 
         const message = { 'msg': 'This message is going to be gzipped.' };

@@ -98,10 +98,17 @@ assigned one or more (array):
 
 #### <a name="server.options.compression" /> `server.options.compression`
 
-Default value: `{ encodings: { gzip: true, deflate: true, br: false, zstd: false }, minBytes: 1024 }`.
+Default value: `{ decompress: true, encodings: { gzip: true, deflate: true, br: false, zstd: false }, minBytes: 1024 }`.
 
 Defines server handling of content encoding requests. If `false`, response content encoding is
 disabled, and no compression is performed by the server.
+
+#### <a name="server.options.compression.decompress" /> `server.options.compression.decompress`
+
+Default value: `true`.
+
+Controls whether the server automatically decompresses incoming content encoding requests.
+If `false`, no decompression automatically performed by the server.
 
 #### <a name="server.options.compression.encodings" /> `server.options.compression.encodings`
 
