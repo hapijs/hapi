@@ -113,7 +113,8 @@ Available values for each kv pair:
 
 - `true` - enables the encoding with default options.
 - `false` - disables the encoding.
-- `{...options}` - enables the encoding using custom options specific to each particular algorithm.
+
+Note that default encoder and decoder options can be configured at the server default [route configuration](#server.options.routes)
 
 Zstd compression is experimental (see [node Zstd documentation](https://nodejs.org/api/zlib.html#zlibcreatezstdcompressoptions)).
 
@@ -1314,8 +1315,7 @@ are called, where:
 
 ### <a name="server.decoder()" /> `server.decoder(encoding, decoder)`
 
-Registers a custom content decoding compressor to extend the built-in support for `'gzip'` and
-'`deflate`' where:
+Registers a custom content decoding compressor to extend the built-in support where:
 
 - `encoding` - the decoder name string.
 
@@ -1511,8 +1511,7 @@ The `dependencies` configuration accepts one of:
 
 ### <a name="server.encoder()" /> `server.encoder(encoding, encoder)`
 
-Registers a custom content encoding compressor to extend the built-in support for `'gzip'` and
-'`deflate`' where:
+Registers a custom content encoding compressor to extend the built-in support where:
 
 - `encoding` - the encoder name string.
 

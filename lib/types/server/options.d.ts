@@ -1,6 +1,5 @@
 import * as http from 'http';
 import * as https from 'https';
-import { BrotliOptions, ZstdOptions, ZlibOptions } from 'zlib';
 
 import { MimosOptions } from '@hapi/mimos';
 
@@ -11,10 +10,10 @@ import { SameSitePolicy, ServerStateCookieOptions } from './state';
 
 export interface ServerOptionsCompression {
     encodings?: {
-        gzip?: boolean | ZlibOptions;
-        deflate?: boolean | ZlibOptions;
-        br?: boolean | BrotliOptions;
-        zstd?: boolean | ZstdOptions;
+        gzip?: boolean;
+        deflate?: boolean;
+        br?: boolean;
+        zstd?: boolean;
     };
     minBytes: number;
     priority?: string[];
