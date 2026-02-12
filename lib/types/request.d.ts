@@ -89,6 +89,8 @@ export interface RequestAuth<
      * set to false.
      */
     isAuthorized: boolean;
+    /** true if the request has been authenticated via the `server.inject()` `auth` option, otherwise `undefined`. */
+    isInjected?: boolean | undefined;
     /** the route authentication mode. */
     mode: AuthMode;
     /** the name of the strategy used. */
@@ -303,11 +305,7 @@ export type ReqRef = Partial<Record<keyof ReqRefDefaults, unknown>>;
 /**
  * Utilities for merging request refs and other things
  */
-export type MergeType<T, U> = {
-    [K in keyof T]: K extends keyof U
-        ? U[K]
-        : T[K];
-};
+export type MergeType<T, U> = Omit<T, keyof U> & U;
 
 export type MergeRefs<T extends ReqRef> = MergeType<ReqRefDefaults, T>;
 

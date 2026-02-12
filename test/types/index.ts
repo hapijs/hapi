@@ -4,6 +4,7 @@ import * as CatboxMemory from '@hapi/catbox-memory';
 
 import {
     Plugin,
+    ReqRef,
     Request,
     RequestRoute,
     ResponseToolkit,
@@ -68,20 +69,20 @@ interface RequestDecorations {
         prefix: string[];
     },
     AuthUser: {
-        id: string,
-        name: string
-        email: string
+        id: string;
+        name: string;
+        email: string;
     },
     AuthCredentialsExtra: {
-        test: number
-    }
+        test: number;
+    },
     AuthApp: {
-        key: string
-        name: string
+        key: string;
+        name: string;
     },
     AuthArtifactsExtra: {
-        some: string
-        thing: number
+        some: string;
+        thing: number;
     }
 }
 
@@ -287,3 +288,64 @@ server.decorate('server', 'obj3_1', { func5: theFunc });
 // Error when extending on server with objects
 // @ts-expect-error Lab does not support overload errors
 check.error(() => server.decorate('server', 'obj3_1', { func5: theFunc }, { apply: true, extend: true }));
+
+// Issue #4561 - Generic Request<Refs> should resolve augmented ReqRefDefaults auth properties
+
+interface ExtraCred {
+    extra_id: string;
+}
+
+interface UserProfile {
+    id: string;
+}
+
+declare module '../..' {
+    interface ReqRefDefaults {
+        AuthCredentialsExtra: Partial<ExtraCred>;
+    }
+}
+
+// Generic route (no custom refs) should see augmented UserCredentials
+const genericAuthRoute: ServerRoute = {
+    method: 'GET',
+    path: '/auth-check',
+    handler: (request, h) => {
+
+        check.type<string>(request.auth.credentials.user!.someId);
+        check.type<string>(request.auth.credentials.user!.someName);
+
+        const credIsAny: IsAny<typeof request.auth.credentials> = false;
+
+        return 'ok';
+    }
+};
+
+// Generic function should see augmented credentials from ReqRefDefaults
+export function processAuthGeneric<Refs extends ReqRef>(req: Request<Refs>): void {
+
+    if (req.auth.isAuthenticated && req.auth.credentials.extra_id) {
+        check.type<string | undefined>(req.auth.credentials.extra_id);
+    }
+}
+
+// Non-generic Request should also see augmented credentials
+export function processAuthConcrete(req: Request): void {
+
+    if (req.auth.isAuthenticated && req.auth.credentials.extra_id) {
+        check.type<string | undefined>(req.auth.credentials.extra_id);
+    }
+
+    // credentials should NOT resolve to `any`
+    const credIsAny: IsAny<typeof req.auth.credentials> = false;
+    const artifactsIsAny: IsAny<typeof req.auth.artifacts> = false;
+}
+
+// Generic function should accept Request with specific route refs
+interface SpecificRouteRefs {
+    Params: { id: string };
+}
+
+export function callWithSpecificRefs(req: Request<SpecificRouteRefs>): void {
+
+    processAuthGeneric(req);
+}
