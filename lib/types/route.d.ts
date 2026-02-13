@@ -358,7 +358,7 @@ export interface RouteOptionsPreObject<Refs extends ReqRef = ReqRefDefaults> {
     /**
      * key name used to assign the response of the method to in request.pre and request.preResponses.
      */
-    assign?: keyof Refs['Pres'] | undefined;
+    assign?: keyof MergeRefs<Refs>['Pres'] | undefined;
     /**
      * A failAction value which determine what to do when a pre-handler method throws an error. If assign is specified and the failAction setting is not 'error', the error will be assigned.
      */
@@ -978,5 +978,5 @@ export interface ServerRoute<Refs extends ReqRef = ReqRefDefaults> {
     /**
      * route custom rules object. The object is passed to each rules processor registered with server.rules(). Cannot be used if route.options.rules is defined.
      */
-    rules?: Refs['Rules'] | undefined;
+    rules?: MergeRefs<Refs>['Rules'] | undefined;
 }

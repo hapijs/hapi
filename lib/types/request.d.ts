@@ -252,7 +252,7 @@ export interface RequestLog {
 }
 
 export interface RequestQuery {
-    [key: string]: any;
+    [key: string]: string | string[] | undefined;
 }
 
 /**
@@ -271,9 +271,9 @@ export interface InternalRequestDefaults {
 
     Payload: stream.Readable | Buffer | string | object;
     Query: RequestQuery;
-    Params: Record<string, any>;
+    Params: Record<string, string>;
     Pres: Record<string, any>;
-    Headers: Record<string, any>;
+    Headers: Record<string, string | string[] | undefined>;
     RequestApp: RequestApplicationState;
 
     AuthUser: UserCredentials;
@@ -439,7 +439,7 @@ export interface Request<Refs extends ReqRef = ReqRefDefaults> extends Podium {
     /**
      * Same as pre but represented as the response object created by the pre method.
      */
-    readonly preResponses: Record<string, any>;
+    readonly preResponses: Record<string, unknown>;
 
     /**
      * By default the object outputted from node's URL parse() method.
@@ -472,7 +472,7 @@ export interface Request<Refs extends ReqRef = ReqRefDefaults> extends Podium {
     /**
      * An object containing parsed HTTP state information (cookies) where each key is the cookie name and value is the matching cookie content after processing using any registered cookie definition.
      */
-    readonly state: Record<string, any>;
+    readonly state: Record<string, unknown>;
 
     /**
      * The parsed request URI.

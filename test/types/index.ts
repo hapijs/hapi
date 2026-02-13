@@ -349,3 +349,169 @@ export function callWithSpecificRefs(req: Request<SpecificRouteRefs>): void {
 
     processAuthGeneric(req);
 }
+
+// =============================================================================
+// ReqRef System Issue Tests
+// Each section demonstrates a specific weakness in the current type system.
+// These tests produce VISIBLE compiler errors to demonstrate each problem.
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// ISSUE 1: Direct Refs['Key'] access bypasses MergeRefs (route.d.ts:361)
+//
+// RouteOptionsPreObject.assign uses `keyof Refs['Pres']` instead of
+// `keyof MergeRefs<Refs>['Pres']`. When the user doesn't explicitly provide
+// `Pres` in their Refs, `Refs['Pres']` is `unknown` (from ReqRef's
+// Partial<Record<..., unknown>>), so `keyof unknown` is `never`.
+// This means `assign` is impossible unless Pres is explicitly provided.
+// -----------------------------------------------------------------------------
+
+// This should compile — the user only customizes Params, and the default
+// Pres (Record<string, any>) should allow any string for `assign`.
+// ERROR: Type '"user"' is not assignable to type 'never'.
+const issuePreAssign: ServerRoute<{ Params: { id: string } }> = {
+    method: 'GET',
+    path: '/users/{id}',
+    options: {
+        pre: [
+            {
+                method: (request, h) => ({ name: 'test' }),
+                assign: 'user'                                  // TS ERROR — should work
+            }
+        ],
+        handler: (request, h) => 'ok'
+    }
+};
+
+// -----------------------------------------------------------------------------
+// ISSUE 2: Params defaults to Record<string, any> — allows unsafe access
+//
+// URL path params are ALWAYS strings at runtime (before Joi validation), but
+// the default type Record<string, any> means TypeScript allows anything.
+// These assignments should all be errors but none are.
+// -----------------------------------------------------------------------------
+
+const issueParamsAny: ServerRoute = {
+    method: 'GET',
+    path: '/items/{id}',
+    handler: (request, h) => {
+
+        // FIXED: Params now correctly typed as Record<string, string>
+        // @ts-expect-error - params are strings, not numbers
+        const id: number = request.params.id;
+        // @ts-expect-error - params are strings, not boolean[]
+        const wat: boolean[] = request.params.id;
+
+        // FIXED: params is no longer `any`
+        const paramsIsAny: IsAny<typeof request.params.id> = false;
+
+        return 'ok';
+    }
+};
+
+// -----------------------------------------------------------------------------
+// ISSUE 3: Headers defaults to Record<string, any>
+//
+// Node's http.IncomingHttpHeaders types headers as string | string[] | undefined.
+// The Record<string, any> default loses this.
+// -----------------------------------------------------------------------------
+
+const issueHeadersAny: ServerRoute = {
+    method: 'GET',
+    path: '/headers',
+    handler: (request, h) => {
+
+        // FIXED: Headers now correctly typed as Record<string, string | string[] | undefined>
+        // @ts-expect-error - headers are string | string[] | undefined, not number
+        const auth: number = request.headers.authorization;
+
+        // FIXED: headers is no longer `any`
+        const headersIsAny: IsAny<typeof request.headers.authorization> = false;
+
+        return 'ok';
+    }
+};
+
+// -----------------------------------------------------------------------------
+// ISSUE 4: Default RequestQuery has [key: string]: any index signature
+//
+// Without a Query override, any access on request.query is `any`.
+// -----------------------------------------------------------------------------
+
+const issueQueryAny: ServerRoute = {
+    method: 'GET',
+    path: '/search',
+    handler: (request, h) => {
+
+        // FIXED: Query now correctly typed as Record<string, string | string[] | undefined>
+        // @ts-expect-error - query values are string | string[] | undefined, not number
+        const page: number = request.query.page;
+        // @ts-expect-error - query values are string | string[] | undefined, not boolean[]
+        const wat: boolean[] = request.query.anything;
+
+        // FIXED: query is no longer `any`
+        const queryIsAny: IsAny<typeof request.query.page> = false;
+
+        return 'ok';
+    }
+};
+
+// -----------------------------------------------------------------------------
+// ISSUE 5: Request<CustomRefs> not assignable to Request<ReqRefDefaults>
+//
+// A function taking Request (no generic) can't accept Request<{ Params: ... }>
+// even though the custom refs only NARROW a property. Users are forced to
+// choose between generic (accepts all) or concrete (sees defaults).
+// -----------------------------------------------------------------------------
+
+export function concreteHelper(req: Request): string | undefined {
+
+    if (req.auth.credentials.extra_id) {
+        return req.auth.credentials.extra_id;
+    }
+
+    return undefined;
+}
+
+interface MyRouteRefs {
+    Params: { id: string };
+    Query: { expand: string };
+}
+
+// KNOWN LIMITATION: Request<MyRouteRefs> is not assignable to Request<ReqRefDefaults>
+// because TypeScript checks generic interface compatibility invariantly when
+// the generic appears in contravariant positions (e.g. lifecycle method parameters).
+// Workaround: use a generic function like processAuthGeneric<Refs> above instead
+// of concrete Request (no generic) for helper functions that need to accept
+// requests with different Refs.
+export function issueConcreteVsGeneric(req: Request<MyRouteRefs>): void {
+
+    // @ts-expect-error - Known TS limitation: Request<CustomRefs> not assignable to Request<ReqRefDefaults>
+    concreteHelper(req);
+}
+
+// -----------------------------------------------------------------------------
+// ISSUE 6: state and preResponses are not extensible through ReqRef
+//
+// These properties use hardcoded Record<string, any> and are NOT wired
+// through InternalRequestDefaults/ReqRef, so users can't type them.
+// -----------------------------------------------------------------------------
+
+const issueStateAny: ServerRoute = {
+    method: 'GET',
+    path: '/state',
+    handler: (request, h) => {
+
+        // FIXED: state is now Record<string, unknown> — requires type narrowing
+        // @ts-expect-error - state values are unknown, not directly assignable to number
+        const session: number = request.state.session;
+
+        // FIXED: state is no longer `any`
+        const stateIsAny: IsAny<typeof request.state.session> = false;
+
+        // FIXED: preResponses is no longer `any`
+        const preRespIsAny: IsAny<typeof request.preResponses.myPre> = false;
+
+        return 'ok';
+    }
+};
