@@ -89,6 +89,8 @@ export interface RequestAuth<
      * set to false.
      */
     isAuthorized: boolean;
+    /** true if the request has been authenticated via the `server.inject()` `auth` option, otherwise `undefined`. */
+    isInjected?: boolean | undefined;
     /** the route authentication mode. */
     mode: AuthMode;
     /** the name of the strategy used. */
@@ -250,7 +252,7 @@ export interface RequestLog {
 }
 
 export interface RequestQuery {
-    [key: string]: any;
+    [key: string]: string | string[] | undefined;
 }
 
 /**
@@ -269,9 +271,9 @@ export interface InternalRequestDefaults {
 
     Payload: stream.Readable | Buffer | string | object;
     Query: RequestQuery;
-    Params: Record<string, any>;
+    Params: Record<string, string>;
     Pres: Record<string, any>;
-    Headers: Record<string, any>;
+    Headers: Record<string, string | string[] | undefined>;
     RequestApp: RequestApplicationState;
 
     AuthUser: UserCredentials;
@@ -303,11 +305,7 @@ export type ReqRef = Partial<Record<keyof ReqRefDefaults, unknown>>;
 /**
  * Utilities for merging request refs and other things
  */
-export type MergeType<T, U> = {
-    [K in keyof T]: K extends keyof U
-        ? U[K]
-        : T[K];
-};
+export type MergeType<T, U> = Omit<T, keyof U> & U;
 
 export type MergeRefs<T extends ReqRef> = MergeType<ReqRefDefaults, T>;
 
@@ -441,7 +439,7 @@ export interface Request<Refs extends ReqRef = ReqRefDefaults> extends Podium {
     /**
      * Same as pre but represented as the response object created by the pre method.
      */
-    readonly preResponses: Record<string, any>;
+    readonly preResponses: Record<string, unknown>;
 
     /**
      * By default the object outputted from node's URL parse() method.
@@ -474,7 +472,7 @@ export interface Request<Refs extends ReqRef = ReqRefDefaults> extends Podium {
     /**
      * An object containing parsed HTTP state information (cookies) where each key is the cookie name and value is the matching cookie content after processing using any registered cookie definition.
      */
-    readonly state: Record<string, any>;
+    readonly state: Record<string, unknown>;
 
     /**
      * The parsed request URI.
