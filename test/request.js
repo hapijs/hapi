@@ -123,6 +123,36 @@ describe('Request.Generator', () => {
 
 describe('Request', () => {
 
+    it('sets host and hostname', async () => {
+
+        const server = Hapi.server();
+
+        const handler = (request) => {
+
+            return [request.info.host, request.info.hostname].join('|');
+        };
+
+        server.route({ method: 'GET', path: '/', handler });
+
+        const res1 = await server.inject({ url: '/', headers: { host: 'host' } });
+        expect(res1.payload).to.equal('host|host');
+
+        const res2 = await server.inject({ url: '/', headers: { host: 'host:123' } });
+        expect(res2.payload).to.equal('host:123|host');
+
+        const res3 = await server.inject({ url: '/', headers: { host: '127.0.0.1' } });
+        expect(res3.payload).to.equal('127.0.0.1|127.0.0.1');
+
+        const res4 = await server.inject({ url: '/', headers: { host: '127.0.0.1:123' } });
+        expect(res4.payload).to.equal('127.0.0.1:123|127.0.0.1');
+
+        const res5 = await server.inject({ url: '/', headers: { host: '[::1]' } });
+        expect(res5.payload).to.equal('[::1]|[::1]');
+
+        const res6 = await server.inject({ url: '/', headers: { host: '[::1]:123' } });
+        expect(res6.payload).to.equal('[::1]:123|[::1]');
+    });
+
     it('sets client address (default)', async (flags) => {
 
         const server = Hapi.server();
