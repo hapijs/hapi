@@ -1,4 +1,4 @@
-import { RequestRoute } from './request';
+import { RequestRoute, ReqRef, ReqRefDefaults } from './request';
 import { RouteOptions } from './route';
 import { Server } from './server';
 import { Lifecycle } from './utils';
@@ -47,7 +47,7 @@ export interface PluginRegistered {
 export interface PluginsStates {
 }
 
-export interface PluginSpecificConfiguration {
+export interface PluginSpecificConfiguration<Refs extends ReqRef = ReqRefDefaults> {
 }
 
 export interface PluginNameVersion {
