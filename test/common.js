@@ -3,6 +3,7 @@
 const ChildProcess = require('child_process');
 const Http = require('http');
 const Net = require('net');
+const Zlib = require('zlib');
 
 const internals = {};
 
@@ -30,3 +31,5 @@ internals.hasIPv6 = () => {
 exports.hasLsof = internals.hasLsof();
 
 exports.hasIPv6 = internals.hasIPv6();
+
+exports.hasZstd = !!Zlib.constants.ZSTD_CLEVEL_DEFAULT;
