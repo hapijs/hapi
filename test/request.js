@@ -363,6 +363,16 @@ describe('Request', () => {
         expect(res.payload).to.equal('shot');
     });
 
+    it('sets host info from :authority header when host header is absent', async () => {
+
+        const server = Hapi.server();
+        server.route({ method: 'GET', path: '/', handler: (request) => `${request.info.host}|${request.info.hostname}` });
+
+        const res = await server.inject({ url: '/', headers: { host: '', ':authority': 'example.com:8080' } });
+        expect(res.statusCode).to.equal(200);
+        expect(res.result).to.equal('example.com:8080|example.com');
+    });
+
     it('generates unique request id', async () => {
 
         const server = Hapi.server();
@@ -1764,6 +1774,23 @@ describe('Request', () => {
             const res = await server.inject('/test?a=1');
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal('/test');
+        });
+
+        it('generates valid URL when server host is IPv6 and host header is absent', async () => {
+
+            const server = Hapi.server({ host: '::1' });
+
+            const handler = (request) => {
+
+                delete request.info.host;
+                expect(request._url).to.not.exist();
+                return request.url.host;
+            };
+
+            server.route({ path: '/test', method: 'GET', handler });
+            const res = await server.inject('/test');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.match(/^\[::1\]:\d+$/);
         });
     });
 
