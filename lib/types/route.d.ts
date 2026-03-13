@@ -331,6 +331,12 @@ export interface RouteOptionsPayload {
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspayloaduploads)
      */
     uploads?: string | undefined;
+
+    /**
+     * @default Querystring.parse().
+     * Query parser implementation fro application/x-www-form-urlencoded data
+     */
+    querystring?: (query: string) => { [key: string]: unknown };
 }
 
 /**
