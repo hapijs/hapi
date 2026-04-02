@@ -38,7 +38,7 @@
     "@hapi/shot": "^6.0.2",
     "@hapi/somever": "^4.1.1",
     "@hapi/statehood": "^8.2.1",
-    "@hapi/subtext": "^8.1.1",
+    "@hapi/subtext": "^8.1.2",
     "@hapi/teamwork": "^6.0.1",
     "@hapi/topo": "^6.0.2",
     "@hapi/validate": "^2.0.1"
@@ -52,7 +52,7 @@
     "@hapi/vision": "^7.0.3",
     "@hapi/wreck": "^18.1.0",
     "@types/node": "^18.19.130",
-    "handlebars": "^4.7.8",
+    "handlebars": "^4.7.9",
     "joi": "^17.13.3",
     "legacy-readable-stream": "npm:readable-stream@^1.0.34",
     "typescript": "^5.9.3"
