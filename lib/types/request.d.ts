@@ -252,7 +252,7 @@ export interface RequestLog {
 }
 
 export interface RequestQuery {
-    [key: string]: string | string[] | undefined;
+    [key: string]: unknown;
 }
 
 /**
@@ -271,9 +271,9 @@ export interface InternalRequestDefaults {
 
     Payload: stream.Readable | Buffer | string | object;
     Query: RequestQuery;
-    Params: Record<string, string>;
+    Params: Record<string, unknown>;
     Pres: Record<string, any>;
-    Headers: Record<string, string | string[] | undefined>;
+    Headers: Record<string, unknown>;
     RequestApp: RequestApplicationState;
 
     AuthUser: UserCredentials;

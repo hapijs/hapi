@@ -5,6 +5,7 @@ import * as CatboxMemory from '@hapi/catbox-memory';
 import {
     Plugin,
     ReqRef,
+    ReqRefDefaults,
     Request,
     RequestRoute,
     ResponseToolkit,
@@ -106,7 +107,7 @@ const route: ServerRoute<RequestDecorations> = {
 
         request.app.word = 'x';
 
-        check.type<Record<string, string>>(request.params);
+        check.type<Record<string, unknown>>(request.params);
         check.type<number>(request.server.app.multi!);
         check.type<string[]>(request.route.settings.app!.prefix);
 
@@ -383,73 +384,61 @@ const issuePreAssign: ServerRoute<{ Params: { id: string } }> = {
     }
 };
 
-// -----------------------------------------------------------------------------
-// ISSUE 2: Params defaults to Record<string, any> — allows unsafe access
-//
-// URL path params are ALWAYS strings at runtime (before Joi validation), but
-// the default type Record<string, any> means TypeScript allows anything.
-// These assignments should all be errors but none are.
-// -----------------------------------------------------------------------------
+// ISSUE 2: Params default is `Record<string, unknown>` — Joi-driven
+// conversion can change the runtime type, so callsites must narrow.
 
 const issueParamsAny: ServerRoute = {
     method: 'GET',
     path: '/items/{id}',
     handler: (request, h) => {
 
-        // FIXED: Params now correctly typed as Record<string, string>
-        // @ts-expect-error - params are strings, not numbers
-        const id: number = request.params.id;
-        // @ts-expect-error - params are strings, not boolean[]
+        // @ts-expect-error - unknown is not number
+        const idAsNum: number = request.params.id;
+        // @ts-expect-error - unknown is not string (compiled pre-fix when Params was Record<string, string>)
+        const idAsStr: string = request.params.id;
+        // @ts-expect-error - unknown is not boolean[]
         const wat: boolean[] = request.params.id;
 
-        // FIXED: params is no longer `any`
         const paramsIsAny: IsAny<typeof request.params.id> = false;
 
         return 'ok';
     }
 };
 
-// -----------------------------------------------------------------------------
-// ISSUE 3: Headers defaults to Record<string, any>
-//
-// Node's http.IncomingHttpHeaders types headers as string | string[] | undefined.
-// The Record<string, any> default loses this.
-// -----------------------------------------------------------------------------
+// ISSUE 3: Headers default is `Record<string, unknown>` — header validation
+// can transform values (e.g. `x-date` → Date).
 
 const issueHeadersAny: ServerRoute = {
     method: 'GET',
     path: '/headers',
     handler: (request, h) => {
 
-        // FIXED: Headers now correctly typed as Record<string, string | string[] | undefined>
-        // @ts-expect-error - headers are string | string[] | undefined, not number
+        // @ts-expect-error - unknown is not number
         const auth: number = request.headers.authorization;
+        // @ts-expect-error - unknown is not string (issue #4563 — was assignable in 21.4.4)
+        const xCustom: string = request.headers['x-custom-header'];
 
-        // FIXED: headers is no longer `any`
         const headersIsAny: IsAny<typeof request.headers.authorization> = false;
 
         return 'ok';
     }
 };
 
-// -----------------------------------------------------------------------------
-// ISSUE 4: Default RequestQuery has [key: string]: any index signature
-//
-// Without a Query override, any access on request.query is `any`.
-// -----------------------------------------------------------------------------
+// ISSUE 4: Query default is `[key: string]: unknown` — the configured parser
+// (e.g. `qs` yields objects) and validation determine the runtime shape.
 
 const issueQueryAny: ServerRoute = {
     method: 'GET',
     path: '/search',
     handler: (request, h) => {
 
-        // FIXED: Query now correctly typed as Record<string, string | string[] | undefined>
-        // @ts-expect-error - query values are string | string[] | undefined, not number
+        // @ts-expect-error - unknown is not number
         const page: number = request.query.page;
-        // @ts-expect-error - query values are string | string[] | undefined, not boolean[]
+        // @ts-expect-error - unknown is not string
+        const q: string = request.query.q;
+        // @ts-expect-error - unknown is not boolean[]
         const wat: boolean[] = request.query.anything;
 
-        // FIXED: query is no longer `any`
         const queryIsAny: IsAny<typeof request.query.page> = false;
 
         return 'ok';
@@ -515,3 +504,76 @@ const issueStateAny: ServerRoute = {
         return 'ok';
     }
 };
+
+// Headers/Params can be widened via global augmentation.
+
+type Extends<A, B> = A extends B ? true : false;
+
+interface ParsedHeaders {
+    [key: string]: string | string[] | Date | number | undefined;
+}
+const _widensHeaders: Extends<ParsedHeaders, ReqRefDefaults['Headers']> = true;
+
+interface ConvertedParams { [key: string]: string | number; }
+const _widensParams: Extends<ConvertedParams, ReqRefDefaults['Params']> = true;
+
+// Global Query augmentation must compile under `unknown` defaults and
+// propagate through every generic position that reads MergeRefs<Refs>['Query'].
+
+declare module '../..' {
+    interface ReqRefDefaults {
+        Query: {
+            [key: string]: string | string[] | Record<string, object> | undefined;
+        };
+    }
+}
+
+type AugmentedQuery = string | string[] | Record<string, object> | undefined;
+
+// ServerRoute with no generic — augmented Query flows in via Request<ReqRefDefaults>.
+const augNoGeneric: ServerRoute = {
+    method: 'GET',
+    path: '/aug-no-generic',
+    handler: (request, h) => {
+
+        check.type<AugmentedQuery>(request.query.anything);
+        return 'ok';
+    }
+};
+server.route(augNoGeneric);
+
+// ServerRoute with partial Refs override — Query falls through MergeRefs as augmented.
+const augPartialRefs: ServerRoute<{ Params: { id: string } }> = {
+    method: 'GET',
+    path: '/aug-partial/{id}',
+    handler: (request, h) => {
+
+        check.type<AugmentedQuery>(request.query.foo);
+        check.type<string>(request.params.id);
+        return 'ok';
+    }
+};
+server.route(augPartialRefs);
+
+// Lifecycle.Method (no generic) — same augmented Query.
+const augLifecycle: Lifecycle.Method = (request, h) => {
+
+    check.type<AugmentedQuery>(request.query.x);
+    return 'ok';
+};
+augLifecycle.length;  // keep referenced
+
+// Per-route Query override still replaces the augmented default outright.
+const qsParsedRoute: ServerRoute<{ Query: { filter: Record<string, unknown>; q?: string } }> = {
+    method: 'GET',
+    path: '/qs',
+    handler: (request, h) => {
+
+        check.type<Record<string, unknown>>(request.query.filter);
+        check.type<string | undefined>(request.query.q);
+
+        return 'ok';
+    }
+};
+
+server.route(qsParsedRoute);

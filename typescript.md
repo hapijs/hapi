@@ -49,10 +49,10 @@ Defines every customizable key and its default type:
 | Key                    | Default Type                                      | Controls                                       |
 | ---------------------- | ------------------------------------------------- | ---------------------------------------------- |
 | `Payload`              | `stream.Readable \| Buffer \| string \| object`   | `request.payload`                              |
-| `Query`                | `Record<string, string \| string[] \| undefined>` | `request.query`                                |
-| `Params`               | `Record<string, string>`                          | `request.params`                               |
+| `Query`                | `RequestQuery` (`Record<string, unknown>`)        | `request.query`                                |
+| `Params`               | `Record<string, unknown>`                         | `request.params`                               |
 | `Pres`                 | `Record<string, any>`                             | `request.pre`                                  |
-| `Headers`              | `Record<string, string \| string[] \| undefined>` | `request.headers`                              |
+| `Headers`              | `Record<string, unknown>`                         | `request.headers`                              |
 | `RequestApp`           | `RequestApplicationState`                         | `request.app`                                  |
 | `AuthUser`             | `UserCredentials`                                 | `request.auth.credentials.user`                |
 | `AuthApp`              | `AppCredentials`                                  | `request.auth.credentials.app`                 |
@@ -117,7 +117,7 @@ const route: ServerRoute<MyRefs> = {
 
 ### Params
 
-Default: `Record<string, string>`. URL path parameters are always strings at runtime (before validation), so the default type reflects this.
+Default: `Record<string, unknown>`. Raw path params are strings; Joi conversion can change that at runtime, so the default forces narrowing.
 
 ```typescript
 // Override with specific param names
@@ -136,7 +136,7 @@ const route: ServerRoute<{ Params: { userId: string; postId: string } }> = {
 
 ### Query
 
-Default: `Record<string, string | string[] | undefined>`. Query params may be strings, arrays (repeated keys), or absent.
+Default: `RequestQuery`, an augmentable interface with `[key: string]: unknown`. The shape depends on the configured parser (default produces `string | string[] | undefined`; `qs` yields nested objects) and on validation. Narrow per-route, or augment `RequestQuery` globally.
 
 ```typescript
 interface SearchQuery {
@@ -185,7 +185,7 @@ const route: ServerRoute<{ Payload: CreateUserPayload }> = {
 
 ### Headers
 
-Default: `Record<string, string | string[] | undefined>`. Matches Node's `http.IncomingHttpHeaders` behavior. Override only if you need to narrow specific header names.
+Default: `Record<string, unknown>`. Raw headers match Node's `http.IncomingHttpHeaders` (`string | string[] | undefined`); validation can produce anything, so the default forces narrowing.
 
 
 ### RequestApp
