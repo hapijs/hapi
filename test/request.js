@@ -474,6 +474,56 @@ describe('Request', () => {
                 testComplete: false
             });
         });
+
+        it('returns false after client closes connection before response is sent', { retry: true }, async (flags) => {
+
+            // Regression test: IncomingMessage 'aborted' event was removed in Node.js v24.
+            // Verify that an early client disconnect still causes active() to return false.
+
+            const handlerTeam = new Teamwork.Team();
+
+            const server = Hapi.server();
+            flags.onCleanup = () => server.stop();
+
+            let client;
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    handler: async (request) => {
+
+                        // Drop the connection from the client side
+                        client.destroy();
+
+                        // Poll until the server-side close propagates
+                        const deadline = Date.now() + 2000;
+                        while (request.active() && Date.now() < deadline) {
+                            await Hoek.wait(10);
+                        }
+
+                        handlerTeam.attend({ active: request.active() });
+                        return null;
+                    }
+                }
+            });
+
+            await server.start();
+
+            await new Promise((resolve) => {
+
+                client = Net.connect(server.info.port, () => {
+
+                    client.write('GET / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n');
+                    resolve();
+                });
+
+                client.on('error', Hoek.ignore);
+            });
+
+            const result = await handlerTeam.work;
+            expect(result.active).to.be.false();
+        });
     });
 
     describe('_execute()', () => {
