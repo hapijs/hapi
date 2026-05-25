@@ -803,6 +803,59 @@ describe('Request', () => {
             await server.stop();
         });
 
+        it('does not double emit request-error when disconnectStatusCode is 500', { retry: true }, async (flags) => {
+
+            const server = Hapi.server({ debug: false });
+            const team = new Teamwork.Team();
+            let emitCount = 0;
+            const errors = [];
+
+            server.events.on({ name: 'request', channels: 'error' }, (request, event) => {
+
+                emitCount++;
+                errors.push(event.error.message);
+            });
+
+            const handler = async (request) => {
+
+                clientRequest.destroy();
+                await Hoek.wait(10);
+                team.attend();
+                throw new Error('late failure');
+            };
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler,
+                options: {
+                    response: {
+                        disconnectStatusCode: 500
+                    }
+                }
+            });
+
+            await server.start();
+            flags.onCleanup = () => server.stop();
+
+            const clientRequest = Http.request({
+                hostname: 'localhost',
+                port: server.info.port,
+                method: 'GET'
+            });
+
+            clientRequest.on('error', Hoek.ignore);
+            clientRequest.end();
+
+            await team.work;
+            await Hoek.wait(50);
+
+            expect(emitCount).to.equal(1);
+            expect(errors).to.equal(['late failure']);
+
+            await server.stop();
+        });
+
         it('does not fail on abort (onPreHandler)', async () => {
 
             const server = Hapi.server();
