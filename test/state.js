@@ -236,4 +236,27 @@ describe('state', () => {
         expect(res.statusCode).to.equal(500);
         expect(res.request.response._error).to.be.an.error('Partitioned cookies must have SameSite=None');
     });
+
+    it('returns 500 without crashing when a cookie value is rejected by Node', async () => {
+
+        // Non-ASCII cookie values pass statehood's strictHeader regex but Node's
+        // setHeader rejects them (ERR_INVALID_CHAR). The error path must not
+        // re-apply the same Set-Cookie or the process crashes (#4527).
+
+        const server = Hapi.server({ debug: false });
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: (request, h) => h.response('ok').state('cookieName2', 'тест')
+        });
+
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(500);
+        expect(res.headers['set-cookie']).to.not.exist();
+        expect(res.result).to.equal({
+            statusCode: 500,
+            error: 'Internal Server Error',
+            message: 'An internal server error occurred'
+        });
+    });
 });
