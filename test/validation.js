@@ -601,6 +601,49 @@ describe('validation', () => {
             });
         });
 
+        it('retains boom data from validation error', async () => {
+
+            const server = Hapi.server();
+            const error = Boom.badRequest('My message', { my: 'data' });
+            server.validator(Joi);
+            server.ext('onPreResponse', (request, h) => {
+
+                if (request.response.isBoom) {
+                    request.response.output.payload = {
+                        error: {
+                            message: request.response.message,
+                            data: request.response.data
+                        }
+                    };
+                }
+
+                return h.continue;
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: () => 'ok',
+                options: {
+                    validate: {
+                        query: Joi.object({
+                            a: Joi.required().error(error)
+                        })
+                    }
+                }
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(400);
+            expect(res.result).to.equal({
+                error: {
+                    message: 'My message',
+                    data: { my: 'data' }
+                }
+            });
+            expect(error.data).to.equal({ my: 'data' });
+        });
+
         it('catches error thrown in failAction', async () => {
 
             const server = Hapi.server({ debug: false });
