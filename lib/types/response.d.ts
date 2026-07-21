@@ -412,7 +412,7 @@ export interface Auth<
  * document the h notation is used. It is named in the spirit of the RethinkDB r method, with h for hapi.
  * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#response-toolkit)
  */
-export interface ResponseToolkit<Refs extends ReqRef = ReqRefDefaults> {
+export interface ResponseToolkit<out Refs extends ReqRef = {}> {
     /**
      * A response symbol. When returned by a lifecycle method, the request lifecycle skips to the finalizing step
      * without further interaction with the node response stream. It is the developer's responsibility to write

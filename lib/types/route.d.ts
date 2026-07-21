@@ -336,12 +336,12 @@ export interface RouteOptionsPayload {
 /**
  * For context [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspre)
  */
-export type RouteOptionsPreArray<Refs extends ReqRef = ReqRefDefaults> = RouteOptionsPreAllOptions<Refs>[];
+export type RouteOptionsPreArray<Refs extends ReqRef = {}> = RouteOptionsPreAllOptions<Refs>[];
 
 /**
  * For context [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspre)
  */
-export type RouteOptionsPreAllOptions<Refs extends ReqRef = ReqRefDefaults> = RouteOptionsPreObject<Refs> | RouteOptionsPreObject<Refs>[] | Lifecycle.Method<Refs>;
+export type RouteOptionsPreAllOptions<Refs extends ReqRef = {}> = RouteOptionsPreObject<Refs> | RouteOptionsPreObject<Refs>[] | Lifecycle.Method<Refs>;
 
 /**
  * An object with:
@@ -350,7 +350,7 @@ export type RouteOptionsPreAllOptions<Refs extends ReqRef = ReqRefDefaults> = Ro
  * * failAction - A failAction value which determine what to do when a pre-handler method throws an error. If assign is specified and the failAction setting is not 'error', the error will be assigned.
  * For context [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionspre)
  */
-export interface RouteOptionsPreObject<Refs extends ReqRef = ReqRefDefaults> {
+export interface RouteOptionsPreObject<Refs extends ReqRef = {}> {
     /**
      * a lifecycle method.
      */
@@ -358,7 +358,7 @@ export interface RouteOptionsPreObject<Refs extends ReqRef = ReqRefDefaults> {
     /**
      * key name used to assign the response of the method to in request.pre and request.preResponses.
      */
-    assign?: keyof MergeRefs<Refs>['Pres'] | undefined;
+    assign?: Extract<keyof MergeRefs<Refs>['Pres'], string> | (string & {}) | undefined;
     /**
      * A failAction value which determine what to do when a pre-handler method throws an error. If assign is specified and the failAction setting is not 'error', the error will be assigned.
      */
@@ -640,7 +640,7 @@ export interface RouteOptionsValidate {
     state?: RouteOptionsResponseSchema | undefined;
 }
 
-export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
+export interface CommonRouteProperties<Refs extends ReqRef = {}> {
     /**
      * Application-specific route configuration state. Should not be used by plugins which should use options.plugins[name] instead.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-routeoptionsapp)
@@ -886,7 +886,7 @@ export interface AuthSettings {
     access?: AccessSetting[] | undefined;
 }
 
-export interface RouteSettings<Refs extends ReqRef = ReqRefDefaults> extends CommonRouteProperties<Refs> {
+export interface RouteSettings<Refs extends ReqRef = {}> extends CommonRouteProperties<Refs> {
     auth?: AuthSettings | undefined;
 }
 
@@ -894,7 +894,7 @@ export interface RouteSettings<Refs extends ReqRef = ReqRefDefaults> extends Com
  * Each route can be customized to change the default behavior of the request lifecycle.
  * For context [See docs](https://github.com/hapijs/hapi/blob/master/API.md#route-options)
  */
-export interface RouteOptions<Refs extends ReqRef = ReqRefDefaults> extends CommonRouteProperties<Refs> {
+export interface RouteOptions<Refs extends ReqRef = {}> extends CommonRouteProperties<Refs> {
     /**
      * Route authentication configuration. Value can be:
      * false to disable authentication if a default strategy is set.
@@ -915,14 +915,14 @@ export interface RulesInfo {
     vhost: string;
 }
 
-export interface RulesOptions<Refs extends ReqRef = ReqRefDefaults> {
+export interface RulesOptions<Refs extends ReqRef = {}> {
     validate: {
         schema?: ObjectSchema<MergeRefs<Refs>['Rules']> | Record<keyof MergeRefs<Refs>['Rules'], Schema> | undefined;
         options?: ValidationOptions | undefined;
     };
 }
 
-export interface RulesProcessor<Refs extends ReqRef = ReqRefDefaults> {
+export interface RulesProcessor<Refs extends ReqRef = {}> {
     (rules: MergeRefs<Refs>['Rules'] | null, info: RulesInfo): Partial<RouteOptions<Refs>> | null;
 }
 
@@ -943,7 +943,7 @@ type RouteDefMethods = Exclude<HTTP_METHODS | Lowercase<HTTP_METHODS>, 'HEAD' | 
  * * rules - route custom rules object. The object is passed to each rules processor registered with server.rules(). Cannot be used if route.options.rules is defined.
  * For context [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverrouteroute)
  */
-export interface ServerRoute<Refs extends ReqRef = ReqRefDefaults> {
+export interface ServerRoute<Refs extends ReqRef = {}> {
     /**
      * (required) the absolute path used to match incoming requests (must begin with '/'). Incoming requests are compared to the configured paths based on the server's router configuration. The path
      * can include named parameters enclosed in {} which will be matched against literal values in the request as described in Path parameters. For context [See

@@ -26,7 +26,7 @@ export type ServerAuthScheme<
     // tslint:disable-next-line no-unnecessary-generics
     Options extends ServerAuthSchemeOptions = ServerAuthSchemeOptions,
     // tslint:disable-next-line no-unnecessary-generics
-    Refs extends ReqRef = ReqRefDefaults
+    Refs extends ReqRef = {}
 > = (server: Server, options?: Options) => ServerAuthSchemeObject<Refs>;
 
 export interface ServerAuthSchemeObjectApi {}
@@ -36,7 +36,7 @@ export interface ServerAuthSchemeObjectApi {}
  * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#authentication-scheme)
  */
 
-export interface ServerAuthSchemeObject<Refs extends ReqRef = ReqRefDefaults> {
+export interface ServerAuthSchemeObject<Refs extends ReqRef = {}> {
     /**
      * optional object which is exposed via the [server.auth.api](https://github.com/hapijs/hapi/blob/master/API.md#server.auth.api) object.
      */
@@ -155,7 +155,7 @@ export interface ServerAuth {
      */
 
     scheme <
-        Refs extends ReqRef = ReqRefDefaults,
+        Refs extends ReqRef = {},
         Options extends object = {}
     // tslint:disable-next-line no-unnecessary-generics
     >(name: string, scheme: ServerAuthScheme<Options, Refs>): void;
@@ -197,5 +197,5 @@ export interface ServerAuth {
      * entity, or other route properties.
      */
     // tslint:disable-next-line no-unnecessary-generics
-    verify <Refs extends ReqRef = ReqRefDefaults>(request: Request<Refs>): Promise<void>;
+    verify <Refs extends ReqRef = {}>(request: Request<Refs>): Promise<void>;
 }

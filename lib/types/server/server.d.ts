@@ -621,7 +621,7 @@ export class Server<A = ServerApplicationState> {
      * Note that the options object is deeply cloned (with the exception of bind which is shallowly copied) and cannot contain any values that are unsafe to perform deep copy on.
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverrouteroute)
      */
-    route <Refs extends ReqRef = ReqRefDefaults>(route: ServerRoute<Refs> | ServerRoute<Refs>[]): void;
+    route <Refs extends ReqRef = {}>(route: ServerRoute<Refs> | ServerRoute<Refs>[]): void;
 
     /**
      * Defines a route rules processor for converting route rules object into route configuration where:
@@ -642,7 +642,7 @@ export class Server<A = ServerApplicationState> {
      * @return void
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-serverrulesprocessor-options)
      */
-    rules <Refs extends ReqRef = ReqRefDefaults>(
+    rules <Refs extends ReqRef = {}>(
         processor: RulesProcessor<Refs>,
         options?: RulesOptions<Refs> | undefined
     ): void;

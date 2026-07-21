@@ -65,7 +65,7 @@ export interface ServerExtEventsObject<A = ServerApplicationState> {
     options?: ServerExtOptions | undefined;
 }
 
-export interface RouteExtObject<Refs extends ReqRef = ReqRefDefaults> {
+export interface RouteExtObject<Refs extends ReqRef = {}> {
     method: Lifecycle.Method<Refs>;
     options?: ServerExtOptions | undefined;
 }

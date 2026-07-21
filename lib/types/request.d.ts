@@ -199,7 +199,7 @@ export interface RequestInfo {
  * * fingerprint - the route internal normalized string representing the normalized path.
  * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-requestroute)
  */
-export interface RequestRoute<Refs extends ReqRef = ReqRefDefaults> {
+export interface RequestRoute<Refs extends ReqRef = {}> {
     /** the route HTTP method. */
     method: Exclude<Lowercase<HTTP_METHODS>, 'head'> | '*';
 
@@ -314,7 +314,7 @@ export type MergeRefs<T extends ReqRef> = MergeType<ReqRefDefaults, T>;
  * HTTP server callback (which is available via [request.raw.req](https://github.com/hapijs/hapi/blob/master/API.md#request.raw)). The request properties change throughout
  * the request [lifecycle](https://github.com/hapijs/hapi/blob/master/API.md#request-lifecycle).
  */
-export interface Request<Refs extends ReqRef = ReqRefDefaults> extends Podium {
+export interface Request<out Refs extends ReqRef = {}> extends Podium {
     /**
      * Application-specific state. Provides a safe place to store application data without potential conflicts with the framework. Should not be used by plugins which should use plugins[name].
      * [See docs](https://github.com/hapijs/hapi/blob/master/API.md#-requestapp)
@@ -404,7 +404,7 @@ export interface Request<Refs extends ReqRef = ReqRefDefaults> extends Podium {
     /**
      * An array containing all the path params values in the order they appeared in the path.
      */
-    readonly paramsArray: keyof MergeRefs<Refs>['Params'] | string[];
+    readonly paramsArray: string[];
 
     /**
      * The request URI's pathname component.
