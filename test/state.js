@@ -1,5 +1,6 @@
 'use strict';
 
+const Boom = require('@hapi/boom');
 const Code = require('@hapi/code');
 const Hapi = require('..');
 const Lab = require('@hapi/lab');
@@ -113,6 +114,34 @@ describe('state', () => {
         expect(res.headers['set-cookie'][0]).to.equal('a=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; HttpOnly; SameSite=Strict');
     });
 
+    it('clears invalid cookies on error 500 response', async () => {
+
+        const server = Hapi.server();
+        server.state('a', { ignoreErrors: true, encoding: 'base64json', clearInvalid: true });
+        server.route({ path: '/', method: 'GET', handler: () => {
+
+            throw new Error('Fail');
+        } });
+        const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x' } });
+        expect(res.statusCode).to.equal(500);
+        expect(res.headers['set-cookie'][0]).to.equal('a=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; HttpOnly; SameSite=Strict');
+    });
+
+    it('does not clear unregistered cookie on error 500 response', async () => {
+
+        const server = Hapi.server();
+        server.route({
+            path: '/', method: 'GET', handler: (request, h) => {
+
+                h.unstate('a');
+                throw new Error('Fail');
+            }
+        });
+        const res = await server.inject({ method: 'GET', url: '/', headers: { cookie: 'a=x' } });
+        expect(res.statusCode).to.equal(500);
+        expect(res.headers['set-cookie']).to.not.exist();
+    });
+
     it('sets cookie value automatically', async () => {
 
         const server = Hapi.server();
@@ -168,11 +197,13 @@ describe('state', () => {
         expect(res.headers['set-cookie']).to.equal(['always=sweet; Secure; HttpOnly; SameSite=Strict']);
     });
 
-    it('fails to set cookie value automatically using function', async () => {
+    it('returns error 500 response when automatic value throws', async () => {
 
+        let called = 0;
         const present = (request) => {
 
-            throw new Error();
+            ++called;
+            throw Boom.forbidden();
         };
 
         const server = Hapi.server();
@@ -182,6 +213,49 @@ describe('state', () => {
         const res = await server.inject('/');
         expect(res.statusCode).to.equal(500);
         expect(res.headers['set-cookie']).to.not.exist();
+        expect(called).to.equal(1);
+    });
+
+    it('handles automatic value throw with non-Error', async () => {
+
+        let called = 0;
+        const present = (request) => {
+
+            ++called;
+            throw 'fail';
+        };
+
+        const server = Hapi.server({ debug: false });
+        server.route({ method: 'GET', path: '/', handler: () => 'ok' });
+        server.state('always', { autoValue: present });
+
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(500);
+        expect(res.headers['set-cookie']).to.not.exist();
+        expect(res.request.response._error).to.be.an.error('A non-Error value was thrown');
+        expect(called).to.equal(1);
+    });
+
+    it('does not send autoValue cookie on error 500 response', async () => {
+
+        let called = 0;
+        const present = (request) => {
+
+            ++called;
+            return 'present';
+        };
+
+        const server = Hapi.server();
+        server.route({ method: 'GET', path: '/', handler: () => {
+
+            throw new Error('Fail');
+        } });
+        server.state('always', { autoValue: present });
+
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(500);
+        expect(res.headers['set-cookie']).to.not.exist();
+        expect(called).to.equal(0);
     });
 
     it('sets cookie value with null ttl', async () => {
@@ -235,5 +309,18 @@ describe('state', () => {
         const res = await server.inject('/?x=TEST');
         expect(res.statusCode).to.equal(500);
         expect(res.request.response._error).to.be.an.error('Partitioned cookies must have SameSite=None');
+    });
+
+    it('returns error 500 for invalid cookie values', async () => {
+
+        const server = Hapi.server({ debug: false });
+
+        server.state('a', { encoding: 'none' });
+        server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('ok').state('a', 'тест') });
+
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(500);
+        expect(res.headers['set-cookie']).to.not.exist();
+        expect(res.request.response._error).to.be.an.error(TypeError);
     });
 });

@@ -2540,7 +2540,7 @@ across multiple requests. Registers a cookie definitions where:
 
     - `domain` - the domain scope. Defaults to `null` (no domain).
 
-    - `autoValue` - if present and the cookie was not received from the client or explicitly set by the route handler, the cookie is automatically added to the response with the provided value. The value can be a function with signature `async function(request)` where:
+    - `autoValue` - if present and the cookie was not received from the client or explicitly set by the route handler, the cookie is automatically added to the response with the provided value, unless state parsing is disabled or the response code is 500. The value can be a function with signature `async function(request)` where:
 
         - `request` - the [request object](#request).
 
