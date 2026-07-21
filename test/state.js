@@ -197,6 +197,17 @@ describe('state', () => {
         expect(res.headers['set-cookie']).to.equal(['always=sweet; Secure; HttpOnly; SameSite=Strict']);
     });
 
+    it('does not respond with automatic value when state parsing is disabled', async () => {
+
+        const server = Hapi.server();
+        server.route({ method: 'GET', path: '/', handler: () => 'ok', options: { state: { parse: false } } });
+        server.state('always', { autoValue: 'present' });
+
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(200);
+        expect(res.headers['set-cookie']).to.not.exist();
+    });
+
     it('returns error 500 response when automatic value throws', async () => {
 
         let called = 0;
