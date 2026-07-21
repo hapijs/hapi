@@ -478,15 +478,12 @@ interface MyRouteRefs {
     Query: { expand: string };
 }
 
-// KNOWN LIMITATION: Request<MyRouteRefs> is not assignable to Request<ReqRefDefaults>
-// because TypeScript checks generic interface compatibility invariantly when
-// the generic appears in contravariant positions (e.g. lifecycle method parameters).
-// Workaround: use a generic function like processAuthGeneric<Refs> above instead
-// of concrete Request (no generic) for helper functions that need to accept
-// requests with different Refs.
+// FIXED: Request is covariant in Refs (`out` annotation, default of `{}`),
+// so a request with narrower refs is assignable to helpers typed with plain
+// Request. The generic-function workaround (processAuthGeneric above) is no
+// longer required.
 export function issueConcreteVsGeneric(req: Request<MyRouteRefs>): void {
 
-    // @ts-expect-error - Known TS limitation: Request<CustomRefs> not assignable to Request<ReqRefDefaults>
     concreteHelper(req);
 }
 
@@ -515,3 +512,120 @@ const issueStateAny: ServerRoute = {
         return 'ok';
     }
 };
+
+// -----------------------------------------------------------------------------
+// ISSUE 7: Refs mismatches between lifecycle methods and their surfaces
+//
+// FIXED: Lifecycle.Method is bivariant (method-signature exemption from
+// strictFunctionTypes) and Request/ResponseToolkit are covariant in Refs with
+// a default of `{}`. Consequences, each exercised below:
+//   - a method typed with narrower Refs attaches to surfaces typed with the
+//     defaults: server.ext(), route-level ext, failAction, pre;
+//   - a route typed with a superset of refs accepts methods typed with any
+//     subset of those refs (reusable pres);
+//   - an untyped route infers its Refs from a typed handler;
+//   - contradictory refs and default-to-narrow flows still fail.
+// -----------------------------------------------------------------------------
+
+interface VariancePayload {
+    email: string;
+}
+
+interface VarianceUser {
+    id: string;
+}
+
+const typedPayloadMethod: Lifecycle.Method<{ Payload: VariancePayload }> = (request) => {
+
+    check.type<VariancePayload>(request.payload);
+    return 'ok';
+};
+
+const typedPreMethod: Lifecycle.Method<{ Pres: { user: VarianceUser } }> = (request) => {
+
+    check.type<VarianceUser>(request.pre.user);
+    return 'ok';
+};
+
+// A method with narrower Refs attaches to default-typed extension points
+
+server.ext('onPreHandler', typedPayloadMethod);
+
+const varianceDefaultSurfaces: ServerRoute = {
+    method: 'POST',
+    path: '/variance/default-surfaces',
+    options: {
+        validate: {
+            payload: true,
+            failAction: typedPayloadMethod
+        },
+        ext: {
+            onPreHandler: { method: typedPayloadMethod }
+        },
+        handler: () => 'ok'
+    }
+};
+
+// A route typed with the superset of refs accepts subset-typed methods
+
+const varianceSuperset: ServerRoute<{
+    Payload: VariancePayload;
+    Pres: { user: VarianceUser };
+}> = {
+    method: 'POST',
+    path: '/variance/superset',
+    options: {
+        pre: [
+            { method: typedPayloadMethod, assign: 'user' },
+            { method: typedPreMethod }
+        ],
+        handler: typedPayloadMethod
+    }
+};
+
+// An untyped route infers its Refs from the typed methods it is given
+
+server.route({
+    method: 'POST',
+    path: '/variance/inferred',
+    options: {
+        pre: [{ method: typedPayloadMethod, assign: 'login' }],
+        handler: typedPayloadMethod
+    }
+});
+
+// paramsArray holds the param VALUES in path order — always strings
+
+const varianceParamsArray: ServerRoute = {
+    method: 'GET',
+    path: '/variance/{id}',
+    handler: (request, h) => {
+
+        check.type<string[]>(request.paramsArray);
+        return 'ok';
+    }
+};
+
+// Contradictory refs on the same slot must still fail
+
+const conflictingMethod: Lifecycle.Method<{ Payload: { count: number[] } }> = () => 'ok';
+
+const varianceConflict: ServerRoute<{ Payload: VariancePayload }> = {
+    method: 'POST',
+    path: '/variance/conflict',
+    options: {
+        pre: [
+            // @ts-expect-error - contradictory Payload refs are not assignable
+            { method: conflictingMethod, assign: 'user' }
+        ],
+        handler: typedPayloadMethod
+    }
+};
+
+// A default request must still not satisfy narrower refs
+
+export function varianceDefaultToNarrow(req: Request): void {
+
+    // @ts-expect-error - Request (defaults) does not satisfy narrower refs
+    check.type<Request<{ Payload: VariancePayload }>>(req);
+}

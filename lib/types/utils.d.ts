@@ -58,14 +58,20 @@ export namespace Lifecycle {
      * * err - an error object available only when the method is used as a failAction value.
      */
     type Method<
-        Refs extends ReqRef = ReqRefDefaults,
+        Refs extends ReqRef = {},
         R extends ReturnValue<any> = ReturnValue<Refs>
-    > = (
+    > = {
+        // Declared as a method and immediately indexed so signature comparisons are
+        // bivariant (method signatures are exempt from strictFunctionTypes). A method
+        // typed with narrower Refs is an assertion about what validation guarantees,
+        // so it must remain assignable to surfaces typed with default or wider Refs.
+        bivariance(
             this: MergeRefs<Refs>['Bind'],
             request: Request<Refs>,
             h: ResponseToolkit<Refs>,
             err?: Error | undefined
-        ) => R;
+        ): R;
+    }['bivariance'];
 
     /**
      * Each lifecycle method must return a value or a promise that resolves into a value. If a lifecycle method returns
@@ -81,8 +87,8 @@ export namespace Lifecycle {
      * - a promise object that resolve to any of the above values
      * For more info please [See docs](https://github.com/hapijs/hapi/blob/master/API.md#lifecycle-methods)
      */
-    type ReturnValue<Refs extends ReqRef = ReqRefDefaults> = ReturnValueTypes<Refs> | (Promise<ReturnValueTypes<Refs>>);
-    type ReturnValueTypes<Refs extends ReqRef = ReqRefDefaults> =
+    type ReturnValue<Refs extends ReqRef = {}> = ReturnValueTypes<Refs> | (Promise<ReturnValueTypes<Refs>>);
+    type ReturnValueTypes<Refs extends ReqRef = {}> =
         (null | string | number | boolean) |
         (Buffer) |
         (Error | Boom) |
