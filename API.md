@@ -3433,10 +3433,10 @@ incoming request before giving up and responding with a Service Unavailable (503
 
 #### <a name="route.options.timeout.socket" /> `route.options.timeout.socket`
 
-Default value: none (use node default of 2 minutes).
+Default value: none (use node default).
 
-By default, node sockets automatically timeout after 2 minutes. Use this option to override this
-behavior. Set to `false` to disable socket timeouts.
+By default, Node.js does not timeout sockets (since v13.0.0; earlier versions timed out after 2
+minutes). Use this option to override this behavior. Set to `false` to disable socket timeouts.
 
 ### <a name="route.options.validate" /> `route.options.validate`
 

@@ -855,8 +855,8 @@ export interface CommonRouteProperties<Refs extends ReqRef = ReqRefDefaults> {
         server?: boolean | number | undefined;
 
         /**
-         * @default none (use node default of 2 minutes).
-         * By default, node sockets automatically timeout after 2 minutes. Use this option to override this behavior. Set to false to disable socket timeouts.
+         * @default none (use node default).
+         * By default, Node.js does not timeout sockets (since v13.0.0; earlier versions timed out after 2 minutes). Use this option to override this behavior. Set to false to disable socket timeouts.
          */
         socket?: boolean | number | undefined;
     } | undefined;
