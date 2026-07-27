@@ -5,7 +5,6 @@ const Code = require('@hapi/code');
 const Hapi = require('..');
 const Inert = require('@hapi/inert');
 const Joi = require('joi');
-const JoiLegacy = require('@hapi/joi-legacy-test');
 const Lab = require('@hapi/lab');
 
 
@@ -18,20 +17,37 @@ const expect = Code.expect;
 
 describe('validation', () => {
 
-    it('validates using joi v15', async () => {
+    it('validates using custom validator', async () => {
+
+        const Validator = class {
+            static compile(schema) {
+
+                if (schema.a === 'is-number') {
+                    return {
+                        validate(value, options) {
+
+                            if (parseInt(value?.a, 10).toString() === value?.a.toString()) {
+                                return { value };
+                            }
+
+                            throw new Error('Validation failed');
+                        }
+                    };
+                }
+            }
+        };
 
         const server = Hapi.server();
-        server.validator(JoiLegacy);
+        server.validator(Validator);
         server.route({
             method: 'POST',
             path: '/',
             handler: () => 'ok',
             options: {
                 validate: {
-                    payload: JoiLegacy.object({
-                        a: JoiLegacy.number(),
-                        b: JoiLegacy.array()
-                    })
+                    payload: {
+                        a: 'is-number'
+                    }
                 }
             }
         });
