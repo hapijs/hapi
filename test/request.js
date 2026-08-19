@@ -433,6 +433,26 @@ describe('Request', () => {
             expect(res.result).to.equal('Example.com:8080|Example.com');
         });
 
+        it('accepts host and :authority differing only by the scheme default port', async () => {
+
+            const secure = Hapi.server({ listener: Http.createServer(), tls: true });
+            secure.route({ method: 'GET', path: '/', handler: (request) => request.info.hostname });
+
+            const res1 = await secure.inject({ url: '/', headers: { host: 'example.com', ':authority': 'example.com:443' } });
+            expect(res1.statusCode).to.equal(200);
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request) => request.info.hostname });
+
+            const res2 = await server.inject({ url: '/', headers: { host: 'example.com:80', ':authority': 'example.com' } });
+            expect(res2.statusCode).to.equal(200);
+
+            // 443 is not the default port over http, so the two still identify a different entity
+
+            const res3 = await server.inject({ url: '/', headers: { host: 'example.com', ':authority': 'example.com:443' } });
+            expect(res3.statusCode).to.equal(400);
+        });
+
         it('rejects a request with conflicting host and :authority headers', async () => {
 
             const server = Hapi.server();
