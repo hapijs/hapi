@@ -1,6 +1,7 @@
 'use strict';
 
 const Http = require('http');
+const Http2 = require('http2');
 const Net = require('net');
 const Stream = require('stream');
 const Url = require('url');
@@ -363,16 +364,6 @@ describe('Request', () => {
         expect(res.payload).to.equal('shot');
     });
 
-    it('sets host info from :authority header when host header is absent', async () => {
-
-        const server = Hapi.server();
-        server.route({ method: 'GET', path: '/', handler: (request) => `${request.info.host}|${request.info.hostname}` });
-
-        const res = await server.inject({ url: '/', headers: { host: '', ':authority': 'example.com:8080' } });
-        expect(res.statusCode).to.equal(200);
-        expect(res.result).to.equal('example.com:8080|example.com');
-    });
-
     it('generates unique request id', async () => {
 
         const server = Hapi.server();
@@ -418,6 +409,207 @@ describe('Request', () => {
 
         const res = await server.inject({ url: '/' });
         expect(res.result).to.equal('ok');
+    });
+
+    describe('info.host', () => {
+
+        it('sets host info from :authority header when host header is absent', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request) => `${request.info.host}|${request.info.hostname}` });
+
+            const res = await server.inject({ url: '/', headers: { host: '', ':authority': 'example.com:8080' } });
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('example.com:8080|example.com');
+        });
+
+        it('ignores the host header when the request target is in absolute-form', async () => {
+
+            // RFC 9112 3.2.2 - an origin server MUST ignore host and use the request-target's authority
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request) => `${request.info.host}|${request.info.hostname}` });
+
+            await server.start();
+
+            const socket = Net.createConnection(server.info.port, '127.0.0.1', () => {
+
+                socket.write('GET http://internal.example/ HTTP/1.1\r\nHost: public.example\r\nConnection: close\r\n\r\n');
+            });
+
+            let response = '';
+            socket.on('data', (chunk) => {
+
+                response += chunk.toString();
+            });
+
+            await Events.once(socket, 'close');
+            await server.stop();
+
+            expect(response).to.endWith('internal.example|internal.example');
+        });
+
+        it('accepts matching host and :authority headers regardless of case and whitespace', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request) => `${request.info.host}|${request.info.hostname}` });
+
+            const res = await server.inject({ url: '/', headers: { host: ' Example.com:8080 ', ':authority': 'example.COM:8080' } });
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('Example.com:8080|Example.com');
+        });
+
+        it('accepts host and :authority differing only by the scheme default port', async () => {
+
+            const secure = Hapi.server({ listener: Http.createServer(), tls: true });
+            secure.route({ method: 'GET', path: '/', handler: (request) => request.info.hostname });
+
+            const res1 = await secure.inject({ url: '/', headers: { host: 'example.com', ':authority': 'example.com:443' } });
+            expect(res1.statusCode).to.equal(200);
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request) => request.info.hostname });
+
+            const res2 = await server.inject({ url: '/', headers: { host: 'example.com:80', ':authority': 'example.com' } });
+            expect(res2.statusCode).to.equal(200);
+
+            // 443 is not the default port over http, so the two still identify a different entity
+
+            const res3 = await server.inject({ url: '/', headers: { host: 'example.com', ':authority': 'example.com:443' } });
+            expect(res3.statusCode).to.equal(400);
+
+            // Unless http2 says the request came over https, e.g. behind a TLS-terminating proxy
+
+            const res4 = await server.inject({ url: '/', headers: { host: 'example.com', ':authority': 'example.com:443', ':scheme': 'https' } });
+            expect(res4.statusCode).to.equal(200);
+        });
+
+        it('rejects a request with conflicting host and :authority headers', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request) => `${request.info.host}|${request.info.hostname}` });
+
+            const res = await server.inject({ url: '/', headers: { host: 'attacker-controlled.example', ':authority': 'internal-trusted-service.example' } });
+            expect(res.statusCode).to.equal(400);
+            expect(res.result.message).to.equal('Host header does not match :authority pseudo-header');
+        });
+
+        it('rejects a request with conflicting host and :authority headers on a vhost route', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', vhost: 'attacker-controlled.example', handler: () => 'vhost' });
+
+            const res = await server.inject({ url: '/', headers: { host: 'attacker-controlled.example', ':authority': 'internal-trusted-service.example' } });
+            expect(res.statusCode).to.equal(400);
+        });
+
+        it('rejects a request over http2 with conflicting host and :authority headers', { skip: !Common.http2ClientSendsHost }, async () => {
+
+            const server = Hapi.server({ listener: Http2.createServer(), autoListen: true });
+            server.route({ method: 'GET', path: '/', handler: (request) => request.info.hostname });
+
+            await server.start();
+
+            const client = Http2.connect(`http://localhost:${server.info.port}`);
+            const req = client.request({ ':path': '/', ':authority': 'internal-trusted-service.example', host: 'attacker-controlled.example' });
+
+            const [headers] = await Events.once(req, 'response');
+            req.resume();
+
+            expect(headers[':status']).to.equal(400);
+
+            client.close();
+            await server.stop();
+        });
+
+        it('never serves an absolute-form :path over http2', { skip: !Common.http2ClientSendsHost }, async () => {
+
+            // nghttp2 enforces an origin-form :path on both ends, so this never reaches us whatever host
+            // and :authority say, but if it ever did the url authority would win over the two we reconcile
+
+            const server = Hapi.server({ listener: Http2.createServer(), autoListen: true });
+
+            let handled = false;
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: () => {
+
+                    handled = true;
+                    return 'served';
+                }
+            });
+
+            await server.start();
+
+            const client = Http2.connect(`http://localhost:${server.info.port}`);
+
+            const attempt = async (host) => {
+
+                const req = client.request({ ':path': 'http://internal.example/', ':authority': 'trusted.example', host });
+
+                let status = null;
+                req.on('response', (headers) => {
+
+                    status = headers[':status'];
+                });
+
+                req.resume();
+                const err = await Events.once(req, 'close').then(() => null, (close) => close);
+
+                expect(err).to.be.an.error('Stream closed with error code NGHTTP2_PROTOCOL_ERROR');
+                expect(status).to.be.null();
+            };
+
+            await attempt('trusted.example');                   // Matches :authority, so it would sail past the check
+            await attempt('attacker-controlled.example');       // Doesn't match, so it would be a bad request
+
+            client.close();
+            await server.stop();
+
+            expect(handled).to.be.false();
+        });
+
+        it('never sees an :authority header over http/1.1', async () => {
+
+            // This is a non-regression test: node.js >= 20 parser rejects ':authority' as an invalid header name,
+            // older versions parse it as an empty header name, either way it never reaches us as ':authority',
+            // but should this ever change, this test will catch it.
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request) => `${request.info.hostname}|${request.headers[':authority']}` });
+
+            await server.start();
+
+            const attempt = async (target, hostname) => {
+
+                const socket = Net.createConnection(server.info.port, '127.0.0.1', () => {
+
+                    socket.write(`GET ${target} HTTP/1.1\r\nHost: attacker-controlled.example\r\n:authority: internal-trusted-service.example\r\nConnection: close\r\n\r\n`);
+                });
+
+                let response = '';
+                socket.on('data', (chunk) => {
+
+                    response += chunk.toString();
+                });
+
+                await Events.once(socket, 'close');
+
+                if (Common.http1RejectsPseudoHeaders) {
+                    expect(response).to.equal('HTTP/1.1 400 Bad Request\r\n\r\n');
+                }
+                else {
+                    expect(response).to.startWith('HTTP/1.1 200 OK\r\n');
+                    expect(response).to.endWith(`\r\n\r\n${hostname}|undefined`);
+                }
+            };
+
+            await attempt('/', 'attacker-controlled.example');                          // Origin-form, so host is the one routing
+            await attempt('http://internal.example/', 'internal.example');              // Absolute-form, so the url authority wins
+
+            await server.stop();
+        });
     });
 
     describe('active()', () => {
