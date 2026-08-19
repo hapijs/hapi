@@ -443,7 +443,7 @@ describe('Request', () => {
                 response += chunk.toString();
             });
 
-            await new Promise((resolve) => socket.on('close', resolve));
+            await Events.once(socket, 'close');
             await server.stop();
 
             expect(response).to.endWith('internal.example|internal.example');
@@ -508,13 +508,61 @@ describe('Request', () => {
             const client = Http2.connect(`http://localhost:${server.info.port}`);
             const req = client.request({ ':path': '/', ':authority': 'internal-trusted-service.example', host: 'attacker-controlled.example' });
 
-            const headers = await new Promise((resolve) => req.on('response', resolve));
+            const [headers] = await Events.once(req, 'response');
             req.resume();
 
             expect(headers[':status']).to.equal(400);
 
             client.close();
             await server.stop();
+        });
+
+        it('never serves an absolute-form :path over http2', async () => {
+
+            // nghttp2 enforces an origin-form :path on both ends, so this never reaches us whatever host
+            // and :authority say, but if it ever did the url authority would win over the two we reconcile
+
+            const server = Hapi.server({ listener: Http2.createServer(), autoListen: true });
+
+            let handled = false;
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: () => {
+
+                    handled = true;
+                    return 'served';
+                }
+            });
+
+            await server.start();
+
+            const client = Http2.connect(`http://localhost:${server.info.port}`);
+
+            const attempt = async (host) => {
+
+                const req = client.request({ ':path': 'http://internal.example/', ':authority': 'trusted.example', host });
+
+                let status = null;
+                req.on('response', (headers) => {
+
+                    status = headers[':status'];
+                });
+
+                req.resume();
+                const err = await Events.once(req, 'close').then(() => null, (close) => close);
+
+                expect(err).to.be.an.error('Stream closed with error code NGHTTP2_PROTOCOL_ERROR');
+                expect(status).to.be.null();
+            };
+
+            await attempt('trusted.example');                   // Matches :authority, so it would sail past the check
+            await attempt('attacker-controlled.example');       // Doesn't match, so it would be a bad request
+
+            client.close();
+            await server.stop();
+
+            expect(handled).to.be.false();
         });
 
         it('never serves a request with conflicting host and :authority headers over http/1.1', async () => {
@@ -537,22 +585,30 @@ describe('Request', () => {
 
             await server.start();
 
-            const socket = Net.createConnection(server.info.port, '127.0.0.1', () => {
+            const attempt = async (target) => {
 
-                socket.write('GET / HTTP/1.1\r\nHost: attacker-controlled.example\r\n:authority: internal-trusted-service.example\r\nConnection: close\r\n\r\n');
-            });
+                const socket = Net.createConnection(server.info.port, '127.0.0.1', () => {
 
-            let response = '';
-            socket.on('data', (chunk) => {
+                    socket.write(`GET ${target} HTTP/1.1\r\nHost: attacker-controlled.example\r\n:authority: internal-trusted-service.example\r\nConnection: close\r\n\r\n`);
+                });
 
-                response += chunk.toString();
-            });
+                let response = '';
+                socket.on('data', (chunk) => {
 
-            await new Promise((resolve) => socket.on('close', resolve));
+                    response += chunk.toString();
+                });
+
+                await Events.once(socket, 'close');
+
+                expect(response).to.equal('HTTP/1.1 400 Bad Request\r\n\r\n');
+            };
+
+            await attempt('/');                                 // Origin-form, so host would be the one routing
+            await attempt('http://internal.example/');          // Absolute-form, so the url authority would win
+
             await server.stop();
 
             expect(handled).to.be.false();
-            expect(response).to.equal('HTTP/1.1 400 Bad Request\r\n\r\n');
         });
     });
 
