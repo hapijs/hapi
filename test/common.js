@@ -30,3 +30,11 @@ internals.hasIPv6 = () => {
 exports.hasLsof = internals.hasLsof();
 
 exports.hasIPv6 = internals.hasIPv6();
+
+// node.js 14 http2 client refuses to send a host header next to :authority
+
+exports.http2ClientSendsHost = parseInt(process.versions.node, 10) >= 16;
+
+// node.js < 20 http/1.1 parser accepts ':authority' as a header with an empty name
+
+exports.http1RejectsPseudoHeaders = parseInt(process.versions.node, 10) >= 20;
