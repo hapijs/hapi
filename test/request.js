@@ -423,6 +423,32 @@ describe('Request', () => {
             expect(res.result).to.equal('example.com:8080|example.com');
         });
 
+        it('ignores the host header when the request target is in absolute-form', async () => {
+
+            // RFC 9112 3.2.2 - an origin server MUST ignore host and use the request-target's authority
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request) => `${request.info.host}|${request.info.hostname}` });
+
+            await server.start();
+
+            const socket = Net.createConnection(server.info.port, '127.0.0.1', () => {
+
+                socket.write('GET http://internal.example/ HTTP/1.1\r\nHost: public.example\r\nConnection: close\r\n\r\n');
+            });
+
+            let response = '';
+            socket.on('data', (chunk) => {
+
+                response += chunk.toString();
+            });
+
+            await new Promise((resolve) => socket.on('close', resolve));
+            await server.stop();
+
+            expect(response).to.endWith('internal.example|internal.example');
+        });
+
         it('accepts matching host and :authority headers regardless of case and whitespace', async () => {
 
             const server = Hapi.server();
