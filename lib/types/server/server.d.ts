@@ -332,7 +332,7 @@ export class Server<A = ServerApplicationState> {
     cache: ServerCache;
 
     /**
-     * Registers a custom content decoding compressor to extend the built-in support for 'gzip' and 'deflate' where:
+     * Registers a custom content decoding compressor to extend the built-in support where:
      * @param encoding - the decoder name string.
      * @param decoder - a function using the signature function(options) where options are the encoding specific options configured in the route payload.compression configuration option, and the
      *     return value is an object compatible with the output of node's zlib.createGunzip().
@@ -392,7 +392,7 @@ export class Server<A = ServerApplicationState> {
     dependency(dependencies: Dependencies, after?: ((server: Server) => Promise<void>) | undefined): void;
 
     /**
-     * Registers a custom content encoding compressor to extend the built-in support for 'gzip' and 'deflate' where:
+     * Registers a custom content encoding compressor to extend the built-in support where:
      * @param encoding - the encoder name string.
      * @param encoder - a function using the signature function(options) where options are the encoding specific options configured in the route compression option, and the return value is an object
      *     compatible with the output of node's zlib.createGzip().
