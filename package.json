@@ -51,7 +51,7 @@
     "@hapi/lab": "^25.3.2",
     "@hapi/vision": "^7.0.3",
     "@hapi/wreck": "^18.1.0",
-    "@types/node": "^18.19.130",
+    "@types/node": "^22.20.1",
     "handlebars": "^4.7.9",
     "joi": "^17.13.3",
     "legacy-readable-stream": "npm:readable-stream@^1.0.34",
