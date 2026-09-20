@@ -601,6 +601,51 @@ describe('validation', () => {
             });
         });
 
+        it('preserves Boom data when validation schema throws a Boom (#4582)', async () => {
+
+            const server = Hapi.server();
+            server.validator(Joi);
+
+            const myError = Boom.badRequest('My message', { my: 'data' });
+
+            server.ext('onPreResponse', (request, h) => {
+
+                const { response } = request;
+                if (response.isBoom) {
+                    response.output.payload = {
+                        error: {
+                            message: response.message,
+                            data: response.data
+                        }
+                    };
+                }
+
+                return h.continue;
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: () => 'ok',
+                options: {
+                    validate: {
+                        query: Joi.object({
+                            dummy: Joi.required().error(myError)
+                        })
+                    }
+                }
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(400);
+            expect(res.result).to.equal({
+                error: {
+                    message: 'My message',
+                    data: { my: 'data' }
+                }
+            });
+        });
+
         it('catches error thrown in failAction', async () => {
 
             const server = Hapi.server({ debug: false });
