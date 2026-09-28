@@ -85,6 +85,15 @@ describe('Route', () => {
         }).to.throw(/Invalid route options/);
     });
 
+    it('throws an error when a route uses an engine unsupported method', () => {
+
+        expect(() => {
+
+            const server = Hapi.server();
+            server.route({ method: 'HAPIIII', path: '/', handler: () => null });
+        }).to.throw(/Unsupported "method" for route/);
+    });
+
     it('throws an error when a route uses the HEAD method', () => {
 
         expect(() => {
