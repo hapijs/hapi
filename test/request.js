@@ -2369,6 +2369,46 @@ describe('Request', () => {
             await server.stop({ timeout: 1 });
         });
 
+        it('returns a request timeout when the client sends no headers', async () => {
+
+            const listener = Http.createServer({
+                connectionsCheckingInterval: 20,
+                headersTimeout: 50,
+                requestTimeout: 0
+            });
+
+            const server = Hapi.server({ listener, routes: { timeout: { server: false } } });
+            await server.start();
+
+            let responseCount = 0;
+            server.events.on('response', () => {
+
+                responseCount += 1;
+            });
+
+            const client = Net.connect(server.info.port);
+            const clientEnded = new Promise((resolve, reject) => {
+
+                let response = '';
+                client.on('data', (chunk) => {
+
+                    response = response + chunk.toString();
+                });
+
+                client.on('end', () => resolve(response));
+                client.on('error', reject);
+            });
+
+            await new Promise((resolve) => client.on('connect', resolve));
+
+            const clientResponse = await clientEnded;
+            expect(clientResponse).to.contain('408 Request Timeout');
+            expect(clientResponse).to.contain('Connection: close');
+            expect(responseCount).to.equal(0);
+
+            await server.stop({ timeout: 1 });
+        });
+
         it('returns normal response when parser fails with bad method after request is setup', async () => {
 
             const server = Hapi.server({ routes: { timeout: { server: false } } });
