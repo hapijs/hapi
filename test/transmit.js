@@ -64,9 +64,53 @@ describe('transmission', () => {
             const res1 = await server.inject('/');
             expect(res1.statusCode).to.equal(500);
 
+            const log = server.events.once('response');
             const res2 = await server.inject({ url: '/', headers: { range: 'bytes=abc' } });
-            expect(res2.statusCode).to.equal(500);
-            expect(res2.headers['set-cookie']).to.not.exist();
+            expect(res2.aborted).to.be.true();
+            expect(res2.statusCode).to.equal(499);
+            expect(res2.headers).to.not.exist();
+
+            const [request] = await log;
+            expect(request.response.output.statusCode).to.equal(500);
+            expect(request.raw.res.destroyed).to.be.true();
+        });
+
+        it('handles error response transmission failure', async () => {
+
+            const server = Hapi.server();
+            server.route({
+                method: 'GET', path: '/', handler: (request) => {
+
+                    request.raw.res.writeHead = () => {
+
+                        throw new Error('Persistent failure');
+                    };
+
+                    return 'ok';
+                }
+            });
+
+            const errors = [];
+            server.events.on({ name: 'request', channels: 'internal' }, (request, event, tags) => {
+
+                if (tags.error) {
+                    errors.push(event);
+                }
+            });
+
+            const log = server.events.once('response');
+            const res = await server.inject('/');
+            expect(res.aborted).to.be.true();
+            expect(res.statusCode).to.equal(499);
+
+            expect(errors).to.have.length(1);
+            expect(errors[0].tags).to.equal(['response', 'error']);
+            expect(errors[0].error.message).to.equal('Persistent failure');
+
+            const [request] = await log;
+            expect(request.response.output.statusCode).to.equal(500);
+            expect(request.response.message).to.equal('Persistent failure');
+            expect(request.raw.res.destroyed).to.be.true();
         });
 
         it('handles invalid status message', async () => {
