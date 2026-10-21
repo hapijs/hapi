@@ -55,6 +55,33 @@ describe('transmission', () => {
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
         });
+
+        it('handles invalid cookie value on unsatisfiable range', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('ok').state('session', 'က') });
+
+            const res1 = await server.inject('/');
+            expect(res1.statusCode).to.equal(500);
+
+            const res2 = await server.inject({ url: '/', headers: { range: 'bytes=abc' } });
+            expect(res2.statusCode).to.equal(500);
+            expect(res2.headers['set-cookie']).to.not.exist();
+        });
+
+        it('handles invalid status message', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('ok').message(request.query.reason || 'OK') });
+
+            const res1 = await server.inject('/');
+            expect(res1.statusCode).to.equal(200);
+
+            const res2 = await server.inject('/?reason=OK%0d%0aX-Injected:%201');
+            expect(res2.statusCode).to.equal(500);
+            expect(res2.statusMessage).to.equal('Internal Server Error');
+            expect(res2.headers['x-injected']).to.not.exist();
+        });
     });
 
     describe('marshal()', () => {
@@ -1529,6 +1556,20 @@ describe('transmission', () => {
                 expect(res.headers['content-range']).to.equal('bytes 42005-42009/42010');
                 expect(res.headers['accept-ranges']).to.equal('bytes');
                 expect(res.rawPayload.toString('binary')).to.equal('D\xAEB\x60\x82');
+            });
+
+            it('returns the full payload when suffix range exceeds length (-to)', async () => {
+
+                const server = Hapi.server();
+                server.route({ method: 'GET', path: '/', handler: () => 'abcde' });
+
+                for (const range of ['bytes=-6', 'bytes=-4294967296', 'bytes=-999999999999999999999999']) {
+                    const res = await server.inject({ url: '/', headers: { range } });
+                    expect(res.statusCode).to.equal(206);
+                    expect(res.headers['content-length']).to.equal(5);
+                    expect(res.headers['content-range']).to.equal('bytes 0-4/5');
+                    expect(res.payload).to.equal('abcde');
+                }
             });
 
             it('returns a subset of a fileStream (from-)', async () => {
