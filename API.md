@@ -98,10 +98,35 @@ assigned one or more (array):
 
 #### <a name="server.options.compression" /> `server.options.compression`
 
-Default value: `{ minBytes: 1024 }`.
+Default value: `{ decompress: true, encodings: { gzip: true, deflate: true, br: false, zstd: false }, minBytes: 1024 }`.
 
 Defines server handling of content encoding requests. If `false`, response content encoding is
-disabled and no compression is performed by the server.
+disabled, and no compression is performed by the server.
+
+#### <a name="server.options.compression.decompress" /> `server.options.compression.decompress`
+
+Default value: `true`.
+
+Controls whether the server automatically decompresses incoming content encoding requests.
+If `false`, no decompression automatically performed by the server.
+
+#### <a name="server.options.compression.encodings" /> `server.options.compression.encodings`
+
+Default value: `{ gzip: true, deflate: true, br: false, zstd: false }`.
+
+Configures the built-in support of compression algorithms aka encodings, represented by the object of kv pairs.
+
+Available values for each kv pair:
+
+- `true` - enables the encoding with default options.
+- `false` - disables the encoding.
+
+Note that default encoder and decoder options can be configured at the server default [route configuration](#server.options.routes)
+
+Zstd compression is experimental (see [node Zstd documentation](https://nodejs.org/api/zlib.html#zlibcreatezstdcompressoptions)).
+
+Disabling an encoding allows custom compression algorithm to be applied by
+[`server.encoder()`](#server.encoder()) and [`server.decoder()`](#server.decoder()).
 
 ##### <a name="server.options.compression.minBytes" /> `server.options.compression.minBytes`
 
@@ -109,6 +134,13 @@ Default value: '1024'.
 
 Sets the minimum response payload size in bytes that is required for content encoding compression.
 If the payload size is under the limit, no compression is performed.
+
+##### <a name="server.options.compression.priority" /> `server.options.compression.priority`
+
+Default value: `null`.
+
+Sets the priority for content encoding compression algorithms in descending order,
+e.g.: `['zstd', 'br', 'gzip', 'deflate']`.
 
 #### <a name="server.options.debug" /> `server.options.debug`
 
@@ -1290,8 +1322,7 @@ are called, where:
 
 ### <a name="server.decoder()" /> `server.decoder(encoding, decoder)`
 
-Registers a custom content decoding compressor to extend the built-in support for `'gzip'` and
-'`deflate`' where:
+Registers a custom content decoding compressor to extend the built-in support where:
 
 - `encoding` - the decoder name string.
 
@@ -1487,8 +1518,7 @@ The `dependencies` configuration accepts one of:
 
 ### <a name="server.encoder()" /> `server.encoder(encoding, encoder)`
 
-Registers a custom content encoding compressor to extend the built-in support for `'gzip'` and
-'`deflate`' where:
+Registers a custom content encoding compressor to extend the built-in support where:
 
 - `encoding` - the encoder name string.
 
