@@ -38,7 +38,7 @@
     "@hapi/shot": "^6.0.3",
     "@hapi/somever": "^4.1.1",
     "@hapi/statehood": "^8.2.1",
-    "@hapi/subtext": "^8.1.4",
+    "@hapi/subtext": "^8.1.5",
     "@hapi/teamwork": "^6.0.1",
     "@hapi/topo": "^6.0.2",
     "@hapi/validate": "^2.0.1"
@@ -50,7 +50,7 @@
     "@hapi/joi-legacy-test": "npm:@hapi/joi@^15.0.0",
     "@hapi/lab": "^25.3.2",
     "@hapi/vision": "^7.0.3",
-    "@hapi/wreck": "^18.1.2",
+    "@hapi/wreck": "^18.1.3",
     "@types/node": "^18.19.130",
     "handlebars": "^4.7.10",
     "joi": "^17.13.8",
