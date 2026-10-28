@@ -1026,6 +1026,180 @@ describe('Request', () => {
             await server.stop();
         });
 
+        it('ends the response when the client disconnects during the handler (aborted)', async (flags) => {
+
+            const server = Hapi.server();
+            const team = new Teamwork.Team();
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: async (request) => {
+
+                    clientRequest.destroy();
+                    await team.work;
+                    return 'ok';
+                }
+            });
+
+            let ended = null;
+            server.ext('onRequest', (request, h) => {
+
+                const res = request.raw.res;
+                const end = res.end;
+                res.end = function (...args) {
+
+                    ended = res.statusCode;
+                    return end.apply(this, args);
+                };
+
+                return h.continue;
+            });
+
+            let disconnected = false;
+            server.ext('onPreHandler', (request, h) => {
+
+                request.events.once('disconnect', () => {
+
+                    disconnected = true;
+                });
+
+                return h.continue;
+            });
+
+            flags.onCleanup = () => server.stop();
+            await server.start();
+
+            const clientRequest = Http.request({ hostname: 'localhost', port: server.info.port, method: 'GET' });
+            clientRequest.on('error', Hoek.ignore);
+            clientRequest.end();
+
+            const [request] = await server.events.once('response');
+            team.attend();                                                  // Response is reported before the handler completes
+
+            expect(disconnected).to.be.true();
+            expect(request.response.isBoom).to.be.true();
+            expect(request.response.message).to.equal('Request aborted');
+            expect(request.response.output.statusCode).to.equal(499);
+            expect(ended).to.equal(499);
+            expect(request.raw.res.writableEnded).to.be.true();
+        });
+
+        it('ends the response when the client disconnects during the handler (close after payload)', async (flags) => {
+
+            const server = Hapi.server();
+            const team = new Teamwork.Team();
+
+            server.route({
+                method: 'POST',
+                path: '/',
+                options: {
+                    response: { disconnectStatusCode: 444 },
+                    handler: async (request) => {
+
+                        clientRequest.destroy();
+                        await team.work;
+                        return 'ok';
+                    }
+                }
+            });
+
+            let ended = null;
+            server.ext('onRequest', (request, h) => {
+
+                const res = request.raw.res;
+                const end = res.end;
+                res.end = function (...args) {
+
+                    ended = res.statusCode;
+                    return end.apply(this, args);
+                };
+
+                return h.continue;
+            });
+
+            let disconnected = false;
+            server.ext('onPreHandler', (request, h) => {
+
+                request.events.once('disconnect', () => {
+
+                    disconnected = true;
+                });
+
+                return h.continue;
+            });
+
+            let postHandler = 0;
+            server.ext('onPostHandler', (request, h) => {
+
+                ++postHandler;
+                return h.continue;
+            });
+
+            flags.onCleanup = () => server.stop();
+            await server.start();
+
+            const clientRequest = Http.request({ hostname: 'localhost', port: server.info.port, method: 'POST', headers: { 'content-type': 'application/json' } });
+            clientRequest.on('error', Hoek.ignore);
+            clientRequest.end('{"a":1}');
+
+            const [request] = await server.events.once('response');
+            team.attend();                                                  // Response is reported before the handler completes
+
+            expect(request.payload).to.equal({ a: 1 });                     // Payload was fully received (no 'aborted' event)
+            expect(disconnected).to.be.true();
+            expect(request.response.isBoom).to.be.true();
+            expect(request.response.output.statusCode).to.equal(444);
+            expect(ended).to.equal(444);
+            expect(request.raw.res.writableEnded).to.be.true();
+
+            await Hoek.wait(10);
+            expect(postHandler).to.equal(0);
+        });
+
+        it('reports disconnect when the client disconnects during onPreResponse', async (flags) => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: () => 'ok' });
+
+            let ended = null;
+            server.ext('onRequest', (request, h) => {
+
+                const res = request.raw.res;
+                const end = res.end;
+                res.end = function (...args) {
+
+                    ended = res.statusCode;
+                    return end.apply(this, args);
+                };
+
+                return h.continue;
+            });
+
+            server.ext('onPreResponse', async (request, h) => {
+
+                const disconnect = request.events.once('disconnect');
+                clientRequest.destroy();
+                await disconnect;
+                return h.continue;
+            });
+
+            flags.onCleanup = () => server.stop();
+            await server.start();
+
+            const clientRequest = Http.request({ hostname: 'localhost', port: server.info.port, method: 'GET' });
+            clientRequest.on('error', Hoek.ignore);
+            clientRequest.end();
+
+            const [request] = await server.events.once('response');
+
+            expect(request.response.isBoom).to.be.true();
+            expect(request.response.output.statusCode).to.equal(499);
+            expect(request.response.data.source).to.equal('ok');
+            expect(ended).to.equal(499);
+            expect(request.info.responded).to.equal(0);
+        });
+
         it('returns not found on internal only route (external)', async () => {
 
             const server = Hapi.server();
