@@ -494,6 +494,62 @@ describe('Request', () => {
             expect(res.result.message).to.equal('Host header does not match :authority pseudo-header');
         });
 
+        it('rejects a host header that would move the boundary between authority and path', async () => {
+
+            const server = Hapi.server();
+            server.ext('onRequest', (request, h) => {
+
+                if (request.url.pathname.startsWith('/admin')) {
+                    return h.response('denied').code(401).takeover();
+                }
+
+                return h.continue;
+            });
+
+            server.route({ method: 'GET', path: '/admin/secret', handler: () => 'SECRET' });
+
+            await server.start();
+
+            const send = async (host) => {
+
+                const socket = Net.createConnection(server.info.port, '127.0.0.1', () => {
+
+                    socket.write(`GET /admin/secret HTTP/1.1\r\nHost: ${host}\r\nConnection: close\r\n\r\n`);
+                });
+
+                let response = '';
+                socket.on('data', (chunk) => {
+
+                    response += chunk.toString();
+                });
+
+                await Events.once(socket, 'close');
+                return response;
+            };
+
+            for (const host of ['evil.com/abc?x=', 'evil.com?/abc', 'evil.com#/abc', 'evil.com:fake@127.0.0.1', 'evil.com\\abc']) {
+                const response = await send(host);
+                expect(response, host).to.startWith('HTTP/1.1 400 ');
+                expect(response, host).to.not.contain('SECRET');
+            }
+
+            expect(await send('127.0.0.1')).to.startWith('HTTP/1.1 401 ');
+
+            await server.stop();
+        });
+
+        it('accepts valid host headers', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request) => `${request.info.hostname}|${request.url.pathname}` });
+
+            for (const host of ['example.com', 'example.com:8080', 'EXAMPLE.com', 'localhost', '[::1]:8080', '[2001:db8::1]', 'xn--bcher-kva.example', 'my_host.example', 'a.b.c.example', '127.0.0.1:80', '']) {
+                const res = await server.inject({ url: '/', headers: { host } });
+                expect(res.statusCode, host).to.equal(200);
+                expect(res.result, host).to.endWith('|/');
+            }
+        });
+
         it('rejects a request with conflicting host and :authority headers on a vhost route', async () => {
 
             const server = Hapi.server();
