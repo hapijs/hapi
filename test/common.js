@@ -3,6 +3,7 @@
 const ChildProcess = require('child_process');
 const Http = require('http');
 const Net = require('net');
+const Zlib = require('zlib');
 
 const internals = {};
 
@@ -38,3 +39,5 @@ exports.http2ClientSendsHost = parseInt(process.versions.node, 10) >= 16;
 // node.js < 20 http/1.1 parser accepts ':authority' as a header with an empty name
 
 exports.http1RejectsPseudoHeaders = parseInt(process.versions.node, 10) >= 20;
+
+exports.hasZstd = !!Zlib.constants.ZSTD_CLEVEL_DEFAULT;
