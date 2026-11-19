@@ -61,7 +61,7 @@ Sets up server-side caching providers. Every server includes a default cache for
 application state. By default, a simple memory-based cache is created which has limited capacity
 and capabilities.
 
-**hapi** uses [**catbox**](https://hapi.dev/family/catbox/api) for its cache implementation which
+**hapi** uses [**catbox**](https://hapi.dev/module/catbox/api/12.x.x) for its cache implementation which
 includes support for common storage solutions (e.g. Redis, MongoDB, Memcached, Riak, among others).
 Caching is only utilized if [methods](#server.methods) and [plugins](#plugins) explicitly store
 their state in the cache.
@@ -70,7 +70,7 @@ The server cache configuration only defines the storage container itself. The co
 assigned one or more (array):
 
 - a class or prototype function (usually obtained by calling `require()` on a **catbox** strategy
-    such as `require('@hapi/catbox-redis')`). A new **catbox** [client](https://hapi.dev/family/catbox/api#client)
+    such as `require('@hapi/catbox-redis')`). A new **catbox** [client](https://hapi.dev/module/catbox/api/12.x.x#client)
     will be created internally using this constructor.
 
 - a configuration object with the following:
@@ -180,7 +180,7 @@ Server excessive load handling limits where:
 
 Default value: none.
 
-Options passed to the [**mimos**](https://hapi.dev/family/mimos/api) module when generating the mime database used by the server (and accessed via [`server.mime`](#server.mime)):
+Options passed to the [**mimos**](https://hapi.dev/module/mimos/api/7.x.x) module when generating the mime database used by the server (and accessed via [`server.mime`](#server.mime)):
 
 - `override` - an object hash that is merged into the built in mime information specified [here](https://github.com/jshttp/mime-db). Each key value pair represents a single mime object. Each override value must contain:
 
@@ -433,7 +433,7 @@ console.log(server.decorations.toolkit);            // ['success']
 
 Access: **podium** public interface.
 
-The server events emitter. Utilizes the [**podium**](https://hapi.dev/family/podium/api) with support
+The server events emitter. Utilizes the [**podium**](https://hapi.dev/module/podium/api/5.x.x) with support
 for event criteria validation, channels, and filters.
 
 Use the following methods to interact with `server.events`:
@@ -485,11 +485,11 @@ The internally generated events are (identified by their `tags`):
 
 ##### <a name="server.events.cachePolicy" /> `'cachePolicy'` Event
 
-The `'cachePolicy'` event type is emitted when a server [cache policy](https://hapi.dev/module/catbox/api#policy)
+The `'cachePolicy'` event type is emitted when a server [cache policy](https://hapi.dev/module/catbox/api/12.x.x#policy)
 is created via [`server.cache()`](#server.cache()) or a [`server.method()`](#server.method()) with caching enabled is registered.
 The `'cachePolicy'` event handler uses the function signature `function(cachePolicy, cache, segment)` where:
 
-- `cachePolicy` - the catbox [cache policy](https://hapi.dev/module/catbox/api#policy).
+- `cachePolicy` - the catbox [cache policy](https://hapi.dev/module/catbox/api/12.x.x#policy).
 - `cache` - the [cache provision](#server.options.cache) name used when the policy was created or `undefined` if the default cache was used.
 - `segment` - the segment name used when the policy was created.
 
@@ -1188,7 +1188,7 @@ exports.plugin = {
 
 Provisions a cache segment within the server cache facility where:
 
-- `options` - [**catbox** policy](https://hapi.dev/family/catbox/api#policy) configuration where:
+- `options` - [**catbox** policy](https://hapi.dev/module/catbox/api/12.x.x#policy) configuration where:
 
     - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was
       saved in the cache. Cannot be used together with `expiresAt`.
@@ -1240,7 +1240,7 @@ Provisions a cache segment within the server cache facility where:
     - `shared` - if `true`, allows multiple cache provisions to share the same segment. Default to
       `false`.
 
-Return value: a [**catbox** policy](https://hapi.dev/family/catbox/api#policy) object.
+Return value: a [**catbox** policy](https://hapi.dev/module/catbox/api/12.x.x#policy) object.
 
 ```js
 const Hapi = require('@hapi/hapi');
@@ -1682,7 +1682,7 @@ async function example() {
 
 Behaves identically to [`server.events.emit()`](#server.events.emit()), but also returns an array of the results of all the event listeners that run. The return value is that of `Promise.allSettled()`, where each item in the resulting array is `{ status: 'fulfilled', value }` in the case of a successful handler, or `{ status: 'rejected', reason }` in the case of a handler that throws.
 
-Please note that system errors such as a `TypeError` are not handled specially, and it's recommended to scrutinize any rejections using something like [bounce](https://hapi.dev/module/bounce/).
+Please note that system errors such as a `TypeError` are not handled specially, and it's recommended to scrutinize any rejections using something like [bounce](https://hapi.dev/module/bounce/api/3.x.x).
 
 ### <a name="server.expose()" /> `server.expose(key, value, [options])`
 
@@ -1865,7 +1865,7 @@ Injects a request into the server simulating an incoming HTTP request without ma
 socket connection. Injection is useful for testing purposes as well as for invoking routing logic
 internally without the overhead and limitations of the network stack.
 
-The method utilizes the [**shot**](https://hapi.dev/family/shot/api) module for performing
+The method utilizes the [**shot**](https://hapi.dev/module/shot/api/6.x.x) module for performing
 injections, with some additional options and response properties:
 
 - `options` - can be assigned a string with the requested URI, or an object with:
@@ -2550,16 +2550,16 @@ across multiple requests. Registers a cookie definitions where:
         - `'base64'` - string value is encoded using Base64.
         - `'base64json'` - object value is JSON-stringified then encoded using Base64.
         - `'form'` - object value is encoded using the _x-www-form-urlencoded_ method.
-        - `'iron'` - Encrypts and sign the value using [**iron**](https://hapi.dev/family/iron/api).
+        - `'iron'` - Encrypts and sign the value using [**iron**](https://hapi.dev/module/iron/api/7.x.x).
 
     - `sign` - an object used to calculate an HMAC for cookie integrity validation. This does not provide privacy, only a mean to verify that the cookie value was generated by the server. Redundant when `'iron'` encoding is used. Options are:
 
-        - `integrity` - algorithm options. Defaults to [`require('iron').defaults.integrity`](https://hapi.dev/family/iron/api/#options).
+        - `integrity` - algorithm options. Defaults to [`require('iron').defaults.integrity`](https://hapi.dev/module/iron/api/7.x.x#options).
         - `password` - password used for HMAC key generation (must be at least 32 characters long).
 
     - `password` - password used for `'iron'` encoding (must be at least 32 characters long).
 
-    - `iron` - options for `'iron'` encoding. Defaults to [`require('iron').defaults`](https://hapi.dev/family/iron/api/#options).
+    - `iron` - options for `'iron'` encoding. Defaults to [`require('iron').defaults`](https://hapi.dev/module/iron/api/7.x.x#options).
 
     - `ignoreErrors` - if `true`, errors are ignored and treated as missing cookies.
 
@@ -2567,7 +2567,7 @@ across multiple requests. Registers a cookie definitions where:
 
     - `strictHeader` - if `false`, allows any cookie value including values in violation of [RFC 6265](https://tools.ietf.org/html/rfc6265). Defaults to `true`.
 
-    - `passThrough` - used by proxy plugins (e.g. [**h2o2**](https://hapi.dev/family/h2o2/api)).
+    - `passThrough` - used by proxy plugins (e.g. [**h2o2**](https://hapi.dev/module/h2o2/api/10.x.x)).
 
     - `contextualize` - a function using the signature `async function(definition, request)` used to override a request-specific cookie settings where:
 
@@ -2808,7 +2808,7 @@ The authentication mode. Available values:
 Default value: `false`, unless the scheme requires payload authentication.
 
 If set, the incoming request payload is authenticated after it is processed. Requires a strategy
-with payload authentication support (e.g. [Hawk](https://hapi.dev/family/hawk/api)). Cannot be
+with payload authentication support (e.g. [Hawk](https://github.com/mozilla/hawk)). Cannot be
 set to a value other than `'required'` when the scheme sets the authentication `options.payload` to
 `true`.
 
@@ -2984,7 +2984,7 @@ string payload or escaping it after stringification. Supports the following:
 
 - `suffix` - string suffix added after conversion to JSON string. Defaults to no suffix.
 
-- `escape` - calls [`Hoek.jsonEscape()`](https://hapi.dev/family/hoek/api/#escapejsonstring)
+- `escape` - calls [`Hoek.escapeJson()`](https://hapi.dev/module/hoek/api/11.x.x#escapejson-string)
   after conversion to JSON string. Defaults to `false`.
 
 ### <a name="route.options.log" /> `route.options.log`
@@ -3094,7 +3094,7 @@ The processed payload format. The value must be one of:
   `headers` properties. Note that payload streams for multipart payloads are a synthetic interface
   created on top of the entire multipart content loaded into memory. To avoid loading large
   multipart payloads into memory, set [`parse`](#route.options.payload.parse) to `false` and handle
-  the multipart payload in the handler using a streaming parser (e.g. [**pez**](https://hapi.dev/family/pez/api)).
+  the multipart payload in the handler using a streaming parser (e.g. [**pez**](https://hapi.dev/module/pez/api/6.x.x)).
 
 - `'file'` - the incoming payload is written to temporary file in the directory specified by the
   [`uploads`](#route.options.payload.uploads) settings. If the payload is 'multipart/form-data' and
@@ -3741,7 +3741,7 @@ The return value must be one of:
 - `Buffer` object
 - `Error` object
     - plain `Error`.
-    - a [`Boom`](https://hapi.dev/family/boom/api) object.
+    - a [`Boom`](https://hapi.dev/module/boom/api/10.x.x) object.
 - `Stream` object
     - must be compatible with the "streams2" API and not be in `objectMode`.
     - if the stream object has a `statusCode` property, that status code will be used as
@@ -3849,7 +3849,7 @@ values:
 
 #### Errors
 
-**hapi** uses the [**boom**](https://hapi.dev/family/boom/api) error library for all its internal
+**hapi** uses the [**boom**](https://hapi.dev/module/boom/api/10.x.x) error library for all its internal
 error generation. **boom** provides an expressive interface to return HTTP errors. Any error
 thrown by a [lifecycle method](#lifecycle-methods) is converted into a **boom** object and defaults to status
 code `500` if the error is not already a **boom** object.
@@ -3931,7 +3931,7 @@ const handler = function (request, h) {
 
 When a different error representation is desired, such as an HTML page or a different payload
 format, the `'onPreResponse'` extension point may be used to identify errors and replace them with
-a different [response object](#response-object), as in this example using [Vision's](https://hapi.dev/family/vision/api)
+a different [response object](#response-object), as in this example using [Vision's](https://hapi.dev/module/vision/api/7.x.x)
 `.view()` [response toolkit](#response-toolkit) property.
 
 ```js
