@@ -10,10 +10,10 @@ Build powerful, scalable applications, with minimal overhead and full out-of-the
 
 ## Useful resources
 
-- [Documentation and API](https://hapi.dev/)
-- [Version status](https://hapi.dev/resources/status/#hapi) (builds, dependencies, node versions, licenses, eol)
+- [Documentation and API](https://hapi.dev/api/21.x.x)
+- [Version status](https://hapi.dev/resources/status) (builds, dependencies, node versions, licenses, eol)
 - [Changelog](https://hapi.dev/resources/changelog/)
-- [Project policies](https://hapi.dev/policies/)
+- [Project policies](https://hapi.dev/policies/coc)
 - [Support](https://hapi.dev/support/)
 
 ## Technical Steering Committee (TSC) Members
