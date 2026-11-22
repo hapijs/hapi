@@ -958,6 +958,63 @@ describe('authentication', () => {
             expect(res2.statusCode).to.equal(204);
         });
 
+        it('validates duplicate required scopes', async () => {
+
+            const server = Hapi.server();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', { users: { steve: { scope: 'a' } } });
+            server.auth.default('default');
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    handler: () => null,
+                    auth: {
+                        scope: ['+a', '+a']
+                    }
+                }
+            });
+
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(204);
+        });
+
+        it('validates required scopes that expand to the same value', async () => {
+
+            const server = Hapi.server();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', {
+                users: {
+                    steve: { scope: ['user-1'] },
+                    john: { scope: ['user-1', 'user-2'] }
+                }
+            });
+
+            server.auth.default('default');
+
+            server.route({
+                method: 'GET',
+                path: '/user/{id}',
+                options: {
+                    handler: () => null,
+                    auth: {
+                        scope: ['+user-{params.id}', '+user-{query.id}']
+                    }
+                }
+            });
+
+            const res1 = await server.inject({ url: '/user/1?id=1', headers: { authorization: 'Custom steve' } });
+            expect(res1.statusCode).to.equal(204);
+
+            const res2 = await server.inject({ url: '/user/1?id=2', headers: { authorization: 'Custom steve' } });
+            expect(res2.statusCode).to.equal(403);
+            expect(res2.result.message).to.equal('Insufficient scope');
+
+            const res3 = await server.inject({ url: '/user/1?id=2', headers: { authorization: 'Custom john' } });
+            expect(res3.statusCode).to.equal(204);
+        });
+
         it('validates forbidden scope', async () => {
 
             const server = Hapi.server();
