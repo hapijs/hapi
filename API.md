@@ -2771,7 +2771,8 @@ at least one of the scopes defined to access the route.
 If a scope string begins with a `+` character, that scope is required. If a scope string begins
 with a `!` character, that scope is forbidden. For example, the scope `['!a', '+b', 'c', 'd']`
 means the incoming request credentials' `scope` must not include 'a', must include 'b', and must
-include one of 'c' or 'd'.
+include one of 'c' or 'd'. Required scopes are compared by value, so duplicates (such as
+`['+b', '+b']`) only require the credentials to include 'b' once.
 
 You may also access properties on the request object (`query`, `params`, `payload`, and
 `credentials`) to populate a dynamic scope by using the '{' and '}' characters around the property
