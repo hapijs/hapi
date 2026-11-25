@@ -37,8 +37,8 @@
     "@hapi/podium": "^5.0.2",
     "@hapi/shot": "^6.0.3",
     "@hapi/somever": "^4.1.1",
-    "@hapi/statehood": "^8.2.1",
-    "@hapi/subtext": "^8.1.5",
+    "@hapi/statehood": "^8.2.3",
+    "@hapi/subtext": "^8.1.6",
     "@hapi/teamwork": "^6.0.1",
     "@hapi/topo": "^6.0.2",
     "@hapi/validate": "^2.0.1"
